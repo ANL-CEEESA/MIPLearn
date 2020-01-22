@@ -7,5 +7,5 @@ setup(
    author='Alinson S. Xavier',
    author_email='axavier@anl.gov',
    packages=['miplearn'],
-   install_requires=['pyomo'], 
+   install_requires=['pyomo', 'numpy', 'sklearn'],
 )

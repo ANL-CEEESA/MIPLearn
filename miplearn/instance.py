@@ -4,23 +4,24 @@
 
 from abc import ABC, abstractmethod
 
+
 class Instance(ABC):
     """
     Abstract class holding all the data necessary to generate a concrete model of the problem.
     
     In the knapsack problem, for example, this class could hold the number of items, their weights
     and costs, as well as the size of the knapsack. Objects implementing this class are able to
-    convert themselves into a concrete optimization model, which can be optimized by solver, or
+    convert themselves into a concrete optimization model, which can be optimized by a solver, or
     into arrays of features, which can be provided as inputs to machine learning models.
     """
-    
+
     @abstractmethod
     def to_model(self):
         """
         Returns a concrete Pyomo model corresponding to this instance.
         """
         pass
-    
+
     @abstractmethod
     def get_instance_features(self):
         """
