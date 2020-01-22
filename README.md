@@ -17,7 +17,7 @@ Installation
 The package is currently only available for Python+Pyomo, although a Julia+JuMP version is planned. It can be installed using `pip` as follows:
 
 ```bash
-pip install git+git://github.com/iSoron/miplearn.git
+pip install git+ssh://git@github.com/iSoron/miplearn.git
 ```
 
 Usage
