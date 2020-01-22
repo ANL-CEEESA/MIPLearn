@@ -2,9 +2,8 @@
 # Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
-# from .warmstart import WarmStartPredictor
 from .transformers import PerVariableTransformer
-from .warmstart import WarmStartPredictor
+from .warmstart import LogisticWarmStartPredictor
 import pyomo.environ as pe
 import numpy as np
 
@@ -17,9 +16,11 @@ class LearningSolver:
 
     def __init__(self,
                  threads=4,
-                 parent_solver=pe.SolverFactory('cbc')):
+                 parent_solver=pe.SolverFactory('cbc'),
+                 ws_predictor_factory=LogisticWarmStartPredictor):
         self.parent_solver = parent_solver
         self.parent_solver.options["threads"] = threads
+        self.ws_predictor_factory = ws_predictor_factory
         self.x_train = {}
         self.y_train = {}
         self.ws_predictors = {}
@@ -75,7 +76,7 @@ class LearningSolver:
         for category in x_train_dict.keys():
             x_train = x_train_dict[category]
             y_train = y_train_dict[category]
-            self.ws_predictors[category] = WarmStartPredictor()
+            self.ws_predictors[category] = self.ws_predictor_factory()
             self.ws_predictors[category].fit(x_train, y_train)
 
     def _solve(self, model, tee=False):

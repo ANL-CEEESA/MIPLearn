@@ -2,42 +2,73 @@
 # Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
+from abc import ABC, abstractmethod
 import numpy as np
 from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import cross_val_score
 
-
-class WarmStartPredictor:
-    def __init__(self,
-                 thr_fix_zero=0.05,
-                 thr_fix_one=0.95,
-                 thr_predict=0.95):
-        self.model = None
-        self.thr_predict = thr_predict
-        self.thr_fix_zero = thr_fix_zero
-        self.thr_fix_one = thr_fix_one
-
+class WarmStartPredictor(ABC):
+    def __init__(self):
+        self.models = [None, None]
+        
     def fit(self, x_train, y_train):
         assert isinstance(x_train, np.ndarray)
         assert isinstance(y_train, np.ndarray)
-        assert y_train.shape[1] == 2
         assert y_train.shape[0] == x_train.shape[0]
-        y_hat = np.average(y_train[:, 1])
-        if y_hat < self.thr_fix_zero or y_hat > self.thr_fix_one:
-            self.model = int(y_hat)
-        else:
-            self.model = make_pipeline(StandardScaler(), LogisticRegression())
-            self.model.fit(x_train, y_train[:, 1].astype(int))
+        assert y_train.shape[1] == 2
+        for i in [0,1]:
+            self.models[i] = self._fit(x_train, y_train[:, i],  i)
 
     def predict(self, x_test):
         assert isinstance(x_test, np.ndarray)
-        if isinstance(self.model, int):
-            p_test = np.array([[1 - self.model, self.model]
-                               for _ in range(x_test.shape[0])])
-        else:
-            p_test = self.model.predict_proba(x_test)
-        p_test[p_test < self.thr_predict] = 0
-        p_test[p_test > 0] = 1
-        p_test = p_test.astype(int)
-        return p_test
+        y_pred = np.zeros((x_test.shape[0], 2), dtype=np.int)
+        for i in [0,1]:
+            if isinstance(self.models[i], int):
+                y_pred[:, i] = self.models[i]
+            else:
+                y_pred[:, i] = self.models[i].predict(x_test)
+        return y_pred
+
+    @abstractmethod
+    def _fit(self, x_train, y_train, label):
+        pass
+
+
+class LogisticWarmStartPredictor(WarmStartPredictor):
+    def __init__(self,
+                 min_samples=100,
+                 thr_fix=[0.99, 0.99],
+                 thr_balance=[0.95, 0.95],
+                 thr_score=[0.95, 0.95]):
+        super().__init__()
+        self.min_samples = min_samples
+        self.thr_fix = thr_fix
+        self.thr_balance = thr_balance
+        self.thr_score = thr_score
+
+    def _fit(self, x_train, y_train, label):
+        y_train_avg = np.average(y_train)
+
+        # If number of samples is too small, don't predict anything.
+        if x_train.shape[0] < self.min_samples:
+            return 0
+        
+        # If vast majority of observations are true, always return true.
+        if y_train_avg > self.thr_fix[label]:
+            return 1
+        
+        # If dataset is not balanced enough, don't predict anything.
+        if y_train_avg < (1 - self.thr_balance[label]) or y_train_avg > self.thr_balance[label]:
+            return 0
+            
+        reg = make_pipeline(StandardScaler(), LogisticRegression())
+        reg_score = np.mean(cross_val_score(reg, x_train, y_train, cv=5))
+
+        # If cross-validation score is too low, don't predict anything.
+        if reg_score < self.thr_score[label]:
+            return 0
+        
+        reg.fit(x_train, y_train.astype(int))
+        return reg
