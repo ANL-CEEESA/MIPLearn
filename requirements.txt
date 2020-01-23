@@ -2,3 +2,4 @@ pyomo
 numpy
 pytest
 sklearn
+networkx
