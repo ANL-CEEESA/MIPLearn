@@ -3,6 +3,22 @@ MIPLearn
 
 **MIPLearn** is a flexible and extensible framework for *Learning-Enhanced Mixed-Integer Optimization*. It was designed to efficiently handle discrete optimization problems that need to be repeatedly solved with only relatively minor changes to the input data. The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a traditional MIP solver, such as CPLEX and Gurobi, towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see references below).
 
+Table of contents
+-----------------
+* [Features](#features)
+* [Installation](#installation)
+* [Typical Usage](#typical-usage)
+    * [Using LearningSolver](#using-learningsolver)
+    * [Selecting the internal MIP solver](#selecting-the-internal-mip-solver)
+    * [Describing problem instances](#describing-problem-instances)
+    * [Obtaining heuristic solutions](#obtaining-heuristic-solutions)
+    * [Saving and loading solver state](#saving-and-loading-solver-state)
+    * [Solving training instances in parallel](#solving-training-instances-in-parallel)
+* [Current Limitations](#current-limitations)
+* [References](#references)
+* [Authors](#authors)
+* [License](#license)
+
 Features
 --------
 * **MIPLearn proposes a flexible, problem-agnostic way** for users to describe optimization problems to a Learning-Enhanced Solver, from both the MIP perspective and from the ML perspective. MIP formulations are specified as [Pyomo](https://www.pyomo.org/) models, while features describing instances and decision variables are specified as [NumPy](https://numpy.org/) arrays. Users can easily experiment with different mathematical formulations and ML encodings.
