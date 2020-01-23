@@ -53,9 +53,9 @@ class LearningSolver:
                 for i in range(len(var_index_pairs)):
                     var, index = var_index_pairs[i]
                     if ws[i,0] == 1:
-                        var[index].value = 1
-                    elif ws[i,1] == 1:
                         var[index].value = 0
+                    elif ws[i,1] == 1:
+                        var[index].value = 1
 
         # Solve MILP
         self._solve(model, tee=tee)
