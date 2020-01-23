@@ -3,7 +3,7 @@
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
 from .transformers import PerVariableTransformer
-from .warmstart import LogisticWarmStartPredictor
+from .warmstart import KnnWarmStartPredictor
 import pyomo.environ as pe
 import numpy as np
 from copy import deepcopy
@@ -18,7 +18,7 @@ class LearningSolver:
     def __init__(self,
                  threads=4,
                  parent_solver=pe.SolverFactory('cbc'),
-                 ws_predictor=LogisticWarmStartPredictor(),
+                 ws_predictor=KnnWarmStartPredictor(),
                  mode="exact"):
         self.parent_solver = parent_solver
         self.parent_solver.options["threads"] = threads
