@@ -7,6 +7,7 @@ from .warmstart import KnnWarmStartPredictor
 import pyomo.environ as pe
 import numpy as np
 from copy import deepcopy
+import pickle
 
 
 class LearningSolver:
@@ -87,6 +88,23 @@ class LearningSolver:
             y_train = y_train_dict[category]
             self.ws_predictors[category] = deepcopy(self.ws_predictor_prototype)
             self.ws_predictors[category].fit(x_train, y_train)
+            
+    def save(self, filename):
+        with open(filename, "wb") as file:
+            pickle.dump({
+                "version": 1,
+                "x_train": self.x_train,
+                "y_train": self.y_train,
+                "ws_predictors": self.ws_predictors,
+            }, file)
+
+    def load(self, filename):
+        with open(filename, "rb") as file:
+            data = pickle.load(file)
+            assert data["version"] == 1
+            self.x_train = data["x_train"]
+            self.y_train = data["y_train"]
+            self.ws_predictors = self.ws_predictors
 
     def _solve(self, model, tee=False):
         if hasattr(self.parent_solver, "set_instance"):

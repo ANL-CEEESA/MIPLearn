@@ -22,8 +22,8 @@ The package is currently only available for Python and Pyomo. It can be installe
 pip install git+ssh://git@github.com/iSoron/miplearn.git
 ```
 
-Usage
------
+Typical Usage
+-------------
 
 ### Using `LearningSolver`
 
@@ -41,8 +41,8 @@ for instance in all_instances:
 
 During the first call to `solver.solve(instance)`, the solver will process the instance from scratch, since no historical information is available, but it will already start gathering information. By calling `solver.fit()`, we instruct the solver to train all the internal Machine Learning models based on the information gathered so far. As this operation can be expensive, it may  be performed after a larger batch of instances has been solved, instead of after every solve. After the first call to `solver.fit()`, subsequent calls to `solver.solve(instance)` will automatically use the trained Machine Learning models to accelerate the solution process.
 
-Selecting the internal MIP solver
----------------------------------
+### Selecting the internal MIP solver
+
 By default, `LearningSolver` uses Cbc as its internal MIP solver. Alternative solvers can be specified through the `parent_solver`a argument, as follows. Persistent Pyomo solvers are supported. To select Gurobi, for example:
 ```python
 from miplearn import LearningSolver
@@ -69,7 +69,6 @@ An optional method which can be implemented is `instance.get_variable_category(v
 
 It is not necessary to have a one-to-one correspondence between features and problem instances. One important (and deliberate) limitation of MIPLearn, however, is that `get_instance_features()` must always return arrays of same length for all relevant instances of the problem. Similarly, `get_variable_features(var, index)` must also always return arrays of same length for all variables in each category. It is up to the user to decide how to encode variable-length characteristics of the problem into fixed-length vectors. In graph problems, for example, graph embeddings can be used to reduce the (variable-length) lists of nodes and edges into a fixed-length structure that still preserves some properties of the graph. Different instance encodings may have significant impact on performance.
 
-
 ### Obtaining heuristic solutions
 
 By default, `LearningSolver` uses Machine Learning to accelerate the MIP solution process, but keeps all optimality guarantees typically provided by MIP solvers. In the default mode of operation, predicted optimal solutions, for example, are used only as MIP starts.
@@ -77,6 +76,29 @@ By default, `LearningSolver` uses Machine Learning to accelerate the MIP solutio
 For more signifcant performance benefits, `LearningSolver` can also be configured to place additional trust in the Machine Learning predictors, using the `mode="heuristic"` constructor argument. When operating in this mode, if a ML model is statistically shown (through stratified k-fold cross validation) to have exceptionally high accuracy, the solver may decide to restrict the search space based on its predictions. Parts of the solution which the ML models cannot predict accurately will still be explored using traditional (branch-and-bound) methods. This mode naturally loses all optimality guarantees, but, for particular applications, it has been shown to quickly produce optimal or near-optimal solutions (see references below).
 
 **Note:** *The heuristic mode should only be used if the solver is first trained on a large and statistically representative set of training instances.*
+
+### Saving and loading solver state
+
+After solving a large number of training instances, it may be desirable to save the current state of `LearningSolver` to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the methods `solver.save(filename)` and `solver.load(filename)`, as the following example illustrates:
+
+```python
+from miplearn import LearningSolver
+
+solver = LearningSolver()
+for instance in some_instances:
+    solver.solve(instance)
+solver.fit()
+solver.save("/tmp/miplearn.bin")
+
+# Application restarts...
+
+solver = LearningSolver()
+solver.load("/tmp/miplearn.bin")
+for instance in more_instances:
+    solver.solve(instance)
+```
+
+In addition to storing the training data, `solver.save` also serializes and stores all trained ML models themselves, so it is not necessary to call `solver.fit`.
 
 
 Current Limitations

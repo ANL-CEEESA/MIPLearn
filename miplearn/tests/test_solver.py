@@ -14,3 +14,20 @@ def test_solver():
     solver.solve(instance)
     solver.fit()
     solver.solve(instance)
+
+def test_solve_save_load():
+    instance = KnapsackInstance2(weights=[23., 26., 20., 18.],
+                                 prices=[505., 352., 458., 220.],
+                                 capacity=67.)
+    solver = LearningSolver()
+    solver.solve(instance)
+    solver.fit()
+    solver.save("/tmp/knapsack_train.bin")
+    prev_x_train_len = len(solver.x_train)
+    prev_y_train_len = len(solver.y_train)
+    
+    solver = LearningSolver()
+    solver.load("/tmp/knapsack_train.bin")
+    assert len(solver.x_train) == prev_x_train_len
+    assert len(solver.y_train) == prev_y_train_len
+    
