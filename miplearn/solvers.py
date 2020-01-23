@@ -6,8 +6,12 @@ from .transformers import PerVariableTransformer
 from .warmstart import KnnWarmStartPredictor
 import pyomo.environ as pe
 import numpy as np
-from copy import deepcopy
+from copy import copy, deepcopy
 import pickle
+from tqdm import tqdm
+from joblib import Parallel, delayed
+import multiprocessing
+
 
 
 class LearningSolver:
@@ -78,6 +82,29 @@ class LearningSolver:
                 self.y_train[category] = y
             else:
                 self.y_train[category] = np.vstack([self.y_train[category], y])
+                
+    def parallel_solve(self, instances, n_jobs=4):
+        def _process(instance):
+            solver = copy(self)
+            solver.solve(instance)
+            return solver.x_train, solver.y_train
+
+        def _merge(results):
+            categories = results[0][0].keys()
+            x_entries = [np.vstack([r[0][c] for r in results]) for c in categories]
+            y_entries = [np.vstack([r[1][c] for r in results]) for c in categories]
+            x_train = dict(zip(categories, x_entries))
+            y_train = dict(zip(categories, y_entries))
+            return x_train, y_train
+
+        results = Parallel(n_jobs=n_jobs)(
+            delayed(_process)(i)
+            for i in tqdm(instances)
+        )
+        
+        x_train, y_train = _merge(results)
+        self.x_train = x_train
+        self.y_train = y_train
 
     def fit(self, x_train_dict=None, y_train_dict=None):
         if x_train_dict is None:

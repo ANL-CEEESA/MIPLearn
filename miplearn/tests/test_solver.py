@@ -4,6 +4,7 @@
 
 from miplearn import LearningSolver
 from miplearn.problems.knapsack import KnapsackInstance2
+import numpy as np
 
 
 def test_solver():
@@ -30,4 +31,13 @@ def test_solve_save_load():
     solver.load("/tmp/knapsack_train.bin")
     assert len(solver.x_train) == prev_x_train_len
     assert len(solver.y_train) == prev_y_train_len
-    
+
+def test_parallel_solve():
+    instances = [KnapsackInstance2(weights=np.random.rand(5),
+                                   prices=np.random.rand(5),
+                                   capacity=3.0)
+                 for _ in range(10)]
+    solver = LearningSolver()
+    solver.parallel_solve(instances, n_jobs=2)
+    assert len(solver.x_train[0]) == 10
+    assert len(solver.y_train[0]) == 10

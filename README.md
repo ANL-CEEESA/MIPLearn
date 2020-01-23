@@ -101,6 +101,26 @@ for instance in more_instances:
 In addition to storing the training data, `solver.save` also serializes and stores all trained ML models themselves, so it is not necessary to call `solver.fit`.
 
 
+### Solving training instances in parallel
+
+In many situations, training instances can be solved in parallel to accelerate the training process. `LearningSolver` provides the method `parallel_solve(instances)` to easily achieve this. After all instances have been solved, the ML models can be trained and saved to disk as usual, as the next example illustrates:
+
+```python
+from miplearn import LearningSolver
+
+# Training phase...
+solver = LearningSolver(...) # training solver parameters
+solver.parallel_solve(training_instances, n_jobs=4)
+solver.fit()
+solver.save("/tmp/data.bin")
+
+# Test phase...
+solver = LearningSolver(...) # test solver parameters
+solver.load("/tmp/data.bin")
+solver.solve(test_instance)
+```
+
+
 Current Limitations
 -------------------
 
