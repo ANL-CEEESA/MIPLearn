@@ -1,4 +1,4 @@
-# MIPLearn: A Machine-Learning Framework for Mixed-Integer Optimization
+# MIPLearn, an extensible framework for Learning-Enhanced Mixed-Integer Optimization
 # Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
@@ -19,10 +19,10 @@ class LearningSolver:
                  threads=4,
                  parent_solver=pe.SolverFactory('cbc'),
                  ws_predictor=LogisticWarmStartPredictor(),
-                 fix_variables=False):
+                 mode="exact"):
         self.parent_solver = parent_solver
         self.parent_solver.options["threads"] = threads
-        self.fix_variables = fix_variables
+        self.mode = mode
         self.x_train = {}
         self.y_train = {}
         self.ws_predictors = {}
@@ -55,7 +55,7 @@ class LearningSolver:
                 assert ws.shape == (len(var_index_pairs), 2)
                 for i in range(len(var_index_pairs)):
                     var, index = var_index_pairs[i]
-                    if self.fix_variables:
+                    if self.mode == "heuristic":
                         if ws[i,0] == 1:
                             var[index].fix(0)
                         elif ws[i,1] == 1:
