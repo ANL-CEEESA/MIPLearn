@@ -7,13 +7,14 @@ Table of contents
 -----------------
 * [Features](#features)
 * [Installation](#installation)
-* [Typical Usage](#typical-usage)
+* [Basic usage](#basic-usage)
     * [Using LearningSolver](#using-learningsolver)
     * [Selecting the internal MIP solver](#selecting-the-internal-mip-solver)
     * [Describing problem instances](#describing-problem-instances)
     * [Obtaining heuristic solutions](#obtaining-heuristic-solutions)
     * [Saving and loading solver state](#saving-and-loading-solver-state)
     * [Solving training instances in parallel](#solving-training-instances-in-parallel)
+* [Benchmark](#benchmark)
 * [Current Limitations](#current-limitations)
 * [References](#references)
 * [Authors](#authors)
@@ -38,8 +39,8 @@ The package is currently only available for Python and Pyomo. It can be installe
 pip install git+ssh://git@github.com/iSoron/miplearn.git
 ```
 
-Typical Usage
--------------
+Basic Usage
+-----------
 
 ### Using `LearningSolver`
 
@@ -136,6 +137,37 @@ solver.load("/tmp/data.bin")
 solver.solve(test_instance)
 ```
 
+Benchmark
+---------
+
+MIPLearn provides the utility class `BenchmarkRunner`, which simplifies the task of comparing the performance of different solvers. The snippet below shows its basic usage:
+
+```python
+from miplearn import BenchmarkRunner, LearningSolver
+
+# Create train and test instances
+train_instances = [...]
+test_instances  = [...]
+
+# Training phase...
+training_solver = LearningSolver(...)
+training_solver.parallel_solve(train_instances, n_jobs=10)
+training_solver.save("data.bin")
+
+# Test phase...
+test_solvers = {
+    "Baseline": LearningSolver(...), # each solver may have different parameters
+    "Strategy A": LearningSolver(...), 
+    "Strategy B": LearningSolver(...),
+    "Strategy C": LearningSolver(...),
+}
+benchmark = BenchmarkRunner(test_solvers)
+benchmark.load_fit("data.bin")
+benchmark.parallel_solve(test_instances, n_jobs=2)
+print(benchmark.raw_results())
+```
+
+The method `load_fit` loads the saved training data into each one of the provided solvers and trains their respective ML models. The method `parallel_solve` solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, `raw_results` produces a Pandas DataFrame containing the results.
 
 Current Limitations
 -------------------

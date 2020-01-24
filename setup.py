@@ -13,5 +13,6 @@ setup(
         'sklearn',
         'networkx',
         'tqdm',
+        'pandas',
     ],
 )

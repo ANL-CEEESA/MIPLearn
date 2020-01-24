@@ -20,10 +20,10 @@ def test_stab():
 def test_stab_generator():
     graph = nx.cycle_graph(5)
     base_weights = [1.0, 2.0, 3.0, 4.0, 5.0]
-    generator = MaxStableSetGenerator(graph=graph,
-                                      base_weights=base_weights,
-                                      perturbation_scale=1.0)
-    instances = [generator.generate() for _ in range(100_000)]
+    instances = MaxStableSetGenerator(graph=graph,
+                                       base_weights=base_weights,
+                                       perturbation_scale=1.0,
+                                      ).generate(100_000)
     weights = np.array([instance.weights for instance in instances])
     weights_avg = np.round(np.average(weights, axis=0), 2)
     weights_std = np.round(np.std(weights, axis=0), 2)

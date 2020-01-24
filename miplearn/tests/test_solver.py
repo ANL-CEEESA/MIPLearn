@@ -38,6 +38,6 @@ def test_parallel_solve():
                                    capacity=3.0)
                  for _ in range(10)]
     solver = LearningSolver()
-    solver.parallel_solve(instances, n_jobs=2)
+    solver.parallel_solve(instances, n_jobs=3)
     assert len(solver.x_train[0]) == 10
     assert len(solver.y_train[0]) == 10

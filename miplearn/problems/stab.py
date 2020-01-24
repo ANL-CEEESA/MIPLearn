@@ -15,10 +15,12 @@ class MaxStableSetGenerator:
         self.base_weights = base_weights
         self.perturbation_scale = perturbation_scale
         
-    def generate(self):
-        perturbation = np.random.rand(self.graph.number_of_nodes()) * self.perturbation_scale
-        weights = self.base_weights + perturbation
-        return MaxStableSetInstance(self.graph, weights)
+    def generate(self, n_samples):
+        def _sample():
+            perturbation = np.random.rand(self.graph.number_of_nodes()) * self.perturbation_scale
+            weights = self.base_weights + perturbation
+            return MaxStableSetInstance(self.graph, weights)
+        return [_sample() for _ in range(n_samples)]
 
 
 class MaxStableSetInstance(Instance):

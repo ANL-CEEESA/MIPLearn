@@ -72,7 +72,7 @@ class LearningSolver:
                             var[index].value = 1
 
         # Solve MILP
-        self._solve(model, tee=tee)
+        solve_results = self._solve(model, tee=tee)
 
         # Update y_train
         for category in var_split.keys():
@@ -83,28 +83,36 @@ class LearningSolver:
             else:
                 self.y_train[category] = np.vstack([self.y_train[category], y])
                 
-    def parallel_solve(self, instances, n_jobs=4):
+        return solve_results
+                
+    def parallel_solve(self, instances, n_jobs=4, label="Solve"):
         def _process(instance):
-            solver = copy(self)
-            solver.solve(instance)
-            return solver.x_train, solver.y_train
+            solver = deepcopy(self)
+            results = solver.solve(instance)
+            return {
+                "x_train": solver.x_train,
+                "y_train": solver.y_train,
+                "results": results,
+            }
 
         def _merge(results):
-            categories = results[0][0].keys()
-            x_entries = [np.vstack([r[0][c] for r in results]) for c in categories]
-            y_entries = [np.vstack([r[1][c] for r in results]) for c in categories]
+            categories = results[0]["x_train"].keys()
+            x_entries = [np.vstack([r["x_train"][c] for r in results]) for c in categories]
+            y_entries = [np.vstack([r["y_train"][c] for r in results]) for c in categories]
             x_train = dict(zip(categories, x_entries))
             y_train = dict(zip(categories, y_entries))
-            return x_train, y_train
+            results = [r["results"] for r in results]
+            return x_train, y_train, results
 
         results = Parallel(n_jobs=n_jobs)(
-            delayed(_process)(i)
-            for i in tqdm(instances)
+            delayed(_process)(instance)
+            for instance in tqdm(instances, desc=label)
         )
         
-        x_train, y_train = _merge(results)
+        x_train, y_train, results = _merge(results)
         self.x_train = x_train
         self.y_train = y_train
+        return results
 
     def fit(self, x_train_dict=None, y_train_dict=None):
         if x_train_dict is None:
@@ -113,8 +121,9 @@ class LearningSolver:
         for category in x_train_dict.keys():
             x_train = x_train_dict[category]
             y_train = y_train_dict[category]
-            self.ws_predictors[category] = deepcopy(self.ws_predictor_prototype)
-            self.ws_predictors[category].fit(x_train, y_train)
+            if self.ws_predictor_prototype is not None:
+                self.ws_predictors[category] = deepcopy(self.ws_predictor_prototype)
+                self.ws_predictors[category].fit(x_train, y_train)
             
     def save(self, filename):
         with open(filename, "wb") as file:
@@ -136,6 +145,6 @@ class LearningSolver:
     def _solve(self, model, tee=False):
         if hasattr(self.parent_solver, "set_instance"):
             self.parent_solver.set_instance(model)
-            self.parent_solver.solve(tee=tee, warmstart=True)
+            return self.parent_solver.solve(tee=tee, warmstart=True)
         else:
-            self.parent_solver.solve(model, tee=tee, warmstart=True)
+            return self.parent_solver.solve(model, tee=tee, warmstart=True)
