@@ -8,6 +8,7 @@ from miplearn.problems.stab import MaxStableSetInstance, MaxStableSetGenerator
 import networkx as nx
 import numpy as np
 import pyomo.environ as pe
+import os.path
 
 
 def test_benchmark():
@@ -38,4 +39,11 @@ def test_benchmark():
     benchmark = BenchmarkRunner(test_solvers)
     benchmark.load_fit("data.bin")
     benchmark.parallel_solve(test_instances, n_jobs=2)
-    print(benchmark.raw_results())
+    assert benchmark.raw_results().values.shape == (6,6)
+    
+    benchmark.save_results("/tmp/benchmark.csv")
+    assert os.path.isfile("/tmp/benchmark.csv")
+    
+    benchmark = BenchmarkRunner(test_solvers)
+    benchmark.load_results("/tmp/benchmark.csv")
+    assert benchmark.raw_results().values.shape == (6,6)

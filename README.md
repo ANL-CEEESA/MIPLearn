@@ -14,7 +14,9 @@ Table of contents
     * [Obtaining heuristic solutions](#obtaining-heuristic-solutions)
     * [Saving and loading solver state](#saving-and-loading-solver-state)
     * [Solving training instances in parallel](#solving-training-instances-in-parallel)
-* [Benchmark](#benchmark)
+* [Benchmarking](#benchmarking)
+    * [Using BenchmarkRunner](#using-benchmarkrunner)
+    * [Saving and loading benchmark results](#saving-and-loading-benchmark-results)
 * [Current Limitations](#current-limitations)
 * [References](#references)
 * [Authors](#authors)
@@ -137,8 +139,10 @@ solver.load("/tmp/data.bin")
 solver.solve(test_instance)
 ```
 
-Benchmark
----------
+Benchmarking
+------------
+
+### Using `BenchmarkRunner`
 
 MIPLearn provides the utility class `BenchmarkRunner`, which simplifies the task of comparing the performance of different solvers. The snippet below shows its basic usage:
 
@@ -167,7 +171,32 @@ benchmark.parallel_solve(test_instances, n_jobs=2)
 print(benchmark.raw_results())
 ```
 
-The method `load_fit` loads the saved training data into each one of the provided solvers and trains their respective ML models. The method `parallel_solve` solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, `raw_results` produces a Pandas DataFrame containing the results.
+The method `load_fit` loads the saved training data into each one of the provided solvers and trains their respective ML models. The method `parallel_solve` solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, `raw_results` produces a table of results (Pandas DataFrame) with the following columns:
+
+* **Solver,** the name of the solver.
+* **Instance,** the sequence number identifying the instance.
+* **Wallclock Time,** the wallclock running time (in seconds) spent by the solver;
+* **Obj Value,** the objective value of the solution found by the solver;
+* **Relative Wallclock Time,** a number indicating how many times slower this run was when compared to the best time achieved by any solver when processing this instance. For example, if this run took 10 seconds, but another solver took only 5 seconds to solve the same instance, the relative wallclock time would be 2.00.
+* **Relative Obj Value,** how many times better (or worse) this solution was in terms of objective value, when compared to the solutions produced by the other solvers for the same instance. For example, if this solver found a solution with objective value 100.0 on a minimization problem, and another solver found a solution with value 80.0, then the relative objective value would be 1.25.
+
+### Saving and loading benchmark results
+
+When iteratively exploring new formulations, encoding and solver parameters, it is often desirable to avoid repeating parts of the benchmark suite. For example, if the baseline solver has not been changed, there is no need to evaluate its performance again and again when making small changes to the remaining solvers. `BenchmarkRunner` provides the methods `save` and `load`, which can be used to avoid this repetition, as the next example shows:
+
+```python
+# Benchmark baseline solvers and save results to a file.
+benchmark = BenchmarkRunner(baseline_solvers)
+benchmark.load_fit("training_data.bin")
+benchmark.parallel_solve(test_instances)
+benchmark.save_results("baseline_results.csv")
+
+# Benchmark remaining solvers, loading baseline results from file.
+benchmark = BenchmarkRunner(alternative_solvers)
+benchmark.load_results("baseline_results.csv")
+benchmark.load_fit("training_data.bin")
+benchmark.parallel_solve(test_instances)
+```
 
 Current Limitations
 -------------------
