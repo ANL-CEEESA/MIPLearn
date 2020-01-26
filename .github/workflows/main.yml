@@ -8,7 +8,8 @@ jobs:
     - name: Run tests
       run: |
         rm -rf ~/.conda/envs/miplearn-test
-        yes | conda create --name miplearn-test python=3.6
+        yes | conda create --name miplearn-test python=3.8
+        (cd /opt/gurobi900/linux64 && sudo ~/.conda/envs/miplearn-test/bin/python setup.py install)
         ~/.conda/envs/miplearn-test/bin/pip install -r requirements.txt
         ~/.conda/envs/miplearn-test/bin/pytest
 
