@@ -18,6 +18,7 @@ class WarmStartPredictor(ABC):
     def fit(self, x_train, y_train):
         assert isinstance(x_train, np.ndarray)
         assert isinstance(y_train, np.ndarray)
+        y_train = y_train.astype(int)
         assert y_train.shape[0] == x_train.shape[0]
         assert y_train.shape[1] == 2
         for i in [0,1]:
