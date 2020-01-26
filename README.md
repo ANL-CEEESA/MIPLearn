@@ -5,22 +5,23 @@ MIPLearn
 
 Table of contents
 -----------------
-* [Features](#features)
-* [Installation](#installation)
-* [Basic usage](#basic-usage)
-    * [Using LearningSolver](#using-learningsolver)
-    * [Selecting the internal MIP solver](#selecting-the-internal-mip-solver)
-    * [Describing problem instances](#describing-problem-instances)
-    * [Obtaining heuristic solutions](#obtaining-heuristic-solutions)
-    * [Saving and loading solver state](#saving-and-loading-solver-state)
-    * [Solving training instances in parallel](#solving-training-instances-in-parallel)
-* [Benchmarking](#benchmarking)
-    * [Using BenchmarkRunner](#using-benchmarkrunner)
-    * [Saving and loading benchmark results](#saving-and-loading-benchmark-results)
-* [Current Limitations](#current-limitations)
-* [References](#references)
-* [Authors](#authors)
-* [License](#license)
+  * [Features](#features)
+  * [Installation](#installation)
+  * [Basic Usage](#basic-usage)
+     * [Using LearningSolver](#using-learningsolver)
+     * [Describing problem instances](#describing-problem-instances)
+     * [Obtaining heuristic solutions](#obtaining-heuristic-solutions)
+     * [Saving and loading solver state](#saving-and-loading-solver-state)
+     * [Solving training instances in parallel](#solving-training-instances-in-parallel)
+  * [Benchmarking](#benchmarking)
+     * [Using BenchmarkRunner](#using-benchmarkrunner)
+     * [Saving and loading benchmark results](#saving-and-loading-benchmark-results)
+  * [Customization](#customization)
+     * [Selecting the internal MIP solver](#selecting-the-internal-mip-solver)
+  * [Current Limitations](#current-limitations)
+  * [References](#references)
+  * [Authors](#authors)
+  * [License](#license)
 
 Features
 --------
@@ -59,17 +60,6 @@ for instance in all_instances:
 ```
 
 During the first call to `solver.solve(instance)`, the solver will process the instance from scratch, since no historical information is available, but it will already start gathering information. By calling `solver.fit()`, we instruct the solver to train all the internal Machine Learning models based on the information gathered so far. As this operation can be expensive, it may  be performed after a larger batch of instances has been solved, instead of after every solve. After the first call to `solver.fit()`, subsequent calls to `solver.solve(instance)` will automatically use the trained Machine Learning models to accelerate the solution process.
-
-### Selecting the internal MIP solver
-
-By default, `LearningSolver` uses Gurobi as its internal MIP solver. Alternative solvers can be specified through the `parent_solver`a argument, as follows. To select CPLEX, for example:
-```python
-from miplearn import LearningSolver
-import pyomo.environ as pe
-
-cplex = pe.SolverFactory("cplex")
-solver = LearningSolver(parent_solver=cplex)
-```
 
 ### Describing problem instances
 
@@ -197,6 +187,25 @@ benchmark.load_results("baseline_results.csv")
 benchmark.load_fit("training_data.bin")
 benchmark.parallel_solve(test_instances)
 ```
+
+Customization
+-------------
+
+### Selecting the internal MIP solver
+
+By default, `LearningSolver` uses [Gurobi](https://www.gurobi.com/) as its internal MIP solver. Alternative solvers can be specified through the `internal_solver_factory` constructor argument. This argument should provide a function (with no arguments) that constructs, configures and returns the desired solver. To select CPLEX, for example:
+```python
+from miplearn import LearningSolver
+import pyomo.environ as pe
+
+def cplex_factory():
+    cplex = pe.SolverFactory("cplex_persistent")
+    cplex.options["threads"] = 4
+    return cplex
+
+solver = LearningSolver(internal_solver_factory=cplex_factory)
+```
+
 
 Current Limitations
 -------------------
