@@ -14,7 +14,7 @@ def test_transform():
                                 prices=[505., 352., 458., 220.],
                                 capacity=67.)
     model = instance.to_model()
-    solver = pe.SolverFactory('cbc')
+    solver = pe.SolverFactory('gurobi')
     solver.options["threads"] = 1
     solver.solve(model)
 
@@ -56,7 +56,7 @@ def test_transform_with_categories():
                                  prices=[505., 352., 458., 220.],
                                  capacity=67.)
     model = instance.to_model()
-    solver = pe.SolverFactory('cbc')
+    solver = pe.SolverFactory('gurobi')
     solver.options["threads"] = 1
     solver.solve(model)
 

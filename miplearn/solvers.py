@@ -22,7 +22,7 @@ class LearningSolver:
 
     def __init__(self,
                  threads=4,
-                 parent_solver=pe.SolverFactory('cbc'),
+                 parent_solver=pe.SolverFactory('gurobi'),
                  ws_predictor=KnnWarmStartPredictor(),
                  mode="exact"):
         self.parent_solver = parent_solver

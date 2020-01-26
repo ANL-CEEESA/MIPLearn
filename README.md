@@ -1,7 +1,7 @@
 MIPLearn
 ========
 
-**MIPLearn** is a flexible and extensible framework for *Learning-Enhanced Mixed-Integer Optimization*. It was designed to efficiently handle discrete optimization problems that need to be repeatedly solved with only relatively minor changes to the input data. The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a traditional MIP solver, such as CPLEX and Gurobi, towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see references below).
+**MIPLearn** is a flexible and extensible framework for *Learning-Enhanced Mixed-Integer Optimization*. It was designed to efficiently handle discrete optimization problems that need to be repeatedly solved with only relatively minor changes to the input data. The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a traditional MIP solver towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see references below).
 
 Table of contents
 -----------------
@@ -28,7 +28,7 @@ Features
 
 * **MIPLearn provides a reference implementation of a *Learning-Enhanced Solver*,** which can use the above problem specification to automatically predict, based on previously solved instances: (i) partial solutions which are likely to work well as MIP starts, (ii) an initial set of lazy constraints to enforce and (iii) affine subspaces where the solution is likely to reside. This process is entirely transparent to the user: the most suitable ML models are automatically selected, trained and cross-validated with no user intervention.
 
-* **MIPLearn is customizable and extensible**. For MIP and ML researchers exploring new techniques to accelerate MIP performance based on historical data, each component of the reference solver can be individually replaced or customized. The reference solver can use many open-source and commercial MIP solvers as backend, including Cbc, SCIP, CPLEX and Gurobi.
+* **MIPLearn is customizable and extensible**. For MIP and ML researchers exploring new techniques to accelerate MIP performance based on historical data, each component of the reference solver can be individually replaced or customized.
 
 * **MIPLearn provides a set of benchmark problems and random instance generators,** covering applications from different domains, which can be used to quickly evaluate new learning-enhanced MIP techniques in a measurable and reproducible way.
 
@@ -62,13 +62,13 @@ During the first call to `solver.solve(instance)`, the solver will process the i
 
 ### Selecting the internal MIP solver
 
-By default, `LearningSolver` uses Cbc as its internal MIP solver. Alternative solvers can be specified through the `parent_solver`a argument, as follows. Persistent Pyomo solvers are supported. To select Gurobi, for example:
+By default, `LearningSolver` uses Gurobi as its internal MIP solver. Alternative solvers can be specified through the `parent_solver`a argument, as follows. To select CPLEX, for example:
 ```python
 from miplearn import LearningSolver
 import pyomo.environ as pe
 
-gurobi = pe.SolverFactory("gurobi_persistent")
-solver = LearningSolver(parent_solver=gurobi)
+cplex = pe.SolverFactory("cplex")
+solver = LearningSolver(parent_solver=cplex)
 ```
 
 ### Describing problem instances
