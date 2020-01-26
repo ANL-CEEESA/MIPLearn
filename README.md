@@ -82,7 +82,7 @@ It is not necessary to have a one-to-one correspondence between features and pro
 
 By default, `LearningSolver` uses Machine Learning to accelerate the MIP solution process, but keeps all optimality guarantees typically provided by MIP solvers. In the default mode of operation, predicted optimal solutions, for example, are used only as MIP starts.
 
-For more signifcant performance benefits, `LearningSolver` can also be configured to place additional trust in the Machine Learning predictors, using the `mode="heuristic"` constructor argument. When operating in this mode, if a ML model is statistically shown (through stratified k-fold cross validation) to have exceptionally high accuracy, the solver may decide to restrict the search space based on its predictions. Parts of the solution which the ML models cannot predict accurately will still be explored using traditional (branch-and-bound) methods. This mode naturally loses all optimality guarantees, but, for particular applications, it has been shown to quickly produce optimal or near-optimal solutions (see references below).
+For more significant performance benefits, `LearningSolver` can also be configured to place additional trust in the Machine Learning predictors, by using the `mode="heuristic"` constructor argument. When operating in this mode, if a ML model is statistically shown (through *stratified k-fold cross validation*) to have exceptionally high accuracy, the solver may decide to restrict the search space based on its predictions. Parts of the solution which the ML models cannot predict accurately will still be explored using traditional (branch-and-bound) methods. This mode naturally loses all optimality guarantees, but, for particular applications, it has been shown to quickly produce optimal or near-optimal solutions (see references below).
 
 **Note:** *The heuristic mode should only be used if the solver is first trained on a large and statistically representative set of training instances.*
 
@@ -211,6 +211,7 @@ Current Limitations
 -------------------
 
 * Only binary and continuous decision variables are currently supported.
+* Solver callbacks (lazy constraints, cutting planes) are not currently supported.
 
 References
 ----------
