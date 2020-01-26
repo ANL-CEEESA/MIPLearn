@@ -2,21 +2,13 @@ name: Test
 on: [push, pull_request]
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        sudo apt-get update
-        sudo apt-get install -y coinor-cbc
     - name: Run tests
       run: |
-        pip install pytest
-        pytest
+        rm -rf ~/.conda/envs/miplearn-test
+        yes | conda create --name miplearn-test python=3.6
+        ~/.conda/envs/miplearn-test/bin/pip install -r requirements.txt
+        ~/.conda/envs/miplearn-test/bin/pytest
 
