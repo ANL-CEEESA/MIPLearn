@@ -1,7 +1,7 @@
 MIPLearn
 ========
 
-**MIPLearn** is a flexible and extensible framework for *Learning-Enhanced Mixed-Integer Optimization*. It was designed to efficiently handle discrete optimization problems that need to be repeatedly solved with only relatively minor changes to the input data. The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a traditional MIP solver towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see references below).
+**MIPLearn** is a flexible and extensible framework for *Learning-Enhanced Mixed-Integer Optimization*, an approach aimed at efficiently handling challenging discrete optimization problems that need to be repeatedly solved with only relatively minor changes to the input data. The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a traditional MIP solver towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see references below).
 
 Table of contents
 -----------------
@@ -25,13 +25,13 @@ Table of contents
 
 Features
 --------
-* **MIPLearn proposes a flexible, problem-agnostic way** for users to describe optimization problems to a Learning-Enhanced Solver, from both the MIP perspective and from the ML perspective. MIP formulations are specified as [Pyomo](https://www.pyomo.org/) models, while features describing instances and decision variables are specified as [NumPy](https://numpy.org/) arrays. Users can easily experiment with different mathematical formulations and ML encodings.
+* **MIPLearn proposes a flexible problem specification format,** which allow users to describe their particular optimization problems to a Learning-Enhanced MIP solver, both from the MIP perspective and from the ML perspective, without making any assumptions on the problem being modeled, the mathematical formulation of the problem, or ML encoding used. While the format is very flexible, some constraints are enforced to ensure that it is usable by an actual solver.
 
-* **MIPLearn provides a reference implementation of a *Learning-Enhanced Solver*,** which can use the above problem specification to automatically predict, based on previously solved instances: (i) partial solutions which are likely to work well as MIP starts, (ii) an initial set of lazy constraints to enforce and (iii) affine subspaces where the solution is likely to reside. This process is entirely transparent to the user: the most suitable ML models are automatically selected, trained and cross-validated with no user intervention.
-
-* **MIPLearn is customizable and extensible**. For MIP and ML researchers exploring new techniques to accelerate MIP performance based on historical data, each component of the reference solver can be individually replaced or customized.
+* **MIPLearn provides a reference implementation of a *Learning-Enhanced Solver*,** which can use the above problem specification format to automatically predict, based on previously solved instances, a number of hints to accelerate MIP performance. Currently, the reference solver is able to predict: (i) partial solutions which are likely to work well as MIP starts; (ii) an initial set of lazy constraints to enforce; (iii) affine subspaces where the solution is likely to reside; (iv) variable branching priorities to accelerate the exploration of the branch-and-bound tree. The usage of the solver is very straightforward. The most suitable ML models are automatically selected, trained and cross-validated with no user intervention.
 
 * **MIPLearn provides a set of benchmark problems and random instance generators,** covering applications from different domains, which can be used to quickly evaluate new learning-enhanced MIP techniques in a measurable and reproducible way.
+
+* **MIPLearn is customizable and extensible**. For MIP and ML researchers exploring new techniques to accelerate MIP performance based on historical data, each component of the reference solver can be individually replaced, extended or customized.
 
 Installation
 ------------
@@ -80,15 +80,15 @@ It is not necessary to have a one-to-one correspondence between features and pro
 
 ### Obtaining heuristic solutions
 
-By default, `LearningSolver` uses Machine Learning to accelerate the MIP solution process, but keeps all optimality guarantees typically provided by MIP solvers. In the default mode of operation, predicted optimal solutions, for example, are used only as MIP starts.
+By default, `LearningSolver` uses Machine Learning to accelerate the MIP solution process, while maintaining all optimality guarantees provided by the MIP solver. In the default mode of operation, for example, predicted optimal solutions are used only as MIP starts.
 
-For more significant performance benefits, `LearningSolver` can also be configured to place additional trust in the Machine Learning predictors, by using the `mode="heuristic"` constructor argument. When operating in this mode, if a ML model is statistically shown (through *stratified k-fold cross validation*) to have exceptionally high accuracy, the solver may decide to restrict the search space based on its predictions. Parts of the solution which the ML models cannot predict accurately will still be explored using traditional (branch-and-bound) methods. This mode naturally loses all optimality guarantees, but, for particular applications, it has been shown to quickly produce optimal or near-optimal solutions (see references below).
+For more significant performance benefits, `LearningSolver` can also be configured to place additional trust in the Machine Learning predictors, by using the `mode="heuristic"` constructor argument. When operating in this mode, if a ML model is statistically shown (through *stratified k-fold cross validation*) to have exceptionally high accuracy, the solver may decide to restrict the search space based on its predictions. The parts of the solution which the ML models cannot predict accurately will still be explored using traditional (branch-and-bound) methods
 
-**Note:** *The heuristic mode should only be used if the solver is first trained on a large and statistically representative set of training instances.*
+This mode naturally loses all optimality guarantees, and therefore should only be used if the solver is first trained on a large and representative set of training instances. For particular applications, however, this mode has been shown to quickly produce optimal or near-optimal solutions (see references below).
 
 ### Saving and loading solver state
 
-After solving a large number of training instances, it may be desirable to save the current state of `LearningSolver` to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the methods `solver.save(filename)` and `solver.load(filename)`, as the following example illustrates:
+After solving a large number of training instances, it may be desirable to save the current state of `LearningSolver` to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the methods `solver.save_state(filename)` and `solver.load_state(filename)`, as the following example illustrates:
 
 ```python
 from miplearn import LearningSolver
@@ -97,22 +97,22 @@ solver = LearningSolver()
 for instance in some_instances:
     solver.solve(instance)
 solver.fit()
-solver.save("/tmp/miplearn.bin")
+solver.save_state("/tmp/state.bin")
 
 # Application restarts...
 
 solver = LearningSolver()
-solver.load("/tmp/miplearn.bin")
+solver.load_state("/tmp/state.bin")
 for instance in more_instances:
     solver.solve(instance)
 ```
 
-In addition to storing the training data, `solver.save` also serializes and stores all trained ML models themselves, so it is not necessary to call `solver.fit`.
+In addition to storing the training data, `save_state` also stores all trained ML models. Therefore, if the the models were trained before saving the state to disk, it is not necessary to train them again after loading.
 
 
 ### Solving training instances in parallel
 
-In many situations, training instances can be solved in parallel to accelerate the training process. `LearningSolver` provides the method `parallel_solve(instances)` to easily achieve this. After all instances have been solved, the ML models can be trained and saved to disk as usual, as the next example illustrates:
+In many situations, training instances can be solved in parallel to accelerate the training process. `LearningSolver` provides the method `parallel_solve(instances)` to easily achieve this:
 
 ```python
 from miplearn import LearningSolver
@@ -121,13 +121,15 @@ from miplearn import LearningSolver
 solver = LearningSolver(...) # training solver parameters
 solver.parallel_solve(training_instances, n_jobs=4)
 solver.fit()
-solver.save("/tmp/data.bin")
+solver.save_state("/tmp/data.bin")
 
 # Test phase...
 solver = LearningSolver(...) # test solver parameters
-solver.load("/tmp/data.bin")
+solver.load_state("/tmp/data.bin")
 solver.solve(test_instance)
 ```
+
+After all training instances have been solved in parallel, the ML models can be trained and saved to disk as usual, using `fit` and `save_state`, as explained in the previous subsections.
 
 Benchmarking
 ------------
@@ -146,7 +148,7 @@ test_instances  = [...]
 # Training phase...
 training_solver = LearningSolver(...)
 training_solver.parallel_solve(train_instances, n_jobs=10)
-training_solver.save("data.bin")
+training_solver.save_state("data.bin")
 
 # Test phase...
 test_solvers = {
@@ -156,35 +158,39 @@ test_solvers = {
     "Strategy C": LearningSolver(...),
 }
 benchmark = BenchmarkRunner(test_solvers)
-benchmark.load_fit("data.bin")
+benchmark.load_state("data.bin")
+benchmark.fit()
 benchmark.parallel_solve(test_instances, n_jobs=2)
 print(benchmark.raw_results())
 ```
 
-The method `load_fit` loads the saved training data into each one of the provided solvers and trains their respective ML models. The method `parallel_solve` solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, `raw_results` produces a table of results (Pandas DataFrame) with the following columns:
+The method `load_state` loads the saved training data into each one of the provided solvers, while `fit` trains their respective ML models. The method `parallel_solve` solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, `raw_results` produces a table of results (Pandas DataFrame) with the following columns:
 
 * **Solver,** the name of the solver.
 * **Instance,** the sequence number identifying the instance.
 * **Wallclock Time,** the wallclock running time (in seconds) spent by the solver;
-* **Obj Value,** the objective value of the solution found by the solver;
-* **Relative Wallclock Time,** a number indicating how many times slower this run was when compared to the best time achieved by any solver when processing this instance. For example, if this run took 10 seconds, but another solver took only 5 seconds to solve the same instance, the relative wallclock time would be 2.00.
-* **Relative Obj Value,** how many times better (or worse) this solution was in terms of objective value, when compared to the solutions produced by the other solvers for the same instance. For example, if this solver found a solution with objective value 100.0 on a minimization problem, and another solver found a solution with value 80.0, then the relative objective value would be 1.25.
+* **Lower Bound,** the best lower bound obtained by the solver;
+* **Upper Bound,** the best upper bound obtained by the solver;
+* **Gap,** the relative MIP integrality gap at the end of the optimization;
+* **Nodes,** the number of explorer branch-and-bound nodes.
+
+In addition to the above, there is also a *Relative* version of most columns, where the raw number is compared to the solver which provided the best performance. The *Relative Wallclock Time* for example, indicates how many times slower this run was when compared to the best time achieved by any solver when processing this instance. For example, if this run took 10 seconds, but the fastest solver took only 5 seconds to solve the same instance, the relative wallclock time would be 2.
 
 ### Saving and loading benchmark results
 
-When iteratively exploring new formulations, encoding and solver parameters, it is often desirable to avoid repeating parts of the benchmark suite. For example, if the baseline solver has not been changed, there is no need to evaluate its performance again and again when making small changes to the remaining solvers. `BenchmarkRunner` provides the methods `save` and `load`, which can be used to avoid this repetition, as the next example shows:
+When iteratively exploring new formulations, encoding and solver parameters, it is often desirable to avoid repeating parts of the benchmark suite. For example, if the baseline solver has not been changed, there is no need to evaluate its performance again and again when making small changes to the remaining solvers. `BenchmarkRunner` provides the methods `save_results` and `load_results`, which can be used to avoid this repetition, as the next example shows:
 
 ```python
 # Benchmark baseline solvers and save results to a file.
 benchmark = BenchmarkRunner(baseline_solvers)
-benchmark.load_fit("training_data.bin")
+benchmark.load_state("training_data.bin")
 benchmark.parallel_solve(test_instances)
 benchmark.save_results("baseline_results.csv")
 
 # Benchmark remaining solvers, loading baseline results from file.
 benchmark = BenchmarkRunner(alternative_solvers)
+benchmark.load_state("training_data.bin")
 benchmark.load_results("baseline_results.csv")
-benchmark.load_fit("training_data.bin")
 benchmark.parallel_solve(test_instances)
 ```
 
@@ -199,7 +205,7 @@ from miplearn import LearningSolver
 import pyomo.environ as pe
 
 def cplex_factory():
-    cplex = pe.SolverFactory("cplex_persistent")
+    cplex = pe.SolverFactory("cplex")
     cplex.options["threads"] = 4
     return cplex
 
@@ -212,6 +218,7 @@ Current Limitations
 
 * Only binary and continuous decision variables are currently supported.
 * Solver callbacks (lazy constraints, cutting planes) are not currently supported.
+* Only `gurobi_persistent` is currently fully supported by all components. Other solvers may work if some components are disabled.
 
 References
 ----------
