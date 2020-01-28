@@ -25,9 +25,9 @@ Table of contents
 
 Features
 --------
-* **MIPLearn proposes a flexible problem specification format,** which allow users to describe their particular optimization problems to a Learning-Enhanced MIP solver, both from the MIP perspective and from the ML perspective, without making any assumptions on the problem being modeled, the mathematical formulation of the problem, or ML encoding used. While the format is very flexible, some constraints are enforced to ensure that it is usable by an actual solver.
+* **MIPLearn proposes a flexible problem specification format,** which allows users to describe their particular optimization problems to a Learning-Enhanced MIP solver, both from the MIP perspective and from the ML perspective, without making any assumptions on the problem being modeled, the mathematical formulation of the problem, or ML encoding. While the format is very flexible, some constraints are enforced to ensure that it is usable by an actual solver.
 
-* **MIPLearn provides a reference implementation of a *Learning-Enhanced Solver*,** which can use the above problem specification format to automatically predict, based on previously solved instances, a number of hints to accelerate MIP performance. Currently, the reference solver is able to predict: (i) partial solutions which are likely to work well as MIP starts; (ii) an initial set of lazy constraints to enforce; (iii) affine subspaces where the solution is likely to reside; (iv) variable branching priorities to accelerate the exploration of the branch-and-bound tree. The usage of the solver is very straightforward. The most suitable ML models are automatically selected, trained and cross-validated with no user intervention.
+* **MIPLearn provides a reference implementation of a *Learning-Enhanced Solver*,** which can use the above problem specification format to automatically predict, based on previously solved instances, a number of hints to accelerate MIP performance. Currently, the reference solver is able to predict: (i) partial solutions which are likely to work well as MIP starts; (ii) an initial set of lazy constraints to enforce; (iii) affine subspaces where the solution is likely to reside; (iv) variable branching priorities to accelerate the exploration of the branch-and-bound tree. The usage of the solver is very straightforward. The most suitable ML models are automatically selected, trained, cross-validated and applied to the problem with no user intervention.
 
 * **MIPLearn provides a set of benchmark problems and random instance generators,** covering applications from different domains, which can be used to quickly evaluate new learning-enhanced MIP techniques in a measurable and reproducible way.
 
@@ -36,7 +36,7 @@ Features
 Installation
 ------------
 
-The package is currently only available for Python and Pyomo. It can be installed using `pip` as follows:
+The package is currently available for Python and Pyomo. It can be installed using `pip` as follows:
 
 ```bash
 pip install git+ssh://git@github.com/iSoron/miplearn.git
