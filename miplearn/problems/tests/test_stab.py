@@ -12,11 +12,11 @@ from scipy.stats import uniform, randint
 
 def test_stab():
     graph = nx.cycle_graph(5)
-    weights = [1., 2., 3., 4., 5.]
+    weights = [1., 1., 1., 1., 1.]
     instance = MaxWeightStableSetInstance(graph, weights)
     solver = LearningSolver()
     solver.solve(instance)
-    assert instance.model.OBJ() == 8.
+    assert instance.model.OBJ() == 2.
     
     
 def test_stab_generator_fixed_graph():

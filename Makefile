@@ -1,4 +1,4 @@
-PYTEST_ARGS := -W ignore::DeprecationWarning --capture=no -vv
+PYTEST_ARGS := -W ignore::DeprecationWarning -vv
 
 test:
 	pytest $(PYTEST_ARGS)

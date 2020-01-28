@@ -13,11 +13,6 @@ class BenchmarkRunner:
         self.solvers = solvers
         self.results = None
         
-    def load_fit(self, filename):
-        for (name, solver) in self.solvers.items():
-            solver.load(filename)
-            solver.fit()
-            
     def parallel_solve(self, instances, n_jobs=1, n_trials=1):
         if self.results is None:
             self.results = pd.DataFrame(columns=["Solver",
@@ -79,3 +74,11 @@ class BenchmarkRunner:
         
     def load_results(self, filename):
         self.results = pd.read_csv(filename, index_col=0)
+        
+    def load_state(self, filename):
+        for (name, solver) in self.solvers.items():
+            solver.load_state(filename)
+
+    def fit(self):
+        for (name, solver) in self.solvers.items():
+            solver.fit()

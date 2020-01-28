@@ -19,15 +19,16 @@ def test_benchmark():
     # Training phase...
     training_solver = LearningSolver()
     training_solver.parallel_solve(train_instances, n_jobs=10)
-    training_solver.save("data.bin")
+    training_solver.fit()
+    training_solver.save_state("data.bin")
 
     # Test phase...
     test_solvers = {
-        "Strategy A": LearningSolver(ws_predictor=None),
-        "Strategy B": LearningSolver(ws_predictor=None),
+        "Strategy A": LearningSolver(),
+        "Strategy B": LearningSolver(),
     }
     benchmark = BenchmarkRunner(test_solvers)
-    benchmark.load_fit("data.bin")
+    benchmark.load_state("data.bin")
     benchmark.parallel_solve(test_instances, n_jobs=2, n_trials=2)
     assert benchmark.raw_results().values.shape == (12,12)
     
