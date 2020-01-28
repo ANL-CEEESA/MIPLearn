@@ -18,15 +18,21 @@ class BenchmarkRunner:
             solver.load(filename)
             solver.fit()
             
-    def parallel_solve(self, instances, n_jobs=1):
+    def parallel_solve(self, instances, n_jobs=1, n_trials=1):
         if self.results is None:
             self.results = pd.DataFrame(columns=["Solver",
                                                  "Instance",
                                                  "Wallclock Time",
-                                                 "Obj Value",
+                                                 "Lower Bound",
+                                                 "Upper Bound",
+                                                 "Gap",
+                                                 "Nodes",
                                                 ])
+        instances = instances * n_trials
         for (name, solver) in self.solvers.items():
-            results = solver.parallel_solve(instances, n_jobs=n_jobs, label=name)
+            results = solver.parallel_solve(instances,
+                                            n_jobs=n_jobs,
+                                            label=name)
             for i in range(len(instances)):
                 wallclock_time = None
                 for key in ["Time", "Wall time", "Wallclock time"]:
@@ -35,19 +41,35 @@ class BenchmarkRunner:
                     if str(results[i]["Solver"][0][key]) == "<undefined>":
                         continue
                     wallclock_time = float(results[i]["Solver"][0][key])
+                nodes = results[i]["Solver"][0]["Nodes"]
+                lb = results[i]["Problem"][0]["Lower bound"]
+                ub = results[i]["Problem"][0]["Upper bound"]
+                gap = (ub - lb) / lb
                 self.results = self.results.append({
                     "Solver": name,
                     "Instance": i,
                     "Wallclock Time": wallclock_time,
-                    "Obj Value": results[i]["Problem"][0]["Lower bound"]
+                    "Lower Bound": lb,
+                    "Upper Bound": ub,
+                    "Gap": gap,
+                    "Nodes": nodes,
                 }, ignore_index=True)
                 groups = self.results.groupby("Instance")
-                best_obj_value = groups["Obj Value"].transform("max")
+                best_lower_bound = groups["Lower Bound"].transform("max")
+                best_upper_bound = groups["Upper Bound"].transform("min")
+                best_gap = groups["Gap"].transform("min")
+                best_nodes = groups["Nodes"].transform("min")
                 best_wallclock_time = groups["Wallclock Time"].transform("min")
-                self.results["Relative Obj Value"] = \
-                        self.results["Obj Value"] / best_obj_value
+                self.results["Relative Lower Bound"] = \
+                        self.results["Lower Bound"] / best_lower_bound
+                self.results["Relative Upper Bound"] = \
+                        self.results["Upper Bound"] / best_upper_bound
                 self.results["Relative Wallclock Time"] = \
                         self.results["Wallclock Time"] / best_wallclock_time
+                self.results["Relative Gap"] = \
+                        self.results["Gap"] / best_gap
+                self.results["Relative Nodes"] = \
+                        self.results["Nodes"] / best_nodes
     
     def raw_results(self):
         return self.results

@@ -41,3 +41,10 @@ def test_parallel_solve():
     solver.parallel_solve(instances, n_jobs=3)
     assert len(solver.x_train[0]) == 10
     assert len(solver.y_train[0]) == 10
+    
+def test_solver_random_branch_priority():
+    instance = KnapsackInstance2(weights=[23., 26., 20., 18.],
+                                 prices=[505., 352., 458., 220.],
+                                 capacity=67.)
+    solver = LearningSolver(branch_priority=[1, 2, 3, 4])
+    solver.solve(instance, tee=True)

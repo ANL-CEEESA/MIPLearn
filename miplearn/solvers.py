@@ -3,19 +3,21 @@
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
 from .transformers import PerVariableTransformer
-from .warmstart import KnnWarmStartPredictor
+from .warmstart import KnnWarmStartPredictor, LogisticWarmStartPredictor
 import pyomo.environ as pe
 import numpy as np
 from copy import copy, deepcopy
 import pickle
 from tqdm import tqdm
 from joblib import Parallel, delayed
+from scipy.stats import randint
 import multiprocessing
 
 
 def _gurobi_factory():
     solver = pe.SolverFactory('gurobi_persistent')
     solver.options["threads"] = 4
+    solver.options["Seed"] = randint(low=0, high=1000).rvs()
     return solver
 
 class LearningSolver:
@@ -27,7 +29,8 @@ class LearningSolver:
     def __init__(self,
                  threads=4,
                  internal_solver_factory=_gurobi_factory,
-                 ws_predictor=KnnWarmStartPredictor(),
+                 ws_predictor=LogisticWarmStartPredictor(),
+                 branch_priority=None,
                  mode="exact"):
         self.internal_solver_factory = internal_solver_factory
         self.internal_solver = self.internal_solver_factory()
@@ -36,10 +39,14 @@ class LearningSolver:
         self.y_train = {}
         self.ws_predictors = {}
         self.ws_predictor_prototype = ws_predictor
+        self.branch_priority = branch_priority
 
     def solve(self, instance, tee=False):
-        # Convert instance into concrete model
+        # Load model into solver
         model = instance.to_model()
+        is_solver_persistent = hasattr(self.internal_solver, "set_instance")
+        if is_solver_persistent:
+            self.internal_solver.set_instance(model)
 
         # Split decision variables according to their category
         transformer = PerVariableTransformer()
@@ -56,10 +63,11 @@ class LearningSolver:
             else:
                 self.x_train[category] = np.vstack([self.x_train[category], x])
 
-        # Predict warm start
         for category in var_split.keys():
+            var_index_pairs = var_split[category]
+            
+            # Predict warm starts
             if category in self.ws_predictors.keys():
-                var_index_pairs = var_split[category]
                 ws = self.ws_predictors[category].predict(x_test[category])
                 assert ws.shape == (len(var_index_pairs), 2)
                 for i in range(len(var_index_pairs)):
@@ -75,9 +83,23 @@ class LearningSolver:
                         elif ws[i,1] == 1:
                             var[index].value = 1
 
-        # Solve MILP
-        solve_results = self._solve(model, tee=tee)
+            # Set custom branch priority
+            if self.branch_priority is not None:
+                assert is_solver_persistent
+                from gurobipy import GRB
+                for (i, (var, index)) in enumerate(var_index_pairs):
+                    gvar = self.internal_solver._pyomo_var_to_solver_var_map[var[index]]
+                    #priority = randint(low=0, high=1000).rvs()
+                    gvar.setAttr(GRB.Attr.BranchPriority, self.branch_priority[index])
 
+        if is_solver_persistent:
+            solve_results = self.internal_solver.solve(tee=tee, warmstart=True)
+        else:
+            solve_results = self.internal_solver.solve(model, tee=tee, warmstart=True)
+            
+        solve_results["Solver"][0]["Nodes"] = self.internal_solver._solver_model.getAttr("NodeCount")
+            
+        
         # Update y_train
         for category in var_split.keys():
             var_index_pairs = var_split[category]
@@ -113,7 +135,7 @@ class LearningSolver:
 
         results = Parallel(n_jobs=n_jobs)(
             delayed(_process)(instance)
-            for instance in tqdm(instances, desc=label)
+            for instance in tqdm(instances, desc=label, ncols=80)
         )
         
         x_train, y_train, results = _merge(results)
@@ -148,10 +170,3 @@ class LearningSolver:
             self.x_train = data["x_train"]
             self.y_train = data["y_train"]
             self.ws_predictors = self.ws_predictors
-
-    def _solve(self, model, tee=False):
-        if hasattr(self.internal_solver, "set_instance"):
-            self.internal_solver.set_instance(model)
-            return self.internal_solver.solve(tee=tee, warmstart=True)
-        else:
-            return self.internal_solver.solve(model, tee=tee, warmstart=True)
