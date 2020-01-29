@@ -48,7 +48,7 @@ class LearningSolver:
             
         if mode is not None:
             assert mode in ["exact", "heuristic"]
-            for component in self.components:
+            for component in self.components.values():
                 component.mode = mode
         
     def _create_solver(self):

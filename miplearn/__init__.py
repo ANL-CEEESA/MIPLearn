@@ -7,3 +7,5 @@ from .component import Component
 from .instance import Instance
 from .solvers import LearningSolver
 from .benchmark import BenchmarkRunner
+from .warmstart import WarmStartComponent
+from .branching import BranchPriorityComponent

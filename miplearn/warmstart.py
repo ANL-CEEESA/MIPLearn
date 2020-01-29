@@ -50,7 +50,7 @@ class WarmStartPredictor(ABC):
 class LogisticWarmStartPredictor(WarmStartPredictor):
     def __init__(self,
                  min_samples=100,
-                 thr_fix=[0.99, 0.99],
+                 thr_fix=[0.95, 0.95],
                  thr_balance=[0.95, 0.95],
                  thr_score=[0.95, 0.95]):
         super().__init__()
@@ -151,8 +151,12 @@ class WarmStartComponent(Component):
                     if self.mode == "heuristic":
                         if ws[i,0] == 1:
                             var[index].fix(0)
+                            if solver.is_persistent:
+                                solver.internal_solver.update_var(var[index])
                         elif ws[i,1] == 1:
                             var[index].fix(1)
+                            if solver.is_persistent:
+                                solver.internal_solver.update_var(var[index])
                     else:
                         if ws[i,0] == 1:
                             var[index].value = 0

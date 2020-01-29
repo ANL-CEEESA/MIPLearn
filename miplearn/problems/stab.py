@@ -14,22 +14,22 @@ from scipy.stats.distributions import rv_frozen
 class MaxWeightStableSetChallengeA:
     """
     - Fixed random graph (200 vertices, 5% density)
-    - Uniformly random weights in the [100., 125.] interval
-    - 500 training instances
-    - 100 test instances
+    - Random weights ~ U(100., 150.)
+    - 300 training instances
+    - 50 test instances
     """
     
     def __init__(self):
-        self.generator = MaxWeightStableSetGenerator(w=uniform(loc=100., scale=25.),
+        self.generator = MaxWeightStableSetGenerator(w=uniform(loc=100., scale=50.),
                                                      n=randint(low=200, high=201),
                                                      density=uniform(loc=0.05, scale=0.0),
                                                      fix_graph=True)
     
     def get_training_instances(self):
-        return self.generator.generate(500)
+        return self.generator.generate(300)
     
     def get_test_instances(self):
-        return self.generator.generate(100)
+        return self.generator.generate(50)
 
 
 class MaxWeightStableSetGenerator:

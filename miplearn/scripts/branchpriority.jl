@@ -51,7 +51,7 @@ branch_and_bound(mip,
                  node_limit = 1000,
                  branch_rule = full_strong_branching_track,
                  node_rule = best_bound,
-                 print_interval = 1)
+                 print_interval = 100)
 
 priority = [(pseudocost_count_up[v] == 0 || pseudocost_count_down[v] == 0) ? 0 :
               (pseudocost_sum_up[v] / pseudocost_count_up[v]) *
