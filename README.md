@@ -1,7 +1,7 @@
 MIPLearn
 ========
 
-**MIPLearn** is a flexible and extensible framework for *Learning-Enhanced Mixed-Integer Optimization*, an approach aimed at efficiently handling challenging discrete optimization problems that need to be repeatedly solved with only relatively minor changes to the input data. The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a traditional MIP solver towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see [benchmark results](#benchmark-results) and [references](#references) below).
+**MIPLearn** is an extensible framework for *Learning-Enhanced Mixed-Integer Optimization*, an approach targeted at discrete optimization problems that need to be repeatedly solved with only minor changes to input data. The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a conventional MIP solver towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see [benchmark results](#benchmark-results) and [references](#references) for more details).
 
 Table of Contents
 -----------------
@@ -40,7 +40,7 @@ Features
 Installation
 ------------
 
-The package is currently available for Python and Pyomo. It can be installed using `pip` as follows:
+The package is currently available for Python and Pyomo, although a Julia+JuMP version is planned. It can be installed using `pip` as follows:
 
 ```bash
 pip install git+ssh://git@github.com/iSoron/miplearn.git
@@ -212,7 +212,7 @@ To illustrate the performance benefits of MIPLearn, we present a small number of
 * **ml-exact:** `LearningSolver` with default settings, using Gurobi 9.0 as internal MIP solver
 * **ml-heuristic:** Same as above, but with `mode="heuristic"`
 
-The experiments were performed on a Linux server (Ubuntu Linux 18.04 LTS) with Intel Xeon Gold 6230s (2 processors, 40 cores, 80 threads) and 256 GB RAM (DDR4, 2933 MHz). All solvers were restricted to use 4 threads, wit no time limits, and 10 instances were solved simultaneously at a time.
+The experiments were performed on a Linux server (Ubuntu Linux 18.04 LTS) with Intel Xeon Gold 6230s (2 processors, 40 cores, 80 threads) and 256 GB RAM (DDR4, 2933 MHz). All solvers were restricted to use 4 threads, with no time limits, and 10 instances were solved simultaneously at a time.
 
 #### Maximum Weight Stable Set Problem
 
