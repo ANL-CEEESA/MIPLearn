@@ -202,7 +202,7 @@ benchmark.parallel_solve(test_instances)
 
 MIPLearn provides a selection of random instance generators for some fundamental discrete optimization problems, as well a baseline MIP and ML formulation for these problems. The included problems are the following:
 
-* **Maximum Weight Stable Set Problem:** Given a graph G=(V,E) with vertex weights, the problem is to find the maximum weight *stable set* of the graph, where a *stable set* a set of vertices, no two of which are adjacent. The class `MaxWeightStableSetGenerator` can generate random instances of this problem with specified probability distributions for number of vertices, edge probability and weights.
+* **Maximum Weight Stable Set Problem:** Given a graph G=(V,E) with vertex weights, the problem is to find a maximum weight stable set of the graph, where a *stable set* is a subset of vertices, no two of which are adjacent. The class `MaxWeightStableSetGenerator` can generate random instances of this problem with specified probability distributions for number of vertices, edge probability and weights.
 
 ### Benchmark results
 
