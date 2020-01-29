@@ -1,7 +1,7 @@
 MIPLearn
 ========
 
-**MIPLearn** is a flexible and extensible framework for *Learning-Enhanced Mixed-Integer Optimization*, an approach aimed at efficiently handling challenging discrete optimization problems that need to be repeatedly solved with only relatively minor changes to the input data. The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a traditional MIP solver towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see references below).
+**MIPLearn** is a flexible and extensible framework for *Learning-Enhanced Mixed-Integer Optimization*, an approach aimed at efficiently handling challenging discrete optimization problems that need to be repeatedly solved with only relatively minor changes to the input data. The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a traditional MIP solver towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see [benchmark results](#benchmark-results) and [references](#references) below).
 
 Table of Contents
 -----------------
@@ -13,16 +13,19 @@ Table of Contents
      * [Obtaining heuristic solutions](#obtaining-heuristic-solutions)
      * [Saving and loading solver state](#saving-and-loading-solver-state)
      * [Solving training instances in parallel](#solving-training-instances-in-parallel)
-  * [Benchmarking](#benchmarking)
+  * [Benchmarks](#benchmarks)
      * [Using BenchmarkRunner](#using-benchmarkrunner)
      * [Saving and loading benchmark results](#saving-and-loading-benchmark-results)
+     * [Benchmark problems](#benchmark-problems)
+     * [Benchmark results](#benchmark-results)
+        * [Maximum Weight Stable Set Problem](#maximum-weight-stable-set-problem)
   * [Customization](#customization)
      * [Selecting the internal MIP solver](#selecting-the-internal-mip-solver)
   * [Current Limitations](#current-limitations)
-  * [References](#references)
   * [Authors](#authors)
   * [Acknowledgements](#acknowledgements)
   * [License](#license)
+  * [References](#references)
 
 Features
 --------
@@ -132,8 +135,8 @@ solver.solve(test_instance)
 
 After all training instances have been solved in parallel, the ML models can be trained and saved to disk as usual, using `fit` and `save_state`, as explained in the previous subsections.
 
-Benchmarking
-------------
+Benchmarks
+----------
 
 ### Using `BenchmarkRunner`
 
@@ -194,6 +197,31 @@ benchmark.load_state("training_data.bin")
 benchmark.load_results("baseline_results.csv")
 benchmark.parallel_solve(test_instances)
 ```
+
+### Benchmark problems
+
+MIPLearn provides a selection of random instance generators for some fundamental discrete optimization problems, as well a baseline MIP and ML formulation for these problems. The included problems are the following:
+
+* **Maximum Weight Stable Set Problem:** Given a graph G=(V,E) with vertex weights, the problem is to find the maximum weight *stable set* of the graph, where a *stable set* a set of vertices, no two of which are adjacent. The class `MaxWeightStableSetGenerator` can generate random instances of this problem with specified probability distributions for number of vertices, edge probability and weights.
+
+### Benchmark results
+
+To illustrate the performance benefits of MIPLearn, we present a small number of computational results for some of the included benchmark problems. For more detailed computational studies, see the [references](#references) below. We compare three solvers:
+
+* **baseline:** Gurobi 9.0 with default settings (a conventional state-of-the-art MIP solver)
+* **ml-exact:** `LearningSolver` with default settings, using Gurobi 9.0 as internal MIP solver
+* **ml-heuristic:** Same as above, but with `mode="heuristic"`
+
+The experiments were performed on a Linux server (Ubuntu Linux 18.04 LTS) with Intel Xeon Gold 6230s (2 processors, 40 cores, 80 threads) and 256 GB RAM (DDR4, 2933 MHz). All solvers were restricted to use 4 threads, wit no time limits, and 10 instances were solved simultaneously at a time.
+
+#### Maximum Weight Stable Set Problem
+
+* Fixed random graph (200 nodes, 5% edge probability)
+* Random vertex weights ~ U(100, 150)
+* 300 training instances, 50 test instances
+
+![alt](figures/mwss.png)
+
 
 Customization
 -------------
