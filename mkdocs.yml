@@ -1,2 +1,12 @@
 site_name: MIPLearn
 theme: cinder
+nav:
+    - Home: index.md
+    - Usage: usage.md
+    - Benchmark: benchmark.md
+    - Customization: customization.md
+    - About: about.md
+plugins:
+  - search
+markdown_extensions:
+  - admonition  
