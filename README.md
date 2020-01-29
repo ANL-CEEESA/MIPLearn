@@ -3,7 +3,7 @@ MIPLearn
 
 **MIPLearn** is a flexible and extensible framework for *Learning-Enhanced Mixed-Integer Optimization*, an approach aimed at efficiently handling challenging discrete optimization problems that need to be repeatedly solved with only relatively minor changes to the input data. The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a traditional MIP solver towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see references below).
 
-Table of contents
+Table of Contents
 -----------------
   * [Features](#features)
   * [Installation](#installation)
@@ -21,6 +21,7 @@ Table of contents
   * [Current Limitations](#current-limitations)
   * [References](#references)
   * [Authors](#authors)
+  * [Acknowledgements](#acknowledgements)
   * [License](#license)
 
 Features
@@ -218,19 +219,26 @@ Current Limitations
 
 * Only binary and continuous decision variables are currently supported.
 * Solver callbacks (lazy constraints, cutting planes) are not currently supported.
-* Only `gurobi_persistent` is currently fully supported by all components. Other solvers may work if some components are disabled.
-
-References
-----------
-
-* **Learning to Solve Large-Scale Security-Constrained Unit Commitment Problems.** *Alinson S. Xavier, Feng Qiu, Shabbir Ahmed*. INFORMS Journal on Computing (to appear). https://arxiv.org/abs/1902.01697
+* Only `gurobi_persistent` is currently fully supported by all solver components. Other solvers may work if some components are disabled.
 
 Authors
 -------
 * **Alinson S. Xavier,** Argonne National Laboratory <<axavier@anl.gov>>
+* **Feng Qiu,** Argonne National Laboratory <<fqiu@anl.gov>>
+* **Shabbir Ahmed,** Georgia Institute of Technology <<shabbir.ahmed@isye.gatech.edu>>
+
+Acknowledgements
+----------------
+* Based upon work supported by Laboratory Directed Research and Development (LDRD) funding from Argonne National Laboratory, provided by the Director, Office of Science, of the U.S. Department of Energy under Contract No. DE-AC02-06CH11357.
 
 License
 -------
 
     MIPLearn, an extensible framework for Learning-Enhanced Mixed-Integer Optimization
     Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
+
+References
+----------
+
+* **Learning to Solve Large-Scale Security-Constrained Unit Commitment Problems.** *Alinson S. Xavier, Feng Qiu, Shabbir Ahmed*. INFORMS Journal on Computing (to appear). https://arxiv.org/abs/1902.01697
+
