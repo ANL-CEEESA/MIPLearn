@@ -88,7 +88,7 @@ By default, `LearningSolver` uses Machine Learning to accelerate the MIP solutio
 
 For more significant performance benefits, `LearningSolver` can also be configured to place additional trust in the Machine Learning predictors, by using the `mode="heuristic"` constructor argument. When operating in this mode, if a ML model is statistically shown (through *stratified k-fold cross validation*) to have exceptionally high accuracy, the solver may decide to restrict the search space based on its predictions. The parts of the solution which the ML models cannot predict accurately will still be explored using traditional (branch-and-bound) methods
 
-This mode naturally loses all optimality guarantees, and therefore should only be used if the solver is first trained on a large and representative set of training instances. For particular applications, however, this mode has been shown to quickly produce optimal or near-optimal solutions (see references below).
+This mode naturally loses all optimality guarantees, and therefore should only be used if the solver is first trained on a large and representative set of training instances. For particular applications, however, this mode has been shown to quickly produce optimal or near-optimal solutions (see [benchmark results](#benchmark-results) and [references](#references) below).
 
 ### Saving and loading solver state
 
