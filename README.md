@@ -173,9 +173,9 @@ The method `load_state` loads the saved training data into each one of the provi
 * **Lower Bound,** the best lower bound obtained by the solver;
 * **Upper Bound,** the best upper bound obtained by the solver;
 * **Gap,** the relative MIP integrality gap at the end of the optimization;
-* **Nodes,** the number of explorer branch-and-bound nodes.
+* **Nodes,** the number of explored branch-and-bound nodes.
 
-In addition to the above, there is also a *Relative* version of most columns, where the raw number is compared to the solver which provided the best performance. The *Relative Wallclock Time* for example, indicates how many times slower this run was when compared to the best time achieved by any solver when processing this instance. For example, if this run took 10 seconds, but the fastest solver took only 5 seconds to solve the same instance, the relative wallclock time would be 2.
+In addition to the above, there is also a "Relative" version of most columns, where the raw number is compared to the solver which provided the best performance. The *Relative Wallclock Time* for example, indicates how many times slower this run was when compared to the best time achieved by any solver when processing this instance. For example, if this run took 10 seconds, but the fastest solver took only 5 seconds to solve the same instance, the relative wallclock time would be 2.
 
 ### Saving and loading benchmark results
 
