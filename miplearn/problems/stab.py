@@ -12,17 +12,10 @@ from scipy.stats.distributions import rv_frozen
 
 
 class MaxWeightStableSetChallengeA:
-    """
-    - Fixed random graph (200 vertices, 5% density)
-    - Random weights ~ U(100., 150.)
-    - 300 training instances
-    - 50 test instances
-    """
-    
     def __init__(self):
         self.generator = MaxWeightStableSetGenerator(w=uniform(loc=100., scale=50.),
                                                      n=randint(low=200, high=201),
-                                                     density=uniform(loc=0.05, scale=0.0),
+                                                     p=uniform(loc=0.05, scale=0.0),
                                                      fix_graph=True)
     
     def get_training_instances(self):
@@ -35,42 +28,37 @@ class MaxWeightStableSetChallengeA:
 class MaxWeightStableSetGenerator:
     """Random instance generator for the Maximum-Weight Stable Set Problem.
     
-    The generator has two modes of operation. When `fix_graph` is True, the random graph is
-    generated only once, during the constructor. Each instance is constructed by generating
-    random weights and by randomly deleting vertices and edges of this graph. When `fix_graph`
-    is False, a new random graph is created each time an instance is constructed.
+    The generator has two modes of operation. When `fix_graph=True` is provided, one random
+    Erdős-Rényi graph $G_{n,p}$ is generated in the constructor, where $n$ and $p$ are sampled
+    from user-provided probability distributions `n` and `p`. To generate each instance, the
+    generator independently samples each $w_v$ from the user-provided probability distribution `w`.
+    
+    When `fix_graph=False`, a new random graph is generated for each instance; the remaining
+    parameters are sampled in the same way.
     """
     
     def __init__(self,
                  w=uniform(loc=10.0, scale=1.0),
-                 pe=bernoulli(1.),
-                 pv=bernoulli(1.),
                  n=randint(low=250, high=251),
-                 density=uniform(loc=0.05, scale=0.05),
+                 p=uniform(loc=0.05, scale=0.0),
                  fix_graph=True):
-        """Initializes the problem generator.
+        """Initialize the problem generator.
         
         Parameters
         ----------
         w: rv_continuous
-            Probability distribution for the vertex weights.
-        pe: rv_continuous
-            Probability of an edge being deleted. Only used when fix_graph=True.
-        pv: rv_continuous
-            Probability of a vertex being deleted. Only used when fix_graph=True.
+            Probability distribution for vertex weights.
         n: rv_discrete
-            Probability distribution for the number of vertices in the random graph.
-        density: rv_continuous
-            Probability distribution for the density of the random graph.
+            Probability distribution for parameter $n$ in Erdős-Rényi model.
+        p: rv_continuous
+            Probability distribution for parameter $p$ in Erdős-Rényi model.
         """
         assert isinstance(w, rv_frozen), "w should be a SciPy probability distribution"
-        assert isinstance(pe, rv_frozen), "pe should be a SciPy probability distribution"
-        assert isinstance(pv, rv_frozen), "pv should be a SciPy probability distribution"
         assert isinstance(n, rv_frozen), "n should be a SciPy probability distribution"
-        assert isinstance(density, rv_frozen), "density should be a SciPy probability distribution"
+        assert isinstance(p, rv_frozen), "p should be a SciPy probability distribution"
         self.w = w
         self.n = n
-        self.density = density
+        self.p = p
         self.fix_graph = fix_graph
         self.graph = None
         if fix_graph:
@@ -87,7 +75,7 @@ class MaxWeightStableSetGenerator:
         return [_sample() for _ in range(n_samples)]
     
     def _generate_graph(self):
-        return nx.generators.random_graphs.binomial_graph(self.n.rvs(), self.density.rvs())
+        return nx.generators.random_graphs.binomial_graph(self.n.rvs(), self.p.rvs())
 
 
 class MaxWeightStableSetInstance(Instance):

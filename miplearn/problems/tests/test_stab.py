@@ -23,7 +23,7 @@ def test_stab_generator_fixed_graph():
     from miplearn.problems.stab import MaxWeightStableSetGenerator
     gen = MaxWeightStableSetGenerator(w=uniform(loc=50., scale=10.),
                                       n=randint(low=10, high=11),
-                                      density=uniform(loc=0.05, scale=0.),
+                                      p=uniform(loc=0.05, scale=0.),
                                       fix_graph=True)
     instances = gen.generate(1_000)
     weights = np.array([instance.weights for instance in instances])
@@ -36,7 +36,7 @@ def test_stab_generator_random_graph():
     from miplearn.problems.stab import MaxWeightStableSetGenerator
     gen = MaxWeightStableSetGenerator(w=uniform(loc=50., scale=10.),
                                       n=randint(low=30, high=41),
-                                      density=uniform(loc=0.5, scale=0.),
+                                      p=uniform(loc=0.5, scale=0.),
                                       fix_graph=False)
     instances = gen.generate(1_000)
     n_nodes = [instance.graph.number_of_nodes() for instance in instances]

@@ -41,7 +41,7 @@ The class `MaxWeightStableSetGenerator` can be used to generate random instances
 ```python
 MaxWeightStableSetGenerator(w=uniform(loc=100., scale=50.),
                             n=randint(low=200, high=201),
-                            density=uniform(loc=0.05, scale=0.0),
+                            p=uniform(loc=0.05, scale=0.0),
                             fix_graph=True)
 ```
 
