@@ -43,7 +43,7 @@ class LearningSolver:
         else:
             self.components = {
                 "warm-start": WarmStartComponent(),
-                "branch-priority": BranchPriorityComponent(),
+                #"branch-priority": BranchPriorityComponent(),
             }
             
         if mode is not None:
