@@ -9,6 +9,8 @@ jobs:
       run: |
         rm -rf ~/.conda/envs/miplearn-test
         yes | conda create --name miplearn-test python=3.8
+        julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/iSoron/CPLEXW.git")); Pkg.build("CPLEXW")'
+        julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/iSoron/TinyBnB.jl.git"))'
         (cd /opt/gurobi900/linux64 && ~/.conda/envs/miplearn-test/bin/python setup.py install)
         ~/.conda/envs/miplearn-test/bin/pip install -r requirements.txt
         ~/.conda/envs/miplearn-test/bin/pytest
