@@ -5,3 +5,4 @@ sklearn
 networkx
 tqdm
 pandas
+pytest-watch

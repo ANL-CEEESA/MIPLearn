@@ -26,7 +26,7 @@ All experiments presented here were performed on a Linux server (Ubuntu Linux 18
 
 Given a simple undirected graph $G=(V,E)$ and weights $w \in \mathbb{R}^V$, the problem is to find a stable set $S \subseteq V$ that maximizes $ \sum_{v \in V} w_v$. We recall that a subset $S \subseteq V$ is a *stable set* if no two vertices of $S$ are adjacent. This is one of Karp's 21 NP-complete problems.
 
-### Random instance generators
+### Random instance generator
 
 The class `MaxWeightStableSetGenerator` can be used to generate random instances of this problem, with user-specified probability distributions. When the constructor parameter `fix_graph=True` is provided, one random Erdős-Rényi graph $G_{n,p}$ is generated during the constructor, where $n$ and $p$ are sampled from user-provided probability distributions `n` and `p`. To generate each instance, the generator independently samples each $w_v$ from the user-provided probability distribution `w`. When `fix_graph=False`, a new random graph is generated for each instance, while the remaining parameters are sampled in the same way.
 
@@ -50,3 +50,42 @@ MaxWeightStableSetGenerator(w=uniform(loc=100., scale=50.),
 #### Challenge A
 
 ![alt](figures/mwss.png)
+
+## Multidimensional 0-1 Knapsack Problem
+
+### Problem definition
+
+Given a set of $n$ items and $m$ types of resources (also called *knapsacks*), the problem is to find a subset of items that maximizes profit without consuming more resources than it is available. More precisely, the problem is:
+
+\begin{align*}
+    \text{maximize}
+        & \sum_{j=1}^n p_j x_j
+        \\
+    \text{subject to}
+        & \sum_{j=1}^n w_{ij} x_j \leq b_i
+        & \forall i=1,\ldots,m \\
+    & x_j \in \{0,1\}
+        & \forall j=1,\ldots,n
+\end{align*}
+
+### Random instance generator
+
+The class `MultiKnapsackGenerator` can be used to generate random instances of this problem. The number of items $n$ and knapsacks $m$ are sampled from the user-provided probability distributions `n` and `m`. The weights $w_{ij}$ are sampled independently from the provided distribution `w`. The capacity of knapsack $i$ is set to
+
+$$
+    \alpha_i \sum_{j=1}^n w_{ij}
+$$
+
+where $\alpha_i$, the tightness ratio, is sampled from the provided probability
+distribution `alpha`. To make the instances more challenging, the costs of the items
+are linearly correlated to their average weights. More specifically, the weight of each
+item $j$ is set to:
+
+$$
+    \sum_{i=1}^m \frac{w_{ij}}{m} + K  u_j,
+$$
+
+where $K$, the correlation coefficient, and $u_j$, the correlation multiplier, are sampled
+from the provided probability distributions `K` and `u`. Note that $K$ is only sample once for the entire instance.
+
+This random generation procedure was developed by A. Freville and G. Plateau (*An efficient preprocessing procedure for the multidimensional knapsack problem*, Discrete Applied Mathematics 49 (1994) 189–212).

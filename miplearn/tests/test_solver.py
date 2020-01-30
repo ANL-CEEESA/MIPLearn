@@ -3,25 +3,28 @@
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
 from miplearn import LearningSolver
-from miplearn.problems.knapsack import KnapsackInstance2
+from miplearn.problems.knapsack import MultiKnapsackInstance
 from miplearn.branching import BranchPriorityComponent
 from miplearn.warmstart import WarmStartComponent
 import numpy as np
 
 
+def _get_instance():
+    return MultiKnapsackInstance(
+        weights=np.array([[23., 26., 20., 18.]]),
+        prices=np.array([505., 352., 458., 220.]),
+        capacities=np.array([67.])
+    )
+
 def test_solver():
-    instance = KnapsackInstance2(weights=[23., 26., 20., 18.],
-                                 prices=[505., 352., 458., 220.],
-                                 capacity=67.)
+    instance = _get_instance()
     solver = LearningSolver()
     solver.solve(instance)
     solver.fit()
     solver.solve(instance)
 
 def test_solve_save_load_state():
-    instance = KnapsackInstance2(weights=[23., 26., 20., 18.],
-                                 prices=[505., 352., 458., 220.],
-                                 capacity=67.)
+    instance = _get_instance()
     components_before = {
         "warm-start": WarmStartComponent(),
         "branch-priority": BranchPriorityComponent(),
@@ -43,10 +46,7 @@ def test_solve_save_load_state():
     assert len(solver.components["warm-start"].y_train) == prev_y_train_len
 
 def test_parallel_solve():
-    instances = [KnapsackInstance2(weights=np.random.rand(5),
-                                   prices=np.random.rand(5),
-                                   capacity=3.0)
-                 for _ in range(10)]
+    instances = [_get_instance() for _ in range(10)]
     solver = LearningSolver()
     results = solver.parallel_solve(instances, n_jobs=3)
     assert len(results) == 10
@@ -54,9 +54,7 @@ def test_parallel_solve():
     assert len(solver.components["warm-start"].y_train[0]) == 10
     
 def test_solver_random_branch_priority():
-    instance = KnapsackInstance2(weights=[23., 26., 20., 18.],
-                                 prices=[505., 352., 458., 220.],
-                                 capacity=67.)
+    instance = _get_instance()
     components = {
         "warm-start": BranchPriorityComponent(initial_priority=np.array([1, 2, 3, 4])),
     }

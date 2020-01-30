@@ -1,5 +1,7 @@
 PYTEST_ARGS := -W ignore::DeprecationWarning -vv
 
+all: docs test
+
 docs:
 	mkdocs build
 
