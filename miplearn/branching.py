@@ -42,7 +42,8 @@ class BranchPriorityComponent(Component):
                            check=True,
                            capture_output=True)
             self._merge(np.genfromtxt(priority_file.name,
-                                      delimiter=','))
+                                      delimiter=',',
+                                      dtype=np.float64))
         
     
     def fit(self, solver):

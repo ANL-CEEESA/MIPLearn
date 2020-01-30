@@ -56,7 +56,7 @@ def test_parallel_solve():
 def test_solver_random_branch_priority():
     instance = _get_instance()
     components = {
-        "warm-start": BranchPriorityComponent(initial_priority=np.array([1, 2, 3, 4])),
+        "warm-start": BranchPriorityComponent(initial_priority=np.array([1., 2., 3., 4.])),
     }
     solver = LearningSolver(components=components)
     solver.solve(instance)
