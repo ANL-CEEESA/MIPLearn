@@ -1,6 +1,6 @@
 site_name: MIPLearn
 theme: cinder
-copyright: Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
+copyright: Copyright (C) 2019-2020 Argonne National Laboratory
 repo_url: https://github.com/iSoron/miplearn
 nav:
     - Home: index.md

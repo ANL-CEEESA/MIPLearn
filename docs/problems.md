@@ -73,25 +73,26 @@ Given a set of $n$ items and $m$ types of resources (also called *knapsacks*), t
 The class `MultiKnapsackGenerator` can be used to generate random instances of this problem. The number of items $n$ and knapsacks $m$ are sampled from the user-provided probability distributions `n` and `m`. The weights $w_{ij}$ are sampled independently from the provided distribution `w`. The capacity of knapsack $i$ is set to
 
 $$
-    \alpha_i \sum_{j=1}^n w_{ij}
+    b_i = \alpha_i \sum_{j=1}^n w_{ij}
 $$
 
 where $\alpha_i$, the tightness ratio, is sampled from the provided probability
 distribution `alpha`. To make the instances more challenging, the costs of the items
-are linearly correlated to their average weights. More specifically, the weight of each
+are linearly correlated to their average weights. More specifically, the price of each
 item $j$ is set to:
 
 $$
-    \sum_{i=1}^m \frac{w_{ij}}{m} + K  u_j,
+    p_j = \sum_{i=1}^m \frac{w_{ij}}{m} + K  u_j,
 $$
 
 where $K$, the correlation coefficient, and $u_j$, the correlation multiplier, are sampled
-from the provided probability distributions `K` and `u`. Note that $K$ is only sample once for each generated instance.
+from the provided probability distributions `K` and `u`.
 
 If `fix_w=True` is provided, then $w_{ij}$ are kept the same in all generated instances. This also implies that $n$ and $m$ are kept fixed. Although the prices and capacities are derived from $w_{ij}$, as long as `u` and `K` are not constants, the generated instances will still not be completely identical.
 
 
 If a probability distribution `w_jitter` is provided, then item weights will be set to $w_{ij} + \gamma_{ij}$ where $\gamma_{ij}$ is sampled from `w_jitter`. When combined with `fix_w=True`, this argument may be used to generate instances where the weight of each item is roughly the same, but not exactly identical, across all instances. The prices of the items and the capacities of the knapsacks will be calculated as above, but using these perturbed weights instead.
 
-!!! note
-    Random generator based on *A. Freville and G. Plateau, **An efficient preprocessing procedure for the multidimensional knapsack problem**, Discrete Applied Mathematics 49 (1994) 189–212*.
+!!! note "References"
+    * Freville, Arnaud, and Gérard Plateau. *An efficient preprocessing procedure for the multidimensional 0–1 knapsack problem.* Discrete applied mathematics 49.1-3 (1994): 189-212.
+    * Fréville, Arnaud. *The multidimensional 0–1 knapsack problem: An overview.* European Journal of Operational Research 155.1 (2004): 1-21.

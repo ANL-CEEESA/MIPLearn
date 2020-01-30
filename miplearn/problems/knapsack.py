@@ -10,6 +10,22 @@ from scipy.stats import uniform, randint, bernoulli
 from scipy.stats.distributions import rv_frozen
 
 
+class ChallengeA:
+    def __init__(self, seed=0):
+        np.random.seed(seed)
+        self.gen = MultiKnapsackGenerator(n=randint(low=50, high=51),
+                                          m=randint(low=3, high=4),
+                                          w=uniform(loc=0.0, scale=200.0),
+                                          K=uniform(loc=1.0, scale=0.0),
+                                          u=uniform(loc=1.0, scale=0.0),
+                                          alpha=uniform(loc=0.25, scale=0.0),
+                                          fix_w=True,
+                                          w_jitter=uniform(loc=-10.0, scale=20.0),
+                                         )
+        self.training_instances = self.gen.generate(300)
+        self.test_instances = self.gen.generate(50)
+
+
 class MultiKnapsackInstance(Instance):
     """Representation of the Multidimensional 0-1 Knapsack Problem.
     
@@ -74,6 +90,7 @@ class MultiKnapsackGenerator:
                  alpha=uniform(loc=0.25, scale=0.0),
                  fix_w=False,
                  w_jitter=randint(low=0, high=1),
+                 seed=None,
                 ):
         """Initialize the problem generator.
         
@@ -114,9 +131,9 @@ class MultiKnapsackGenerator:
             Probability distribution for the number of items (or variables)
         m: rv_discrete
             Probability distribution for the number of knapsacks (or constraints)
-        w: rv_discrete
+        w: rv_continuous
             Probability distribution for the item weights
-        K: rv_discrete
+        K: rv_continuous
             Probability distribution for the profit correlation coefficient
         u: rv_continuous
             Probability distribution for the profit multiplier

@@ -39,10 +39,10 @@ class BranchPriorityComponent(Component):
                             "%s/scripts/branchpriority.jl" % src_dirname,
                             model_file.name,
                             priority_file.name],
-                           check=True)
+                           check=True,
+                           capture_output=True)
             self._merge(np.genfromtxt(priority_file.name,
-                                      delimiter=',',
-                                      dtype=int))
+                                      delimiter=','))
         
     
     def fit(self, solver):
