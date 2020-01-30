@@ -59,11 +59,18 @@ class Instance(ABC):
         provide as variable features the weight and the price of a specific item.
         
         Like instance features, the arrays returned by this method MUST have the same length for
-        all variables, and for all relevant instances of the problem.
-        
-        If the value of the given variable should not be predicted, this method MUST return None.
+        all variables within the same category, for all relevant instances of the problem.
         """
         pass
 
     def get_variable_category(self, var, index):
+        """
+        Returns a category (a string, an integer or any hashable type) for each decision variable.
+        
+        If two variables have the same category, LearningSolver will use the same internal ML model
+        to predict the values of both variables. By default, all variables belong to the "default"
+        category, and therefore only one ML model is used for all variables.
+        
+        If the returned category is None, ML models will ignore the variable.
+        """
         return "default"
