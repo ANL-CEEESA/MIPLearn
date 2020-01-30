@@ -58,7 +58,7 @@ def test_solver_random_branch_priority():
                                  prices=[505., 352., 458., 220.],
                                  capacity=67.)
     components = {
-        "warm-start": BranchPriorityComponent(priority=np.array([1, 2, 3, 4])),
+        "warm-start": BranchPriorityComponent(initial_priority=np.array([1, 2, 3, 4])),
     }
     solver = LearningSolver(components=components)
     solver.solve(instance)
