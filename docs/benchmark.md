@@ -1,4 +1,4 @@
-# Benchmarks
+# Benchmarks Utilities
 
 
 ### Using `BenchmarkRunner`
@@ -62,29 +62,3 @@ benchmark.load_results("baseline_results.csv")
 benchmark.parallel_solve(test_instances)
 ```
 
-
-### Benchmark problems
-
-MIPLearn provides a selection of random instance generators for some fundamental discrete optimization problems, as well a baseline MIP and ML formulation for these problems. The included problems are the following:
-
-* **Maximum Weight Stable Set Problem:** Given a graph G=(V,E) with vertex weights, the problem is to find a maximum weight stable set of the graph, where a *stable set* is a subset of vertices, no two of which are adjacent. The class `MaxWeightStableSetGenerator` can generate random instances of this problem with specified probability distributions for number of vertices, edge probability and weights.
-
-
-### Benchmark results
-
-To illustrate the performance benefits of MIPLearn, we present a small number of computational results for some of the included benchmark problems. For more detailed computational studies, see the [references](#references) below. We compare three solvers:
-
-* **baseline:** Gurobi 9.0 with default settings (a conventional state-of-the-art MIP solver)
-* **ml-exact:** `LearningSolver` with default settings, using Gurobi 9.0 as internal MIP solver
-* **ml-heuristic:** Same as above, but with `mode="heuristic"`
-
-The experiments were performed on a Linux server (Ubuntu Linux 18.04 LTS) with Intel Xeon Gold 6230s (2 processors, 40 cores, 80 threads) and 256 GB RAM (DDR4, 2933 MHz). All solvers were restricted to use 4 threads, with no time limits, and 10 instances were solved simultaneously at a time.
-
-
-#### Maximum Weight Stable Set Problem
-
-* Fixed random graph (200 nodes, 5% edge probability)
-* Random vertex weights ~ U(100, 150)
-* 300 training instances, 50 test instances
-
-![alt](figures/mwss.png)

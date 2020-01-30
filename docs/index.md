@@ -15,7 +15,8 @@
 ### Documentation
 
 * [Installation and typical usage](usage.md)
-* [Benchmark problems and results](benchmark.md)
+* [Benchmark utilities](benchmark.md)
+* [Benchmark problems, challenges and results](problems.md)
 * [Customizing the solver](customization.md)
 * [License, authors, references and acknowledgements](about.md)
 
