@@ -57,6 +57,8 @@ class PerVariableTransformer:
         for var in model.component_objects(Var):
             for index in var:
                 category = instance.get_variable_category(var, index)
+                if category is None:
+                    continue
                 if category not in result.keys():
                     result[category] = []
                 result[category] += [(var, index)]
