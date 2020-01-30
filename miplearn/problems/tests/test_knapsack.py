@@ -42,3 +42,31 @@ def test_knapsack_instance():
     solver = LearningSolver()
     results = solver.solve(instance)
     assert results["Problem"][0]["Lower bound"] == 30.0
+    
+def test_knapsack_fixed_weights_jitter():
+    gen = MultiKnapsackGenerator(n=randint(low=50, high=51),
+                                 m=randint(low=10, high=11),
+                                 w=randint(low=0, high=1000),
+                                 K=randint(low=500, high=501),
+                                 u=uniform(loc=1.0, scale=0.0),
+                                 alpha=uniform(loc=0.50, scale=0.0),
+                                 fix_w=True,
+                                 w_jitter=randint(low=0, high=1),
+                                )
+    instances = gen.generate(100)
+    w = [instance.weights[0,0] for instance in instances]
+    assert np.std(w) == 0.
+    
+    gen = MultiKnapsackGenerator(n=randint(low=1, high=2),
+                                 m=randint(low=10, high=11),
+                                 w=randint(low=1000, high=1001),
+                                 K=randint(low=500, high=501),
+                                 u=uniform(loc=1.0, scale=0.0),
+                                 alpha=uniform(loc=0.50, scale=0.0),
+                                 fix_w=True,
+                                 w_jitter=randint(low=0, high=1001),
+                                )
+    instances = gen.generate(1_000)
+    w = [instance.weights[0,0] for instance in instances]
+    assert round(np.std(w), -1) == 290.
+    assert round(np.mean(w), -2) == 1500.

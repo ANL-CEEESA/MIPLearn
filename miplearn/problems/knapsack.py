@@ -72,6 +72,8 @@ class MultiKnapsackGenerator:
                  K=randint(low=500, high=500),
                  u=uniform(loc=0.0, scale=1.0),
                  alpha=uniform(loc=0.25, scale=0.0),
+                 fix_w=False,
+                 w_jitter=randint(low=0, high=1),
                 ):
         """Initialize the problem generator.
         
@@ -93,6 +95,19 @@ class MultiKnapsackGenerator:
         from the provided probability distributions. Note that `K` is only sample once for the
         entire instance.
         
+        If fix_w=True is provided, then w[i,j] are kept the same in all generated instances. This
+        also implies that n and m are kept fixed. Although the prices and capacities are derived
+        from w[i,j], as long as u and K are not constants, the generated instances will still not
+        be completely identical.
+
+
+        If a probability distribution w_jitter is provided, then item weights will be set to
+        w[i,j] + gamma[i,j] where gamma[i,j] is sampled from w_jitter. When combined with 
+        fix_w=True, this argument may be used to generate instances where the weight of each item
+        is roughly the same, but not exactly identical, across all instances. The prices of the
+        items and the capacities of the knapsacks will be calculated as above, but using these
+        perturbed weights instead.
+        
         Parameters
         ----------
         n: rv_discrete
@@ -107,6 +122,10 @@ class MultiKnapsackGenerator:
             Probability distribution for the profit multiplier
         alpha: rv_continuous
             Probability distribution for the tightness ratio
+        fix_w: boolean
+            If true, weights are kept the same (minus the noise from w_jitter) in all instances
+        w_jitter: rv_continuous
+            Probability distribution for random noise added to the weights
         """
         assert isinstance(n, rv_frozen), "n should be a SciPy probability distribution"
         assert isinstance(m, rv_frozen), "m should be a SciPy probability distribution"
@@ -114,24 +133,44 @@ class MultiKnapsackGenerator:
         assert isinstance(K, rv_frozen), "K should be a SciPy probability distribution"
         assert isinstance(u, rv_frozen), "u should be a SciPy probability distribution"
         assert isinstance(alpha, rv_frozen), "alpha should be a SciPy probability distribution"
+        assert isinstance(fix_w, bool), "fix_w should be boolean"
+        assert isinstance(w_jitter, rv_frozen), \
+                "w_jitter should be a SciPy probability distribution"
+        
         self.n = n
         self.m = m
         self.w = w
         self.K = K
         self.u = u
         self.alpha = alpha
+        self.w_jitter = w_jitter
+        
+        if fix_w:
+            self.fix_n = self.n.rvs()
+            self.fix_m = self.m.rvs()
+            self.fix_w = np.array([self.w.rvs(self.fix_n) for _ in range(self.fix_m)])
+        else:
+            self.fix_n = None
+            self.fix_m = None
+            self.fix_w = None
     
     def generate(self, n_samples):
         def _sample():
-            n = self.n.rvs()
-            m = self.m.rvs()
+            if self.fix_w is not None:
+                n = self.fix_n
+                m = self.fix_m
+                w = self.fix_w
+            else:
+                n = self.n.rvs()
+                m = self.m.rvs()
+                w = np.array([self.w.rvs(n) for _ in range(m)])
+            w = w + np.array([self.w_jitter.rvs(n) for _ in range(m)])
             K = self.K.rvs()
             u = self.u.rvs(n)
             alpha = self.alpha.rvs(m)
-            weights = np.array([self.w.rvs(n) for _ in range(m)])
-            prices = np.array([weights[:,j].sum() / m + K * u[j] for j in range(n)])
-            capacities = np.array([weights[i,:].sum() * alpha[i] for i in range(m)])
-            return MultiKnapsackInstance(prices, capacities, weights)
+            p = np.array([w[:,j].sum() / m + K * u[j] for j in range(n)])
+            b = np.array([w[i,:].sum() * alpha[i] for i in range(m)])
+            return MultiKnapsackInstance(p, b, w)
         return [_sample() for _ in range(n_samples)]
     
     

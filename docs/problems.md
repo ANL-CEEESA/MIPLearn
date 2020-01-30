@@ -86,6 +86,12 @@ $$
 $$
 
 where $K$, the correlation coefficient, and $u_j$, the correlation multiplier, are sampled
-from the provided probability distributions `K` and `u`. Note that $K$ is only sample once for the entire instance.
+from the provided probability distributions `K` and `u`. Note that $K$ is only sample once for each generated instance.
 
-This random generation procedure was developed by A. Freville and G. Plateau (*An efficient preprocessing procedure for the multidimensional knapsack problem*, Discrete Applied Mathematics 49 (1994) 189–212).
+If `fix_w=True` is provided, then $w_{ij}$ are kept the same in all generated instances. This also implies that $n$ and $m$ are kept fixed. Although the prices and capacities are derived from $w_{ij}$, as long as `u` and `K` are not constants, the generated instances will still not be completely identical.
+
+
+If a probability distribution `w_jitter` is provided, then item weights will be set to $w_{ij} + \gamma_{ij}$ where $\gamma_{ij}$ is sampled from `w_jitter`. When combined with `fix_w=True`, this argument may be used to generate instances where the weight of each item is roughly the same, but not exactly identical, across all instances. The prices of the items and the capacities of the knapsacks will be calculated as above, but using these perturbed weights instead.
+
+!!! note
+    Random generator based on *A. Freville and G. Plateau, **An efficient preprocessing procedure for the multidimensional knapsack problem**, Discrete Applied Mathematics 49 (1994) 189–212*.
