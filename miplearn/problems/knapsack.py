@@ -11,19 +11,32 @@ from scipy.stats.distributions import rv_frozen
 
 
 class ChallengeA:
-    def __init__(self, seed=0):
+    """
+    - 250 variables, 10 constraints, fixed weights
+    - w ~ U(100, 900), jitter ~ U(-100, 100)
+    - K = 500, u ~ U(0., 1.)
+    - alpha = 0.25
+    """
+    def __init__(self,
+                 seed=42,
+                 n_training_instances=300,
+                 n_test_instances=50):
+
         np.random.seed(seed)
-        self.gen = MultiKnapsackGenerator(n=randint(low=50, high=51),
-                                          m=randint(low=3, high=4),
-                                          w=uniform(loc=0.0, scale=200.0),
-                                          K=uniform(loc=1.0, scale=0.0),
-                                          u=uniform(loc=1.0, scale=0.0),
+        self.gen = MultiKnapsackGenerator(n=randint(low=250, high=251),
+                                          m=randint(low=10, high=11),
+                                          w=uniform(loc=100.0, scale=900.0),
+                                          K=uniform(loc=500.0, scale=0.0),
+                                          u=uniform(loc=0.0, scale=1.0),
                                           alpha=uniform(loc=0.25, scale=0.0),
                                           fix_w=True,
-                                          w_jitter=uniform(loc=-10.0, scale=20.0),
+                                          w_jitter=uniform(loc=-100.0, scale=200.0),
                                          )
-        self.training_instances = self.gen.generate(300)
-        self.test_instances = self.gen.generate(50)
+        np.random.seed(seed + 1)
+        self.training_instances = self.gen.generate(n_training_instances)
+        
+        np.random.seed(seed + 2)
+        self.test_instances = self.gen.generate(n_test_instances)
 
 
 class MultiKnapsackInstance(Instance):
@@ -90,7 +103,7 @@ class MultiKnapsackGenerator:
                  alpha=uniform(loc=0.25, scale=0.0),
                  fix_w=False,
                  w_jitter=randint(low=0, high=1),
-                 seed=None,
+                 round=True,
                 ):
         """Initialize the problem generator.
         
@@ -143,6 +156,8 @@ class MultiKnapsackGenerator:
             If true, weights are kept the same (minus the noise from w_jitter) in all instances
         w_jitter: rv_continuous
             Probability distribution for random noise added to the weights
+        round: boolean
+            If true, all prices, weights and capacities are rounded to the nearest integer
         """
         assert isinstance(n, rv_frozen), "n should be a SciPy probability distribution"
         assert isinstance(m, rv_frozen), "m should be a SciPy probability distribution"
@@ -161,6 +176,7 @@ class MultiKnapsackGenerator:
         self.u = u
         self.alpha = alpha
         self.w_jitter = w_jitter
+        self.round = round
         
         if fix_w:
             self.fix_n = self.n.rvs()
@@ -187,6 +203,10 @@ class MultiKnapsackGenerator:
             alpha = self.alpha.rvs(m)
             p = np.array([w[:,j].sum() / m + K * u[j] for j in range(n)])
             b = np.array([w[i,:].sum() * alpha[i] for i in range(m)])
+            if self.round:
+                p = p.round()
+                b = b.round()
+                w = w.round()
             return MultiKnapsackInstance(p, b, w)
         return [_sample() for _ in range(n_samples)]
     
