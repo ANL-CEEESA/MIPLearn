@@ -6,3 +6,6 @@ networkx
 tqdm
 pandas
 pytest-watch
+mkdocs
+mkdocs-cinder
+python-markdown-math
