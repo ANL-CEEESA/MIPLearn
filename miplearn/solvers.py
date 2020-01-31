@@ -94,12 +94,14 @@ class LearningSolver:
             for instance in tqdm(instances, desc=label, ncols=80)
         )
         
-        solvers = [p[0] for p in solver_result_pairs]
+        subsolvers = [p[0] for p in solver_result_pairs]
         results = [p[1] for p in solver_result_pairs]
         
         for (name, component) in self.components.items():
-            for subsolver in solvers:
-                self.components[name].merge(subsolver.components[name])
+            subcomponents = [subsolver.components[name]
+                             for subsolver in subsolvers
+                             if name in subsolver.components.keys()]
+            self.components[name].merge(subcomponents)
         
         return results
 
@@ -122,4 +124,4 @@ class LearningSolver:
                 if component_name not in self.components.keys():
                     continue
                 else:
-                    self.components[component_name].merge(component)
+                    self.components[component_name].merge([component])

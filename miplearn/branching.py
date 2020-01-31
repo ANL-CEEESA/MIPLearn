@@ -50,9 +50,10 @@ class BranchPriorityComponent(Component):
         pass
 
     
-    def merge(self, other):
-        if other.priority is not None:
-            self._merge(other.priority)
+    def merge(self, other_components):
+        for comp in other_components:
+            if comp.priority is not None:
+                self._merge(comp.priority)
             
             
     def _merge(self, priority):

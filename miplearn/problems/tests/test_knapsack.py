@@ -66,7 +66,7 @@ def test_knapsack_fixed_weights_jitter():
                                  fix_w=True,
                                  w_jitter=randint(low=0, high=1001),
                                 )
-    instances = gen.generate(1_000)
+    instances = gen.generate(5_000)
     w = [instance.weights[0,0] for instance in instances]
     assert round(np.std(w), -1) == 290.
     assert round(np.mean(w), -2) == 1500.

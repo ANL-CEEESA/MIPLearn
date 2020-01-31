@@ -180,13 +180,20 @@ class WarmStartComponent(Component):
             self.predictors[category] = deepcopy(self.predictor_prototype)
             self.predictors[category].fit(x_train, y_train)
 
-    def merge(self, other):
-        for c in other.x_train.keys():
-            if c not in self.x_train:
-                self.x_train[c] = other.x_train[c]
-                self.y_train[c] = other.y_train[c]
-            else:
-                self.x_train[c] = np.vstack([self.x_train[c], other.x_train[c]])
-                self.y_train[c] = np.vstack([self.y_train[c], other.y_train[c]])
-            if (c in other.predictors.keys()) and (c not in self.predictors.keys()):
-                self.predictors[c] = other.predictors[c]
+    def merge(self, other_components):
+        keys = set(self.x_train.keys())
+        for comp in other_components:
+            keys = keys.union(set(comp.x_train.keys()))
+            
+        for key in keys:
+            x_train_submatrices = [comp.x_train[key]
+                                   for comp in other_components
+                                   if key in comp.x_train.keys()]
+            y_train_submatrices = [comp.y_train[key]
+                                   for comp in other_components
+                                   if key in comp.y_train.keys()]
+            if key in self.x_train.keys():
+                x_train_submatrices += [self.x_train[key]]
+                y_train_submatrices += [self.y_train[key]]
+            self.x_train[key] = np.vstack(x_train_submatrices)
+            self.y_train[key] = np.vstack(y_train_submatrices)
