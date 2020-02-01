@@ -49,7 +49,7 @@ MaxWeightStableSetGenerator(w=uniform(loc=100., scale=50.),
 
 #### Challenge A
 
-![alt](figures/mwss.png)
+![alt](figures/benchmark_stab_a.png)
 
 ## Multidimensional 0-1 Knapsack Problem
 
@@ -94,6 +94,12 @@ If `fix_w=True` is provided, then $w_{ij}$ are kept the same in all generated in
 If a probability distribution `w_jitter` is provided, then item weights will be set to $w_{ij} + \gamma_{ij}$ where $\gamma_{ij}$ is sampled from `w_jitter`. When combined with `fix_w=True`, this argument may be used to generate instances where the weight of each item is roughly the same, but not exactly identical, across all instances. The prices of the items and the capacities of the knapsacks will be calculated as above, but using these perturbed weights instead.
 
 By default, all generated prices, weights and capacities are rounded to the nearest integer number. If `round=False` is provided, this rounding will be disabled.
+
+### Benchmark results
+
+#### Challenge A
+
+![alt](figures/benchmark_knapsack_a.png)
 
 !!! note "References"
     * Freville, Arnaud, and Gérard Plateau. *An efficient preprocessing procedure for the multidimensional 0–1 knapsack problem.* Discrete applied mathematics 49.1-3 (1994): 189-212.
