@@ -27,7 +27,8 @@ class BenchmarkRunner:
         for (name, solver) in self.solvers.items():
             results = solver.parallel_solve(instances,
                                             n_jobs=n_jobs,
-                                            label=name)
+                                            label=name,
+                                            collect_training_data=False)
             for i in range(len(instances)):
                 wallclock_time = None
                 for key in ["Time", "Wall time", "Wallclock time"]:
