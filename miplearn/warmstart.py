@@ -13,6 +13,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
+from tqdm.auto import tqdm
 
 
 class WarmStartPredictor(ABC):
@@ -50,14 +51,15 @@ class WarmStartPredictor(ABC):
 class LogisticWarmStartPredictor(WarmStartPredictor):
     def __init__(self,
                  min_samples=100,
-                 thr_fix=[0.95, 0.95],
-                 thr_balance=[0.95, 0.95],
-                 thr_score=[0.95, 0.95]):
+                 thr_fix=[0.99, 0.99],
+                 thr_balance=[0.80, 0.80],
+                 thr_alpha=[0.50, 0.50],
+                ):
         super().__init__()
         self.min_samples = min_samples
         self.thr_fix = thr_fix
         self.thr_balance = thr_balance
-        self.thr_score = thr_score
+        self.thr_alpha = thr_alpha
 
     def _fit(self, x_train, y_train, label):
         y_train_avg = np.average(y_train)
@@ -76,9 +78,11 @@ class LogisticWarmStartPredictor(WarmStartPredictor):
             
         reg = make_pipeline(StandardScaler(), LogisticRegression())
         reg_score = np.mean(cross_val_score(reg, x_train, y_train, cv=5))
+        dummy_score = max(y_train_avg, 1 - y_train_avg)
+        reg_thr = 1. * self.thr_alpha[label] + dummy_score * (1 - self.thr_alpha[label])
 
         # If cross-validation score is too low, don't predict anything.
-        if reg_score < self.thr_score[label]:
+        if reg_score < reg_thr:
             return 0
         
         reg.fit(x_train, y_train.astype(int))
@@ -88,7 +92,8 @@ class LogisticWarmStartPredictor(WarmStartPredictor):
 class KnnWarmStartPredictor(WarmStartPredictor):
     def __init__(self, k=50,
                  thr_clip=[0.90, 0.90],
-                 thr_fix=[0.99, 0.99]):
+                 thr_fix=[0.99, 0.99],
+                ):
         super().__init__(thr_clip=thr_clip)
         self.k = k
         self.thr_fix = thr_fix
@@ -115,7 +120,7 @@ class KnnWarmStartPredictor(WarmStartPredictor):
     
 class WarmStartComponent(Component):
     def __init__(self,
-                 predictor_prototype=LogisticWarmStartPredictor(),
+                 predictor_prototype=KnnWarmStartPredictor(),
                  mode="exact",
                 ):
         self.mode = mode
@@ -173,18 +178,18 @@ class WarmStartComponent(Component):
             else:
                 self.y_train[category] = np.vstack([self.y_train[category], y])
                 
-    def fit(self, solver):
-        for category in self.x_train.keys():
+    def fit(self, solver, n_jobs=1):
+        for category in tqdm(self.x_train.keys(), desc="Warm start"):
             x_train = self.x_train[category]
             y_train = self.y_train[category]
             self.predictors[category] = deepcopy(self.predictor_prototype)
             self.predictors[category].fit(x_train, y_train)
 
     def merge(self, other_components):
+        # Merge x_train and y_train
         keys = set(self.x_train.keys())
         for comp in other_components:
             keys = keys.union(set(comp.x_train.keys()))
-            
         for key in keys:
             x_train_submatrices = [comp.x_train[key]
                                    for comp in other_components
@@ -197,3 +202,10 @@ class WarmStartComponent(Component):
                 y_train_submatrices += [self.y_train[key]]
             self.x_train[key] = np.vstack(x_train_submatrices)
             self.y_train[key] = np.vstack(y_train_submatrices)
+
+        # Merge trained predictors
+        for comp in other_components:
+            for key in comp.predictors.keys():
+                if key not in self.predictors.keys():
+                    self.predictors[key] = comp.predictors[key]
+                
