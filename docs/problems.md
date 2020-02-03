@@ -95,11 +95,6 @@ If a probability distribution `w_jitter` is provided, then item weights will be 
 
 By default, all generated prices, weights and capacities are rounded to the nearest integer number. If `round=False` is provided, this rounding will be disabled.
 
-### Benchmark results
-
-#### Challenge A
-
-![alt](figures/benchmark_knapsack_a.png)
 
 !!! note "References"
     * Freville, Arnaud, and Gérard Plateau. *An efficient preprocessing procedure for the multidimensional 0–1 knapsack problem.* Discrete applied mathematics 49.1-3 (1994): 189-212.
