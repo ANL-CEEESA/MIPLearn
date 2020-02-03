@@ -64,6 +64,7 @@ def train():
         },
     )
     solver.parallel_solve(train_instances, n_jobs=10)
+    solver.fit(n_jobs=10)
     solver.save_state("%s/training_data.bin" % basepath)
     save(train_instances, "%s/train_instances.bin" % basepath)
     save(test_instances, "%s/test_instances.bin" % basepath)
@@ -103,7 +104,6 @@ def test_ml():
     test_instances = load("%s/test_instances.bin" % basepath)
     benchmark = BenchmarkRunner(solvers)
     benchmark.load_state("%s/training_data.bin" % basepath)
-    benchmark.fit()
     benchmark.load_results("%s/benchmark_baseline.csv" % basepath)
     benchmark.parallel_solve(test_instances, n_jobs=10)
     benchmark.save_results("%s/benchmark_ml.csv" % basepath)    
