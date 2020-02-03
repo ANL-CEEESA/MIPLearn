@@ -19,11 +19,11 @@ main: $(addsuffix /performance.png, $(CHALLENGES))
 clean:
 	rm -rvf stab knapsack
 
-clean-csv:
-	rm -rvf */*/*.csv
+clean-ml:
+	rm -rvf */*/benchmark_ml.csv
 
-clean-png:
-	rm -rfv */*/*.png
+clean-charts:
+	rm -rfv */*/performance.png
 
-.PHONY: clean
+.PHONY: clean clean-ml clean-charts
 .SECONDARY:
