@@ -3,6 +3,7 @@ using TinyBnB, CPLEXW, Printf
 
 instance_name = ARGS[1]
 output_filename = ARGS[2]
+node_limit = parse(Int, ARGS[3])
 
 mip = open_mip(instance_name)
 n_vars = CPXgetnumcols(mip.cplex_env[1], mip.cplex_lp[1])
@@ -34,12 +35,12 @@ function full_strong_branching_track(node::Node, progress::Progress)::TinyBnB.Va
     max_score, max_offset = findmax(scores)
     selected_var = node.fractional_variables[max_offset]
     
-    if rates_up[max_offset] < 1e6
+    if abs(rates_up[max_offset]) < 1e6
         pseudocost_count_up[selected_var.index] += 1
         pseudocost_sum_up[selected_var.index] += rates_up[max_offset]
     end
     
-    if rates_down[max_offset] < 1e6
+    if abs(rates_down[max_offset]) < 1e6
         pseudocost_count_down[selected_var.index] += 1
         pseudocost_sum_down[selected_var.index] += rates_down[max_offset]
     end
@@ -48,7 +49,7 @@ function full_strong_branching_track(node::Node, progress::Progress)::TinyBnB.Va
 end
 
 branch_and_bound(mip,
-                 node_limit = 1000,
+                 node_limit = node_limit,
                  branch_rule = full_strong_branching_track,
                  node_rule = best_bound,
                  print_interval = 100)
@@ -59,9 +60,7 @@ priority = [(pseudocost_count_up[v] == 0 || pseudocost_count_down[v] == 0) ? 0 :
              for v in 1:n_vars];
 
 open(output_filename, "w") do file
-    for v in 1:n_vars
-        v == 1 || write(file, ",")
-        write(file, @sprintf("%.0f", priority[v]))
+    for var in mip.binary_variables
+        write(file, @sprintf("%s,%.0f\n", name(mip, var), priority[var.index]))
     end
-    write(file, "\n")
 end
