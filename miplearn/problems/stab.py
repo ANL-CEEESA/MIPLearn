@@ -14,7 +14,7 @@ from scipy.stats.distributions import rv_frozen
 class ChallengeA:
     def __init__(self,
                  seed=42,
-                 n_training_instances=300,
+                 n_training_instances=500,
                  n_test_instances=50,
                 ):
         

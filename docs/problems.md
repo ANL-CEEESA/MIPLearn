@@ -36,7 +36,7 @@ The class `MaxWeightStableSetGenerator` can be used to generate random instances
 
 * Fixed random Erdős-Rényi graph $G_{n,p}$ with $n=200$ and $p=5\%$
 * Random vertex weights $w_v \sim U(100, 150)$
-* 300 training instances, 50 test instances
+* 500 training instances, 50 test instances
 
 ```python
 MaxWeightStableSetGenerator(w=uniform(loc=100., scale=50.),
