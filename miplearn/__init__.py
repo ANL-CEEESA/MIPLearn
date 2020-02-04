@@ -9,3 +9,4 @@ from .solvers import LearningSolver
 from .benchmark import BenchmarkRunner
 from .warmstart import WarmStartComponent, KnnWarmStartPredictor, LogisticWarmStartPredictor
 from .branching import BranchPriorityComponent
+from .extractors import UserFeaturesExtractor, SolutionExtractor
