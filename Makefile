@@ -1,4 +1,4 @@
-PYTEST_ARGS := -W ignore::DeprecationWarning -vv
+PYTEST_ARGS := -W ignore::DeprecationWarning -vv -x
 
 all: docs test
 
