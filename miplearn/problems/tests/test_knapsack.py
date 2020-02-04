@@ -25,24 +25,6 @@ def test_knapsack_generator():
     assert round(np.mean(b_sum), -3) == 25000.
 
     
-def test_knapsack_instance():
-    instance = MultiKnapsackInstance(
-        prices=np.array([5.0, 10.0, 15.0]),
-        capacities=np.array([20.0, 30.0]),
-        weights=np.array([
-            [5.0,  5.0,  5.0],
-            [5.0, 10.0, 15.0],
-        ])
-    )
-    
-    assert (instance.get_instance_features() == np.array([
-        5.0, 10.0, 15.0, 20.0, 30.0, 5.0, 5.0, 5.0, 5.0, 10.0, 15.0
-    ])).all()
-    
-    solver = LearningSolver()
-    results = solver.solve(instance)
-    assert results["Problem"][0]["Lower bound"] == 30.0
-    
 def test_knapsack_fixed_weights_jitter():
     gen = MultiKnapsackGenerator(n=randint(low=50, high=51),
                                  m=randint(low=10, high=11),

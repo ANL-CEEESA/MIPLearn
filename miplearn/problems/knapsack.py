@@ -19,7 +19,7 @@ class ChallengeA:
     """
     def __init__(self,
                  seed=42,
-                 n_training_instances=300,
+                 n_training_instances=500,
                  n_test_instances=50):
 
         np.random.seed(seed)
@@ -81,16 +81,18 @@ class MultiKnapsackInstance(Instance):
         
     def get_instance_features(self):
         return np.hstack([
-            self.prices,
+            np.mean(self.prices),
             self.capacities,
-            self.weights.ravel(),
         ])
 
     def get_variable_features(self, var, index):
-        return np.array([])
+        return np.hstack([
+            self.prices[index],
+            self.weights[:, index],
+        ])
 
-    def get_variable_category(self, var, index):
-        return index
+#     def get_variable_category(self, var, index):
+#         return index
 
 
 class MultiKnapsackGenerator:
@@ -212,4 +214,34 @@ class MultiKnapsackGenerator:
             return MultiKnapsackInstance(p, b, w)
         return [_sample() for _ in range(n_samples)]
     
-    
+
+class KnapsackInstance(Instance):
+    """
+    Simpler (one-dimensional) Knapsack Problem, used for testing.
+    """
+    def __init__(self, weights, prices, capacity):
+        self.weights = weights
+        self.prices = prices
+        self.capacity = capacity
+
+    def to_model(self):
+        model = pe.ConcreteModel()
+        items = range(len(self.weights))
+        model.x = pe.Var(items, domain=pe.Binary)
+        model.OBJ = pe.Objective(rule=lambda m: sum(m.x[v] * self.prices[v] for v in items),
+                                 sense=pe.maximize)
+        model.eq_capacity = pe.Constraint(rule=lambda m: sum(m.x[v] * self.weights[v]
+                                                             for v in items) <= self.capacity)
+        return model
+
+    def get_instance_features(self):
+        return np.array([
+            self.capacity,
+            np.average(self.weights),
+        ])
+
+    def get_variable_features(self, var, index):
+        return np.array([
+            self.weights[index],
+            self.prices[index],
+        ])
