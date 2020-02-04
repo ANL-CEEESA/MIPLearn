@@ -78,10 +78,14 @@ class LearningSolver:
         for component in self.components.values():
             component.before_solve(self, instance, model)
         
+        is_warm_start_available = False
+        if "warm-start" in self.components.keys():
+            if self.components["warm-start"].is_warm_start_available:
+                is_warm_start_available = True
         if self.is_persistent:
-            solve_results = self.internal_solver.solve(tee=tee, warmstart=True)
+            solve_results = self.internal_solver.solve(tee=tee, warmstart=is_warm_start_available)
         else:
-            solve_results = self.internal_solver.solve(model, tee=tee, warmstart=True)
+            solve_results = self.internal_solver.solve(model, tee=tee, warmstart=is_warm_start_available)
         
         solve_results["Solver"][0]["Nodes"] = self.internal_solver._solver_model.getAttr("NodeCount")
         

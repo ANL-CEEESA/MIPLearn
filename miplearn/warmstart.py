@@ -130,6 +130,7 @@ class WarmStartComponent(Component):
         self.y_train = {}
         self.predictors = {}
         self.predictor_prototype = predictor_prototype
+        self.is_warm_start_available = False
     
     def before_solve(self, solver, instance, model):
         # Build x_test
@@ -163,8 +164,11 @@ class WarmStartComponent(Component):
                 else:
                     if ws[i,0] == 1:
                         var[index].value = 0
+                        self.is_warm_start_available = True
                     elif ws[i,1] == 1:
                         var[index].value = 1
+                        self.is_warm_start_available = True
+
 
     def after_solve(self, solver, instance, model):
         y_test = SolutionExtractor().extract([instance], [model])
