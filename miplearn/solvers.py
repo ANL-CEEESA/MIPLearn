@@ -2,7 +2,6 @@
 # Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
-from .transformers import PerVariableTransformer
 from .warmstart import WarmStartComponent
 from .branching import BranchPriorityComponent
 import pyomo.environ as pe
@@ -66,6 +65,12 @@ class LearningSolver:
     def solve(self, instance, tee=False):
         model = instance.to_model()
         
+        # Solve linear relaxation (TODO: use solver provided by user)
+        lr_solver = pe.SolverFactory("gurobi")
+        lr_solver.options["threads"] = 4
+        lr_solver.options["relax_integrality"] = 1
+        lr_solver.solve(model)
+
         self._create_solver()
         if self.is_persistent:
             self.internal_solver.set_instance(model)

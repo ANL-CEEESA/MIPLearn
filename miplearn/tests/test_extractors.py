@@ -3,8 +3,10 @@
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
 from miplearn.problems.knapsack import KnapsackInstance
-from miplearn import (UserFeaturesExtractor,
-                      SolutionExtractor)
+from miplearn.extractors import (UserFeaturesExtractor,
+                                 SolutionExtractor,
+                                 CombinedExtractor,
+                                )
 import numpy as np
 import pyomo.environ as pe
 
@@ -52,3 +54,16 @@ def test_solution_extractor():
         0., 1.,
         1., 0.,
     ]
+
+    
+def test_combined_extractor():
+    instances = _get_instances()
+    models = [instance.to_model() for instance in instances]
+    extractor = CombinedExtractor(extractors=[UserFeaturesExtractor(),
+                                              SolutionExtractor()])
+    features = extractor.extract(instances, models)
+    assert isinstance(features, dict)
+    assert "default" in features.keys()
+    assert isinstance(features["default"], np.ndarray)
+    assert features["default"].shape == (6, 6)
+    

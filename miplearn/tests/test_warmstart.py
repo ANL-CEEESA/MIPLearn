@@ -24,7 +24,7 @@ def test_warm_start_save_load():
     solver.parallel_solve(_get_instances(), n_jobs=2)
     solver.fit()
     comp = solver.components["warm-start"]
-    assert comp.x_train["default"].shape == (8, 4)
+    assert comp.x_train["default"].shape == (8, 6)
     assert comp.y_train["default"].shape == (8, 2)
     assert "default" in comp.predictors.keys()
     solver.save_state(state_file.name)
@@ -32,6 +32,6 @@ def test_warm_start_save_load():
     solver = LearningSolver(components={"warm-start": WarmStartComponent()})
     solver.load_state(state_file.name)
     comp = solver.components["warm-start"]
-    assert comp.x_train["default"].shape == (8, 4)
+    assert comp.x_train["default"].shape == (8, 6)
     assert comp.y_train["default"].shape == (8, 2)
     assert "default" in comp.predictors.keys()
