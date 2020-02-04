@@ -3,17 +3,17 @@
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
 from miplearn import LearningSolver
-from miplearn.problems.knapsack import MultiKnapsackInstance
+from miplearn.problems.knapsack import KnapsackInstance
 from miplearn.branching import BranchPriorityComponent
 from miplearn.warmstart import WarmStartComponent
 import numpy as np
 
 
 def _get_instance():
-    return MultiKnapsackInstance(
-        weights=np.array([[23., 26., 20., 18.]]),
-        prices=np.array([505., 352., 458., 220.]),
-        capacities=np.array([67.])
+    return KnapsackInstance(
+        weights=[23., 26., 20., 18.],
+        prices=[505., 352., 458., 220.],
+        capacity=67.,
     )
 
 def test_solver():
@@ -50,8 +50,8 @@ def test_parallel_solve():
     solver = LearningSolver()
     results = solver.parallel_solve(instances, n_jobs=3)
     assert len(results) == 10
-    assert len(solver.components["warm-start"].x_train[0]) == 10
-    assert len(solver.components["warm-start"].y_train[0]) == 10
+    assert len(solver.components["warm-start"].x_train["default"]) == 40
+    assert len(solver.components["warm-start"].y_train["default"]) == 40
     
 def test_solver_random_branch_priority():
     instance = _get_instance()

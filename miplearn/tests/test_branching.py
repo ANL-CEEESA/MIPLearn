@@ -3,16 +3,16 @@
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
 from miplearn import BranchPriorityComponent, LearningSolver
-from miplearn.problems.knapsack import MultiKnapsackInstance
+from miplearn.problems.knapsack import KnapsackInstance
 import numpy as np
 import tempfile
 
 def _get_instances():
     return [
-        MultiKnapsackInstance(
-            weights=np.array([[23., 26., 20., 18.]]),
-            prices=np.array([505., 352., 458., 220.]),
-            capacities=np.array([67.])
+        KnapsackInstance(
+            weights=[23., 26., 20., 18.],
+            prices=[505., 352., 458., 220.],
+            capacity=67.,
         ),
     ] * 2
 
@@ -23,11 +23,11 @@ def test_branching():
     for instance in instances:
         component.after_solve(None, instance, None)
     component.fit(None)
-    for key in [0, 1, 2, 3]:
+    for key in ["default"]:
         assert key in component.x_train.keys()
         assert key in component.y_train.keys()
-        assert component.x_train[key].shape == (2,  9)
-        assert component.y_train[key].shape == (2,  1)
+        assert component.x_train[key].shape == (8,  4)
+        assert component.y_train[key].shape == (8,  1)
         
         
 def test_branch_priority_save_load():
@@ -36,14 +36,14 @@ def test_branch_priority_save_load():
     solver.parallel_solve(_get_instances(), n_jobs=2)
     solver.fit()
     comp = solver.components["branch-priority"]
-    assert comp.x_train[0].shape == (2, 9)
-    assert comp.y_train[0].shape == (2, 1)
-    assert 0 in comp.predictors.keys()
+    assert comp.x_train["default"].shape == (8, 4)
+    assert comp.y_train["default"].shape == (8, 1)
+    assert "default" in comp.predictors.keys()
     solver.save_state(state_file.name)
     
     solver = LearningSolver(components={"branch-priority": BranchPriorityComponent()})
     solver.load_state(state_file.name)
     comp = solver.components["branch-priority"]
-    assert comp.x_train[0].shape == (2, 9)
-    assert comp.y_train[0].shape == (2, 1)
-    assert 0 in comp.predictors.keys()
+    assert comp.x_train["default"].shape == (8, 4)
+    assert comp.y_train["default"].shape == (8, 1)
+    assert "default" in comp.predictors.keys()

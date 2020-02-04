@@ -3,17 +3,17 @@
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
 from miplearn import WarmStartComponent, LearningSolver
-from miplearn.problems.knapsack import MultiKnapsackInstance
+from miplearn.problems.knapsack import KnapsackInstance
 import numpy as np
 import tempfile
 
 
 def _get_instances():
     return [
-        MultiKnapsackInstance(
-            weights=np.array([[23., 26., 20., 18.]]),
-            prices=np.array([505., 352., 458., 220.]),
-            capacities=np.array([67.])
+        KnapsackInstance(
+            weights=[23., 26., 20., 18.],
+            prices=[505., 352., 458., 220.],
+            capacity=67.,
         ),
     ] * 2
 
@@ -24,14 +24,14 @@ def test_warm_start_save_load():
     solver.parallel_solve(_get_instances(), n_jobs=2)
     solver.fit()
     comp = solver.components["warm-start"]
-    assert comp.x_train[0].shape == (2, 9)
-    assert comp.y_train[0].shape == (2, 2)
-    assert 0 in comp.predictors.keys()
+    assert comp.x_train["default"].shape == (8, 4)
+    assert comp.y_train["default"].shape == (8, 2)
+    assert "default" in comp.predictors.keys()
     solver.save_state(state_file.name)
     
     solver = LearningSolver(components={"warm-start": WarmStartComponent()})
     solver.load_state(state_file.name)
     comp = solver.components["warm-start"]
-    assert comp.x_train[0].shape == (2, 9)
-    assert comp.y_train[0].shape == (2, 2)
-    assert 0 in comp.predictors.keys()
+    assert comp.x_train["default"].shape == (8, 4)
+    assert comp.y_train["default"].shape == (8, 2)
+    assert "default" in comp.predictors.keys()
