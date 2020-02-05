@@ -2,8 +2,8 @@
 # Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
-from . import Component
-from .extractors import Extractor
+from .component import Component
+from ..extractors import Extractor
 from abc import ABC, abstractmethod
 from sklearn.neighbors import KNeighborsRegressor
 import numpy as np
@@ -52,7 +52,7 @@ class BranchPriorityComponent(Component):
             src_dirname = os.path.dirname(os.path.realpath(__file__))
             priority_file = tempfile.NamedTemporaryFile(mode="r")
             subprocess.run(["julia",
-                            "%s/scripts/branchpriority.jl" % src_dirname,
+                            "%s/branching.jl" % src_dirname,
                             lp_file.name,
                             priority_file.name,
                             str(self.node_limit),

@@ -2,10 +2,8 @@
 # Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
-from miplearn import LearningSolver
+from miplearn import LearningSolver, BranchPriorityComponent, WarmStartComponent
 from miplearn.problems.knapsack import KnapsackInstance
-from miplearn.branching import BranchPriorityComponent
-from miplearn.warmstart import WarmStartComponent
 import numpy as np
 
 

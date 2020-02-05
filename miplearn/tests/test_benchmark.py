@@ -2,8 +2,7 @@
 # Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
-from miplearn import LearningSolver, BenchmarkRunner
-from miplearn.warmstart import KnnWarmStartPredictor
+from miplearn import LearningSolver, BenchmarkRunner, KnnWarmStartPredictor
 from miplearn.problems.stab import MaxWeightStableSetGenerator
 from scipy.stats import randint
 import numpy as np

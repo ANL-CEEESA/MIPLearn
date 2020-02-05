@@ -2,8 +2,7 @@
 # Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
-from .warmstart import WarmStartComponent
-from .branching import BranchPriorityComponent
+from . import WarmStartComponent, BranchPriorityComponent
 import pyomo.environ as pe
 import numpy as np
 from copy import deepcopy

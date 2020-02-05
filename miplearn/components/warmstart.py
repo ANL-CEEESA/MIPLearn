@@ -2,8 +2,8 @@
 # Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
-from . import Component
-from .extractors import *
+from .component import Component
+from ..extractors import *
 
 from abc import ABC, abstractmethod
 from copy import deepcopy

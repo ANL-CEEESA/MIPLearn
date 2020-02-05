@@ -6,9 +6,9 @@ from abc import ABC, abstractmethod
 
 
 class Component(ABC):
-    @abstractmethod
-    def fit(self, solver):
-        pass
+    """
+    A Component is an object which adds functionality to a LearningSolver.
+    """
     
     @abstractmethod
     def before_solve(self, solver, instance, model):
@@ -20,4 +20,8 @@ class Component(ABC):
     
     @abstractmethod
     def merge(self, other):
+        pass
+    
+    @abstractmethod
+    def fit(self, solver):
         pass

@@ -3,10 +3,12 @@
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
 
-from .component import Component
+from .components.component import Component
+from .components.warmstart import (WarmStartComponent,
+                                   KnnWarmStartPredictor,
+                                   LogisticWarmStartPredictor)
+from .components.branching import BranchPriorityComponent
+from .extractors import UserFeaturesExtractor, SolutionExtractor
+from .benchmark import BenchmarkRunner
 from .instance import Instance
 from .solvers import LearningSolver
-from .benchmark import BenchmarkRunner
-from .warmstart import WarmStartComponent, KnnWarmStartPredictor, LogisticWarmStartPredictor
-from .branching import BranchPriorityComponent
-from .extractors import UserFeaturesExtractor, SolutionExtractor
