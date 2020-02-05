@@ -3,13 +3,10 @@
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
 from . import Component
-from .transformers import PerVariableTransformer
+from .extractors import Extractor
 from abc import ABC, abstractmethod
 from sklearn.neighbors import KNeighborsRegressor
 import numpy as np
-from p_tqdm import p_map
-
-
 from tqdm.auto import tqdm
 from joblib import Parallel, delayed
 import multiprocessing
@@ -18,7 +15,6 @@ class BranchPriorityComponent(Component):
     def __init__(self,
                  node_limit=1_000,
                 ):
-        self.transformer = PerVariableTransformer()
         self.pending_instances = []
         self.x_train = {}
         self.y_train = {}
@@ -28,7 +24,7 @@ class BranchPriorityComponent(Component):
     def before_solve(self, solver, instance, model):
         assert solver.is_persistent, "BranchPriorityComponent requires a persistent solver"
         from gurobipy import GRB
-        var_split = self.transformer.split_variables(instance, model)
+        var_split = Extractor.split_variables(instance, model)
         for category in var_split.keys():
             if category not in self.predictors.keys():
                 continue

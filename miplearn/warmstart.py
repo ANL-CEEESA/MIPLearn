@@ -3,7 +3,6 @@
 # Written by Alinson S. Xavier <axavier@anl.gov>
 
 from . import Component
-from .transformers import PerVariableTransformer
 from .extractors import *
 
 from abc import ABC, abstractmethod
@@ -134,7 +133,6 @@ class WarmStartComponent(Component):
                  mode="exact",
                 ):
         self.mode = mode
-        self.transformer = PerVariableTransformer()
         self.x_train = {}
         self.y_train = {}
         self.predictors = {}
