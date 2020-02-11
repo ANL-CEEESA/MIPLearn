@@ -14,6 +14,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
 from tqdm.auto import tqdm
+import pyomo.environ as pe
 import logging
 logger = logging.getLogger(__name__)
 
@@ -140,6 +141,12 @@ class WarmStartComponent(Component):
         self.is_warm_start_available = False
     
     def before_solve(self, solver, instance, model):
+        # Solve linear relaxation
+        lr_solver = pe.SolverFactory("gurobi")
+        lr_solver.options["threads"] = 4
+        lr_solver.options["relax_integrality"] = 1
+        lr_solver.solve(model, tee=solver.tee)
+        
         # Build x_test
         x_test = CombinedExtractor([UserFeaturesExtractor(),
                                     SolutionExtractor(),
