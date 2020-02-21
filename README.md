@@ -18,7 +18,7 @@ Documentation
 
 For installation instructions, basic usage and benchmarks results, see the official documentation at:
 
-* [http://axavier.org/projects/miplearn](http://axavier.org/projects/miplearn)
+* [https://anl-ceeesa.github.io/MIPLearn/](https://anl-ceeesa.github.io/MIPLearn/)
 
 License
 -------
