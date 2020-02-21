@@ -26,12 +26,16 @@ def test_warm_start_save_load():
     comp = solver.components["warm-start"]
     assert comp.x_train["default"].shape == (8, 6)
     assert comp.y_train["default"].shape == (8, 2)
-    assert "default" in comp.predictors.keys()
+    assert ("default", 0) in comp.predictors.keys()
+    assert ("default", 1) in comp.predictors.keys()
     solver.save_state(state_file.name)
+    
+    solver.solve(_get_instances()[0])
     
     solver = LearningSolver(components={"warm-start": WarmStartComponent()})
     solver.load_state(state_file.name)
     comp = solver.components["warm-start"]
     assert comp.x_train["default"].shape == (8, 6)
     assert comp.y_train["default"].shape == (8, 2)
-    assert "default" in comp.predictors.keys()
+    assert ("default", 0) in comp.predictors.keys()
+    assert ("default", 1) in comp.predictors.keys()

@@ -6,7 +6,9 @@
 from .components.component import Component
 from .components.warmstart import (WarmStartComponent,
                                    KnnWarmStartPredictor,
-                                   LogisticWarmStartPredictor)
+                                   LogisticWarmStartPredictor,
+                                   AdaptivePredictor,
+                                  )
 from .components.branching import BranchPriorityComponent
 from .extractors import UserFeaturesExtractor, SolutionExtractor
 from .benchmark import BenchmarkRunner

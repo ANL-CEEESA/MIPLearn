@@ -12,12 +12,17 @@ Options:
 """
 from docopt import docopt
 import importlib, pathlib
-from miplearn import LearningSolver, BenchmarkRunner
-from miplearn.warmstart import WarmStartComponent
-from miplearn.branching import BranchPriorityComponent
+from miplearn import (LearningSolver,
+                      BenchmarkRunner,
+                      WarmStartComponent,
+                      BranchPriorityComponent,
+                     )
 from numpy import median
 import pyomo.environ as pe
 import pickle
+
+import logging
+logging.getLogger('pyomo.core').setLevel(logging.ERROR)
 
 args = docopt(__doc__)
 basepath = args["<challenge>"]
@@ -60,7 +65,7 @@ def train():
         internal_solver_factory=train_solver_factory,
         components={
             "warm-start": WarmStartComponent(),
-            "branch-priority": BranchPriorityComponent(),
+            #"branch-priority": BranchPriorityComponent(),
         },
     )
     solver.parallel_solve(train_instances, n_jobs=10)
@@ -89,7 +94,7 @@ def test_ml():
             internal_solver_factory=test_solver_factory,
             components={
                 "warm-start": WarmStartComponent(),
-                "branch-priority": BranchPriorityComponent(),
+                #"branch-priority": BranchPriorityComponent(),
             },
         ),
         "ml-heuristic": LearningSolver(
@@ -97,7 +102,7 @@ def test_ml():
             mode="heuristic",
             components={
                 "warm-start": WarmStartComponent(),
-                "branch-priority": BranchPriorityComponent(),
+                #"branch-priority": BranchPriorityComponent(),
             },
         ),
     }
