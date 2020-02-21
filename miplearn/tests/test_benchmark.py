@@ -29,11 +29,11 @@ def test_benchmark():
     benchmark = BenchmarkRunner(test_solvers)
     benchmark.load_state("data.bin")
     benchmark.parallel_solve(test_instances, n_jobs=2, n_trials=2)
-    assert benchmark.raw_results().values.shape == (12,12)
+    assert benchmark.raw_results().values.shape == (12,13)
     
     benchmark.save_results("/tmp/benchmark.csv")
     assert os.path.isfile("/tmp/benchmark.csv")
     
     benchmark = BenchmarkRunner(test_solvers)
     benchmark.load_results("/tmp/benchmark.csv")
-    assert benchmark.raw_results().values.shape == (12,12)
+    assert benchmark.raw_results().values.shape == (12,13)

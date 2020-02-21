@@ -4,7 +4,6 @@
 
 from miplearn import LearningSolver, BranchPriorityComponent, WarmStartComponent
 from miplearn.problems.knapsack import KnapsackInstance
-import numpy as np
 
 
 def _get_instance():
@@ -14,6 +13,7 @@ def _get_instance():
         capacity=67.,
     )
 
+
 def test_solver():
     instance = _get_instance()
     solver = LearningSolver()
@@ -21,11 +21,11 @@ def test_solver():
     solver.fit()
     solver.solve(instance)
 
+
 def test_solve_save_load_state():
     instance = _get_instance()
     components_before = {
         "warm-start": WarmStartComponent(),
-        "branch-priority": BranchPriorityComponent(),
     }
     solver = LearningSolver(components=components_before)
     solver.solve(instance)
@@ -43,6 +43,7 @@ def test_solve_save_load_state():
     assert len(solver.components["warm-start"].x_train) == prev_x_train_len
     assert len(solver.components["warm-start"].y_train) == prev_y_train_len
 
+
 def test_parallel_solve():
     instances = [_get_instance() for _ in range(10)]
     solver = LearningSolver()
@@ -51,11 +52,3 @@ def test_parallel_solve():
     assert len(solver.components["warm-start"].x_train["default"]) == 40
     assert len(solver.components["warm-start"].y_train["default"]) == 40
     
-def test_solver_random_branch_priority():
-    instance = _get_instance()
-    components = {
-        "branch-priority": BranchPriorityComponent(),
-    }
-    solver = LearningSolver(components=components)
-    solver.solve(instance)
-    solver.fit()

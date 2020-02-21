@@ -4,17 +4,36 @@
 
 from . import WarmStartComponent, BranchPriorityComponent
 import pyomo.environ as pe
-import numpy as np
 from copy import deepcopy
 import pickle
 from scipy.stats import randint
 from p_tqdm import p_map
+import logging
+logger = logging.getLogger(__name__)
 
-def _gurobi_factory():
-    solver = pe.SolverFactory('gurobi_persistent')
-    solver.options["threads"] = 4
-    solver.options["Seed"] = randint(low=0, high=1000).rvs()
-    return solver
+
+def _solver_factory():
+    try:
+        solver = pe.SolverFactory('gurobi_persistent')
+        assert solver.available()
+        solver.options["threads"] = 4
+        solver.options["Seed"] = randint(low=0, high=1000).rvs()
+        return solver
+    except Exception as e:
+        logger.debug(e)
+        pass
+
+    try:
+        solver = pe.SolverFactory('cplex_persistent')
+        assert solver.available()
+        solver.options["threads"] = 4
+        solver.options["randomseed"] = randint(low=0, high=1000).rvs()
+        return solver
+    except Exception as e:
+        logger.debug(e)
+        pass
+
+    raise Exception("No solver available")
 
 
 class LearningSolver:
@@ -27,7 +46,7 @@ class LearningSolver:
                  threads=None,
                  time_limit=None,
                  gap_limit=None,
-                 internal_solver_factory=_gurobi_factory,
+                 internal_solver_factory=_solver_factory,
                  components=None,
                  mode="exact"):
         self.is_persistent = None
@@ -81,7 +100,7 @@ class LearningSolver:
         else:
             solve_results = self.internal_solver.solve(model, tee=tee, warmstart=is_warm_start_available)
         
-        if hasattr(self.internal_solver, "_solver_model"):
+        if self.internal_solver.name == "gurobi_persistent":
             solve_results["Solver"][0]["Nodes"] = self.internal_solver._solver_model.getAttr("NodeCount")
         else:
             solve_results["Solver"][0]["Nodes"] = 1

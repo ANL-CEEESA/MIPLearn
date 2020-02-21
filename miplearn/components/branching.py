@@ -29,7 +29,7 @@ class BranchPriorityComponent(Component):
         self.predictor_factory = predictor
     
     def before_solve(self, solver, instance, model):
-        assert solver.is_persistent, "BranchPriorityComponent requires a persistent solver"
+        assert solver.internal_solver.name == "gurobi_persistent", "Only GurobiPersistent is currently supported"
         from gurobipy import GRB
         var_split = Extractor.split_variables(instance, model)
         for category in var_split.keys():
