@@ -15,7 +15,7 @@
 
 ### License
 
-```
+```text
 MIPLearn, an extensible framework for Learning-Enhanced Mixed-Integer Optimization
 Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.
 
