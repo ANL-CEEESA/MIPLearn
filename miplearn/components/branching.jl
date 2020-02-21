@@ -1,3 +1,8 @@
+# MIPLearn, an extensible framework for Learning-Enhanced Mixed-Integer Optimization
+# Copyright © 2020, UChicago Argonne, LLC. All rights reserved.
+# Released under the modified BSD license. See COPYING.md for more details.
+# Written by Alinson S. Xavier <axavier@anl.gov>
+
 import Base.Threads.@threads
 using TinyBnB, CPLEXW, Printf
 
