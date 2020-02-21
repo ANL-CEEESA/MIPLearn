@@ -1,7 +1,6 @@
-# MIPLearn, an extensible framework for Learning-Enhanced Mixed-Integer Optimization
-# Copyright © 2020, UChicago Argonne, LLC. All rights reserved.
-# Released under the modified BSD license. See COPYING.md for more details.
-# Written by Alinson S. Xavier <axavier@anl.gov>
+#  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
+#  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
+#  Released under the modified BSD license. See COPYING.md for more details.
 
 from miplearn import LogisticWarmStartPredictor
 from sklearn.metrics import accuracy_score, precision_score
