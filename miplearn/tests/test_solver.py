@@ -27,6 +27,12 @@ def test_solver():
         assert instance.solution["x"][1] == 0.0
         assert instance.solution["x"][2] == 1.0
         assert instance.solution["x"][3] == 1.0
+        
+        assert round(instance.lp_solution["x"][0], 3) == 1.000
+        assert round(instance.lp_solution["x"][1], 3) == 0.923
+        assert round(instance.lp_solution["x"][2], 3) == 1.000
+        assert round(instance.lp_solution["x"][3], 3) == 0.000
+        
         assert instance.lower_bound == 1183.0
         assert instance.upper_bound == 1183.0
         solver.fit()

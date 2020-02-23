@@ -13,7 +13,38 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class GurobiSolver:
+class InternalSolver():
+    def __init__():
+        pass
+    
+    def solve_lp(self, model, tee=False):
+        from pyomo.core.base.set_types import Reals
+        original_domain = {}
+        for var in model.component_data_objects(Var):
+            original_domain[str(var)] = var.domain
+            lb, ub = var.bounds
+            var.setlb(lb)
+            var.setub(ub)
+            var.domain = Reals
+        self.solver.set_instance(model)
+        self.solver.solve(tee=True)
+        for var in model.component_data_objects(Var):
+            var.domain = original_domain[str(var)]
+            
+    def clear_values(self, model):
+        for var in model.component_objects(Var):
+            for index in var:
+                var[index].value = None
+                
+    def get_solution(self, model):
+        solution = {}
+        for var in model.component_objects(Var):
+            solution[str(var)] = {}
+            for index in var:
+                solution[str(var)][index] = var[index].value
+        return solution        
+
+class GurobiSolver(InternalSolver):
     def __init__(self):
         self.solver = pe.SolverFactory('gurobi_persistent')
         self.solver.options["Seed"] = randint(low=0, high=1000).rvs()
@@ -36,10 +67,24 @@ class GurobiSolver:
             "Wallclock time": results["Solver"][0]["Wallclock time"],
             "Nodes": self.solver._solver_model.getAttr("NodeCount"),
         }    
+            
+    def _load_vars(self):
+        var_map = self._pyomo_var_to_solver_var_map
+        ref_vars = self._referenced_variables
+        vars_to_load = var_map.keys()
+
+        gurobi_vars_to_load = [var_map[pyomo_var] for pyomo_var in vars_to_load]
+        vals = self._solver_model.getAttr("X", gurobi_vars_to_load)
+
+        for var, val in zip(vars_to_load, vals):
+            if ref_vars[var] > 0:
+                var.stale = False
+                var.value = val
 
     
-class CPLEXSolver:
+class CPLEXSolver(InternalSolver):
     def __init__(self):
+        import cplex
         self.solver = pe.SolverFactory('cplex_persistent')
         self.solver.options["randomseed"] = randint(low=0, high=1000).rvs()
         
@@ -55,14 +100,23 @@ class CPLEXSolver:
     def solve(self, model, tee=False, warmstart=False):
         self.solver.set_instance(model)
         results = self.solver.solve(tee=tee, warmstart=warmstart)
-        print(results)
         return {
             "Lower bound": results["Problem"][0]["Lower bound"],
             "Upper bound": results["Problem"][0]["Upper bound"],
             "Wallclock time": results["Solver"][0]["Wallclock time"],
             "Nodes": 1,
         }
-
+    
+    def solve_lp(self, model, tee=False):
+        import cplex
+        self.solver.set_instance(model)
+        lp = self.solver._solver_model
+        var_types = lp.variables.get_types()
+        n_vars = len(var_types)
+        lp.set_problem_type(cplex.Cplex.problem_type.LP)
+        results = self.solver.solve(tee=tee)
+        lp.variables.set_types(zip(range(n_vars), var_types))
+        
 
 class LearningSolver:
     """
@@ -117,30 +171,34 @@ class LearningSolver:
     def solve(self, instance, tee=False):
         model = instance.to_model()
         self.tee = tee
-
         self.internal_solver = self._create_internal_solver()
+
+        # Solve LP relaxation
+        self.internal_solver.solve_lp(model, tee=tee)
+        instance.lp_solution = self.internal_solver.get_solution(model)
         
+        # Invoke before_solve callbacks
         for component in self.components.values():
             component.before_solve(self, instance, model)
         
+        # Check if warm start is available
         is_warm_start_available = False
         if "warm-start" in self.components.keys():
             if self.components["warm-start"].is_warm_start_available:
                 is_warm_start_available = True
         
+        # Solver original MIP
+        self.internal_solver.clear_values(model)
         results = self.internal_solver.solve(model,
-                                                   tee=tee,
-                                                   warmstart=is_warm_start_available)
+                                             tee=tee,
+                                             warmstart=is_warm_start_available)
         
-        instance.solution = {}
+        # Read MIP solution and bounds
         instance.lower_bound = results["Lower bound"]
         instance.upper_bound = results["Upper bound"]
+        instance.solution = self.internal_solver.get_solution(model)
         
-        for var in model.component_objects(Var):
-            instance.solution[str(var)] = {}
-            for index in var:
-                instance.solution[str(var)][index] = var[index].value
-        
+        # Invoke after_solve callbacks
         for component in self.components.values():
             component.after_solve(self, instance, model)
         
@@ -164,6 +222,7 @@ class LearningSolver:
                 "Solver": solver,
                 "Results": results,
                 "Solution": instance.solution,
+                "LP solution": instance.lp_solution,
                 "Upper bound": instance.upper_bound,
                 "Lower bound": instance.lower_bound,
             }
@@ -174,6 +233,7 @@ class LearningSolver:
         
         for (idx, r) in enumerate(p_map_results):
             instances[idx].solution = r["Solution"]
+            instances[idx].lp_solution = r["LP solution"]
             instances[idx].lower_bound = r["Lower bound"]
             instances[idx].upper_bound = r["Upper bound"]
         
@@ -205,3 +265,4 @@ class LearningSolver:
                     continue
                 else:
                     self.components[component_name].merge([component])
+
