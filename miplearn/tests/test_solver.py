@@ -18,6 +18,13 @@ def test_solver():
     instance = _get_instance()
     solver = LearningSolver()
     solver.solve(instance)
+    assert instance.solution["x"][0] == 1.0
+    assert instance.solution["x"][1] == 0.0
+    assert instance.solution["x"][2] == 1.0
+    assert instance.solution["x"][3] == 1.0
+    assert instance.lower_bound == 1183.0
+    assert instance.upper_bound == 1183.0
+    
     solver.fit()
     solver.solve(instance)
 
@@ -51,4 +58,7 @@ def test_parallel_solve():
     assert len(results) == 10
     assert len(solver.components["warm-start"].x_train["default"]) == 40
     assert len(solver.components["warm-start"].y_train["default"]) == 40
+    
+    for instance in instances:
+        assert len(instance.solution["x"].keys()) == 4
     

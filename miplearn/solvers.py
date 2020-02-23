@@ -4,6 +4,7 @@
 
 from . import WarmStartComponent, BranchPriorityComponent
 import pyomo.environ as pe
+from pyomo.core import Var
 from copy import deepcopy
 import pickle
 from scipy.stats import randint
@@ -76,7 +77,7 @@ class LearningSolver:
         if self.threads is not None:
             self.internal_solver.options["Threads"] = self.threads
         if self.time_limit is not None:
-            self.internal_solver.options["TimeLimit"] = self.time_limit
+            self.internal_solver.options["timelimit"] = self.time_limit
         if self.gap_limit is not None:
             self.internal_solver.options["MIPGap"] = self.gap_limit
         
@@ -99,6 +100,14 @@ class LearningSolver:
             solve_results = self.internal_solver.solve(tee=tee, warmstart=is_warm_start_available)
         else:
             solve_results = self.internal_solver.solve(model, tee=tee, warmstart=is_warm_start_available)
+        
+        instance.solution = {}
+        instance.lower_bound = solve_results["Problem"][0]["Lower bound"]
+        instance.upper_bound = solve_results["Problem"][0]["Upper bound"]
+        for var in model.component_objects(Var):
+            instance.solution[str(var)] = {}
+            for index in var:
+                instance.solution[str(var)][index] = var[index].value
         
         if self.internal_solver.name == "gurobi_persistent":
             solve_results["Solver"][0]["Nodes"] = self.internal_solver._solver_model.getAttr("NodeCount")
@@ -124,11 +133,22 @@ class LearningSolver:
             solver.internal_solver = None
             if not collect_training_data:
                 solver.components = {}
-            return solver, results
+            return {
+                "solver": solver,
+                "results": results,
+                "solution": instance.solution,
+                "upper bound": instance.upper_bound,
+                "lower bound": instance.lower_bound,
+            }
 
-        solver_result_pairs = p_map(_process, instances, num_cpus=n_jobs, desc=label)
-        subsolvers = [p[0] for p in solver_result_pairs]
-        results = [p[1] for p in solver_result_pairs]
+        p_map_results = p_map(_process, instances, num_cpus=n_jobs, desc=label)
+        subsolvers = [p["solver"] for p in p_map_results]
+        results = [p["results"] for p in p_map_results]
+        
+        for (idx, r) in enumerate(p_map_results):
+            instances[idx].solution = r["solution"]
+            instances[idx].lower_bound = r["lower bound"]
+            instances[idx].upper_bound = r["upper bound"]
         
         for (name, component) in self.components.items():
             subcomponents = [subsolver.components[name]
