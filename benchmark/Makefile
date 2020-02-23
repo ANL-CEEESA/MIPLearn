@@ -9,7 +9,7 @@ CHALLENGES := \
 
 main: $(addsuffix /performance.png, $(CHALLENGES))
 
-%/training_data.bin:
+%/train_instances.bin:
 	python benchmark.py train $*
 
 %/benchmark_baseline.csv: %/training_data.bin

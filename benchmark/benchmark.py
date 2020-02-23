@@ -28,6 +28,9 @@ import pickle
 import logging
 logging.getLogger('pyomo.core').setLevel(logging.ERROR)
 
+n_jobs = 10
+time_limit = 300
+
 args = docopt(__doc__)
 basepath = args["<challenge>"]
 pathlib.Path(basepath).mkdir(parents=True, exist_ok=True)
@@ -45,36 +48,15 @@ def load(filename):
         return pickle.load(file)        
         
         
-def train_solver_factory():
-    solver = pe.SolverFactory('gurobi_persistent')
-    solver.options["threads"] = 4
-    solver.options["TimeLimit"] = 300
-    return solver
-
-
-def test_solver_factory():
-    solver = pe.SolverFactory('gurobi_persistent')
-    solver.options["threads"] = 4
-    solver.options["TimeLimit"] = 300
-    return solver
-
-
 def train():
     problem_name, challenge_name = args["<challenge>"].split("/")
     pkg = importlib.import_module("miplearn.problems.%s" % problem_name)
     challenge = getattr(pkg, challenge_name)()
-    train_instances = challenge.training_instances
-    test_instances  = challenge.test_instances
-    solver = LearningSolver(
-        internal_solver_factory=train_solver_factory,
-        components={
-            "warm-start": WarmStartComponent(),
-            #"branch-priority": BranchPriorityComponent(),
-        },
-    )
-    solver.parallel_solve(train_instances, n_jobs=10)
-    solver.fit(n_jobs=10)
-    solver.save_state("%s/training_data.bin" % basepath)
+    train_instances = challenge.training_instances[:10]
+    test_instances  = challenge.test_instances[:10]
+    solver = LearningSolver(time_limit=time_limit, components={})
+    solver.parallel_solve(train_instances, n_jobs=n_jobs)
+    solver.fit(n_jobs=n_jobs)
     save(train_instances, "%s/train_instances.bin" % basepath)
     save(test_instances, "%s/test_instances.bin" % basepath)
     
@@ -82,39 +64,31 @@ def train():
 def test_baseline():
     solvers = {
         "baseline": LearningSolver(
-            internal_solver_factory=test_solver_factory,
+            time_limit=time_limit,
             components={},
         ),
     }
     test_instances = load("%s/test_instances.bin" % basepath)
     benchmark = BenchmarkRunner(solvers)
-    benchmark.parallel_solve(test_instances, n_jobs=10)
+    benchmark.parallel_solve(test_instances, n_jobs=n_jobs)
     benchmark.save_results("%s/benchmark_baseline.csv" % basepath)
     
     
 def test_ml():
     solvers = {
         "ml-exact": LearningSolver(
-            internal_solver_factory=test_solver_factory,
-            components={
-                "warm-start": WarmStartComponent(),
-                #"branch-priority": BranchPriorityComponent(),
-            },
+            time_limit=time_limit,
         ),
         "ml-heuristic": LearningSolver(
-            internal_solver_factory=test_solver_factory,
+            time_limit=time_limit,
             mode="heuristic",
-            components={
-                "warm-start": WarmStartComponent(),
-                #"branch-priority": BranchPriorityComponent(),
-            },
         ),
     }
     test_instances = load("%s/test_instances.bin" % basepath)
     benchmark = BenchmarkRunner(solvers)
     benchmark.load_state("%s/training_data.bin" % basepath)
     benchmark.load_results("%s/benchmark_baseline.csv" % basepath)
-    benchmark.parallel_solve(test_instances, n_jobs=10)
+    benchmark.parallel_solve(test_instances, n_jobs=n_jobs)
     benchmark.save_results("%s/benchmark_ml.csv" % basepath)    
     
     
@@ -178,9 +152,9 @@ def charts():
 if __name__ == "__main__":
     if args["train"]:
         train()
-    if args["test-baseline"]:
-        test_baseline()
-    if args["test-ml"]:
-        test_ml()
-    if args["charts"]:
-        charts()
+    #if args["test-baseline"]:
+    #    test_baseline()
+    #if args["test-ml"]:
+    #    test_ml()
+    #if args["charts"]:
+    #    charts()
