@@ -61,25 +61,17 @@ class BenchmarkRunner:
                                                  "Nodes",
                                                  "Mode",
                                                 ])
-        wallclock_time = None
-        for key in ["Time", "Wall time", "Wallclock time"]:
-            if key not in result["Solver"][0].keys():
-                continue
-            if str(result["Solver"][0][key]) == "<undefined>":
-                continue
-            wallclock_time = float(result["Solver"][0][key])
-        nodes = result["Solver"][0]["Nodes"]
-        lb = result["Problem"][0]["Lower bound"]
-        ub = result["Problem"][0]["Upper bound"]
+        lb = result["Lower bound"]
+        ub = result["Upper bound"]
         gap = (ub - lb) / lb
         self.results = self.results.append({
             "Solver": name,
             "Instance": instance,
-            "Wallclock Time": wallclock_time,
+            "Wallclock Time": result["Wallclock time"],
             "Lower Bound": lb,
             "Upper Bound": ub,
             "Gap": gap,
-            "Nodes": nodes,
+            "Nodes": result["Nodes"],
             "Mode": solver.mode,
         }, ignore_index=True)
         groups = self.results.groupby("Instance")

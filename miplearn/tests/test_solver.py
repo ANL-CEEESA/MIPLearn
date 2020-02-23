@@ -16,17 +16,21 @@ def _get_instance():
 
 def test_solver():
     instance = _get_instance()
-    solver = LearningSolver()
-    solver.solve(instance)
-    assert instance.solution["x"][0] == 1.0
-    assert instance.solution["x"][1] == 0.0
-    assert instance.solution["x"][2] == 1.0
-    assert instance.solution["x"][3] == 1.0
-    assert instance.lower_bound == 1183.0
-    assert instance.upper_bound == 1183.0
-    
-    solver.fit()
-    solver.solve(instance)
+    for internal_solver in ["cplex", "gurobi"]:
+        solver = LearningSolver(time_limit=300,
+                                gap_tolerance=1e-3,
+                                threads=1,
+                                solver=internal_solver,
+                               )
+        results = solver.solve(instance)
+        assert instance.solution["x"][0] == 1.0
+        assert instance.solution["x"][1] == 0.0
+        assert instance.solution["x"][2] == 1.0
+        assert instance.solution["x"][3] == 1.0
+        assert instance.lower_bound == 1183.0
+        assert instance.upper_bound == 1183.0
+        solver.fit()
+        solver.solve(instance)
 
 
 def test_solve_save_load_state():
