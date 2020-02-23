@@ -44,6 +44,7 @@ class InternalSolver():
                 solution[str(var)][index] = var[index].value
         return solution        
 
+    
 class GurobiSolver(InternalSolver):
     def __init__(self):
         self.solver = pe.SolverFactory('gurobi_persistent')
@@ -128,7 +129,7 @@ class LearningSolver:
                  components=None,
                  gap_tolerance=None,
                  mode="exact",
-                 solver="cplex",
+                 solver="gurobi",
                  threads=4,
                  time_limit=None,
                 ):
