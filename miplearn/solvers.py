@@ -2,7 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from . import WarmStartComponent, BranchPriorityComponent
+from . import WarmStartComponent, BranchPriorityComponent, ObjectiveValueComponent
 import pyomo.environ as pe
 from pyomo.core import Var
 from copy import deepcopy
@@ -51,7 +51,7 @@ class InternalSolver():
 class GurobiSolver(InternalSolver):
     def __init__(self):
         self.solver = pe.SolverFactory('gurobi_persistent')
-        self.solver.options["OutputFlag"] = 0
+        #self.solver.options["OutputFlag"] = 0
         self.solver.options["Seed"] = randint(low=0, high=1000).rvs()
     
     def set_threads(self, threads):
@@ -150,12 +150,14 @@ class LearningSolver:
         self.time_limit = time_limit
         self.gap_tolerance = gap_tolerance
         self.tee = False
+        self.training_instances = []
         
         if self.components is not None:
             assert isinstance(self.components, dict)
         else:
             self.components = {
-                "warm-start": WarmStartComponent(),
+                "obj-val": ObjectiveValueComponent(),
+                #"warm-start": WarmStartComponent(),
             }
             
         assert self.mode in ["exact", "heuristic"]
@@ -192,12 +194,13 @@ class LearningSolver:
         results = self.internal_solver.solve_lp(model, tee=tee)
         instance.lp_solution = self.internal_solver.get_solution(model)
         instance.lp_value = results["Optimal value"]
-        if relaxation_only:
-            return results
         
         # Invoke before_solve callbacks
         for component in self.components.values():
             component.before_solve(self, instance, model)
+        
+        if relaxation_only:
+            return results
         
         # Check if warm start is available
         is_warm_start_available = False
@@ -219,6 +222,9 @@ class LearningSolver:
         # Invoke after_solve callbacks
         for component in self.components.values():
             component.after_solve(self, instance, model)
+            
+        # Store instance for future training
+        self.training_instances += [instance]
         
         return results
                 
@@ -265,9 +271,13 @@ class LearningSolver:
         
         return results
 
-    def fit(self, n_jobs=1):
+    def fit(self, training_instances=None):
+        if training_instances is None:
+            training_instances = self.training_instances
+        if len(training_instances) == 0:
+            return
         for component in self.components.values():
-            component.fit(self, n_jobs=n_jobs)
+            component.fit(training_instances)
             
     def save_state(self, filename):
         with open(filename, "wb") as file:

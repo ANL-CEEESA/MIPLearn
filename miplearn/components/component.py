@@ -23,5 +23,5 @@ class Component(ABC):
         pass
     
     @abstractmethod
-    def fit(self, solver):
+    def fit(self, training_instances):
         pass

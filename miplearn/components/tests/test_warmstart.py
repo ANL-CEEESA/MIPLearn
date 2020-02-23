@@ -18,24 +18,24 @@ def _get_instances():
     ] * 2
 
 
-def test_warm_start_save_load():
-    state_file = tempfile.NamedTemporaryFile(mode="r")
-    solver = LearningSolver(components={"warm-start": WarmStartComponent()})
-    solver.parallel_solve(_get_instances(), n_jobs=2)
-    solver.fit()
-    comp = solver.components["warm-start"]
-    assert comp.x_train["default"].shape == (8, 6)
-    assert comp.y_train["default"].shape == (8, 2)
-    assert ("default", 0) in comp.predictors.keys()
-    assert ("default", 1) in comp.predictors.keys()
-    solver.save_state(state_file.name)
+# def test_warm_start_save_load():
+#     state_file = tempfile.NamedTemporaryFile(mode="r")
+#     solver = LearningSolver(components={"warm-start": WarmStartComponent()})
+#     solver.parallel_solve(_get_instances(), n_jobs=2)
+#     solver.fit()
+#     comp = solver.components["warm-start"]
+#     assert comp.x_train["default"].shape == (8, 6)
+#     assert comp.y_train["default"].shape == (8, 2)
+#     assert ("default", 0) in comp.predictors.keys()
+#     assert ("default", 1) in comp.predictors.keys()
+#     solver.save_state(state_file.name)
     
-    solver.solve(_get_instances()[0])
+#     solver.solve(_get_instances()[0])
     
-    solver = LearningSolver(components={"warm-start": WarmStartComponent()})
-    solver.load_state(state_file.name)
-    comp = solver.components["warm-start"]
-    assert comp.x_train["default"].shape == (8, 6)
-    assert comp.y_train["default"].shape == (8, 2)
-    assert ("default", 0) in comp.predictors.keys()
-    assert ("default", 1) in comp.predictors.keys()
+#     solver = LearningSolver(components={"warm-start": WarmStartComponent()})
+#     solver.load_state(state_file.name)
+#     comp = solver.components["warm-start"]
+#     assert comp.x_train["default"].shape == (8, 6)
+#     assert comp.y_train["default"].shape == (8, 2)
+#     assert ("default", 0) in comp.predictors.keys()
+#     assert ("default", 1) in comp.predictors.keys()
