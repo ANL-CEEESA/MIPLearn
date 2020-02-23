@@ -176,7 +176,12 @@ class LearningSolver:
             solver.set_gap_tolerance(self.gap_tolerance)
         return solver
         
-    def solve(self, instance, model=None, tee=False):
+    def solve(self,
+              instance,
+              model=None,
+              tee=False,
+              relaxation_only=False,
+             ):
         if model is None:
             model = instance.to_model()
             
@@ -187,6 +192,8 @@ class LearningSolver:
         results = self.internal_solver.solve_lp(model, tee=tee)
         instance.lp_solution = self.internal_solver.get_solution(model)
         instance.lp_value = results["Optimal value"]
+        if relaxation_only:
+            return results
         
         # Invoke before_solve callbacks
         for component in self.components.values():
