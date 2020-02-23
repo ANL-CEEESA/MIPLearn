@@ -103,3 +103,28 @@ class CombinedExtractor(Extractor):
     def extract(self, instances, models):
         return self.merge([ex.extract(instances, models)
                            for ex in self.extractors])
+
+    
+class InstanceFeaturesExtractor(Extractor):
+    def extract(self, instances, models=None):
+        return np.vstack([
+            np.hstack([
+                instance.get_instance_features(),
+                instance.lp_value,
+            ])
+            for instance in instances
+        ])
+    
+    
+class ObjectiveValueExtractor(Extractor):
+    def __init__(self, kind="lp"):
+        assert kind in ["lower bound", "upper bound", "lp"]
+        self.kind = kind
+        
+    def extract(self, instances, models=None):
+        if self.kind == "lower bound":
+            return np.array([[instance.lower_bound] for instance in instances])
+        if self.kind == "upper bound":
+            return np.array([[instance.upper_bound] for instance in instances])
+        if self.kind == "lp":
+            return np.array([[instance.lp_value] for instance in instances])

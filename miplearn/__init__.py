@@ -12,6 +12,8 @@ from .components.branching import BranchPriorityComponent
 from .extractors import (UserFeaturesExtractor,
                          SolutionExtractor,
                          CombinedExtractor,
+                         InstanceFeaturesExtractor,
+                         ObjectiveValueExtractor,
                         )
 from .benchmark import BenchmarkRunner
 from .instance import Instance
