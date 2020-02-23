@@ -128,15 +128,9 @@ class WarmStartComponent(Component):
         
     
     def before_solve(self, solver, instance, model):
-#         # Solve linear relaxation
-#         lr_solver = pe.SolverFactory("gurobi")
-#         lr_solver.options["threads"] = 4
-#         lr_solver.options["relax_integrality"] = 1
-#         lr_solver.solve(model, tee=solver.tee)
-        
         # Build x_test
         x_test = CombinedExtractor([UserFeaturesExtractor(),
-                                    SolutionExtractor(),
+                                    SolutionExtractor(relaxation=True),
                                    ]).extract([instance], [model])
         
         # Update self.x_train

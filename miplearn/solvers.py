@@ -168,8 +168,10 @@ class LearningSolver:
             solver.set_gap_tolerance(self.gap_tolerance)
         return solver
         
-    def solve(self, instance, tee=False):
-        model = instance.to_model()
+    def solve(self, instance, model=None, tee=False):
+        if model is None:
+            model = instance.to_model()
+            
         self.tee = tee
         self.internal_solver = self._create_internal_solver()
 

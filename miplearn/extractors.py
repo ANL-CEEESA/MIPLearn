@@ -69,8 +69,13 @@ class UserFeaturesExtractor(Extractor):
 
 
 class SolutionExtractor(Extractor):
-    def extract(self, instances, models):
+    def __init__(self, relaxation=False):
+        self.relaxation = relaxation
+        
+    def extract(self, instances, models=None):
         result = {}
+        if models is None:
+            models = [instance.to_model() for instance in instances]
         for (index, instance) in enumerate(instances):
             model = models[index]
             var_split = self.split_variables(instance, model)
@@ -78,7 +83,10 @@ class SolutionExtractor(Extractor):
                 if category not in result.keys():
                     result[category] = []
                 for (var, index) in var_index_pairs:
-                    v = var[index].value
+                    if self.relaxation:
+                        v = instance.lp_solution[str(var)][index]
+                    else:
+                        v = instance.solution[str(var)][index]
                     if v is None:
                         result[category] += [[0, 0]]
                     else:

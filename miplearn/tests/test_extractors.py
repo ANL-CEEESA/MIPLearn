@@ -3,10 +3,11 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from miplearn.problems.knapsack import KnapsackInstance
-from miplearn.extractors import (UserFeaturesExtractor,
-                                 SolutionExtractor,
-                                 CombinedExtractor,
-                                )
+from miplearn import (LearningSolver,
+                      UserFeaturesExtractor,
+                      SolutionExtractor,
+                      CombinedExtractor,
+                     )
 import numpy as np
 import pyomo.environ as pe
 
@@ -37,11 +38,11 @@ def test_user_features():
 def test_solution_extractor():
     instances = _get_instances()
     models = [instance.to_model() for instance in instances]
-    for model in models:
-        solver = pe.SolverFactory("cbc")
-        solver.solve(model)
-    extractor = SolutionExtractor()
-    features = extractor.extract(instances, models)
+    solver = LearningSolver()
+    for (i, instance) in enumerate(instances):
+        solver.solve(instances[i], models[i])
+    
+    features = SolutionExtractor().extract(instances, models)
     assert isinstance(features, dict)
     assert "default" in features.keys()
     assert isinstance(features["default"], np.ndarray)
@@ -59,6 +60,10 @@ def test_solution_extractor():
 def test_combined_extractor():
     instances = _get_instances()
     models = [instance.to_model() for instance in instances]
+    solver = LearningSolver()
+    for (i, instance) in enumerate(instances):
+        solver.solve(instances[i], models[i])
+    
     extractor = CombinedExtractor(extractors=[UserFeaturesExtractor(),
                                               SolutionExtractor()])
     features = extractor.extract(instances, models)

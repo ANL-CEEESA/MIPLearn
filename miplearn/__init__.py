@@ -9,7 +9,10 @@ from .components.warmstart import (WarmStartComponent,
                                    AdaptivePredictor,
                                   )
 from .components.branching import BranchPriorityComponent
-from .extractors import UserFeaturesExtractor, SolutionExtractor
+from .extractors import (UserFeaturesExtractor,
+                         SolutionExtractor,
+                         CombinedExtractor,
+                        )
 from .benchmark import BenchmarkRunner
 from .instance import Instance
 from .solvers import LearningSolver
