@@ -51,6 +51,7 @@ class InternalSolver():
 class GurobiSolver(InternalSolver):
     def __init__(self):
         self.solver = pe.SolverFactory('gurobi_persistent')
+        self.solver.options["OutputFlag"] = 0
         self.solver.options["Seed"] = randint(low=0, high=1000).rvs()
     
     def set_threads(self, threads):
@@ -185,7 +186,6 @@ class LearningSolver:
         # Solve LP relaxation
         results = self.internal_solver.solve_lp(model, tee=tee)
         instance.lp_solution = self.internal_solver.get_solution(model)
-        print(results)
         instance.lp_value = results["Optimal value"]
         
         # Invoke before_solve callbacks
