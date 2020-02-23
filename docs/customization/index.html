@@ -14,29 +14,22 @@
     <title>Customization - MIPLearn</title>
     
 
-    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
-    <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
     <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
     <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
     <link href="../css/base.min.css" rel="stylesheet">
     <link href="../css/cinder.min.css" rel="stylesheet">
-    <link href="../css/highlight.min.css" rel="stylesheet">
+
+    
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
             <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
         <![endif]-->
-
-    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
-    <script>
-    WebFont.load({
-        google: {
-            families: ['Open Sans', 'PT Sans']
-        }
-    });
-    </script>
 
     
 
@@ -145,16 +138,11 @@
 
 <h1 id="customization">Customization</h1>
 <h3 id="selecting-the-internal-mip-solver">Selecting the internal MIP solver</h3>
-<p>By default, <code>LearningSolver</code> uses <a href="https://www.gurobi.com/">Gurobi</a> as its internal MIP solver. Alternative solvers can be specified through the <code>internal_solver_factory</code> constructor argument. This argument should provide a function (with no arguments) that constructs, configures and returns the desired solver. To select CPLEX, for example:</p>
+<p>By default, <code>LearningSolver</code> uses <a href="https://www.gurobi.com/">Gurobi</a> as its internal MIP solver. Another supported solver is <a href="https://www.ibm.com/products/ilog-cplex-optimization-studio">IBM ILOG CPLEX</a>. To switch between solvers, use the <code>solver</code> constructor argument, as shown below. It is also possible to specify a time limit (in seconds) and a relative MIP gap tolerance.</p>
 <pre><code class="python">from miplearn import LearningSolver
-import pyomo.environ as pe
-
-def cplex_factory():
-    cplex = pe.SolverFactory(&quot;cplex&quot;)
-    cplex.options[&quot;threads&quot;] = 4
-    return cplex
-
-solver = LearningSolver(internal_solver_factory=cplex_factory)
+solver = LearningSolver(solver=&quot;cplex&quot;,
+                        time_limit=300,
+                        gap_tolerance=1e-3)
 </code></pre></div>
         
         
@@ -164,17 +152,17 @@ solver = LearningSolver(internal_solver_factory=cplex_factory)
         
         <hr>
         <p>
-        <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.<br></small>
+        <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.</small><br>
         
-        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+        </p>
 
         
         
     </footer>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="../js/bootstrap-3.0.3.min.js"></script>
-    <script src="../js/highlight.pack.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
+    
     <script>var base_url = ".."</script>
     
     <script src="../js/base.js"></script>
@@ -186,8 +174,11 @@ solver = LearningSolver(internal_solver_factory=cplex_factory)
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
                 <h4 class="modal-title" id="searchModalLabel">Search</h4>
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
             </div>
             <div class="modal-body">
                 <p>

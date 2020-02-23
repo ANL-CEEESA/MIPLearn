@@ -108,4 +108,4 @@ After all training instances have been solved in parallel, the ML models can be 
 
 * Only binary and continuous decision variables are currently supported.
 * Solver callbacks (lazy constraints, cutting planes) are not currently supported.
-* Only `gurobi_persistent` is currently fully supported by all solver components. Other solvers may work if some components are disabled.
+* Only Gurobi and CPLEX are currently supported as internal MIP solvers.
