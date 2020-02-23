@@ -27,9 +27,12 @@ class InternalSolver():
             var.setub(ub)
             var.domain = Reals
         self.solver.set_instance(model)
-        self.solver.solve(tee=True)
+        results = self.solver.solve(tee=True)
         for var in model.component_data_objects(Var):
             var.domain = original_domain[str(var)]
+        return {
+            "Optimal value": results["Problem"][0]["Lower bound"],
+        }
             
     def clear_values(self, model):
         for var in model.component_objects(Var):
@@ -117,6 +120,9 @@ class CPLEXSolver(InternalSolver):
         lp.set_problem_type(cplex.Cplex.problem_type.LP)
         results = self.solver.solve(tee=tee)
         lp.variables.set_types(zip(range(n_vars), var_types))
+        return {
+            "Optimal value": results["Problem"][0]["Lower bound"],
+        }
         
 
 class LearningSolver:
@@ -177,8 +183,10 @@ class LearningSolver:
         self.internal_solver = self._create_internal_solver()
 
         # Solve LP relaxation
-        self.internal_solver.solve_lp(model, tee=tee)
+        results = self.internal_solver.solve_lp(model, tee=tee)
         instance.lp_solution = self.internal_solver.get_solution(model)
+        print(results)
+        instance.lp_value = results["Optimal value"]
         
         # Invoke before_solve callbacks
         for component in self.components.values():
@@ -226,6 +234,7 @@ class LearningSolver:
                 "Results": results,
                 "Solution": instance.solution,
                 "LP solution": instance.lp_solution,
+                "LP value": instance.lp_value,
                 "Upper bound": instance.upper_bound,
                 "Lower bound": instance.lower_bound,
             }
@@ -237,6 +246,7 @@ class LearningSolver:
         for (idx, r) in enumerate(p_map_results):
             instances[idx].solution = r["Solution"]
             instances[idx].lp_solution = r["LP solution"]
+            instances[idx].lp_value = r["LP value"]
             instances[idx].lower_bound = r["Lower bound"]
             instances[idx].upper_bound = r["Upper bound"]
         
