@@ -29,10 +29,8 @@ def test_predict():
     comp.fit(instances)
     solution = comp.predict(instances[0], models[0])
     assert models[0].x in solution.keys()
-    assert solution[models[0].x][0] == 1
-    assert solution[models[0].x][1] == 1
-    assert solution[models[0].x][2] == 1
-    assert solution[models[0].x][3] == 1
+    for idx in range(4):
+        assert idx in solution[models[0].x].keys()
 
 # def test_warm_start_save_load():
 #     state_file = tempfile.NamedTemporaryFile(mode="r")
