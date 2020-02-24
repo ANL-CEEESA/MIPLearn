@@ -1,6 +1,6 @@
-# MIPLearn, an extensible framework for Learning-Enhanced Mixed-Integer Optimization
-# Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
-# Written by Alinson S. Xavier <axavier@anl.gov>
+#  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
+#  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
+#  Released under the modified BSD license. See COPYING.md for more details.
 
 from miplearn import LearningSolver
 from miplearn.problems.knapsack import MultiKnapsackGenerator, MultiKnapsackInstance
@@ -23,32 +23,3 @@ def test_knapsack_generator():
     assert round(np.mean(w_sum), -1) == 500.
     assert round(np.mean(p_sum), -1) == 1250.
     assert round(np.mean(b_sum), -3) == 25000.
-
-    
-def test_knapsack_fixed_weights_jitter():
-    gen = MultiKnapsackGenerator(n=randint(low=50, high=51),
-                                 m=randint(low=10, high=11),
-                                 w=randint(low=0, high=1000),
-                                 K=randint(low=500, high=501),
-                                 u=uniform(loc=1.0, scale=0.0),
-                                 alpha=uniform(loc=0.50, scale=0.0),
-                                 fix_w=True,
-                                 w_jitter=randint(low=0, high=1),
-                                )
-    instances = gen.generate(100)
-    w = [instance.weights[0,0] for instance in instances]
-    assert np.std(w) == 0.
-    
-    gen = MultiKnapsackGenerator(n=randint(low=1, high=2),
-                                 m=randint(low=10, high=11),
-                                 w=randint(low=1000, high=1001),
-                                 K=randint(low=500, high=501),
-                                 u=uniform(loc=1.0, scale=0.0),
-                                 alpha=uniform(loc=0.50, scale=0.0),
-                                 fix_w=True,
-                                 w_jitter=randint(low=0, high=1001),
-                                )
-    instances = gen.generate(5_000)
-    w = [instance.weights[0,0] for instance in instances]
-    assert round(np.std(w), -1) == 290.
-    assert round(np.mean(w), -2) == 1500.

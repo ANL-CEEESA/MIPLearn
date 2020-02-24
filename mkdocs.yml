@@ -1,7 +1,8 @@
 site_name: MIPLearn
 theme: cinder
-copyright: "&copy; Copyright 2019&ndash;2020 Argonne National Laboratory"
-repo_url: https://github.com/iSoron/miplearn
+copyright: "Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved."
+repo_url: https://github.com/ANL-CEEESA/MIPLearn
+edit_uri: edit/master/docs-src/
 nav:
     - Home: index.md
     - Usage: usage.md
@@ -17,3 +18,7 @@ markdown_extensions:
 extra_javascript: 
     - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
     - js/mathjax.js
+docs_dir: docs-src
+site_dir: docs
+extra_css:
+    - "css/custom.css"

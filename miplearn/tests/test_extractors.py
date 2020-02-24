@@ -1,16 +1,20 @@
-# MIPLearn, an extensible framework for Learning-Enhanced Mixed-Integer Optimization
-# Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
-# Written by Alinson S. Xavier <axavier@anl.gov>
+#  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
+#  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
+#  Released under the modified BSD license. See COPYING.md for more details.
 
 from miplearn.problems.knapsack import KnapsackInstance
-from miplearn import (UserFeaturesExtractor,
-                      SolutionExtractor)
+from miplearn import (LearningSolver,
+                      SolutionExtractor,
+                      CombinedExtractor,
+                      InstanceFeaturesExtractor,
+                      VariableFeaturesExtractor,
+                     )
 import numpy as np
 import pyomo.environ as pe
 
 
 def _get_instances():
-    return [
+    instances = [
         KnapsackInstance(weights=[1., 2., 3.],
                          prices=[10., 20., 30.],
                          capacity=2.5,
@@ -20,26 +24,16 @@ def _get_instances():
                          capacity=4.5,
                         ),
     ]
-
-
-def test_user_features():
-    instances = _get_instances()
-    extractor = UserFeaturesExtractor()
-    features = extractor.extract(instances)
-    assert isinstance(features, dict)
-    assert "default" in features.keys()
-    assert isinstance(features["default"], np.ndarray)
-    assert features["default"].shape == (6, 4)
-
-    
-def test_solution_extractor():
-    instances = _get_instances()
     models = [instance.to_model() for instance in instances]
-    for model in models:
-        solver = pe.SolverFactory("cbc")
-        solver.solve(model)
-    extractor = SolutionExtractor()
-    features = extractor.extract(instances, models)
+    solver = LearningSolver()
+    for (i, instance) in enumerate(instances):
+        solver.solve(instances[i], models[i])
+    return instances, models
+
+
+def test_solution_extractor():
+    instances, models = _get_instances()
+    features = SolutionExtractor().extract(instances, models)
     assert isinstance(features, dict)
     assert "default" in features.keys()
     assert isinstance(features["default"], np.ndarray)
@@ -52,3 +46,29 @@ def test_solution_extractor():
         0., 1.,
         1., 0.,
     ]
+
+    
+def test_combined_extractor():
+    instances, models = _get_instances()
+    extractor = CombinedExtractor(extractors=[VariableFeaturesExtractor(),
+                                              SolutionExtractor()])
+    features = extractor.extract(instances, models)
+    assert isinstance(features, dict)
+    assert "default" in features.keys()
+    assert isinstance(features["default"], np.ndarray)
+    assert features["default"].shape == (6, 7)
+    
+    
+def test_instance_features_extractor():
+    instances, models = _get_instances()
+    features = InstanceFeaturesExtractor().extract(instances)
+    assert features.shape == (2,3)
+    
+    
+def test_variable_features_extractor():
+    instances, models = _get_instances()
+    features = VariableFeaturesExtractor().extract(instances)
+    assert isinstance(features, dict)
+    assert "default" in features
+    assert features["default"].shape == (6,5)
+    

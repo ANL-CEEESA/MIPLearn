@@ -1,9 +1,8 @@
-# MIPLearn, an extensible framework for Learning-Enhanced Mixed-Integer Optimization
-# Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
-# Written by Alinson S. Xavier <axavier@anl.gov>
+#  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
+#  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
+#  Released under the modified BSD license. See COPYING.md for more details.
 
 from miplearn import LearningSolver, BenchmarkRunner
-from miplearn.warmstart import KnnWarmStartPredictor
 from miplearn.problems.stab import MaxWeightStableSetGenerator
 from scipy.stats import randint
 import numpy as np
@@ -30,11 +29,11 @@ def test_benchmark():
     benchmark = BenchmarkRunner(test_solvers)
     benchmark.load_state("data.bin")
     benchmark.parallel_solve(test_instances, n_jobs=2, n_trials=2)
-    assert benchmark.raw_results().values.shape == (12,12)
+    assert benchmark.raw_results().values.shape == (12,13)
     
     benchmark.save_results("/tmp/benchmark.csv")
     assert os.path.isfile("/tmp/benchmark.csv")
     
     benchmark = BenchmarkRunner(test_solvers)
     benchmark.load_results("/tmp/benchmark.csv")
-    assert benchmark.raw_results().values.shape == (12,12)
+    assert benchmark.raw_results().values.shape == (12,13)

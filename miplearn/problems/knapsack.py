@@ -1,6 +1,6 @@
-# MIPLearn, an extensible framework for Learning-Enhanced Mixed-Integer Optimization
-# Copyright (C) 2019-2020 Argonne National Laboratory. All rights reserved.
-# Written by Alinson S. Xavier <axavier@anl.gov>
+#  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
+#  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
+#  Released under the modified BSD license. See COPYING.md for more details.
 
 import miplearn
 from miplearn import Instance
@@ -13,7 +13,7 @@ from scipy.stats.distributions import rv_frozen
 class ChallengeA:
     """
     - 250 variables, 10 constraints, fixed weights
-    - w ~ U(100, 900), jitter ~ U(-100, 100)
+    - w ~ U(0, 1000), jitter ~ U(0.95, 1.05)
     - K = 500, u ~ U(0., 1.)
     - alpha = 0.25
     """
@@ -25,12 +25,12 @@ class ChallengeA:
         np.random.seed(seed)
         self.gen = MultiKnapsackGenerator(n=randint(low=250, high=251),
                                           m=randint(low=10, high=11),
-                                          w=uniform(loc=100.0, scale=900.0),
+                                          w=uniform(loc=0.0, scale=1000.0),
                                           K=uniform(loc=500.0, scale=0.0),
                                           u=uniform(loc=0.0, scale=1.0),
                                           alpha=uniform(loc=0.25, scale=0.0),
                                           fix_w=True,
-                                          w_jitter=uniform(loc=-100.0, scale=200.0),
+                                          w_jitter=uniform(loc=0.95, scale=0.1),
                                          )
         np.random.seed(seed + 1)
         self.training_instances = self.gen.generate(n_training_instances)
@@ -104,7 +104,7 @@ class MultiKnapsackGenerator:
                  u=uniform(loc=0.0, scale=1.0),
                  alpha=uniform(loc=0.25, scale=0.0),
                  fix_w=False,
-                 w_jitter=randint(low=0, high=1),
+                 w_jitter=uniform(loc=1.0, scale=0.0),
                  round=True,
                 ):
         """Initialize the problem generator.
@@ -133,7 +133,7 @@ class MultiKnapsackGenerator:
         be completely identical.
 
         If a probability distribution w_jitter is provided, then item weights will be set to
-        w[i,j] + gamma[i,j] where gamma[i,j] is sampled from w_jitter. When combined with 
+        w[i,j] * gamma[i,j] where gamma[i,j] is sampled from w_jitter. When combined with 
         fix_w=True, this argument may be used to generate instances where the weight of each item
         is roughly the same, but not exactly identical, across all instances. The prices of the
         items and the capacities of the knapsacks will be calculated as above, but using these
@@ -186,10 +186,14 @@ class MultiKnapsackGenerator:
             self.fix_n = self.n.rvs()
             self.fix_m = self.m.rvs()
             self.fix_w = np.array([self.w.rvs(self.fix_n) for _ in range(self.fix_m)])
+            self.fix_u = self.u.rvs(self.fix_n)
+            self.fix_K = self.K.rvs()
         else:
             self.fix_n = None
             self.fix_m = None
             self.fix_w = None
+            self.fix_u = None
+            self.fix_K = None
     
     def generate(self, n_samples):
         def _sample():
@@ -197,13 +201,15 @@ class MultiKnapsackGenerator:
                 n = self.fix_n
                 m = self.fix_m
                 w = self.fix_w
+                u = self.fix_u
+                K = self.fix_K
             else:
                 n = self.n.rvs()
                 m = self.m.rvs()
                 w = np.array([self.w.rvs(n) for _ in range(m)])
-            w = w + np.array([self.w_jitter.rvs(n) for _ in range(m)])
-            K = self.K.rvs()
-            u = self.u.rvs(n)
+                u = self.u.rvs(n)
+                K = self.K.rvs()
+            w = w * np.array([self.w_jitter.rvs(n) for _ in range(m)])
             alpha = self.alpha.rvs(m)
             p = np.array([w[:,j].sum() / m + K * u[j] for j in range(n)])
             b = np.array([w[i,:].sum() * alpha[i] for i in range(m)])

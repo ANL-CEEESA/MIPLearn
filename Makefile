@@ -1,4 +1,4 @@
-PYTEST_ARGS := -W ignore::DeprecationWarning -vv -x
+PYTEST_ARGS := -W ignore::DeprecationWarning -vv -x --log-level=DEBUG
 
 all: docs test
 
