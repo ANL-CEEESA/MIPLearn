@@ -16,11 +16,7 @@ Options:
 """
 from docopt import docopt
 import importlib, pathlib
-from miplearn import (LearningSolver,
-                      BenchmarkRunner,
-                      WarmStartComponent,
-                      BranchPriorityComponent,
-                     )
+from miplearn import (LearningSolver, BenchmarkRunner)
 from numpy import median
 import pyomo.environ as pe
 import pickle
@@ -29,7 +25,7 @@ import logging
 logging.getLogger('pyomo.core').setLevel(logging.ERROR)
 
 n_jobs = 10
-time_limit = 300
+time_limit = 900
 internal_solver = "gurobi"
 
 args = docopt(__doc__)
@@ -65,35 +61,36 @@ def train():
     
     
 def test_baseline():
+    test_instances = load("%s/test_instances.bin" % basepath)
     solvers = {
         "baseline": LearningSolver(
             time_limit=time_limit,
             components={},
         ),
     }
-    test_instances = load("%s/test_instances.bin" % basepath)
     benchmark = BenchmarkRunner(solvers)
     benchmark.parallel_solve(test_instances, n_jobs=n_jobs)
     benchmark.save_results("%s/benchmark_baseline.csv" % basepath)
     
     
 def test_ml():
+    train_instances = load("%s/train_instances.bin" % basepath)
+    test_instances = load("%s/test_instances.bin" % basepath)
     solvers = {
         "ml-exact": LearningSolver(
-            time_limit=time_limit,
+           time_limit=time_limit,
         ),
         "ml-heuristic": LearningSolver(
             time_limit=time_limit,
             mode="heuristic",
         ),
     }
-    test_instances = load("%s/test_instances.bin" % basepath)
     benchmark = BenchmarkRunner(solvers)
-    benchmark.load_state("%s/training_data.bin" % basepath)
     benchmark.load_results("%s/benchmark_baseline.csv" % basepath)
+    benchmark.fit(train_instances)
     benchmark.parallel_solve(test_instances, n_jobs=n_jobs)
     benchmark.save_results("%s/benchmark_ml.csv" % basepath)    
-    
+
     
 def charts():
     import matplotlib.pyplot as plt
@@ -155,9 +152,9 @@ def charts():
 if __name__ == "__main__":
     if args["train"]:
         train()
-    #if args["test-baseline"]:
-    #    test_baseline()
-    #if args["test-ml"]:
-    #    test_ml()
-    #if args["charts"]:
-    #    charts()
+    if args["test-baseline"]:
+        test_baseline()
+    if args["test-ml"]:
+        test_ml()
+    if args["charts"]:
+        charts()

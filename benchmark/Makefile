@@ -12,7 +12,7 @@ main: $(addsuffix /performance.png, $(CHALLENGES))
 %/train_instances.bin:
 	python benchmark.py train $*
 
-%/benchmark_baseline.csv: %/training_data.bin
+%/benchmark_baseline.csv: %/train_instances.bin
 	python benchmark.py test-baseline $*
 
 %/benchmark_ml.csv: %/benchmark_baseline.csv
