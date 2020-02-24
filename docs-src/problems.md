@@ -45,10 +45,6 @@ MaxWeightStableSetGenerator(w=uniform(loc=100., scale=50.),
                             fix_graph=True)
 ```
 
-### Benchmark results
-
-#### Challenge A
-
 ![alt](figures/benchmark_stab_a.png)
 
 ## Multidimensional 0-1 Knapsack Problem
@@ -99,3 +95,25 @@ By default, all generated prices, weights and capacities are rounded to the near
 !!! note "References"
     * Freville, Arnaud, and Gérard Plateau. *An efficient preprocessing procedure for the multidimensional 0–1 knapsack problem.* Discrete applied mathematics 49.1-3 (1994): 189-212.
     * Fréville, Arnaud. *The multidimensional 0–1 knapsack problem: An overview.* European Journal of Operational Research 155.1 (2004): 1-21.
+    
+#### Challenge A
+
+* 250 variables, 10 constraints, fixed weights
+* $w \sim U(0, 1000), \gamma \sim U(0.95, 1.05)$
+* $K = 500, u \sim U(0, 1), \alpha = 0.25$
+* 500 training instances, 50 test instances
+
+
+```python
+MultiKnapsackGenerator(n=randint(low=250, high=251),
+                       m=randint(low=10, high=11),
+                       w=uniform(loc=0.0, scale=1000.0),
+                       K=uniform(loc=500.0, scale=0.0),
+                       u=uniform(loc=0.0, scale=1.0),
+                       alpha=uniform(loc=0.25, scale=0.0),
+                       fix_w=True,
+                       w_jitter=uniform(loc=0.95, scale=0.1),
+                      )
+```
+
+![alt](figures/benchmark_knapsack_a.png)

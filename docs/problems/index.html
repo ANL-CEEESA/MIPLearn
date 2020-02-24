@@ -14,22 +14,29 @@
     <title>Problems - MIPLearn</title>
     
 
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
-    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
     <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
     <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
     <link href="../css/base.min.css" rel="stylesheet">
     <link href="../css/cinder.min.css" rel="stylesheet">
-
-    
+    <link href="../css/highlight.min.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
             <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
         <![endif]-->
+
+    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+    <script>
+    WebFont.load({
+        google: {
+            families: ['Open Sans', 'PT Sans']
+        }
+    });
+    </script>
 
     
 
@@ -139,7 +146,6 @@
                 <li class="third-level"><a href="#problem-definition">Problem definition</a></li>
                 <li class="third-level"><a href="#random-instance-generator">Random instance generator</a></li>
                 <li class="third-level"><a href="#benchmark-challenges_1">Benchmark challenges</a></li>
-                <li class="third-level"><a href="#benchmark-results">Benchmark results</a></li>
             <li class="second-level"><a href="#multidimensional-0-1-knapsack-problem">Multidimensional 0-1 Knapsack Problem</a></li>
                 
                 <li class="third-level"><a href="#problem-definition_1">Problem definition</a></li>
@@ -180,8 +186,6 @@
                             fix_graph=True)
 </code></pre>
 
-<h3 id="benchmark-results">Benchmark results</h3>
-<h4 id="challenge-a_1">Challenge A</h4>
 <p><img alt="alt" src="../figures/benchmark_stab_a.png" /></p>
 <h2 id="multidimensional-0-1-knapsack-problem">Multidimensional 0-1 Knapsack Problem</h2>
 <h3 id="problem-definition_1">Problem definition</h3>
@@ -225,7 +229,26 @@ from the provided probability distributions <code>K</code> and <code>u</code>.</
 <li>Freville, Arnaud, and Gérard Plateau. <em>An efficient preprocessing procedure for the multidimensional 0–1 knapsack problem.</em> Discrete applied mathematics 49.1-3 (1994): 189-212.</li>
 <li>Fréville, Arnaud. <em>The multidimensional 0–1 knapsack problem: An overview.</em> European Journal of Operational Research 155.1 (2004): 1-21.</li>
 </ul>
-</div></div>
+</div>
+<h4 id="challenge-a_1">Challenge A</h4>
+<ul>
+<li>250 variables, 10 constraints, fixed weights</li>
+<li>$w \sim U(0, 1000), \gamma \sim U(0.95, 1.05)$</li>
+<li>$K = 500, u \sim U(0, 1), \alpha = 0.25$</li>
+<li>500 training instances, 50 test instances</li>
+</ul>
+<pre><code class="python">MultiKnapsackGenerator(n=randint(low=250, high=251),
+                       m=randint(low=10, high=11),
+                       w=uniform(loc=0.0, scale=1000.0),
+                       K=uniform(loc=500.0, scale=0.0),
+                       u=uniform(loc=0.0, scale=1.0),
+                       alpha=uniform(loc=0.25, scale=0.0),
+                       fix_w=True,
+                       w_jitter=uniform(loc=0.95, scale=0.1),
+                      )
+</code></pre>
+
+<p><img alt="alt" src="../figures/benchmark_knapsack_a.png" /></p></div>
         
         
     </div>
@@ -234,17 +257,17 @@ from the provided probability distributions <code>K</code> and <code>u</code>.</
         
         <hr>
         <p>
-        <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.</small><br>
+        <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.<br></small>
         
-        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
-        </p>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
 
         
         
     </footer>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="../js/bootstrap-3.0.3.min.js"></script>
-    
+    <script src="../js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
     <script>var base_url = ".."</script>
     
     <script src="../js/base.js"></script>
@@ -256,11 +279,8 @@ from the provided probability distributions <code>K</code> and <code>u</code>.</
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">
-                    <span aria-hidden="true">&times;</span>
-                    <span class="sr-only">Close</span>
-                </button>
                 <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
             </div>
             <div class="modal-body">
                 <p>
