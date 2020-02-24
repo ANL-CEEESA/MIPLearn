@@ -30,9 +30,7 @@ Given a simple undirected graph $G=(V,E)$ and weights $w \in \mathbb{R}^V$, the 
 
 The class `MaxWeightStableSetGenerator` can be used to generate random instances of this problem, with user-specified probability distributions. When the constructor parameter `fix_graph=True` is provided, one random Erdős-Rényi graph $G_{n,p}$ is generated during the constructor, where $n$ and $p$ are sampled from user-provided probability distributions `n` and `p`. To generate each instance, the generator independently samples each $w_v$ from the user-provided probability distribution `w`. When `fix_graph=False`, a new random graph is generated for each instance, while the remaining parameters are sampled in the same way.
 
-### Benchmark challenges
-
-#### Challenge A
+### Challenge A
 
 * Fixed random Erdős-Rényi graph $G_{n,p}$ with $n=200$ and $p=5\%$
 * Random vertex weights $w_v \sim U(100, 150)$
@@ -96,7 +94,7 @@ By default, all generated prices, weights and capacities are rounded to the near
     * Freville, Arnaud, and Gérard Plateau. *An efficient preprocessing procedure for the multidimensional 0–1 knapsack problem.* Discrete applied mathematics 49.1-3 (1994): 189-212.
     * Fréville, Arnaud. *The multidimensional 0–1 knapsack problem: An overview.* European Journal of Operational Research 155.1 (2004): 1-21.
     
-#### Challenge A
+### Challenge A
 
 * 250 variables, 10 constraints, fixed weights
 * $w \sim U(0, 1000), \gamma \sim U(0.95, 1.05)$

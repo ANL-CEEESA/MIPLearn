@@ -145,11 +145,12 @@
                 
                 <li class="third-level"><a href="#problem-definition">Problem definition</a></li>
                 <li class="third-level"><a href="#random-instance-generator">Random instance generator</a></li>
-                <li class="third-level"><a href="#benchmark-challenges_1">Benchmark challenges</a></li>
+                <li class="third-level"><a href="#challenge-a">Challenge A</a></li>
             <li class="second-level"><a href="#multidimensional-0-1-knapsack-problem">Multidimensional 0-1 Knapsack Problem</a></li>
                 
                 <li class="third-level"><a href="#problem-definition_1">Problem definition</a></li>
                 <li class="third-level"><a href="#random-instance-generator_1">Random instance generator</a></li>
+                <li class="third-level"><a href="#challenge-a_1">Challenge A</a></li>
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -173,8 +174,7 @@
 <p>Given a simple undirected graph $G=(V,E)$ and weights $w \in \mathbb{R}^V$, the problem is to find a stable set $S \subseteq V$ that maximizes $ \sum_{v \in V} w_v$. We recall that a subset $S \subseteq V$ is a <em>stable set</em> if no two vertices of $S$ are adjacent. This is one of Karp's 21 NP-complete problems.</p>
 <h3 id="random-instance-generator">Random instance generator</h3>
 <p>The class <code>MaxWeightStableSetGenerator</code> can be used to generate random instances of this problem, with user-specified probability distributions. When the constructor parameter <code>fix_graph=True</code> is provided, one random Erdős-Rényi graph $G_{n,p}$ is generated during the constructor, where $n$ and $p$ are sampled from user-provided probability distributions <code>n</code> and <code>p</code>. To generate each instance, the generator independently samples each $w_v$ from the user-provided probability distribution <code>w</code>. When <code>fix_graph=False</code>, a new random graph is generated for each instance, while the remaining parameters are sampled in the same way.</p>
-<h3 id="benchmark-challenges_1">Benchmark challenges</h3>
-<h4 id="challenge-a">Challenge A</h4>
+<h3 id="challenge-a">Challenge A</h3>
 <ul>
 <li>Fixed random Erdős-Rényi graph $G_{n,p}$ with $n=200$ and $p=5\%$</li>
 <li>Random vertex weights $w_v \sim U(100, 150)$</li>
@@ -230,7 +230,7 @@ from the provided probability distributions <code>K</code> and <code>u</code>.</
 <li>Fréville, Arnaud. <em>The multidimensional 0–1 knapsack problem: An overview.</em> European Journal of Operational Research 155.1 (2004): 1-21.</li>
 </ul>
 </div>
-<h4 id="challenge-a_1">Challenge A</h4>
+<h3 id="challenge-a_1">Challenge A</h3>
 <ul>
 <li>250 variables, 10 constraints, fixed weights</li>
 <li>$w \sim U(0, 1000), \gamma \sim U(0.95, 1.05)$</li>
