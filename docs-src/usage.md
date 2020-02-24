@@ -6,7 +6,7 @@
 The package is currently available for Python and Pyomo. It can be installed as follows:
 
 ```bash
-pip install git+ssh://git@github.com/iSoron/miplearn.git
+pip install git+ssh://git@github.com/ANL-CEEESA/MIPLearn.git
 ```
 
 A Julia + JuMP version of the package is planned.
