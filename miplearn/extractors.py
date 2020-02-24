@@ -42,8 +42,8 @@ class Extractor(ABC):
                 results[category] = np.hstack(results[category])
         return results
 
-
-class UserFeaturesExtractor(Extractor):
+    
+class VariableFeaturesExtractor(Extractor):
     def extract(self,
                 instances,
                 models=None,
@@ -62,6 +62,7 @@ class UserFeaturesExtractor(Extractor):
                     result[category] += [np.hstack([
                         instance_features,
                         instance.get_variable_features(var, index),
+                        instance.lp_solution[str(var)][index],
                     ])]
         for category in result.keys():
             result[category] = np.vstack(result[category])

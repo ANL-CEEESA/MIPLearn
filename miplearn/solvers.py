@@ -2,7 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from . import WarmStartComponent, BranchPriorityComponent, ObjectiveValueComponent
+from . import ObjectiveValueComponent, PrimalSolutionComponent
 import pyomo.environ as pe
 from pyomo.core import Var
 from copy import deepcopy
@@ -13,45 +13,87 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class InternalSolver():
-    def __init__():
+class InternalSolver:
+    def __init__(self):
+        self.is_warm_start_available = False
+        self.model = None
         pass
     
-    def solve_lp(self, model, tee=False):
+    def solve_lp(self, tee=False):
+        # Relax domain
         from pyomo.core.base.set_types import Reals
         original_domain = {}
-        for var in model.component_data_objects(Var):
+        for var in self.model.component_data_objects(Var):
             original_domain[str(var)] = var.domain
             lb, ub = var.bounds
             var.setlb(lb)
             var.setub(ub)
             var.domain = Reals
-        self.solver.set_instance(model)
-        results = self.solver.solve(tee=True)
-        for var in model.component_data_objects(Var):
+        
+        # Solve LP relaxation
+        self.solver.set_instance(self.model)
+        results = self.solver.solve(tee=tee)
+        
+        # Restore domains
+        for var in self.model.component_data_objects(Var):
             var.domain = original_domain[str(var)]
+            
+        # Reload original model
+        self.solver.set_instance(self.model)
+        
         return {
             "Optimal value": results["Problem"][0]["Lower bound"],
         }
             
-    def clear_values(self, model):
-        for var in model.component_objects(Var):
+    def clear_values(self):
+        for var in self.model.component_objects(Var):
             for index in var:
                 var[index].value = None
                 
-    def get_solution(self, model):
+    def get_solution(self):
         solution = {}
-        for var in model.component_objects(Var):
+        for var in self.model.component_objects(Var):
             solution[str(var)] = {}
             for index in var:
                 solution[str(var)][index] = var[index].value
-        return solution        
+        return solution   
+    
+    def set_warm_start(self, ws):
+        self.is_warm_start_available = True
+        self.clear_values()
+        count_total, count_fixed = 0, 0
+        for var in ws.keys():
+            for index in var:
+                count_total += 1
+                var[index].value = ws[var][index]
+                if ws[var][index] is not None:
+                    count_fixed += 1
+        logger.info("Setting start values for %d variables (out of %d)" %
+                    (count_fixed, count_total))
+
+                
+    def set_model(self, model):
+        self.model = model
+        self.solver.set_instance(model)
+        
+    def fix(self, ws):
+        count_total, count_fixed = 0, 0
+        for var in ws.keys():
+            for index in var:
+                count_total += 1
+                if ws[var][index] is None:
+                    continue
+                count_fixed += 1
+                var[index].fix(ws[var][index])
+                self.solver.update_var(var[index])        
+        logger.info("Fixing values for %d variables (out of %d)" %
+                    (count_fixed, count_total))
 
     
 class GurobiSolver(InternalSolver):
     def __init__(self):
+        super().__init__()
         self.solver = pe.SolverFactory('gurobi_persistent')
-        #self.solver.options["OutputFlag"] = 0
         self.solver.options["Seed"] = randint(low=0, high=1000).rvs()
     
     def set_threads(self, threads):
@@ -63,9 +105,8 @@ class GurobiSolver(InternalSolver):
     def set_gap_tolerance(self, gap_tolerance):
         self.solver.options["MIPGap"] = gap_tolerance
         
-    def solve(self, model, tee=False, warmstart=False):
-        self.solver.set_instance(model)
-        results = self.solver.solve(tee=tee, warmstart=warmstart)
+    def solve(self, tee=False):
+        results = self.solver.solve(tee=tee, warmstart=self.is_warm_start_available)
         return {
             "Lower bound": results["Problem"][0]["Lower bound"],
             "Upper bound": results["Problem"][0]["Upper bound"],
@@ -89,6 +130,7 @@ class GurobiSolver(InternalSolver):
     
 class CPLEXSolver(InternalSolver):
     def __init__(self):
+        super().__init__()
         import cplex
         self.solver = pe.SolverFactory('cplex_persistent')
         self.solver.options["randomseed"] = randint(low=0, high=1000).rvs()
@@ -102,9 +144,8 @@ class CPLEXSolver(InternalSolver):
     def set_gap_tolerance(self, gap_tolerance):
         self.solver.options["mip_tolerances_mipgap"] = gap_tolerance
         
-    def solve(self, model, tee=False, warmstart=False):
-        self.solver.set_instance(model)
-        results = self.solver.solve(tee=tee, warmstart=warmstart)
+    def solve(self, tee=False):
+        results = self.solver.solve(tee=tee, warmstart=self.is_warm_start_available)
         return {
             "Lower bound": results["Problem"][0]["Lower bound"],
             "Upper bound": results["Problem"][0]["Upper bound"],
@@ -112,9 +153,8 @@ class CPLEXSolver(InternalSolver):
             "Nodes": 1,
         }
     
-    def solve_lp(self, model, tee=False):
+    def solve_lp(self, tee=False):
         import cplex
-        self.solver.set_instance(model)
         lp = self.solver._solver_model
         var_types = lp.variables.get_types()
         n_vars = len(var_types)
@@ -156,8 +196,8 @@ class LearningSolver:
             assert isinstance(self.components, dict)
         else:
             self.components = {
-                "obj-val": ObjectiveValueComponent(),
-                #"warm-start": WarmStartComponent(),
+                "ObjectiveValue": ObjectiveValueComponent(),
+                "PrimalSolution": PrimalSolutionComponent(),
             }
             
         assert self.mode in ["exact", "heuristic"]
@@ -189,10 +229,11 @@ class LearningSolver:
             
         self.tee = tee
         self.internal_solver = self._create_internal_solver()
+        self.internal_solver.set_model(model)
 
         # Solve LP relaxation
-        results = self.internal_solver.solve_lp(model, tee=tee)
-        instance.lp_solution = self.internal_solver.get_solution(model)
+        results = self.internal_solver.solve_lp(tee=tee)
+        instance.lp_solution = self.internal_solver.get_solution()
         instance.lp_value = results["Optimal value"]
         
         # Invoke before_solve callbacks
@@ -202,22 +243,13 @@ class LearningSolver:
         if relaxation_only:
             return results
         
-        # Check if warm start is available
-        is_warm_start_available = False
-        if "warm-start" in self.components.keys():
-            if self.components["warm-start"].is_warm_start_available:
-                is_warm_start_available = True
-        
         # Solver original MIP
-        self.internal_solver.clear_values(model)
-        results = self.internal_solver.solve(model,
-                                             tee=tee,
-                                             warmstart=is_warm_start_available)
+        results = self.internal_solver.solve(tee=tee)
         
         # Read MIP solution and bounds
         instance.lower_bound = results["Lower bound"]
         instance.upper_bound = results["Upper bound"]
-        instance.solution = self.internal_solver.get_solution(model)
+        instance.solution = self.internal_solver.get_solution()
         
         # Invoke after_solve callbacks
         for component in self.components.values():

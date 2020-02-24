@@ -46,9 +46,9 @@ class BenchmarkRunner:
         for (name, solver) in self.solvers.items():
             solver.load_state(filename)
 
-    def fit(self):
+    def fit(self, training_instances):
         for (name, solver) in self.solvers.items():
-            solver.fit()
+            solver.fit(training_instances)
             
     def _push_result(self, result, solver, name, instance):
         if self.results is None:

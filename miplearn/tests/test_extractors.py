@@ -4,10 +4,10 @@
 
 from miplearn.problems.knapsack import KnapsackInstance
 from miplearn import (LearningSolver,
-                      UserFeaturesExtractor,
                       SolutionExtractor,
                       CombinedExtractor,
-                      InstanceFeaturesExtractor
+                      InstanceFeaturesExtractor,
+                      VariableFeaturesExtractor,
                      )
 import numpy as np
 import pyomo.environ as pe
@@ -31,16 +31,6 @@ def _get_instances():
     return instances, models
 
 
-def test_user_features_extractor():
-    instances, models = _get_instances()
-    extractor = UserFeaturesExtractor()
-    features = extractor.extract(instances)
-    assert isinstance(features, dict)
-    assert "default" in features.keys()
-    assert isinstance(features["default"], np.ndarray)
-    assert features["default"].shape == (6, 4)
-
-    
 def test_solution_extractor():
     instances, models = _get_instances()
     features = SolutionExtractor().extract(instances, models)
@@ -60,16 +50,25 @@ def test_solution_extractor():
     
 def test_combined_extractor():
     instances, models = _get_instances()
-    extractor = CombinedExtractor(extractors=[UserFeaturesExtractor(),
+    extractor = CombinedExtractor(extractors=[VariableFeaturesExtractor(),
                                               SolutionExtractor()])
     features = extractor.extract(instances, models)
     assert isinstance(features, dict)
     assert "default" in features.keys()
     assert isinstance(features["default"], np.ndarray)
-    assert features["default"].shape == (6, 6)
+    assert features["default"].shape == (6, 7)
     
     
 def test_instance_features_extractor():
     instances, models = _get_instances()
     features = InstanceFeaturesExtractor().extract(instances)
     assert features.shape == (2,3)
+    
+    
+def test_variable_features_extractor():
+    instances, models = _get_instances()
+    features = VariableFeaturesExtractor().extract(instances)
+    assert isinstance(features, dict)
+    assert "default" in features
+    assert features["default"].shape == (6,5)
+    

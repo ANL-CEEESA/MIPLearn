@@ -91,8 +91,8 @@ class MultiKnapsackInstance(Instance):
             self.weights[:, index],
         ])
 
-    def get_variable_category(self, var, index):
-        return index
+#     def get_variable_category(self, var, index):
+#         return index
 
 
 class MultiKnapsackGenerator:

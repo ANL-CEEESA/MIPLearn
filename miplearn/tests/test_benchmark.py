@@ -2,7 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from miplearn import LearningSolver, BenchmarkRunner, KnnWarmStartPredictor
+from miplearn import LearningSolver, BenchmarkRunner
 from miplearn.problems.stab import MaxWeightStableSetGenerator
 from scipy.stats import randint
 import numpy as np
