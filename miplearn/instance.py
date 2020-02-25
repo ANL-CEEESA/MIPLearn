@@ -65,7 +65,7 @@ class Instance(ABC):
 
     def get_variable_category(self, var, index):
         """
-        Returns a category (a string, an integer or any hashable type) for each decision variable.
+        Returns the category (a string, an integer or any hashable type) for each decision variable.
         
         If two variables have the same category, LearningSolver will use the same internal ML model
         to predict the values of both variables. By default, all variables belong to the "default"
@@ -74,3 +74,39 @@ class Instance(ABC):
         If the returned category is None, ML models will ignore the variable.
         """
         return "default"
+
+    def find_violations(self, model):
+        """
+        Returns lazy constraint violations found for the current solution.
+        
+        After solving a model, LearningSolver will ask the instance to identify which lazy
+        constraints are violated by the current solution. For each identified violation,
+        LearningSolver will then call the build_lazy_constraint, add the generated Pyomo
+        constraint to the model, then resolve the problem. The process repeats until no further
+        lazy constraint violations are found.
+        
+        Each "violation" is simply a string, a tuple or any other hashable type which allows the
+        instance to identify unambiguously which lazy constraint should be generated. In the
+        Traveling Salesman Problem, for example, a subtour violation could be a frozen set
+        containing the cities in the subtour.
+        
+        For a concrete example, see TravelingSalesmanInstance.
+        """
+        return []
+
+    def build_lazy_constraint(self, model, violation):
+        """
+        Returns a Pyomo constraint which fixes a given violation.
+        
+        This method is typically called immediately after find_violations. The violation object
+        provided by this method is exactly the same object returned earlier by find_violations.
+        After some training, LearningSolver may decide to proactively build some lazy constraints
+        at the beginning of the optimization process, before a solution is even available. In this
+        case, build_lazy_constraints will be called without a corresponding call to find_violations.
+        
+        The implementation should not directly add the constraint to the model. The constraint
+        will be added by LearningSolver after the method returns.
+        
+        For a concrete example, see TravelingSalesmanInstance.
+        """
+        pass
