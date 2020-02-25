@@ -118,3 +118,29 @@ class BranchPriorityComponent(Component):
         instance_features = instance.get_instance_features()
         var_features = instance.get_variable_features(var, index)
         return np.hstack([instance_features, var_features])
+            
+    def merge(self, other_components):
+        keys = set(self.x_train.keys())
+        for comp in other_components:
+            self.pending_instances += comp.pending_instances
+            keys = keys.union(set(comp.x_train.keys()))
+            
+        # Merge x_train and y_train
+        for key in keys:
+            x_train_submatrices = [comp.x_train[key]
+                                   for comp in other_components
+                                   if key in comp.x_train.keys()]
+            y_train_submatrices = [comp.y_train[key]
+                                   for comp in other_components
+                                   if key in comp.y_train.keys()]
+            if key in self.x_train.keys():
+                x_train_submatrices += [self.x_train[key]]
+                y_train_submatrices += [self.y_train[key]]
+            self.x_train[key] = np.vstack(x_train_submatrices)
+            self.y_train[key] = np.vstack(y_train_submatrices)
+            
+        # Merge trained ML predictors
+        for comp in other_components:
+            for key in comp.predictors.keys():
+                if key not in self.predictors.keys():
+                    self.predictors[key] = comp.predictors[key]

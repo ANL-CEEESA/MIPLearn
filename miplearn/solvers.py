@@ -327,21 +327,3 @@ class LearningSolver:
             return
         for component in self.components.values():
             component.fit(training_instances)
-            
-    def save_state(self, filename):
-        with open(filename, "wb") as file:
-            pickle.dump({
-                "version": 2,
-                "components": self.components,
-            }, file)
-
-    def load_state(self, filename):
-        with open(filename, "rb") as file:
-            data = pickle.load(file)
-            assert data["version"] == 2
-            for (component_name, component) in data["components"].items():
-                if component_name not in self.components.keys():
-                    continue
-                else:
-                    self.components[component_name].merge([component])
-
