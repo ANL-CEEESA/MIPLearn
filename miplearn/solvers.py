@@ -20,27 +20,27 @@ class InternalSolver:
         pass
     
     def solve_lp(self, tee=False):
+        self.solver.set_instance(self.model)
+        
         # Relax domain
         from pyomo.core.base.set_types import Reals
-        original_domain = {}
-        for var in self.model.component_data_objects(Var):
-            original_domain[str(var)] = var.domain
+        original_domains = []
+        for (idx, var) in enumerate(self.model.component_data_objects(Var)):
+            original_domains += [var.domain]
             lb, ub = var.bounds
             var.setlb(lb)
             var.setub(ub)
             var.domain = Reals
+            self.solver.update_var(var)
         
         # Solve LP relaxation
-        self.solver.set_instance(self.model)
         results = self.solver.solve(tee=tee)
         
         # Restore domains
-        for var in self.model.component_data_objects(Var):
-            var.domain = original_domain[str(var)]
+        for (idx, var) in enumerate(self.model.component_data_objects(Var)):
+            var.domain = original_domains[idx]
+            self.solver.update_var(var)
             
-        # Reload original model
-        self.solver.set_instance(self.model)
-        
         return {
             "Optimal value": results["Problem"][0]["Lower bound"],
         }
