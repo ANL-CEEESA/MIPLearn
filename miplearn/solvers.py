@@ -2,7 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from . import ObjectiveValueComponent, PrimalSolutionComponent
+from . import ObjectiveValueComponent, PrimalSolutionComponent, LazyConstraintsComponent
 import pyomo.environ as pe
 from pyomo.core import Var
 from copy import deepcopy
@@ -88,6 +88,9 @@ class InternalSolver:
                 self.solver.update_var(var[index])        
         logger.info("Fixing values for %d variables (out of %d)" %
                     (count_fixed, count_total))
+        
+    def add_constraint(self, cut):
+        self.solver.add_constraint(cut)
 
     
 class GurobiSolver(InternalSolver):
@@ -198,6 +201,7 @@ class LearningSolver:
             self.components = {
                 "ObjectiveValue": ObjectiveValueComponent(),
                 "PrimalSolution": PrimalSolutionComponent(),
+                "LazyConstraints": LazyConstraintsComponent(),
             }
             
         assert self.mode in ["exact", "heuristic"]
@@ -231,27 +235,44 @@ class LearningSolver:
         self.internal_solver = self._create_internal_solver()
         self.internal_solver.set_model(model)
 
-        # Solve LP relaxation
+        logger.debug("Solving LP relaxation...")
         results = self.internal_solver.solve_lp(tee=tee)
         instance.lp_solution = self.internal_solver.get_solution()
         instance.lp_value = results["Optimal value"]
         
-        # Invoke before_solve callbacks
+        logger.debug("Running before_solve callbacks...")
         for component in self.components.values():
             component.before_solve(self, instance, model)
         
         if relaxation_only:
             return results
         
-        # Solver original MIP
-        results = self.internal_solver.solve(tee=tee)
+        total_wallclock_time = 0
+        instance.found_violations = []
+        while True:
+            logger.debug("Solving MIP...")
+            results = self.internal_solver.solve(tee=tee)
+            logger.debug("    %.2f s" % results["Wallclock time"])
+            total_wallclock_time += results["Wallclock time"]
+            if not hasattr(instance, "find_violations"):
+                break
+            logger.debug("Finding violated constraints...")    
+            violations = instance.find_violations(model)
+            if len(violations) == 0:
+                break
+            instance.found_violations += violations
+            logger.debug("    %d violations found" % len(violations))
+            for v in violations:
+                cut = instance.build_lazy_constraint(model, v)
+                self.internal_solver.add_constraint(cut)
+        results["Wallclock time"] = total_wallclock_time
         
         # Read MIP solution and bounds
         instance.lower_bound = results["Lower bound"]
         instance.upper_bound = results["Upper bound"]
         instance.solution = self.internal_solver.get_solution()
         
-        # Invoke after_solve callbacks
+        logger.debug("Calling after_solve callbacks...")    
         for component in self.components.values():
             component.after_solve(self, instance, model)
             
@@ -282,6 +303,7 @@ class LearningSolver:
                 "LP value": instance.lp_value,
                 "Upper bound": instance.upper_bound,
                 "Lower bound": instance.lower_bound,
+                "Violations": instance.found_violations,
             }
 
         p_map_results = p_map(_process, instances, num_cpus=n_jobs, desc=label)
@@ -294,12 +316,7 @@ class LearningSolver:
             instances[idx].lp_value = r["LP value"]
             instances[idx].lower_bound = r["Lower bound"]
             instances[idx].upper_bound = r["Upper bound"]
-        
-        for (name, component) in self.components.items():
-            subcomponents = [subsolver.components[name]
-                             for subsolver in subsolvers
-                             if name in subsolver.components.keys()]
-            self.components[name].merge(subcomponents)
+            instances[idx].found_violations = r["Violations"]
         
         return results
 

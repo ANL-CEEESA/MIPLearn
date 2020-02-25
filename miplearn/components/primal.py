@@ -200,6 +200,3 @@ class PrimalSolutionComponent(Component):
                     if ws[i, 1] >= self.thresholds[category, label]:
                         solution[var][index] = label
         return solution
-
-    def merge(self, other_components):
-        pass

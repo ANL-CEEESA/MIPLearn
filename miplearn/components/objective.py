@@ -30,9 +30,6 @@ class ObjectiveValueComponent(Component):
     def after_solve(self, solver, instance, model):
         pass
     
-    def merge(self, other):
-        pass
-    
     def fit(self, training_instances):
         features = InstanceFeaturesExtractor().extract(training_instances)
         ub = ObjectiveValueExtractor(kind="upper bound").extract(training_instances)
