@@ -20,6 +20,8 @@ To illustrate the performance of `LearningSolver`, and to set a baseline for new
 
 All experiments presented here were performed on a Linux server (Ubuntu Linux 18.04 LTS) with Intel Xeon Gold 6230s (2 processors, 40 cores, 80 threads) and 256 GB RAM (DDR4, 2933 MHz). All solvers were restricted to use 4 threads, with no time limits, and 10 instances were solved simultaneously at a time.
 
+
+
 ## Maximum Weight Stable Set Problem
 
 ### Problem definition
@@ -44,6 +46,8 @@ MaxWeightStableSetGenerator(w=uniform(loc=100., scale=50.),
 ```
 
 ![alt](figures/benchmark_stab_a.png)
+
+
 
 ## Multidimensional 0-1 Knapsack Problem
 
@@ -115,3 +119,31 @@ MultiKnapsackGenerator(n=randint(low=250, high=251),
 ```
 
 ![alt](figures/benchmark_knapsack_a.png)
+
+
+
+## Traveling Salesman Problem
+
+### Problem definition
+
+Given a list of cities and the distance between each pair of cities, the problem asks for the
+shortest route starting at the first city, visiting each other city exactly once, then returning
+to the first city. This problem is a generalization of the Hamiltonian path problem, one of Karp's
+21 NP-complete problems.
+
+### Random problem generator
+
+The class `TravelingSalesmanGenerator` can be used to generate random instances of this
+problem. Initially, the generator creates $n$ cities $(x_1,y_1),\ldots,(x_n,y_n) \in \mathbb{R}^2$,
+where $n, x_i$ and $y_i$ are sampled independently from the provided probability distributions `n`,
+`x` and `y`. For each pair of cities $(i,j)$, the distance $d_{i,j}$ between them is set to:
+$$
+    d_{i,j} = \gamma_{i,j} \sqrt{(x_i-x_j)^2 + (y_i - y_j)^2}
+$$
+where $\gamma_{i,j}$ is sampled from the distribution `gamma`.
+
+If `fix_cities=True` is provided, the list of cities is kept the same for all generated instances.
+The $gamma$ values, and therefore also the distances, are still different.
+
+By default, all distances $d_{i,j}$ are rounded to the nearest integer.  If `round=False`
+is provided, this rounding will be disabled.
