@@ -19,9 +19,5 @@ class Component(ABC):
         pass
     
     @abstractmethod
-    def merge(self, other):
-        pass
-    
-    @abstractmethod
     def fit(self, training_instances):
         pass

@@ -32,15 +32,6 @@
             <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
         <![endif]-->
 
-    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
-    <script>
-    WebFont.load({
-        google: {
-            families: ['Open Sans', 'PT Sans']
-        }
-    });
-    </script>
-
     
 
      
@@ -182,12 +173,12 @@ for instance in all_instances:
 <ul>
 <li><code>instance.to_model()</code>, which returns a concrete Pyomo model corresponding to the instance;</li>
 <li><code>instance.get_instance_features()</code>, which returns a 1-dimensional Numpy array of (numerical) features describing the entire instance;</li>
-<li><code>instance.get_variable_features(var, index)</code>, which returns a 1-dimensional array of (numerical) features describing a particular decision variable.</li>
+<li><code>instance.get_variable_features(var_name, index)</code>, which returns a 1-dimensional array of (numerical) features describing a particular decision variable.</li>
 </ul>
 <p>The first method is used by <code>LearningSolver</code> to construct a concrete Pyomo model, which will be provided to the internal MIP solver. The user should keep a reference to this Pyomo model, in order to retrieve, for example, the optimal variable values.</p>
 <p>The second and third methods provide an encoding of the instance, which can be used by the ML models to make predictions. In the knapsack problem, for example, an implementation may decide to provide as instance features the average weights, average prices, number of items and the size of the knapsack. The weight and the price of each individual item could be provided as variable features. See <code>miplearn/problems/knapsack.py</code> for a concrete example.</p>
-<p>An optional method which can be implemented is <code>instance.get_variable_category(var, index)</code>, which returns a category (a string, an integer or any hashable type) for each decision variable. If two variables have the same category, <code>LearningSolver</code> will use the same internal ML model to predict the values of both variables. By default, all variables belong to the <code>"default"</code> category, and therefore only one ML model is used for all variables. If the returned category is <code>None</code>, ML predictors will ignore the variable.</p>
-<p>It is not necessary to have a one-to-one correspondence between features and problem instances. One important (and deliberate) limitation of MIPLearn, however, is that <code>get_instance_features()</code> must always return arrays of same length for all relevant instances of the problem. Similarly, <code>get_variable_features(var, index)</code> must also always return arrays of same length for all variables in each category. It is up to the user to decide how to encode variable-length characteristics of the problem into fixed-length vectors. In graph problems, for example, graph embeddings can be used to reduce the (variable-length) lists of nodes and edges into a fixed-length structure that still preserves some properties of the graph. Different instance encodings may have significant impact on performance.</p>
+<p>An optional method which can be implemented is <code>instance.get_variable_category(var_name, index)</code>, which returns a category (a string, an integer or any hashable type) for each decision variable. If two variables have the same category, <code>LearningSolver</code> will use the same internal ML model to predict the values of both variables. By default, all variables belong to the <code>"default"</code> category, and therefore only one ML model is used for all variables. If the returned category is <code>None</code>, ML predictors will ignore the variable.</p>
+<p>It is not necessary to have a one-to-one correspondence between features and problem instances. One important (and deliberate) limitation of MIPLearn, however, is that <code>get_instance_features()</code> must always return arrays of same length for all relevant instances of the problem. Similarly, <code>get_variable_features(var_name, index)</code> must also always return arrays of same length for all variables in each category. It is up to the user to decide how to encode variable-length characteristics of the problem into fixed-length vectors. In graph problems, for example, graph embeddings can be used to reduce the (variable-length) lists of nodes and edges into a fixed-length structure that still preserves some properties of the graph. Different instance encodings may have significant impact on performance.</p>
 <h3 id="obtaining-heuristic-solutions">Obtaining heuristic solutions</h3>
 <p>By default, <code>LearningSolver</code> uses Machine Learning to accelerate the MIP solution process, while maintaining all optimality guarantees provided by the MIP solver. In the default mode of operation, for example, predicted optimal solutions are used only as MIP starts.</p>
 <p>For more significant performance benefits, <code>LearningSolver</code> can also be configured to place additional trust in the Machine Learning predictors, by using the <code>mode="heuristic"</code> constructor argument. When operating in this mode, if a ML model is statistically shown (through <em>stratified k-fold cross validation</em>) to have exceptionally high accuracy, the solver may decide to restrict the search space based on its predictions. The parts of the solution which the ML models cannot predict accurately will still be explored using traditional (branch-and-bound) methods.  For particular applications, this mode has been shown to quickly produce optimal or near-optimal solutions (see <a href="../about/#references">references</a> and <a href="../benchmark/">benchmark results</a>).</p>
@@ -245,9 +236,10 @@ solver.solve(test_instance)
         
         <hr>
         <p>
-        <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.<br></small>
+        <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.</small><br>
         
-        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+        </p>
 
         
         

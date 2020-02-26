@@ -5,7 +5,6 @@
 from miplearn.problems.knapsack import KnapsackInstance
 from miplearn import (LearningSolver,
                       SolutionExtractor,
-                      CombinedExtractor,
                       InstanceFeaturesExtractor,
                       VariableFeaturesExtractor,
                      )
@@ -33,7 +32,7 @@ def _get_instances():
 
 def test_solution_extractor():
     instances, models = _get_instances()
-    features = SolutionExtractor().extract(instances, models)
+    features = SolutionExtractor().extract(instances)
     assert isinstance(features, dict)
     assert "default" in features.keys()
     assert isinstance(features["default"], np.ndarray)
@@ -47,17 +46,6 @@ def test_solution_extractor():
         1., 0.,
     ]
 
-    
-def test_combined_extractor():
-    instances, models = _get_instances()
-    extractor = CombinedExtractor(extractors=[VariableFeaturesExtractor(),
-                                              SolutionExtractor()])
-    features = extractor.extract(instances, models)
-    assert isinstance(features, dict)
-    assert "default" in features.keys()
-    assert isinstance(features["default"], np.ndarray)
-    assert features["default"].shape == (6, 7)
-    
     
 def test_instance_features_extractor():
     instances, models = _get_instances()

@@ -41,29 +41,6 @@ def test_solver():
             solver.fit()
             solver.solve(instance)
 
-
-# def test_solve_save_load_state():
-#     instance = _get_instance()
-#     components_before = {
-#         "warm-start": WarmStartComponent(),
-#     }
-#     solver = LearningSolver(components=components_before)
-#     solver.solve(instance)
-#     solver.fit()
-#     solver.save_state("/tmp/knapsack_train.bin")
-#     prev_x_train_len = len(solver.components["warm-start"].x_train)
-#     prev_y_train_len = len(solver.components["warm-start"].y_train)
-    
-#     components_after = {
-#         "warm-start": WarmStartComponent(),
-#     }
-#     solver = LearningSolver(components=components_after)
-#     solver.load_state("/tmp/knapsack_train.bin")
-#     assert len(solver.components.keys()) == 1
-#     assert len(solver.components["warm-start"].x_train) == prev_x_train_len
-#     assert len(solver.components["warm-start"].y_train) == prev_y_train_len
-
-
 def test_parallel_solve():
     instances = [_get_instance() for _ in range(10)]
     solver = LearningSolver()

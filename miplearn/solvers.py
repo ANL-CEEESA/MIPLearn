@@ -2,45 +2,66 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from . import ObjectiveValueComponent, PrimalSolutionComponent
+from . import ObjectiveValueComponent, PrimalSolutionComponent, LazyConstraintsComponent
 import pyomo.environ as pe
 from pyomo.core import Var
 from copy import deepcopy
 import pickle
 from scipy.stats import randint
 from p_tqdm import p_map
+import numpy as np
 import logging
 logger = logging.getLogger(__name__)
+
+
+# Global memory for multiprocessing
+SOLVER = [None]
+INSTANCES = [None]
+
+
+def _parallel_solve(instance_idx):
+    solver = deepcopy(SOLVER[0])
+    instance = INSTANCES[0][instance_idx]
+    results = solver.solve(instance)
+    return {
+        "Results": results,
+        "Solution": instance.solution,
+        "LP solution": instance.lp_solution,
+        "LP value": instance.lp_value,
+        "Upper bound": instance.upper_bound,
+        "Lower bound": instance.lower_bound,
+        "Violations": instance.found_violations,
+    }
 
 
 class InternalSolver:
     def __init__(self):
         self.is_warm_start_available = False
         self.model = None
-        pass
+        self.var_name_to_var = {}
     
     def solve_lp(self, tee=False):
+        self.solver.set_instance(self.model)
+        
         # Relax domain
         from pyomo.core.base.set_types import Reals
-        original_domain = {}
-        for var in self.model.component_data_objects(Var):
-            original_domain[str(var)] = var.domain
+        original_domains = []
+        for (idx, var) in enumerate(self.model.component_data_objects(Var)):
+            original_domains += [var.domain]
             lb, ub = var.bounds
             var.setlb(lb)
             var.setub(ub)
             var.domain = Reals
+            self.solver.update_var(var)
         
         # Solve LP relaxation
-        self.solver.set_instance(self.model)
         results = self.solver.solve(tee=tee)
         
         # Restore domains
-        for var in self.model.component_data_objects(Var):
-            var.domain = original_domain[str(var)]
+        for (idx, var) in enumerate(self.model.component_data_objects(Var)):
+            var.domain = original_domains[idx]
+            self.solver.update_var(var)
             
-        # Reload original model
-        self.solver.set_instance(self.model)
-        
         return {
             "Optimal value": results["Problem"][0]["Lower bound"],
         }
@@ -58,36 +79,43 @@ class InternalSolver:
                 solution[str(var)][index] = var[index].value
         return solution   
     
-    def set_warm_start(self, ws):
+    def set_warm_start(self, solution):
         self.is_warm_start_available = True
         self.clear_values()
         count_total, count_fixed = 0, 0
-        for var in ws.keys():
-            for index in var:
+        for var_name in solution:
+            var = self.var_name_to_var[var_name]
+            for index in solution[var_name]:
                 count_total += 1
-                var[index].value = ws[var][index]
-                if ws[var][index] is not None:
+                var[index].value = solution[var_name][index]
+                if solution[var_name][index] is not None:
                     count_fixed += 1
         logger.info("Setting start values for %d variables (out of %d)" %
                     (count_fixed, count_total))
-
                 
     def set_model(self, model):
         self.model = model
         self.solver.set_instance(model)
+        self.var_name_to_var = {}
+        for var in model.component_objects(Var):
+            self.var_name_to_var[var.name] = var
         
-    def fix(self, ws):
+    def fix(self, solution):
         count_total, count_fixed = 0, 0
-        for var in ws.keys():
-            for index in var:
+        for var_name in solution:
+            for index in solution[var_name]:
+                var = self.var_name_to_var[var_name]
                 count_total += 1
-                if ws[var][index] is None:
+                if solution[var_name][index] is None:
                     continue
                 count_fixed += 1
-                var[index].fix(ws[var][index])
+                var[index].fix(solution[var_name][index])
                 self.solver.update_var(var[index])        
         logger.info("Fixing values for %d variables (out of %d)" %
                     (count_fixed, count_total))
+        
+    def add_constraint(self, cut):
+        self.solver.add_constraint(cut)
 
     
 class GurobiSolver(InternalSolver):
@@ -198,6 +226,7 @@ class LearningSolver:
             self.components = {
                 "ObjectiveValue": ObjectiveValueComponent(),
                 "PrimalSolution": PrimalSolutionComponent(),
+                "LazyConstraints": LazyConstraintsComponent(),
             }
             
         assert self.mode in ["exact", "heuristic"]
@@ -231,27 +260,44 @@ class LearningSolver:
         self.internal_solver = self._create_internal_solver()
         self.internal_solver.set_model(model)
 
-        # Solve LP relaxation
+        logger.debug("Solving LP relaxation...")
         results = self.internal_solver.solve_lp(tee=tee)
         instance.lp_solution = self.internal_solver.get_solution()
         instance.lp_value = results["Optimal value"]
         
-        # Invoke before_solve callbacks
+        logger.debug("Running before_solve callbacks...")
         for component in self.components.values():
             component.before_solve(self, instance, model)
         
         if relaxation_only:
             return results
         
-        # Solver original MIP
-        results = self.internal_solver.solve(tee=tee)
+        total_wallclock_time = 0
+        instance.found_violations = []
+        while True:
+            logger.debug("Solving MIP...")
+            results = self.internal_solver.solve(tee=tee)
+            logger.debug("    %.2f s" % results["Wallclock time"])
+            total_wallclock_time += results["Wallclock time"]
+            if not hasattr(instance, "find_violations"):
+                break
+            logger.debug("Finding violated constraints...")    
+            violations = instance.find_violations(model)
+            if len(violations) == 0:
+                break
+            instance.found_violations += violations
+            logger.debug("    %d violations found" % len(violations))
+            for v in violations:
+                cut = instance.build_lazy_constraint(model, v)
+                self.internal_solver.add_constraint(cut)
+        results["Wallclock time"] = total_wallclock_time
         
         # Read MIP solution and bounds
         instance.lower_bound = results["Lower bound"]
         instance.upper_bound = results["Upper bound"]
         instance.solution = self.internal_solver.get_solution()
         
-        # Invoke after_solve callbacks
+        logger.debug("Calling after_solve callbacks...")    
         for component in self.components.values():
             component.after_solve(self, instance, model)
             
@@ -266,40 +312,23 @@ class LearningSolver:
                        label="Solve",
                        collect_training_data=True,
                       ):
+        
         self.internal_solver = None
-        
-        def _process(instance):
-            solver = deepcopy(self)
-            results = solver.solve(instance)
-            solver.internal_solver = None
-            if not collect_training_data:
-                solver.components = {}
-            return {
-                "Solver": solver,
-                "Results": results,
-                "Solution": instance.solution,
-                "LP solution": instance.lp_solution,
-                "LP value": instance.lp_value,
-                "Upper bound": instance.upper_bound,
-                "Lower bound": instance.lower_bound,
-            }
+        SOLVER[0] = self
+        INSTANCES[0] = instances
+        p_map_results = p_map(_parallel_solve,
+                              list(range(len(instances))),
+                              num_cpus=n_jobs,
+                              desc=label)
 
-        p_map_results = p_map(_process, instances, num_cpus=n_jobs, desc=label)
-        subsolvers = [p["Solver"] for p in p_map_results]
         results = [p["Results"] for p in p_map_results]
-        
         for (idx, r) in enumerate(p_map_results):
             instances[idx].solution = r["Solution"]
             instances[idx].lp_solution = r["LP solution"]
             instances[idx].lp_value = r["LP value"]
             instances[idx].lower_bound = r["Lower bound"]
             instances[idx].upper_bound = r["Upper bound"]
-        
-        for (name, component) in self.components.items():
-            subcomponents = [subsolver.components[name]
-                             for subsolver in subsolvers
-                             if name in subsolver.components.keys()]
-            self.components[name].merge(subcomponents)
+            instances[idx].found_violations = r["Violations"]
         
         return results
 
@@ -310,21 +339,3 @@ class LearningSolver:
             return
         for component in self.components.values():
             component.fit(training_instances)
-            
-    def save_state(self, filename):
-        with open(filename, "wb") as file:
-            pickle.dump({
-                "version": 2,
-                "components": self.components,
-            }, file)
-
-    def load_state(self, filename):
-        with open(filename, "rb") as file:
-            data = pickle.load(file)
-            assert data["version"] == 2
-            for (component_name, component) in data["components"].items():
-                if component_name not in self.components.keys():
-                    continue
-                else:
-                    self.components[component_name].merge([component])
-
