@@ -20,9 +20,16 @@ from miplearn import (LearningSolver, BenchmarkRunner)
 from numpy import median
 import pyomo.environ as pe
 import pickle
-
 import logging
+import sys
+
+logging.basicConfig(format='%(asctime)s %(levelname).1s %(name)s: %(message)12s',
+                    datefmt='%H:%M:%S',
+                    level=logging.INFO,
+                    stream=sys.stdout)
 logging.getLogger('pyomo.core').setLevel(logging.ERROR)
+logging.getLogger('miplearn').setLevel(logging.INFO)
+logger = logging.getLogger("benchmark")
 
 n_jobs = 10
 time_limit = 900
@@ -34,7 +41,7 @@ pathlib.Path(basepath).mkdir(parents=True, exist_ok=True)
 
 
 def save(obj, filename):
-    print("Writing %s..." % filename)
+    logger.info("Writing %s..." % filename)
     with open(filename, "wb") as file:
         pickle.dump(obj, file)
         
@@ -55,7 +62,6 @@ def train():
                             solver=internal_solver,
                             components={})
     solver.parallel_solve(train_instances, n_jobs=n_jobs)
-    solver.fit(n_jobs=n_jobs)
     save(train_instances, "%s/train_instances.bin" % basepath)
     save(test_instances, "%s/test_instances.bin" % basepath)
     
@@ -65,6 +71,7 @@ def test_baseline():
     solvers = {
         "baseline": LearningSolver(
             time_limit=time_limit,
+            solver=internal_solver,
             components={},
         ),
     }
@@ -74,22 +81,28 @@ def test_baseline():
     
     
 def test_ml():
+    logger.info("Loading instances...")
     train_instances = load("%s/train_instances.bin" % basepath)
     test_instances = load("%s/test_instances.bin" % basepath)
     solvers = {
         "ml-exact": LearningSolver(
-           time_limit=time_limit,
+            time_limit=time_limit,
+            solver=internal_solver,
         ),
         "ml-heuristic": LearningSolver(
             time_limit=time_limit,
+            solver=internal_solver,
             mode="heuristic",
         ),
     }
     benchmark = BenchmarkRunner(solvers)
+    logger.info("Loading results...")
     benchmark.load_results("%s/benchmark_baseline.csv" % basepath)
+    logger.info("Fitting...")
     benchmark.fit(train_instances)
+    logger.info("Solving...")
     benchmark.parallel_solve(test_instances, n_jobs=n_jobs)
-    benchmark.save_results("%s/benchmark_ml.csv" % basepath)    
+    benchmark.save_results("%s/benchmark_ml.csv" % basepath)
 
     
 def charts():

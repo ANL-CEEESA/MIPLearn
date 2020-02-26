@@ -65,11 +65,12 @@ class Instance(ABC):
 
     def get_variable_category(self, var, index):
         """
-        Returns the category (a string, an integer or any hashable type) for each decision variable.
+        Returns the category (a string, an integer or any hashable type) for each decision
+        variable.
         
-        If two variables have the same category, LearningSolver will use the same internal ML model
-        to predict the values of both variables. By default, all variables belong to the "default"
-        category, and therefore only one ML model is used for all variables.
+        If two variables have the same category, LearningSolver will use the same internal ML
+        model to predict the values of both variables. By default, all variables belong to the
+        "default" category, and therefore only one ML model is used for all variables.
         
         If the returned category is None, ML models will ignore the variable.
         """
@@ -99,10 +100,11 @@ class Instance(ABC):
         Returns a Pyomo constraint which fixes a given violation.
         
         This method is typically called immediately after find_violations. The violation object
-        provided by this method is exactly the same object returned earlier by find_violations.
+        provided to this method is exactly the same object returned earlier by find_violations.
         After some training, LearningSolver may decide to proactively build some lazy constraints
         at the beginning of the optimization process, before a solution is even available. In this
-        case, build_lazy_constraints will be called without a corresponding call to find_violations.
+        case, build_lazy_constraints will be called without a corresponding call to
+        find_violations.
         
         The implementation should not directly add the constraint to the model. The constraint
         will be added by LearningSolver after the method returns.

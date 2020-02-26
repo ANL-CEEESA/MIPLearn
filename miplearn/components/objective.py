@@ -31,12 +31,15 @@ class ObjectiveValueComponent(Component):
         pass
     
     def fit(self, training_instances):
+        logger.debug("Extracting features...")
         features = InstanceFeaturesExtractor().extract(training_instances)
         ub = ObjectiveValueExtractor(kind="upper bound").extract(training_instances)
         lb = ObjectiveValueExtractor(kind="lower bound").extract(training_instances)
         self.ub_regressor = deepcopy(self.regressor_prototype)
         self.lb_regressor = deepcopy(self.regressor_prototype)
+        logger.debug("Fitting ub_regressor...")
         self.ub_regressor.fit(features, ub)
+        logger.debug("Fitting ub_regressor...")
         self.lb_regressor.fit(features, lb)
         
     def predict(self, instances):

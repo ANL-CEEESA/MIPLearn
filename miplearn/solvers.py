@@ -9,15 +9,36 @@ from copy import deepcopy
 import pickle
 from scipy.stats import randint
 from p_tqdm import p_map
+import numpy as np
 import logging
 logger = logging.getLogger(__name__)
+
+
+# Global memory for multiprocessing
+SOLVER = [None]
+INSTANCES = [None]
+
+
+def _parallel_solve(instance_idx):
+    solver = deepcopy(SOLVER[0])
+    instance = INSTANCES[0][instance_idx]
+    results = solver.solve(instance)
+    return {
+        "Results": results,
+        "Solution": instance.solution,
+        "LP solution": instance.lp_solution,
+        "LP value": instance.lp_value,
+        "Upper bound": instance.upper_bound,
+        "Lower bound": instance.lower_bound,
+        "Violations": instance.found_violations,
+    }
 
 
 class InternalSolver:
     def __init__(self):
         self.is_warm_start_available = False
         self.model = None
-        pass
+        self.var_name_to_var = {}
     
     def solve_lp(self, tee=False):
         self.solver.set_instance(self.model)
@@ -58,33 +79,37 @@ class InternalSolver:
                 solution[str(var)][index] = var[index].value
         return solution   
     
-    def set_warm_start(self, ws):
+    def set_warm_start(self, solution):
         self.is_warm_start_available = True
         self.clear_values()
         count_total, count_fixed = 0, 0
-        for var in ws.keys():
-            for index in var:
+        for var_name in solution:
+            var = self.var_name_to_var[var_name]
+            for index in solution[var_name]:
                 count_total += 1
-                var[index].value = ws[var][index]
-                if ws[var][index] is not None:
+                var[index].value = solution[var_name][index]
+                if solution[var_name][index] is not None:
                     count_fixed += 1
         logger.info("Setting start values for %d variables (out of %d)" %
                     (count_fixed, count_total))
-
                 
     def set_model(self, model):
         self.model = model
         self.solver.set_instance(model)
+        self.var_name_to_var = {}
+        for var in model.component_objects(Var):
+            self.var_name_to_var[var.name] = var
         
-    def fix(self, ws):
+    def fix(self, solution):
         count_total, count_fixed = 0, 0
-        for var in ws.keys():
-            for index in var:
+        for var_name in solution:
+            for index in solution[var_name]:
+                var = self.var_name_to_var[var_name]
                 count_total += 1
-                if ws[var][index] is None:
+                if solution[var_name][index] is None:
                     continue
                 count_fixed += 1
-                var[index].fix(ws[var][index])
+                var[index].fix(solution[var_name][index])
                 self.solver.update_var(var[index])        
         logger.info("Fixing values for %d variables (out of %d)" %
                     (count_fixed, count_total))
@@ -287,29 +312,16 @@ class LearningSolver:
                        label="Solve",
                        collect_training_data=True,
                       ):
+        
         self.internal_solver = None
-        
-        def _process(instance):
-            solver = deepcopy(self)
-            results = solver.solve(instance)
-            solver.internal_solver = None
-            if not collect_training_data:
-                solver.components = {}
-            return {
-                "Solver": solver,
-                "Results": results,
-                "Solution": instance.solution,
-                "LP solution": instance.lp_solution,
-                "LP value": instance.lp_value,
-                "Upper bound": instance.upper_bound,
-                "Lower bound": instance.lower_bound,
-                "Violations": instance.found_violations,
-            }
+        SOLVER[0] = self
+        INSTANCES[0] = instances
+        p_map_results = p_map(_parallel_solve,
+                              list(range(len(instances))),
+                              num_cpus=n_jobs,
+                              desc=label)
 
-        p_map_results = p_map(_process, instances, num_cpus=n_jobs, desc=label)
-        subsolvers = [p["Solver"] for p in p_map_results]
         results = [p["Results"] for p in p_map_results]
-        
         for (idx, r) in enumerate(p_map_results):
             instances[idx].solution = r["Solution"]
             instances[idx].lp_solution = r["LP solution"]

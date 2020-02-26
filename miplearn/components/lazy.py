@@ -27,10 +27,14 @@ class LazyConstraintsComponent(Component):
     
     def __init__(self):
         self.violations = set()
+        self.count = {}
+        self.n_samples = 0
     
     def before_solve(self, solver, instance, model):
         logger.info("Enforcing %d lazy constraints" % len(self.violations))
         for v in self.violations:
+            if self.count[v] < self.n_samples * 0.05:
+                continue
             cut = instance.build_lazy_constraint(model, v)
             solver.internal_solver.add_constraint(cut)
         
@@ -38,11 +42,16 @@ class LazyConstraintsComponent(Component):
         pass
                 
     def fit(self, training_instances):
+        logger.debug("Fitting...")
+        self.n_samples = len(training_instances)
         for instance in training_instances:
             if not hasattr(instance, "found_violations"):
                 continue
             for v in instance.found_violations:
                 self.violations.add(v)
+                if v not in self.count.keys():
+                    self.count[v] = 0
+                self.count[v] += 1
                 
     def predict(self, instance, model=None):
         return self.violations

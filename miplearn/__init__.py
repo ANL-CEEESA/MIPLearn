@@ -3,7 +3,6 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from .extractors import (SolutionExtractor,
-                         CombinedExtractor,
                          InstanceFeaturesExtractor,
                          ObjectiveValueExtractor,
                          VariableFeaturesExtractor,

@@ -25,6 +25,7 @@ class ChallengeA:
                                                     n=randint(low=350, high=351),
                                                     gamma=uniform(loc=0.95, scale=0.1),
                                                     fix_cities=True,
+                                                    round=True,
                                                    )
 
         np.random.seed(seed + 1)
@@ -126,13 +127,13 @@ class TravelingSalesmanInstance(Instance):
         self.distances = distances
     
     def to_model(self):
-        self.model = model = pe.ConcreteModel()
-        self.edges = edges = [(i,j)
+        model = pe.ConcreteModel()
+        model.edges = edges = [(i,j)
                               for i in range(self.n_cities)
                               for j in range(i+1, self.n_cities)]
         model.x = pe.Var(edges, domain=pe.Binary)
-        model.obj = pe.Objective(rule=lambda m : sum(m.x[i,j] * self.distances[i,j]
-                                                     for (i,j) in edges),
+        model.obj = pe.Objective(expr=sum(model.x[i,j] * self.distances[i,j]
+                                          for (i,j) in edges),
                                  sense=pe.minimize)
         model.eq_degree = pe.ConstraintList()
         model.eq_subtour = pe.ConstraintList()
@@ -144,14 +145,14 @@ class TravelingSalesmanInstance(Instance):
     def get_instance_features(self):
         return np.array([1])
     
-    def get_variable_features(self, var, index):
+    def get_variable_features(self, var_name, index):
         return np.array([1])
     
-    def get_variable_category(self, var, index):
+    def get_variable_category(self, var_name, index):
         return index
     
     def find_violations(self, model):
-        selected_edges = [e for e in self.edges if model.x[e].value > 0.5]
+        selected_edges = [e for e in model.edges if model.x[e].value > 0.5]
         graph = nx.Graph()
         graph.add_edges_from(selected_edges)
         components = [frozenset(c) for c in list(nx.connected_components(graph))]
@@ -162,7 +163,7 @@ class TravelingSalesmanInstance(Instance):
         return violations
     
     def build_lazy_constraint(self, model, component):
-        cut_edges = [e for e in self.edges
+        cut_edges = [e for e in model.edges
                      if (e[0] in component and e[1] not in component) or
                         (e[0] not in component and e[1] in component)]
         return model.eq_subtour.add(sum(model.x[e] for e in cut_edges) >= 2)

@@ -5,7 +5,8 @@
 
 CHALLENGES := \
     stab/ChallengeA \
-    knapsack/ChallengeA
+    knapsack/ChallengeA \
+    tsp/ChallengeA
 
 main: $(addsuffix /performance.png, $(CHALLENGES))
 

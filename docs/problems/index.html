@@ -14,14 +14,16 @@
     <title>Problems - MIPLearn</title>
     
 
-    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
-    <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
     <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
     <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
     <link href="../css/base.min.css" rel="stylesheet">
     <link href="../css/cinder.min.css" rel="stylesheet">
-    <link href="../css/highlight.min.css" rel="stylesheet">
+
+    
     <link href="../css/custom.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -29,15 +31,6 @@
             <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
         <![endif]-->
-
-    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
-    <script>
-    WebFont.load({
-        google: {
-            families: ['Open Sans', 'PT Sans']
-        }
-    });
-    </script>
 
     
 
@@ -147,15 +140,16 @@
                 <li class="third-level"><a href="#problem-definition">Problem definition</a></li>
                 <li class="third-level"><a href="#random-instance-generator">Random instance generator</a></li>
                 <li class="third-level"><a href="#challenge-a">Challenge A</a></li>
-            <li class="second-level"><a href="#multidimensional-0-1-knapsack-problem">Multidimensional 0-1 Knapsack Problem</a></li>
-                
-                <li class="third-level"><a href="#problem-definition_1">Problem definition</a></li>
-                <li class="third-level"><a href="#random-instance-generator_1">Random instance generator</a></li>
-                <li class="third-level"><a href="#challenge-a_1">Challenge A</a></li>
             <li class="second-level"><a href="#traveling-salesman-problem">Traveling Salesman Problem</a></li>
                 
-                <li class="third-level"><a href="#problem-definition_2">Problem definition</a></li>
+                <li class="third-level"><a href="#problem-definition_1">Problem definition</a></li>
                 <li class="third-level"><a href="#random-problem-generator">Random problem generator</a></li>
+                <li class="third-level"><a href="#challenge-a_1">Challenge A</a></li>
+            <li class="second-level"><a href="#multidimensional-0-1-knapsack-problem">Multidimensional 0-1 Knapsack Problem</a></li>
+                
+                <li class="third-level"><a href="#problem-definition_2">Problem definition</a></li>
+                <li class="third-level"><a href="#random-instance-generator_1">Random instance generator</a></li>
+                <li class="third-level"><a href="#challenge-a_2">Challenge A</a></li>
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -192,8 +186,43 @@
 </code></pre>
 
 <p><img alt="alt" src="../figures/benchmark_stab_a.png" /></p>
-<h2 id="multidimensional-0-1-knapsack-problem">Multidimensional 0-1 Knapsack Problem</h2>
+<h2 id="traveling-salesman-problem">Traveling Salesman Problem</h2>
 <h3 id="problem-definition_1">Problem definition</h3>
+<p>Given a list of cities and the distance between each pair of cities, the problem asks for the
+shortest route starting at the first city, visiting each other city exactly once, then returning
+to the first city. This problem is a generalization of the Hamiltonian path problem, one of Karp's
+21 NP-complete problems.</p>
+<h3 id="random-problem-generator">Random problem generator</h3>
+<p>The class <code>TravelingSalesmanGenerator</code> can be used to generate random instances of this
+problem. Initially, the generator creates $n$ cities $(x_1,y_1),\ldots,(x_n,y_n) \in \mathbb{R}^2$,
+where $n, x_i$ and $y_i$ are sampled independently from the provided probability distributions <code>n</code>,
+<code>x</code> and <code>y</code>. For each pair of cities $(i,j)$, the distance $d_{i,j}$ between them is set to:
+<script type="math/tex; mode=display">
+    d_{i,j} = \gamma_{i,j} \sqrt{(x_i-x_j)^2 + (y_i - y_j)^2}
+</script>
+where $\gamma_{i,j}$ is sampled from the distribution <code>gamma</code>.</p>
+<p>If <code>fix_cities=True</code> is provided, the list of cities is kept the same for all generated instances.
+The $gamma$ values, and therefore also the distances, are still different.</p>
+<p>By default, all distances $d_{i,j}$ are rounded to the nearest integer.  If <code>round=False</code>
+is provided, this rounding will be disabled.</p>
+<h3 id="challenge-a_1">Challenge A</h3>
+<ul>
+<li>Fixed list of 350 cities in the $[0, 1000]^2$ square</li>
+<li>$\gamma_{i,j} \sim U(0.95, 1.05)$</li>
+<li>500 training instances, 50 test instances</li>
+</ul>
+<pre><code class="python">TravelingSalesmanGenerator(x=uniform(loc=0.0, scale=1000.0),
+                           y=uniform(loc=0.0, scale=1000.0),
+                           n=randint(low=350, high=351),
+                           gamma=uniform(loc=0.95, scale=0.1),
+                           fix_cities=True,
+                           round=True,
+                          )
+</code></pre>
+
+<p><img alt="alt" src="../figures/benchmark_tsp_a.png" /></p>
+<h2 id="multidimensional-0-1-knapsack-problem">Multidimensional 0-1 Knapsack Problem</h2>
+<h3 id="problem-definition_2">Problem definition</h3>
 <p>Given a set of $n$ items and $m$ types of resources (also called <em>knapsacks</em>), the problem is to find a subset of items that maximizes profit without consuming more resources than it is available. More precisely, the problem is:</p>
 <p>
 <script type="math/tex; mode=display">\begin{align*}
@@ -235,7 +264,7 @@ from the provided probability distributions <code>K</code> and <code>u</code>.</
 <li>Fréville, Arnaud. <em>The multidimensional 0–1 knapsack problem: An overview.</em> European Journal of Operational Research 155.1 (2004): 1-21.</li>
 </ul>
 </div>
-<h3 id="challenge-a_1">Challenge A</h3>
+<h3 id="challenge-a_2">Challenge A</h3>
 <ul>
 <li>250 variables, 10 constraints, fixed weights</li>
 <li>$w \sim U(0, 1000), \gamma \sim U(0.95, 1.05)$</li>
@@ -253,26 +282,7 @@ from the provided probability distributions <code>K</code> and <code>u</code>.</
                       )
 </code></pre>
 
-<p><img alt="alt" src="../figures/benchmark_knapsack_a.png" /></p>
-<h2 id="traveling-salesman-problem">Traveling Salesman Problem</h2>
-<h3 id="problem-definition_2">Problem definition</h3>
-<p>Given a list of cities and the distance between each pair of cities, the problem asks for the
-shortest route starting at the first city, visiting each other city exactly once, then returning
-to the first city. This problem is a generalization of the Hamiltonian path problem, one of Karp's
-21 NP-complete problems.</p>
-<h3 id="random-problem-generator">Random problem generator</h3>
-<p>The class <code>TravelingSalesmanGenerator</code> can be used to generate random instances of this
-problem. Initially, the generator creates $n$ cities $(x_1,y_1),\ldots,(x_n,y_n) \in \mathbb{R}^2$,
-where $n, x_i$ and $y_i$ are sampled independently from the provided probability distributions <code>n</code>,
-<code>x</code> and <code>y</code>. For each pair of cities $(i,j)$, the distance $d_{i,j}$ between them is set to:
-<script type="math/tex; mode=display">
-    d_{i,j} = \gamma_{i,j} \sqrt{(x_i-x_j)^2 + (y_i - y_j)^2}
-</script>
-where $\gamma_{i,j}$ is sampled from the distribution <code>gamma</code>.</p>
-<p>If <code>fix_cities=True</code> is provided, the list of cities is kept the same for all generated instances.
-The $gamma$ values, and therefore also the distances, are still different.</p>
-<p>By default, all distances $d_{i,j}$ are rounded to the nearest integer.  If <code>round=False</code>
-is provided, this rounding will be disabled.</p></div>
+<p><img alt="alt" src="../figures/benchmark_knapsack_a.png" /></p></div>
         
         
     </div>
@@ -281,17 +291,17 @@ is provided, this rounding will be disabled.</p></div>
         
         <hr>
         <p>
-        <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.<br></small>
+        <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.</small><br>
         
-        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+        </p>
 
         
         
     </footer>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="../js/bootstrap-3.0.3.min.js"></script>
-    <script src="../js/highlight.pack.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
+    
     <script>var base_url = ".."</script>
     
     <script src="../js/base.js"></script>
@@ -303,8 +313,11 @@ is provided, this rounding will be disabled.</p></div>
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
                 <h4 class="modal-title" id="searchModalLabel">Search</h4>
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
             </div>
             <div class="modal-body">
                 <p>
