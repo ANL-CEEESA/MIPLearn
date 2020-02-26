@@ -114,6 +114,13 @@ def charts():
     benchmark.load_results("%s/benchmark_ml.csv" % basepath)
     results = benchmark.raw_results()
     results["Gap (%)"] = results["Gap"] * 100.0
+    
+    sense = results.loc[0, "Sense"]
+    if sense == "min":
+        primal_column = "Relative Upper Bound"
+    else:
+        primal_column = "Relative Lower Bound"
+        
     palette={
         "baseline": "#9b59b6", 
         "ml-exact": "#3498db",
@@ -151,7 +158,7 @@ def charts():
                  );
     axes[2].set_ylim(0.95,1.01)
     sns.stripplot(x="Solver",
-                  y="Relative Lower Bound",
+                  y=primal_column,
                   jitter=0.25,
                   data=results[results["Solver"] == "ml-heuristic"],
                   ax=axes[2],

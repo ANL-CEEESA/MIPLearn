@@ -94,8 +94,13 @@ class InternalSolver:
                     (count_fixed, count_total))
                 
     def set_model(self, model):
+        from pyomo.core.kernel.objective import minimize, maximize
         self.model = model
         self.solver.set_instance(model)
+        if self.solver._objective.sense == minimize:
+            self.sense = "min"
+        else:
+            self.sense = "max"
         self.var_name_to_var = {}
         for var in model.component_objects(Var):
             self.var_name_to_var[var.name] = var
@@ -140,6 +145,7 @@ class GurobiSolver(InternalSolver):
             "Upper bound": results["Problem"][0]["Upper bound"],
             "Wallclock time": results["Solver"][0]["Wallclock time"],
             "Nodes": self.solver._solver_model.getAttr("NodeCount"),
+            "Sense": self.sense,
         }    
             
     def _load_vars(self):
@@ -179,6 +185,7 @@ class CPLEXSolver(InternalSolver):
             "Upper bound": results["Problem"][0]["Upper bound"],
             "Wallclock time": results["Solver"][0]["Wallclock time"],
             "Nodes": 1,
+            "Sense": self.sense,
         }
     
     def solve_lp(self, tee=False):

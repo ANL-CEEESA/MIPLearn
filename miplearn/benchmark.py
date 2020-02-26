@@ -31,7 +31,10 @@ class BenchmarkRunner:
                                             label="Solve (%s)" % name,
                                             collect_training_data=False)
             for i in range(len(instances)):
-                self._push_result(results[i], solver=solver, name=name, instance=i)
+                self._push_result(results[i],
+                                  solver=solver,
+                                  name=name,
+                                  instance=i)
     
     def raw_results(self):
         return self.results
@@ -60,6 +63,7 @@ class BenchmarkRunner:
                                                  "Gap",
                                                  "Nodes",
                                                  "Mode",
+                                                 "Sense",
                                                 ])
         lb = result["Lower bound"]
         ub = result["Upper bound"]
@@ -73,6 +77,7 @@ class BenchmarkRunner:
             "Gap": gap,
             "Nodes": result["Nodes"],
             "Mode": solver.mode,
+            "Sense": result["Sense"],
         }, ignore_index=True)
         groups = self.results.groupby("Instance")
         best_lower_bound = groups["Lower Bound"].transform("max")
