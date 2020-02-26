@@ -64,6 +64,8 @@ class BenchmarkRunner:
                                                  "Nodes",
                                                  "Mode",
                                                  "Sense",
+                                                 "Predicted LB",
+                                                 "Predicted UB",
                                                 ])
         lb = result["Lower bound"]
         ub = result["Upper bound"]
@@ -78,6 +80,8 @@ class BenchmarkRunner:
             "Nodes": result["Nodes"],
             "Mode": solver.mode,
             "Sense": result["Sense"],
+            "Predicted LB": result["Predicted LB"],
+            "Predicted UB": result["Predicted UB"],
         }, ignore_index=True)
         groups = self.results.groupby("Instance")
         best_lower_bound = groups["Lower Bound"].transform("max")

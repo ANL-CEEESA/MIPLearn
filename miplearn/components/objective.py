@@ -27,8 +27,13 @@ class ObjectiveValueComponent(Component):
             instance.predicted_lb = lb
             logger.info("Predicted objective: [%.2f, %.2f]" % (lb, ub))
     
-    def after_solve(self, solver, instance, model):
-        pass
+    def after_solve(self, solver, instance, model, results):
+        if self.ub_regressor is not None:
+            results["Predicted UB"] = instance.predicted_ub
+            results["Predicted LB"] = instance.predicted_lb
+        else:
+            results["Predicted UB"] = None
+            results["Predicted LB"] = None
     
     def fit(self, training_instances):
         logger.debug("Extracting features...")

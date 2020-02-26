@@ -118,52 +118,72 @@ def charts():
     sense = results.loc[0, "Sense"]
     if sense == "min":
         primal_column = "Relative Upper Bound"
+        obj_column = "Upper Bound"
+        predicted_obj_column = "Predicted UB"
     else:
         primal_column = "Relative Lower Bound"
+        obj_column = "Lower Bound"
+        predicted_obj_column = "Predicted LB"
         
     palette={
         "baseline": "#9b59b6", 
         "ml-exact": "#3498db",
         "ml-heuristic": "#95a5a6"
     }
-    fig, axes = plt.subplots(nrows=1,
-                             ncols=3,
-                             figsize=(10,4),
-                             gridspec_kw={'width_ratios': [3, 3, 2]},
-                            )
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1,
+                                             ncols=4,
+                                             figsize=(12,4),
+                                             gridspec_kw={'width_ratios': [2, 1, 1, 2]},
+                                            )
     sns.stripplot(x="Solver",
                   y="Wallclock Time",
                   data=results,
-                  ax=axes[0],
+                  ax=ax1,
                   jitter=0.25,
                   palette=palette,
+                  size=4.0,
                );
     sns.barplot(x="Solver",
                 y="Wallclock Time",
                 data=results,
-                ax=axes[0],
+                ax=ax1,
                 errwidth=0.,
-                alpha=0.3,
+                alpha=0.4,
                 palette=palette,
                 estimator=median,
                );
-    axes[0].set(ylabel='Wallclock Time (s)')
-    axes[1].set_ylim(-0.5, 5.5)
+    ax1.set(ylabel='Wallclock Time (s)')
+    ax2.set_ylim(-0.5, 5.5)
     sns.stripplot(x="Solver",
                   y="Gap (%)",
                   jitter=0.25,
                   data=results[results["Solver"] != "ml-heuristic"],
-                  ax=axes[1],
+                  ax=ax2,
                   palette=palette,
+                  size=4.0,
                  );
-    axes[2].set_ylim(0.95,1.01)
+    ax3.set_ylim(0.95,1.05)
     sns.stripplot(x="Solver",
                   y=primal_column,
                   jitter=0.25,
                   data=results[results["Solver"] == "ml-heuristic"],
-                  ax=axes[2],
+                  ax=ax3,
                   palette=palette,
                  );
+    
+    sns.scatterplot(x=obj_column,
+                    y=predicted_obj_column,
+                    hue="Solver",
+                    data=results[results["Solver"] == "ml-exact"],
+                    ax=ax4,
+                    palette=palette,
+                   );
+    xlim, ylim = ax4.get_xlim(), ax4.get_ylim()
+    ax4.plot([-1e10, 1e10], [-1e10, 1e10], ls='-', color="#cccccc");
+    ax4.set_xlim(xlim)
+    ax4.set_ylim(ylim)
+    ax4.get_legend().remove()
+    
     fig.tight_layout()
     plt.savefig("%s/performance.png" % basepath,
                 bbox_inches='tight',

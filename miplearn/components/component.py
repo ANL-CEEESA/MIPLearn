@@ -15,7 +15,7 @@ class Component(ABC):
         pass
     
     @abstractmethod
-    def after_solve(self, solver, instance, model):
+    def after_solve(self, solver, instance, model, results):
         pass
     
     @abstractmethod

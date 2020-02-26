@@ -306,7 +306,7 @@ class LearningSolver:
         
         logger.debug("Calling after_solve callbacks...")    
         for component in self.components.values():
-            component.after_solve(self, instance, model)
+            component.after_solve(self, instance, model, results)
             
         # Store instance for future training
         self.training_instances += [instance]

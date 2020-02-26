@@ -38,7 +38,7 @@ class LazyConstraintsComponent(Component):
             cut = instance.build_lazy_constraint(model, v)
             solver.internal_solver.add_constraint(cut)
         
-    def after_solve(self, solver, instance, model):
+    def after_solve(self, solver, instance, model, results):
         pass
                 
     def fit(self, training_instances):

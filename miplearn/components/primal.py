@@ -135,7 +135,7 @@ class PrimalSolutionComponent(Component):
         else:
             solver.internal_solver.set_warm_start(solution)
         
-    def after_solve(self, solver, instance, model):
+    def after_solve(self, solver, instance, model, results):
         pass
                 
     def fit(self, training_instances):
