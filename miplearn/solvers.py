@@ -44,14 +44,15 @@ class InternalSolver:
         self.solver.set_instance(self.model)
         
         # Relax domain
-        from pyomo.core.base.set_types import Reals
+        from pyomo.core.base.set_types import Reals, Binary
         original_domains = []
         for (idx, var) in enumerate(self.model.component_data_objects(Var)):
             original_domains += [var.domain]
             lb, ub = var.bounds
-            var.setlb(lb)
-            var.setub(ub)
-            var.domain = Reals
+            if var.domain == Binary:
+                var.domain = Reals
+                var.setlb(lb)
+                var.setub(ub)
             self.solver.update_var(var)
         
         # Solve LP relaxation
@@ -59,7 +60,8 @@ class InternalSolver:
         
         # Restore domains
         for (idx, var) in enumerate(self.model.component_data_objects(Var)):
-            var.domain = original_domains[idx]
+            if original_domains[idx] == Binary:
+                var.domain = original_domains[idx]
             self.solver.update_var(var)
             
         return {
@@ -69,6 +71,8 @@ class InternalSolver:
     def clear_values(self):
         for var in self.model.component_objects(Var):
             for index in var:
+                if var[index].fixed:
+                    continue
                 var[index].value = None
                 
     def get_solution(self):
