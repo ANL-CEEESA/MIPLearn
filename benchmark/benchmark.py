@@ -72,7 +72,6 @@ def test_baseline():
         "baseline": LearningSolver(
             time_limit=time_limit,
             solver=internal_solver,
-            components={},
         ),
     }
     benchmark = BenchmarkRunner(solvers)
