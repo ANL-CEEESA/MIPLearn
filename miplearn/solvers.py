@@ -127,7 +127,10 @@ class InternalSolver:
                 self.solver.update_var(var[index])        
         logger.info("Fixing values for %d variables (out of %d)" %
                     (count_fixed, count_total))
-        
+    
+    def add_constraint(self, cut):
+        self.solver.add_constraint(cut)
+    
     def solve(self, tee=False):
         total_wallclock_time = 0
         self.instance.found_violations = []
@@ -145,7 +148,7 @@ class InternalSolver:
             logger.debug("    %d violations found" % len(violations))
             for v in violations:
                 cut = self.instance.build_lazy_constraint(self.model, v)
-                self.solver.add_constraint(cut)
+                self.add_constraint(cut)
                 
         return {
             "Lower bound": results["Problem"][0]["Lower bound"],
