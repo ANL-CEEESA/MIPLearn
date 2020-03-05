@@ -106,8 +106,10 @@ class InternalSolver:
         else:
             self.sense = "max"
         self.var_name_to_var = {}
+        self.all_vars = []
         for var in model.component_objects(Var):
             self.var_name_to_var[var.name] = var
+            self.all_vars += [var[idx] for idx in var]
             
     def set_instance(self, instance):
         self.instance = instance
@@ -173,8 +175,7 @@ class GurobiSolver(InternalSolver):
         from gurobipy import GRB
         def cb(cb_model, cb_opt, cb_where):
             if cb_where == GRB.Callback.MIPSOL:
-                all_vars = [v[idx] for v in self.model.component_objects(Var) for idx in v]
-                cb_opt.cbGetSolution(all_vars)
+                cb_opt.cbGetSolution(self.all_vars)
                 logger.debug("Finding violated constraints...")    
                 violations = self.instance.find_violations(cb_model)
                 self.instance.found_violations += violations
