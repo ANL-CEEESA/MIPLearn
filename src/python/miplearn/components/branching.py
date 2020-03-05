@@ -57,9 +57,11 @@ class BranchPriorityComponent(Component):
             
             # Run Julia script
             src_dirname = os.path.dirname(os.path.realpath(__file__))
+            julia_dirname = "%s/../../../julia" % src_dirname
             priority_file = tempfile.NamedTemporaryFile(mode="r")
             subprocess.run(["julia",
-                            "%s/branching.jl" % src_dirname,
+                            "--project=%s" % julia_dirname,
+                            "%s/src/branching.jl" % julia_dirname,
                             lp_file.name,
                             priority_file.name,
                             str(self.node_limit),

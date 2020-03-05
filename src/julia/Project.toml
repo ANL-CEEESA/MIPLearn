@@ -1,0 +1,8 @@
+name = "MIPLearn"
+uuid = "2b1277c3-b477-4c49-a15e-7ba350325c68"
+authors = ["Alinson S Xavier <git@axavier.org>"]
+version = "0.1.0"
+
+[deps]
+CPLEXW = "cfecb002-79c2-11e9-35be-cb59aa640f85"
+TinyBnB = "1b2a1171-e557-4eeb-a4d6-6c23d7e94fcd"
