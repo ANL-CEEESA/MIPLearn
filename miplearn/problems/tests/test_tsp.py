@@ -32,17 +32,18 @@ def test_instance():
         [1., 2., 1., 0.],
     ])
     instance = TravelingSalesmanInstance(n_cities, distances)
-    solver = LearningSolver()
-    solver.solve(instance)
-    x = instance.solution["x"]
-    assert x[0,1] == 1.0
-    assert x[0,2] == 0.0
-    assert x[0,3] == 1.0
-    assert x[1,2] == 1.0
-    assert x[1,3] == 0.0
-    assert x[2,3] == 1.0
-    assert instance.lower_bound == 4.0
-    assert instance.upper_bound == 4.0
+    for solver_name in ['gurobi', 'cplex']:
+        solver = LearningSolver(solver=solver_name)
+        solver.solve(instance)
+        x = instance.solution["x"]
+        assert x[0,1] == 1.0
+        assert x[0,2] == 0.0
+        assert x[0,3] == 1.0
+        assert x[1,2] == 1.0
+        assert x[1,3] == 0.0
+        assert x[2,3] == 1.0
+        assert instance.lower_bound == 4.0
+        assert instance.upper_bound == 4.0
 
     
 def test_subtour():
@@ -57,12 +58,13 @@ def test_subtour():
     ])
     distances = squareform(pdist(cities))
     instance = TravelingSalesmanInstance(n_cities, distances)
-    solver = LearningSolver()
-    solver.solve(instance)
-    x = instance.solution["x"]
-    assert x[0,1] == 1.0
-    assert x[0,4] == 1.0
-    assert x[1,2] == 1.0
-    assert x[2,3] == 1.0
-    assert x[3,5] == 1.0
-    assert x[4,5] == 1.0
+    for solver_name in ['gurobi', 'cplex']:
+        solver = LearningSolver(solver=solver_name)
+        solver.solve(instance)
+        x = instance.solution["x"]
+        assert x[0,1] == 1.0
+        assert x[0,4] == 1.0
+        assert x[1,2] == 1.0
+        assert x[2,3] == 1.0
+        assert x[3,5] == 1.0
+        assert x[4,5] == 1.0

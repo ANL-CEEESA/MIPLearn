@@ -108,6 +108,9 @@ class InternalSolver:
         self.var_name_to_var = {}
         for var in model.component_objects(Var):
             self.var_name_to_var[var.name] = var
+            
+    def set_instance(self, instance):
+        self.instance = instance
         
     def fix(self, solution):
         count_total, count_fixed = 0, 0
@@ -123,8 +126,32 @@ class InternalSolver:
         logger.info("Fixing values for %d variables (out of %d)" %
                     (count_fixed, count_total))
         
-    def add_constraint(self, cut):
-        self.solver.add_constraint(cut)
+    def solve(self, tee=False):
+        total_wallclock_time = 0
+        self.instance.found_violations = []
+        while True:
+            logger.debug("Solving MIP...")
+            results = self.solver.solve(tee=tee)
+            total_wallclock_time += results["Solver"][0]["Wallclock time"]
+            if not hasattr(self.instance, "find_violations"):
+                break
+            logger.debug("Finding violated constraints...")
+            violations = self.instance.find_violations(self.model)
+            if len(violations) == 0:
+                break
+            self.instance.found_violations += violations
+            logger.debug("    %d violations found" % len(violations))
+            for v in violations:
+                cut = self.instance.build_lazy_constraint(self.model, v)
+                self.solver.add_constraint(cut)
+                
+        return {
+            "Lower bound": results["Problem"][0]["Lower bound"],
+            "Upper bound": results["Problem"][0]["Upper bound"],
+            "Wallclock time": total_wallclock_time,
+            "Nodes": 1,
+            "Sense": self.sense,
+        }
 
     
 class GurobiSolver(InternalSolver):
@@ -143,7 +170,24 @@ class GurobiSolver(InternalSolver):
         self.solver.options["MIPGap"] = gap_tolerance
         
     def solve(self, tee=False):
+        from gurobipy import GRB
+        def cb(cb_model, cb_opt, cb_where):
+            if cb_where == GRB.Callback.MIPSOL:
+                all_vars = [v[idx] for v in self.model.component_objects(Var) for idx in v]
+                cb_opt.cbGetSolution(all_vars)
+                logger.debug("Finding violated constraints...")    
+                violations = self.instance.find_violations(cb_model)
+                self.instance.found_violations += violations
+                logger.debug("    %d violations found" % len(violations))
+                for v in violations:
+                    cut = self.instance.build_lazy_constraint(cb_model, v)
+                    cb_opt.cbLazy(cut)
+        if hasattr(self.instance, "find_violations"):
+            self.solver.options["LazyConstraints"] = 1
+            self.solver.set_callback(cb)
+            self.instance.found_violations = []
         results = self.solver.solve(tee=tee, warmstart=self.is_warm_start_available)
+        self.solver.set_callback(None)
         return {
             "Lower bound": results["Problem"][0]["Lower bound"],
             "Upper bound": results["Problem"][0]["Upper bound"],
@@ -152,20 +196,7 @@ class GurobiSolver(InternalSolver):
             "Sense": self.sense,
         }    
             
-    def _load_vars(self):
-        var_map = self._pyomo_var_to_solver_var_map
-        ref_vars = self._referenced_variables
-        vars_to_load = var_map.keys()
 
-        gurobi_vars_to_load = [var_map[pyomo_var] for pyomo_var in vars_to_load]
-        vals = self._solver_model.getAttr("X", gurobi_vars_to_load)
-
-        for var, val in zip(vars_to_load, vals):
-            if ref_vars[var] > 0:
-                var.stale = False
-                var.value = val
-
-    
 class CPLEXSolver(InternalSolver):
     def __init__(self):
         super().__init__()
@@ -181,16 +212,6 @@ class CPLEXSolver(InternalSolver):
         
     def set_gap_tolerance(self, gap_tolerance):
         self.solver.options["mip_tolerances_mipgap"] = gap_tolerance
-        
-    def solve(self, tee=False):
-        results = self.solver.solve(tee=tee, warmstart=self.is_warm_start_available)
-        return {
-            "Lower bound": results["Problem"][0]["Lower bound"],
-            "Upper bound": results["Problem"][0]["Upper bound"],
-            "Wallclock time": results["Solver"][0]["Wallclock time"],
-            "Nodes": 1,
-            "Sense": self.sense,
-        }
     
     def solve_lp(self, tee=False):
         import cplex
@@ -245,6 +266,7 @@ class LearningSolver:
             component.mode = self.mode
         
     def _create_internal_solver(self):
+        logger.debug("Initializing %s" % self.internal_solver_factory)
         if self.internal_solver_factory == "cplex":
             solver = CPLEXSolver()
         elif self.internal_solver_factory == "gurobi":
@@ -270,6 +292,7 @@ class LearningSolver:
         self.tee = tee
         self.internal_solver = self._create_internal_solver()
         self.internal_solver.set_model(model)
+        self.internal_solver.set_instance(instance)
 
         logger.debug("Solving LP relaxation...")
         results = self.internal_solver.solve_lp(tee=tee)
@@ -283,26 +306,8 @@ class LearningSolver:
         if relaxation_only:
             return results
         
-        total_wallclock_time = 0
-        instance.found_violations = []
-        while True:
-            logger.debug("Solving MIP...")
-            results = self.internal_solver.solve(tee=tee)
-            logger.debug("    %.2f s" % results["Wallclock time"])
-            total_wallclock_time += results["Wallclock time"]
-            if not hasattr(instance, "find_violations"):
-                break
-            logger.debug("Finding violated constraints...")    
-            violations = instance.find_violations(model)
-            if len(violations) == 0:
-                break
-            instance.found_violations += violations
-            logger.debug("    %d violations found" % len(violations))
-            for v in violations:
-                cut = instance.build_lazy_constraint(model, v)
-                self.internal_solver.add_constraint(cut)
-        results["Wallclock time"] = total_wallclock_time
-        
+        results = self.internal_solver.solve(tee=tee)
+
         # Read MIP solution and bounds
         instance.lower_bound = results["Lower bound"]
         instance.upper_bound = results["Upper bound"]
