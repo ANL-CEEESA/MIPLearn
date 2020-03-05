@@ -25,15 +25,17 @@ class LazyConstraintsComponent(Component):
     A component that predicts which lazy constraints to enforce.
     """
     
-    def __init__(self):
+    def __init__(self,
+                 threshold=0.05):
         self.violations = set()
         self.count = {}
         self.n_samples = 0
+        self.threshold = threshold
     
     def before_solve(self, solver, instance, model):
         logger.info("Enforcing %d lazy constraints" % len(self.violations))
         for v in self.violations:
-            if self.count[v] < self.n_samples * 0.05:
+            if self.count[v] < self.n_samples * self.threshold:
                 continue
             cut = instance.build_lazy_constraint(model, v)
             solver.internal_solver.add_constraint(cut)
