@@ -5,7 +5,7 @@
 }
 
 a, .navbar-default a {
-  color: #06b !important;
+  color: #06a !important;
   font-weight: normal;
 }
 
@@ -17,4 +17,12 @@ a, .navbar-default a {
 .navbar-default .active,
 .active > a {
   background-color: #f0f0f0 !important;
+}
+
+.icon-bar {
+  background-color: #666 !important;
+}
+
+.navbar-collapse {
+  border-color: #fff !important;
 }
