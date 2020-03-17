@@ -4,6 +4,7 @@
 
 from miplearn import LearningSolver, BranchPriorityComponent
 from miplearn.problems.knapsack import KnapsackInstance
+import pickle, tempfile
 
 
 def _get_instance():
@@ -22,9 +23,9 @@ def test_solver():
                                     gap_tolerance=1e-3,
                                     threads=1,
                                     solver=internal_solver,
-                                    mode=mode,
-                                   )
-            results = solver.solve(instance)
+                                    mode=mode)
+
+            solver.solve(instance)
             assert instance.solution["x"][0] == 1.0
             assert instance.solution["x"][1] == 0.0
             assert instance.solution["x"][2] == 1.0
@@ -38,8 +39,13 @@ def test_solver():
             assert round(instance.lp_solution["x"][3], 3) == 0.000
             assert round(instance.lp_value, 3) == 1287.923
 
-            solver.fit()
+            solver.fit([instance])
             solver.solve(instance)
+
+            # Assert solver is picklable
+            with tempfile.TemporaryFile() as file:
+                pickle.dump(solver, file)
+
 
 def test_parallel_solve():
     instances = [_get_instance() for _ in range(10)]
@@ -48,4 +54,4 @@ def test_parallel_solve():
     assert len(results) == 10
     for instance in instances:
         assert len(instance.solution["x"].keys()) == 4
-    
+

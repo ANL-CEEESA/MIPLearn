@@ -26,19 +26,31 @@ import miplearn
 
 ### Using `LearningSolver`
 
-The main class provided by this package is `LearningSolver`, a reference learning-enhanced MIP solver which automatically extracts information from previous runs to accelerate the solution of new instances. Assuming we already have a list of instances to solve, `LearningSolver` can be used as follows:
+The main class provided by this package is `LearningSolver`, a learning-enhanced MIP solver which uses information from previously solved instances to accelerate the solution of new instances. The following example shows its basic usage:
 
 ```python
 from miplearn import LearningSolver
 
-all_instances = ... # user-provided list of instances to solve
+# List of user-provided instances
+training_instances = [...] 
+test_instances = [...]
+
+# Create solver
 solver = LearningSolver()
-for instance in all_instances:
+
+# Solve all training instances
+for instance in training_instances:
     solver.solve(instance)
-    solver.fit()
+
+# Learn from training instances
+solver.fit(training_instances)
+
+# Solve all test instances
+for instance in test_instances:
+    solver.solve(instance)
 ```
 
-During the first call to `solver.solve(instance)`, the solver will process the instance from scratch, since no historical information is available, but it will already start gathering information. By calling `solver.fit()`, we instruct the solver to train all the internal Machine Learning models based on the information gathered so far. As this operation can be expensive, it may  be performed after a larger batch of instances has been solved, instead of after every solve. After the first call to `solver.fit()`, subsequent calls to `solver.solve(instance)` will automatically use the trained Machine Learning models to accelerate the solution process.
+In this example, we have two lists of user-provided instances: `training_instances` and `test_instances`. We start by solving all training instances. Since there is no historical information available at this point, the instances will be processed from scratch, with no ML acceleration. After solving each instance, the solver stores within each `instance` object the optimal solution, the optimal objective value, and other information that can be used to accelerate future solves. After all training instances are solved, we call `solver.fit(training_instances)`. This instructs the solver to train all its internal machine-learning models based on the solutions of the (solved) trained instances. Subsequent calls to `solver.solve(instance)` will automatically use the trained Machine Learning models to accelerate the solution process.
 
 
 ### Describing problem instances
@@ -49,10 +61,7 @@ Instances to be solved by `LearningSolver` must derive from the abstract class `
 * `instance.get_instance_features()`, which returns a 1-dimensional Numpy array of (numerical) features describing the entire instance;
 * `instance.get_variable_features(var_name, index)`, which returns a 1-dimensional array of (numerical) features describing a particular decision variable.
 
-
-The first method is used by `LearningSolver` to construct a concrete Pyomo model, which will be provided to the internal MIP solver. The user should keep a reference to this Pyomo model, in order to retrieve, for example, the optimal variable values.
-
-The second and third methods provide an encoding of the instance, which can be used by the ML models to make predictions. In the knapsack problem, for example, an implementation may decide to provide as instance features the average weights, average prices, number of items and the size of the knapsack. The weight and the price of each individual item could be provided as variable features. See `miplearn/problems/knapsack.py` for a concrete example.
+The first method is used by `LearningSolver` to construct a concrete Pyomo model, which will be provided to the internal MIP solver. The second and third methods provide an encoding of the instance, which can be used by the ML models to make predictions. In the knapsack problem, for example, an implementation may decide to provide as instance features the average weights, average prices, number of items and the size of the knapsack. The weight and the price of each individual item could be provided as variable features. See `src/python/miplearn/problems/knapsack.py` for a concrete example.
 
 An optional method which can be implemented is `instance.get_variable_category(var_name, index)`, which returns a category (a string, an integer or any hashable type) for each decision variable. If two variables have the same category, `LearningSolver` will use the same internal ML model to predict the values of both variables. By default, all variables belong to the `"default"` category, and therefore only one ML model is used for all variables. If the returned category is `None`, ML predictors will ignore the variable.
 
@@ -72,52 +81,54 @@ For more significant performance benefits, `LearningSolver` can also be configur
 
 ### Saving and loading solver state
 
-After solving a large number of training instances, it may be desirable to save the current state of `LearningSolver` to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the methods `solver.save_state(filename)` and `solver.load_state(filename)`, as the following example illustrates:
+After solving a large number of training instances, it may be desirable to save the current state of `LearningSolver` to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the standard `pickle` module, as the following example illustrates:
 
 ```python
 from miplearn import LearningSolver
+import pickle
 
+# Solve training instances
+training_instances = [...]
 solver = LearningSolver()
-for instance in some_instances:
+for instance in training_instances:
     solver.solve(instance)
-solver.fit()
-solver.save_state("/tmp/state.bin")
+
+# Train machine-learning models
+solver.fit(training_instances)
+
+# Save trained solver to disk
+pickle.dump(solver, open("solver.pickle", "wb"))
 
 # Application restarts...
 
-solver = LearningSolver()
-solver.load_state("/tmp/state.bin")
-for instance in more_instances:
+# Load trained solver from disk
+solver = pickle.load(open("solver.pickle", "rb"))
+
+# Solve additional instances
+test_instances = [...]
+for instance in test_instances:
     solver.solve(instance)
 ```
-
-In addition to storing the training data, `save_state` also stores all trained ML models. Therefore, if the the models were trained before saving the state to disk, it is not necessary to train them again after loading.
 
 
 ### Solving training instances in parallel
 
-In many situations, training instances can be solved in parallel to accelerate the training process. `LearningSolver` provides the method `parallel_solve(instances)` to easily achieve this:
+In many situations, training and test instances can be solved in parallel to accelerate the training process. `LearningSolver` provides the method `parallel_solve(instances)` to easily achieve this:
 
 ```python
 from miplearn import LearningSolver
 
-# Training phase...
-solver = LearningSolver(...) # training solver parameters
+training_instances = [...]
+solver = LearningSolver()
 solver.parallel_solve(training_instances, n_jobs=4)
-solver.fit()
-solver.save_state("/tmp/data.bin")
+solver.fit(training_instances)
 
 # Test phase...
-solver = LearningSolver(...) # test solver parameters
-solver.load_state("/tmp/data.bin")
-solver.solve(test_instance)
+test_instances = [...]
+solver.parallel_solve(test_instances)
 ```
-
-After all training instances have been solved in parallel, the ML models can be trained and saved to disk as usual, using `fit` and `save_state`, as explained in the previous subsections.
 
 
 ### Current Limitations
 
 * Only binary and continuous decision variables are currently supported.
-* Solver callbacks (lazy constraints, cutting planes) are not currently supported.
-* Only Gurobi and CPLEX are currently supported as internal MIP solvers.

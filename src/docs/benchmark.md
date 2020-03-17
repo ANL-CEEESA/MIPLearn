@@ -15,7 +15,6 @@ test_instances  = [...]
 # Training phase...
 training_solver = LearningSolver(...)
 training_solver.parallel_solve(train_instances, n_jobs=10)
-training_solver.save_state("data.bin")
 
 # Test phase...
 test_solvers = {
@@ -25,13 +24,12 @@ test_solvers = {
     "Strategy C": LearningSolver(...),
 }
 benchmark = BenchmarkRunner(test_solvers)
-benchmark.load_state("data.bin")
-benchmark.fit()
+benchmark.fit(train_instances)
 benchmark.parallel_solve(test_instances, n_jobs=2)
 print(benchmark.raw_results())
 ```
 
-The method `load_state` loads the saved training data into each one of the provided solvers, while `fit` trains their respective ML models. The method `parallel_solve` solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, `raw_results` produces a table of results (Pandas DataFrame) with the following columns:
+The method `fit` trains the ML models for each individual solver. The method `parallel_solve` solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, `raw_results` produces a table of results (Pandas DataFrame) with the following columns:
 
 * **Solver,** the name of the solver.
 * **Instance,** the sequence number identifying the instance.
@@ -51,14 +49,13 @@ When iteratively exploring new formulations, encoding and solver parameters, it 
 ```python
 # Benchmark baseline solvers and save results to a file.
 benchmark = BenchmarkRunner(baseline_solvers)
-benchmark.load_state("training_data.bin")
 benchmark.parallel_solve(test_instances)
 benchmark.save_results("baseline_results.csv")
 
 # Benchmark remaining solvers, loading baseline results from file.
 benchmark = BenchmarkRunner(alternative_solvers)
-benchmark.load_state("training_data.bin")
 benchmark.load_results("baseline_results.csv")
+benchmark.fit(training_instances)
 benchmark.parallel_solve(test_instances)
 ```
 

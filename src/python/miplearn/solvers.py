@@ -254,8 +254,7 @@ class LearningSolver:
         self.time_limit = time_limit
         self.gap_tolerance = gap_tolerance
         self.tee = False
-        self.training_instances = []
-        
+
         if self.components is not None:
             assert isinstance(self.components, dict)
         else:
@@ -276,7 +275,7 @@ class LearningSolver:
         elif self.internal_solver_factory == "gurobi":
             solver = GurobiSolver()
         else:
-            raise Exception("solver %s not supported" % solver_factory)
+            raise Exception("solver %s not supported" % self.internal_solver_factory)
         solver.set_threads(self.threads)
         if self.time_limit is not None:
             solver.set_time_limit(self.time_limit)
@@ -320,10 +319,7 @@ class LearningSolver:
         logger.debug("Calling after_solve callbacks...")    
         for component in self.components.values():
             component.after_solve(self, instance, model, results)
-            
-        # Store instance for future training
-        self.training_instances += [instance]
-        
+
         return results
                 
     def parallel_solve(self,
@@ -352,9 +348,7 @@ class LearningSolver:
         
         return results
 
-    def fit(self, training_instances=None):
-        if training_instances is None:
-            training_instances = self.training_instances
+    def fit(self, training_instances):
         if len(training_instances) == 0:
             return
         for component in self.components.values():
