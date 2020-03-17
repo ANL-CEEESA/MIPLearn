@@ -170,17 +170,29 @@ as follows:</p>
 <p>To install MIPLearn in another Python environment, switch to that enviroment before running <code>make install</code>. To install the package in development mode, run <code>make develop</code> instead.</p>
 </div>
 <h3 id="using-learningsolver">Using <code>LearningSolver</code></h3>
-<p>The main class provided by this package is <code>LearningSolver</code>, a reference learning-enhanced MIP solver which automatically extracts information from previous runs to accelerate the solution of new instances. Assuming we already have a list of instances to solve, <code>LearningSolver</code> can be used as follows:</p>
+<p>The main class provided by this package is <code>LearningSolver</code>, a learning-enhanced MIP solver which uses information from previously solved instances to accelerate the solution of new instances. The following example shows its basic usage:</p>
 <pre><code class="python">from miplearn import LearningSolver
 
-all_instances = ... # user-provided list of instances to solve
+# List of user-provided instances
+training_instances = [...] 
+test_instances = [...]
+
+# Create solver
 solver = LearningSolver()
-for instance in all_instances:
+
+# Solve all training instances
+for instance in training_instances:
     solver.solve(instance)
-    solver.fit()
+
+# Learn from training instances
+solver.fit(training_instances)
+
+# Solve all test instances
+for instance in test_instances:
+    solver.solve(instance)
 </code></pre>
 
-<p>During the first call to <code>solver.solve(instance)</code>, the solver will process the instance from scratch, since no historical information is available, but it will already start gathering information. By calling <code>solver.fit()</code>, we instruct the solver to train all the internal Machine Learning models based on the information gathered so far. As this operation can be expensive, it may  be performed after a larger batch of instances has been solved, instead of after every solve. After the first call to <code>solver.fit()</code>, subsequent calls to <code>solver.solve(instance)</code> will automatically use the trained Machine Learning models to accelerate the solution process.</p>
+<p>In this example, we have two lists of user-provided instances: <code>training_instances</code> and <code>test_instances</code>. We start by solving all training instances. Since there is no historical information available at this point, the instances will be processed from scratch, with no ML acceleration. After solving each instance, the solver stores within each <code>instance</code> object the optimal solution, the optimal objective value, and other information that can be used to accelerate future solves. After all training instances are solved, we call <code>solver.fit(training_instances)</code>. This instructs the solver to train all its internal machine-learning models based on the solutions of the (solved) trained instances. Subsequent calls to <code>solver.solve(instance)</code> will automatically use the trained Machine Learning models to accelerate the solution process.</p>
 <h3 id="describing-problem-instances">Describing problem instances</h3>
 <p>Instances to be solved by <code>LearningSolver</code> must derive from the abstract class <code>miplearn.Instance</code>. The following three abstract methods must be implemented:</p>
 <ul>
@@ -188,8 +200,7 @@ for instance in all_instances:
 <li><code>instance.get_instance_features()</code>, which returns a 1-dimensional Numpy array of (numerical) features describing the entire instance;</li>
 <li><code>instance.get_variable_features(var_name, index)</code>, which returns a 1-dimensional array of (numerical) features describing a particular decision variable.</li>
 </ul>
-<p>The first method is used by <code>LearningSolver</code> to construct a concrete Pyomo model, which will be provided to the internal MIP solver. The user should keep a reference to this Pyomo model, in order to retrieve, for example, the optimal variable values.</p>
-<p>The second and third methods provide an encoding of the instance, which can be used by the ML models to make predictions. In the knapsack problem, for example, an implementation may decide to provide as instance features the average weights, average prices, number of items and the size of the knapsack. The weight and the price of each individual item could be provided as variable features. See <code>miplearn/problems/knapsack.py</code> for a concrete example.</p>
+<p>The first method is used by <code>LearningSolver</code> to construct a concrete Pyomo model, which will be provided to the internal MIP solver. The second and third methods provide an encoding of the instance, which can be used by the ML models to make predictions. In the knapsack problem, for example, an implementation may decide to provide as instance features the average weights, average prices, number of items and the size of the knapsack. The weight and the price of each individual item could be provided as variable features. See <code>src/python/miplearn/problems/knapsack.py</code> for a concrete example.</p>
 <p>An optional method which can be implemented is <code>instance.get_variable_category(var_name, index)</code>, which returns a category (a string, an integer or any hashable type) for each decision variable. If two variables have the same category, <code>LearningSolver</code> will use the same internal ML model to predict the values of both variables. By default, all variables belong to the <code>"default"</code> category, and therefore only one ML model is used for all variables. If the returned category is <code>None</code>, ML predictors will ignore the variable.</p>
 <p>It is not necessary to have a one-to-one correspondence between features and problem instances. One important (and deliberate) limitation of MIPLearn, however, is that <code>get_instance_features()</code> must always return arrays of same length for all relevant instances of the problem. Similarly, <code>get_variable_features(var_name, index)</code> must also always return arrays of same length for all variables in each category. It is up to the user to decide how to encode variable-length characteristics of the problem into fixed-length vectors. In graph problems, for example, graph embeddings can be used to reduce the (variable-length) lists of nodes and edges into a fixed-length structure that still preserves some properties of the graph. Different instance encodings may have significant impact on performance.</p>
 <h3 id="obtaining-heuristic-solutions">Obtaining heuristic solutions</h3>
@@ -200,46 +211,50 @@ for instance in all_instances:
 <p>The <code>heuristic</code> mode provides no optimality guarantees, and therefore should only be used if the solver is first trained on a large and representative set of training instances. Training on a small or non-representative set of instances may produce low-quality solutions, or make the solver incorrectly classify new instances as infeasible.</p>
 </div>
 <h3 id="saving-and-loading-solver-state">Saving and loading solver state</h3>
-<p>After solving a large number of training instances, it may be desirable to save the current state of <code>LearningSolver</code> to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the methods <code>solver.save_state(filename)</code> and <code>solver.load_state(filename)</code>, as the following example illustrates:</p>
+<p>After solving a large number of training instances, it may be desirable to save the current state of <code>LearningSolver</code> to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the standard <code>pickle</code> module, as the following example illustrates:</p>
 <pre><code class="python">from miplearn import LearningSolver
+import pickle
 
+# Solve training instances
+training_instances = [...]
 solver = LearningSolver()
-for instance in some_instances:
+for instance in training_instances:
     solver.solve(instance)
-solver.fit()
-solver.save_state(&quot;/tmp/state.bin&quot;)
+
+# Train machine-learning models
+solver.fit(training_instances)
+
+# Save trained solver to disk
+pickle.dump(solver, open(&quot;solver.pickle&quot;, &quot;wb&quot;))
 
 # Application restarts...
 
-solver = LearningSolver()
-solver.load_state(&quot;/tmp/state.bin&quot;)
-for instance in more_instances:
+# Load trained solver from disk
+solver = pickle.load(open(&quot;solver.pickle&quot;, &quot;rb&quot;))
+
+# Solve additional instances
+test_instances = [...]
+for instance in test_instances:
     solver.solve(instance)
 </code></pre>
 
-<p>In addition to storing the training data, <code>save_state</code> also stores all trained ML models. Therefore, if the the models were trained before saving the state to disk, it is not necessary to train them again after loading.</p>
 <h3 id="solving-training-instances-in-parallel">Solving training instances in parallel</h3>
-<p>In many situations, training instances can be solved in parallel to accelerate the training process. <code>LearningSolver</code> provides the method <code>parallel_solve(instances)</code> to easily achieve this:</p>
+<p>In many situations, training and test instances can be solved in parallel to accelerate the training process. <code>LearningSolver</code> provides the method <code>parallel_solve(instances)</code> to easily achieve this:</p>
 <pre><code class="python">from miplearn import LearningSolver
 
-# Training phase...
-solver = LearningSolver(...) # training solver parameters
+training_instances = [...]
+solver = LearningSolver()
 solver.parallel_solve(training_instances, n_jobs=4)
-solver.fit()
-solver.save_state(&quot;/tmp/data.bin&quot;)
+solver.fit(training_instances)
 
 # Test phase...
-solver = LearningSolver(...) # test solver parameters
-solver.load_state(&quot;/tmp/data.bin&quot;)
-solver.solve(test_instance)
+test_instances = [...]
+solver.parallel_solve(test_instances)
 </code></pre>
 
-<p>After all training instances have been solved in parallel, the ML models can be trained and saved to disk as usual, using <code>fit</code> and <code>save_state</code>, as explained in the previous subsections.</p>
 <h3 id="current-limitations">Current Limitations</h3>
 <ul>
 <li>Only binary and continuous decision variables are currently supported.</li>
-<li>Solver callbacks (lazy constraints, cutting planes) are not currently supported.</li>
-<li>Only Gurobi and CPLEX are currently supported as internal MIP solvers.</li>
 </ul></div>
         
         

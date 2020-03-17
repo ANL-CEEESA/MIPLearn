@@ -151,7 +151,6 @@ test_instances  = [...]
 # Training phase...
 training_solver = LearningSolver(...)
 training_solver.parallel_solve(train_instances, n_jobs=10)
-training_solver.save_state(&quot;data.bin&quot;)
 
 # Test phase...
 test_solvers = {
@@ -161,13 +160,12 @@ test_solvers = {
     &quot;Strategy C&quot;: LearningSolver(...),
 }
 benchmark = BenchmarkRunner(test_solvers)
-benchmark.load_state(&quot;data.bin&quot;)
-benchmark.fit()
+benchmark.fit(train_instances)
 benchmark.parallel_solve(test_instances, n_jobs=2)
 print(benchmark.raw_results())
 </code></pre>
 
-<p>The method <code>load_state</code> loads the saved training data into each one of the provided solvers, while <code>fit</code> trains their respective ML models. The method <code>parallel_solve</code> solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, <code>raw_results</code> produces a table of results (Pandas DataFrame) with the following columns:</p>
+<p>The method <code>fit</code> trains the ML models for each individual solver. The method <code>parallel_solve</code> solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, <code>raw_results</code> produces a table of results (Pandas DataFrame) with the following columns:</p>
 <ul>
 <li><strong>Solver,</strong> the name of the solver.</li>
 <li><strong>Instance,</strong> the sequence number identifying the instance.</li>
@@ -182,14 +180,13 @@ print(benchmark.raw_results())
 <p>When iteratively exploring new formulations, encoding and solver parameters, it is often desirable to avoid repeating parts of the benchmark suite. For example, if the baseline solver has not been changed, there is no need to evaluate its performance again and again when making small changes to the remaining solvers. <code>BenchmarkRunner</code> provides the methods <code>save_results</code> and <code>load_results</code>, which can be used to avoid this repetition, as the next example shows:</p>
 <pre><code class="python"># Benchmark baseline solvers and save results to a file.
 benchmark = BenchmarkRunner(baseline_solvers)
-benchmark.load_state(&quot;training_data.bin&quot;)
 benchmark.parallel_solve(test_instances)
 benchmark.save_results(&quot;baseline_results.csv&quot;)
 
 # Benchmark remaining solvers, loading baseline results from file.
 benchmark = BenchmarkRunner(alternative_solvers)
-benchmark.load_state(&quot;training_data.bin&quot;)
 benchmark.load_results(&quot;baseline_results.csv&quot;)
+benchmark.fit(training_instances)
 benchmark.parallel_solve(test_instances)
 </code></pre></div>
         
