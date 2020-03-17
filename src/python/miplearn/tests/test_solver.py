@@ -42,8 +42,9 @@ def test_solver():
             solver.fit([instance])
             solver.solve(instance)
 
-            # with tempfile.TemporaryFile() as file:
-            #     pickle.dump(solver, file)
+            # Assert solver is picklable
+            with tempfile.TemporaryFile() as file:
+                pickle.dump(solver, file)
 
 
 def test_parallel_solve():

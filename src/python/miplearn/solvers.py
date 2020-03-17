@@ -6,10 +6,8 @@ from . import ObjectiveValueComponent, PrimalSolutionComponent, LazyConstraintsC
 import pyomo.environ as pe
 from pyomo.core import Var
 from copy import deepcopy
-import pickle
 from scipy.stats import randint
 from p_tqdm import p_map
-import numpy as np
 import logging
 logger = logging.getLogger(__name__)
 
@@ -36,10 +34,14 @@ def _parallel_solve(instance_idx):
 
 class InternalSolver:
     def __init__(self):
+        self.all_vars = None
+        self.instance = None
         self.is_warm_start_available = False
         self.model = None
+        self.sense = None
+        self.solver = None
         self.var_name_to_var = {}
-    
+
     def solve_lp(self, tee=False):
         self.solver.set_instance(self.model)
         
@@ -98,7 +100,7 @@ class InternalSolver:
                     (count_fixed, count_total))
                 
     def set_model(self, model):
-        from pyomo.core.kernel.objective import minimize, maximize
+        from pyomo.core.kernel.objective import minimize
         self.model = model
         self.solver.set_instance(model)
         if self.solver._objective.sense == minimize:
@@ -176,6 +178,7 @@ class GurobiSolver(InternalSolver):
         
     def solve(self, tee=False):
         from gurobipy import GRB
+
         def cb(cb_model, cb_opt, cb_where):
             if cb_where == GRB.Callback.MIPSOL:
                 cb_opt.cbGetSolution(self.all_vars)
@@ -186,6 +189,7 @@ class GurobiSolver(InternalSolver):
                 for v in violations:
                     cut = self.instance.build_lazy_constraint(cb_model, v)
                     cb_opt.cbLazy(cut)
+
         if hasattr(self.instance, "find_violations"):
             self.solver.options["LazyConstraints"] = 1
             self.solver.set_callback(cb)
@@ -204,7 +208,6 @@ class GurobiSolver(InternalSolver):
 class CPLEXSolver(InternalSolver):
     def __init__(self):
         super().__init__()
-        import cplex
         self.solver = pe.SolverFactory('cplex_persistent')
         self.solver.options["randomseed"] = randint(low=0, high=1000).rvs()
         
@@ -242,10 +245,8 @@ class LearningSolver:
                  mode="exact",
                  solver="gurobi",
                  threads=4,
-                 time_limit=None,
-                ):
+                 time_limit=None):
         
-        self.is_persistent = None
         self.components = {}
         self.mode = mode
         self.internal_solver = None
@@ -286,11 +287,11 @@ class LearningSolver:
               instance,
               model=None,
               tee=False,
-              relaxation_only=False,
-             ):
+              relaxation_only=False):
+
         if model is None:
             model = instance.to_model()
-            
+
         self.tee = tee
         self.internal_solver = self._create_internal_solver()
         self.internal_solver.set_model(model)
@@ -324,9 +325,7 @@ class LearningSolver:
     def parallel_solve(self,
                        instances,
                        n_jobs=4,
-                       label="Solve",
-                       collect_training_data=True,
-                      ):
+                       label="Solve"):
         
         self.internal_solver = None
         SOLVER[0] = self
@@ -356,3 +355,7 @@ class LearningSolver:
     def add(self, component):
         name = component.__class__.__name__
         self.components[name] = component
+
+    def __getstate__(self):
+        self.internal_solver = None
+        return self.__dict__
