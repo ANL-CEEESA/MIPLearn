@@ -133,17 +133,49 @@
         <li class="first-level active"><a href="#customization">Customization</a></li>
             <li class="second-level"><a href="#selecting-the-internal-mip-solver">Selecting the internal MIP solver</a></li>
                 
+            <li class="second-level"><a href="#selecting-solver-components">Selecting solver components</a></li>
+                
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
 
 <h1 id="customization">Customization</h1>
-<h3 id="selecting-the-internal-mip-solver">Selecting the internal MIP solver</h3>
+<h2 id="selecting-the-internal-mip-solver">Selecting the internal MIP solver</h2>
 <p>By default, <code>LearningSolver</code> uses <a href="https://www.gurobi.com/">Gurobi</a> as its internal MIP solver. Another supported solver is <a href="https://www.ibm.com/products/ilog-cplex-optimization-studio">IBM ILOG CPLEX</a>. To switch between solvers, use the <code>solver</code> constructor argument, as shown below. It is also possible to specify a time limit (in seconds) and a relative MIP gap tolerance.</p>
 <pre><code class="python">from miplearn import LearningSolver
 solver = LearningSolver(solver=&quot;cplex&quot;,
                         time_limit=300,
                         gap_tolerance=1e-3)
+</code></pre>
+
+<h2 id="selecting-solver-components">Selecting solver components</h2>
+<p><code>LearningSolver</code> is composed by a number of individual machine-learning components, each targeting a different part of the solution process. Each component can be individually enabled, disabled or customized. The following components are enabled by default:</p>
+<ul>
+<li><code>LazyConstraintComponent</code>: Predicts which lazy constraint to initially enforce.</li>
+<li><code>ObjectiveValueComponent</code>: Predicts the optimal value of the optimization problem, given the optimal solution to the LP relaxation.</li>
+<li><code>PrimalSolutionComponent</code>: Predicts optimal values for binary decision variables. In heuristic mode, this component fixes the variables to their predicted values. In exact mode, the predicted values are provided to the solver as a (partial) MIP start.</li>
+</ul>
+<p>The following components are also available, but not enabled by default:</p>
+<ul>
+<li><code>BranchPriorityComponent</code>: Predicts good branch priorities for decision variables.</li>
+</ul>
+<p>To create a <code>LearningSolver</code> with a specific set of components, the <code>components</code> constructor argument may be used, as the next example shows:</p>
+<pre><code class="python"># Create a solver without any components
+solver1 = LearningSolver(components=[])
+
+# Create a solver with only two components
+solver2 = LearningSolver(components=[
+    LazyConstraintComponent(...),
+    PrimalSolutionComponent(...),
+])
+</code></pre>
+
+<p>It is also possible to add components to an existing solver using the <code>solver.add</code> method, as shown below. If the solver already holds another component of that type, the new component will replace the previous one.</p>
+<pre><code class="python"># Create solver with default components
+solver = LearningSolver()
+
+# Replace the default LazyConstraintComponent by one with custom parameters 
+solver.add(LazyConstraintComponent(...))
 </code></pre></div>
         
         
