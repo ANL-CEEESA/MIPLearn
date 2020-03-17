@@ -246,7 +246,7 @@ class LearningSolver:
                 ):
         
         self.is_persistent = None
-        self.components = components
+        self.components = {}
         self.mode = mode
         self.internal_solver = None
         self.internal_solver_factory = solver
@@ -255,15 +255,14 @@ class LearningSolver:
         self.gap_tolerance = gap_tolerance
         self.tee = False
 
-        if self.components is not None:
-            assert isinstance(self.components, dict)
+        if components is not None:
+            for comp in components:
+                self.add(comp)
         else:
-            self.components = {
-                "ObjectiveValue": ObjectiveValueComponent(),
-                "PrimalSolution": PrimalSolutionComponent(),
-                "LazyConstraints": LazyConstraintsComponent(),
-            }
-            
+            self.add(ObjectiveValueComponent())
+            self.add(PrimalSolutionComponent())
+            self.add(LazyConstraintsComponent())
+
         assert self.mode in ["exact", "heuristic"]
         for component in self.components.values():
             component.mode = self.mode
@@ -353,3 +352,7 @@ class LearningSolver:
             return
         for component in self.components.values():
             component.fit(training_instances)
+
+    def add(self, component):
+        name = component.__class__.__name__
+        self.components[name] = component

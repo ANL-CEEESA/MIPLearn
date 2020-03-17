@@ -234,10 +234,10 @@ class KnapsackInstance(Instance):
         model = pe.ConcreteModel()
         items = range(len(self.weights))
         model.x = pe.Var(items, domain=pe.Binary)
-        model.OBJ = pe.Objective(rule=lambda m: sum(m.x[v] * self.prices[v] for v in items),
+        model.OBJ = pe.Objective(expr=sum(model.x[v] * self.prices[v] for v in items),
                                  sense=pe.maximize)
-        model.eq_capacity = pe.Constraint(rule=lambda m: sum(m.x[v] * self.weights[v]
-                                                             for v in items) <= self.capacity)
+        model.eq_capacity = pe.Constraint(expr=sum(model.x[v] * self.weights[v]
+                                                   for v in items) <= self.capacity)
         return model
 
     def get_instance_features(self):
