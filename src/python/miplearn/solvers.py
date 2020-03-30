@@ -41,8 +41,6 @@ class InternalSolver:
         self.var_name_to_var = {}
     
     def solve_lp(self, tee=False):
-        self.solver.set_instance(self.model)
-        
         # Relax domain
         from pyomo.core.base.set_types import Reals, Binary
         original_domains = []
@@ -273,6 +271,8 @@ class LearningSolver:
             solver = CPLEXSolver()
         elif self.internal_solver_factory == "gurobi":
             solver = GurobiSolver()
+        elif issubclass(self.internal_solver_factory, InternalSolver):
+            solver = self.internal_solver_factory()
         else:
             raise Exception("solver %s not supported" % self.internal_solver_factory)
         solver.set_threads(self.threads)
