@@ -2,13 +2,16 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from . import ObjectiveValueComponent, PrimalSolutionComponent, LazyConstraintsComponent
-import pyomo.environ as pe
-from pyomo.core import Var
-from copy import deepcopy
-from scipy.stats import randint
-from p_tqdm import p_map
 import logging
+from copy import deepcopy
+
+import pyomo.environ as pe
+from p_tqdm import p_map
+from pyomo.core import Var
+from scipy.stats import randint
+
+from . import ObjectiveValueComponent, PrimalSolutionComponent, LazyConstraintsComponent
+
 logger = logging.getLogger(__name__)
 
 
@@ -274,8 +277,9 @@ class LearningSolver:
             solver = CPLEXSolver()
         elif self.internal_solver_factory == "gurobi":
             solver = GurobiSolver()
-        elif issubclass(self.internal_solver_factory, InternalSolver):
+        elif callable(self.internal_solver_factory):
             solver = self.internal_solver_factory()
+            assert isinstance(solver, InternalSolver)
         else:
             raise Exception("solver %s not supported" % self.internal_solver_factory)
         solver.set_threads(self.threads)

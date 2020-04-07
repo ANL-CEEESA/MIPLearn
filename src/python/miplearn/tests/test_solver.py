@@ -4,7 +4,7 @@
 
 from miplearn import LearningSolver, BranchPriorityComponent
 from miplearn.problems.knapsack import KnapsackInstance
-import pickle, tempfile
+from miplearn.solvers import GurobiSolver
 
 
 def _get_instance():
@@ -18,7 +18,7 @@ def _get_instance():
 def test_solver():
     instance = _get_instance()
     for mode in ["exact", "heuristic"]:
-        for internal_solver in ["cplex", "gurobi"]:
+        for internal_solver in ["cplex", "gurobi", GurobiSolver]:
             solver = LearningSolver(time_limit=300,
                                     gap_tolerance=1e-3,
                                     threads=1,
