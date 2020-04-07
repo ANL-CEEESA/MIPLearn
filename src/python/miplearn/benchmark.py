@@ -28,8 +28,7 @@ class BenchmarkRunner:
         for (name, solver) in self.solvers.items():
             results = solver.parallel_solve(instances,
                                             n_jobs=n_jobs,
-                                            label="Solve (%s)" % name,
-                                            collect_training_data=False)
+                                            label="Solve (%s)" % name)
             for i in range(len(instances)):
                 self._push_result(results[i],
                                   solver=solver,

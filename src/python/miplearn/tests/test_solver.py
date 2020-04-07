@@ -2,6 +2,9 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import pickle
+import tempfile
+
 from miplearn import LearningSolver, BranchPriorityComponent
 from miplearn.problems.knapsack import KnapsackInstance
 from miplearn.solvers import GurobiSolver
