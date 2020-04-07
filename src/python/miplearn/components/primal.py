@@ -2,21 +2,18 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+from copy import deepcopy
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_curve
+from sklearn.model_selection import cross_val_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
 from .component import Component
 from ..extractors import *
 
-from abc import ABC, abstractmethod
-from copy import deepcopy
-import numpy as np
-from sklearn.pipeline import make_pipeline
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import cross_val_score
-from sklearn.metrics import roc_curve
-from sklearn.neighbors import KNeighborsClassifier
-from tqdm.auto import tqdm
-import pyomo.environ as pe
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -130,8 +127,6 @@ class PrimalSolutionComponent(Component):
     
     def before_solve(self, solver, instance, model):
         solution = self.predict(instance)
-        if solution is None:
-            return
         if self.mode == "heuristic":
             solver.internal_solver.fix(solution)
         else:
@@ -182,12 +177,10 @@ class PrimalSolutionComponent(Component):
                              (thresholds[k], fpr[k], tpr[k]))
                 self.thresholds[category, label] = thresholds[k]
                 
-                
     def predict(self, instance):
         x_test = VariableFeaturesExtractor().extract([instance])
         solution = {}
         var_split = Extractor.split_variables(instance)
-        all_none = True
         for category in var_split.keys():
             for (i, (var, index)) in enumerate(var_split[category]):
                 if var not in solution.keys():
@@ -201,8 +194,4 @@ class PrimalSolutionComponent(Component):
                                  (var, index, ws[i, 1], self.thresholds[category, label]))
                     if ws[i, 1] >= self.thresholds[category, label]:
                         solution[var][index] = label
-                        if all_none:
-                            all_none = False
-        if all_none:
-            return None
         return solution

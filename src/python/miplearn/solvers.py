@@ -37,9 +37,9 @@ class InternalSolver:
         self.all_vars = None
         self.instance = None
         self.is_warm_start_available = False
+        self.solver = None
         self.model = None
         self.sense = None
-        self.solver = None
         self.var_name_to_var = {}
 
     def solve_lp(self, tee=False):
@@ -74,6 +74,7 @@ class InternalSolver:
                 if var[index].fixed:
                     continue
                 var[index].value = None
+        self.is_warm_start_available = False
                 
     def get_solution(self):
         solution = {}
@@ -84,7 +85,6 @@ class InternalSolver:
         return solution   
     
     def set_warm_start(self, solution):
-        self.is_warm_start_available = True
         self.clear_values()
         count_total, count_fixed = 0, 0
         for var_name in solution:
@@ -94,6 +94,8 @@ class InternalSolver:
                 var[index].value = solution[var_name][index]
                 if solution[var_name][index] is not None:
                     count_fixed += 1
+        if count_fixed > 0:
+            self.is_warm_start_available = True
         logger.info("Setting start values for %d variables (out of %d)" %
                     (count_fixed, count_total))
                 
