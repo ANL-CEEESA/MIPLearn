@@ -3,14 +3,19 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
+from abc import ABC
 from copy import deepcopy
 
+import pyomo.core.kernel.objective
 import pyomo.environ as pe
 from p_tqdm import p_map
 from pyomo.core import Var
 from scipy.stats import randint
 
-from . import ObjectiveValueComponent, PrimalSolutionComponent, LazyConstraintsComponent
+from . import (ObjectiveValueComponent,
+               PrimalSolutionComponent,
+               LazyConstraintsComponent)
+from .instance import Instance
 
 logger = logging.getLogger(__name__)
 
@@ -35,51 +40,68 @@ def _parallel_solve(instance_idx):
     }
 
 
-class InternalSolver:
+class InternalSolver(ABC):
+    """
+    The MIP solver used internaly by LearningSolver.
+
+    Attributes
+    ----------
+    instance: miplearn.Instance
+        The MIPLearn instance currently loaded to the solver
+    model: pyomo.core.ConcreteModel
+        The Pyomo model currently loaded on the solver
+    """
+
     def __init__(self):
-        self.all_vars = None
         self.instance = None
-        self.is_warm_start_available = False
-        self.solver = None
         self.model = None
-        self.sense = None
-        self.var_name_to_var = {}
+        self._all_vars = None
+        self._bin_vars = None
+        self._is_warm_start_available = False
+        self._pyomo_solver = None
+        self._obj_sense = None
+        self._varname_to_var = {}
 
     def solve_lp(self, tee=False):
-        # Relax domain
-        from pyomo.core.base.set_types import Reals, Binary
-        original_domains = []
-        for (idx, var) in enumerate(self.model.component_data_objects(Var)):
-            original_domains += [var.domain]
+        """
+        Solves the LP relaxation of the currently loaded instance.
+
+        Parameters
+        ----------
+        tee: bool
+            If true, prints the solver log to the screen.
+
+        Returns
+        -------
+        dict
+            A dictionary of solver statistics containing the following keys:
+            "Optimal value".
+        """
+        for var in self._bin_vars:
             lb, ub = var.bounds
-            if var.domain == Binary:
-                var.domain = Reals
-                var.setlb(lb)
-                var.setub(ub)
-            self.solver.update_var(var)
-        
-        # Solve LP relaxation
-        results = self.solver.solve(tee=tee)
-        
-        # Restore domains
-        for (idx, var) in enumerate(self.model.component_data_objects(Var)):
-            if original_domains[idx] == Binary:
-                var.domain = original_domains[idx]
-            self.solver.update_var(var)
-            
+            var.setlb(lb)
+            var.setub(ub)
+            var.domain = pyomo.core.base.set_types.Reals
+            self._pyomo_solver.update_var(var)
+        results = self._pyomo_solver.solve(tee=tee)
+        for var in self._bin_vars:
+            var.domain = pyomo.core.base.set_types.Binary
+            self._pyomo_solver.update_var(var)
         return {
             "Optimal value": results["Problem"][0]["Lower bound"],
         }
             
-    def clear_values(self):
-        for var in self.model.component_objects(Var):
-            for index in var:
-                if var[index].fixed:
-                    continue
-                var[index].value = None
-        self.is_warm_start_available = False
-                
     def get_solution(self):
+        """
+        Returns current solution found by the solver.
+
+        If called after `solve`, returns the best primal solution found during
+        the search. If called after `solve_lp`, returns the optimal solution
+        to the LP relaxation.
+
+        The solution is a dictionary `sol`, where the optimal value of `var[idx]`
+        is given by `sol[var][idx]`.
+        """
         solution = {}
         for var in self.model.component_objects(Var):
             solution[str(var)] = {}
@@ -88,60 +110,120 @@ class InternalSolver:
         return solution   
     
     def set_warm_start(self, solution):
-        self.clear_values()
+        """
+        Sets the warm start to be used by the solver.
+
+        The solution should be a dictionary following the same format as the
+        one produced by `get_solution`. Only one warm start is currently
+        supported. Calling this function when a warm start already exists will
+        remove the previous warm start.
+        """
+        self.clear_warm_start()
         count_total, count_fixed = 0, 0
         for var_name in solution:
-            var = self.var_name_to_var[var_name]
+            var = self._varname_to_var[var_name]
             for index in solution[var_name]:
                 count_total += 1
                 var[index].value = solution[var_name][index]
                 if solution[var_name][index] is not None:
                     count_fixed += 1
         if count_fixed > 0:
-            self.is_warm_start_available = True
+            self._is_warm_start_available = True
         logger.info("Setting start values for %d variables (out of %d)" %
                     (count_fixed, count_total))
-                
-    def set_model(self, model):
-        from pyomo.core.kernel.objective import minimize
-        self.model = model
-        self.solver.set_instance(model)
-        if self.solver._objective.sense == minimize:
-            self.sense = "min"
-        else:
-            self.sense = "max"
-        self.var_name_to_var = {}
-        self.all_vars = []
-        for var in model.component_objects(Var):
-            self.var_name_to_var[var.name] = var
-            self.all_vars += [var[idx] for idx in var]
-            
-    def set_instance(self, instance):
+
+    def clear_warm_start(self):
+        """
+        Removes any existing warm start from the solver.
+        """
+        for var in self._all_vars:
+            if not var.fixed:
+                var.value = None
+        self._is_warm_start_available = False
+
+    def set_instance(self, instance, model=None):
+        """
+        Loads the given instance into the solver.
+
+        Parameters
+        ----------
+        instance: miplearn.Instance
+            The instance to be loaded.
+        model: pyomo.core.ConcreteModel
+            The corresponding Pyomo model. If not provided, it will be
+            generated by calling `instance.to_model()`.
+        """
+        if model is None:
+            model = instance.to_model()
+        assert isinstance(instance, Instance)
+        assert isinstance(model, pe.ConcreteModel)
         self.instance = instance
-        
+        self.model = model
+        self._pyomo_solver.set_instance(model)
+
+        # Update objective sense
+        self._obj_sense = "max"
+        if self._pyomo_solver._objective.sense == pyomo.core.kernel.objective.minimize:
+            self._obj_sense = "min"
+
+        # Update variables
+        self._all_vars = []
+        self._bin_vars = []
+        self._varname_to_var = {}
+        for var in model.component_objects(Var):
+            self._varname_to_var[var.name] = var
+            for idx in var:
+                self._all_vars += [var[idx]]
+                if var[idx].domain == pyomo.core.base.set_types.Binary:
+                    self._bin_vars += [var[idx]]
+
     def fix(self, solution):
+        """
+        Fixes the values of a subset of decision variables.
+
+        The values should be provided in the dictionary format generated by
+        `get_solution`. Missing values in the solution indicate variables
+        that should be left free.
+        """
         count_total, count_fixed = 0, 0
-        for var_name in solution:
-            for index in solution[var_name]:
-                var = self.var_name_to_var[var_name]
+        for varname in solution:
+            for index in solution[varname]:
+                var = self._varname_to_var[varname]
                 count_total += 1
-                if solution[var_name][index] is None:
+                if solution[varname][index] is None:
                     continue
                 count_fixed += 1
-                var[index].fix(solution[var_name][index])
-                self.solver.update_var(var[index])        
+                var[index].fix(solution[varname][index])
+                self._pyomo_solver.update_var(var[index])
         logger.info("Fixing values for %d variables (out of %d)" %
                     (count_fixed, count_total))
     
-    def add_constraint(self, cut):
-        self.solver.add_constraint(cut)
-    
+    def add_constraint(self, constraint):
+        """
+        Adds a single constraint to the model.
+        """
+        self._pyomo_solver.add_constraint(constraint)
+
     def solve(self, tee=False):
+        """
+        Solves the currently loaded instance.
+
+        Parameters
+        ----------
+        tee: bool
+            If true, prints the solver log to the screen.
+
+        Returns
+        -------
+        dict
+            A dictionary of solver statistics containing the following keys:
+            "Lower bound", "Upper bound", "Wallclock time", "Nodes" and "Sense".
+        """
         total_wallclock_time = 0
         self.instance.found_violations = []
         while True:
             logger.debug("Solving MIP...")
-            results = self.solver.solve(tee=tee)
+            results = self._pyomo_solver.solve(tee=tee)
             total_wallclock_time += results["Solver"][0]["Wallclock time"]
             if not hasattr(self.instance, "find_violations"):
                 break
@@ -154,37 +236,37 @@ class InternalSolver:
             for v in violations:
                 cut = self.instance.build_lazy_constraint(self.model, v)
                 self.add_constraint(cut)
-                
+
         return {
             "Lower bound": results["Problem"][0]["Lower bound"],
             "Upper bound": results["Problem"][0]["Upper bound"],
             "Wallclock time": total_wallclock_time,
             "Nodes": 1,
-            "Sense": self.sense,
+            "Sense": self._obj_sense,
         }
 
-    
+
 class GurobiSolver(InternalSolver):
     def __init__(self):
         super().__init__()
-        self.solver = pe.SolverFactory('gurobi_persistent')
-        self.solver.options["Seed"] = randint(low=0, high=1000).rvs()
+        self._pyomo_solver = pe.SolverFactory('gurobi_persistent')
+        self._pyomo_solver.options["Seed"] = randint(low=0, high=1000).rvs()
     
     def set_threads(self, threads):
-        self.solver.options["Threads"] = threads
+        self._pyomo_solver.options["Threads"] = threads
     
     def set_time_limit(self, time_limit):
-        self.solver.options["TimeLimit"] = time_limit
+        self._pyomo_solver.options["TimeLimit"] = time_limit
         
     def set_gap_tolerance(self, gap_tolerance):
-        self.solver.options["MIPGap"] = gap_tolerance
+        self._pyomo_solver.options["MIPGap"] = gap_tolerance
         
     def solve(self, tee=False):
         from gurobipy import GRB
 
         def cb(cb_model, cb_opt, cb_where):
             if cb_where == GRB.Callback.MIPSOL:
-                cb_opt.cbGetSolution(self.all_vars)
+                cb_opt.cbGetSolution(self._all_vars)
                 logger.debug("Finding violated constraints...")    
                 violations = self.instance.find_violations(cb_model)
                 self.instance.found_violations += violations
@@ -194,42 +276,58 @@ class GurobiSolver(InternalSolver):
                     cb_opt.cbLazy(cut)
 
         if hasattr(self.instance, "find_violations"):
-            self.solver.options["LazyConstraints"] = 1
-            self.solver.set_callback(cb)
+            self._pyomo_solver.options["LazyConstraints"] = 1
+            self._pyomo_solver.set_callback(cb)
             self.instance.found_violations = []
-        results = self.solver.solve(tee=tee, warmstart=self.is_warm_start_available)
-        self.solver.set_callback(None)
+        print(self._is_warm_start_available)
+        results = self._pyomo_solver.solve(tee=tee,
+                                           warmstart=self._is_warm_start_available)
+        self._pyomo_solver.set_callback(None)
+        node_count = int(self._pyomo_solver._solver_model.getAttr("NodeCount"))
         return {
             "Lower bound": results["Problem"][0]["Lower bound"],
             "Upper bound": results["Problem"][0]["Upper bound"],
             "Wallclock time": results["Solver"][0]["Wallclock time"],
-            "Nodes": self.solver._solver_model.getAttr("NodeCount"),
-            "Sense": self.sense,
+            "Nodes": max(1, node_count),
+            "Sense": self._obj_sense,
         }    
             
 
 class CPLEXSolver(InternalSolver):
-    def __init__(self):
+    def __init__(self,
+                 presolve=1,
+                 mip_display=4,
+                 threads=None,
+                 time_limit=None,
+                 gap_tolerance=None):
         super().__init__()
-        self.solver = pe.SolverFactory('cplex_persistent')
-        self.solver.options["randomseed"] = randint(low=0, high=1000).rvs()
+        self._pyomo_solver = pe.SolverFactory('cplex_persistent')
+        self._pyomo_solver.options["randomseed"] = randint(low=0, high=1000).rvs()
+        self._pyomo_solver.options["preprocessing_presolve"] = presolve
+        self._pyomo_solver.options["mip_display"] = mip_display
+        if threads is not None:
+            self.set_threads(threads)
+        if time_limit is not None:
+            self.set_time_limit(time_limit)
+        if gap_tolerance is not None:
+            self.set_gap_tolerance(gap_tolerance)
         
     def set_threads(self, threads):
-        self.solver.options["threads"] = threads
+        self._pyomo_solver.options["threads"] = threads
     
     def set_time_limit(self, time_limit):
-        self.solver.options["timelimit"] = time_limit
+        self._pyomo_solver.options["timelimit"] = time_limit
         
     def set_gap_tolerance(self, gap_tolerance):
-        self.solver.options["mip_tolerances_mipgap"] = gap_tolerance
+        self._pyomo_solver.options["mip_tolerances_mipgap"] = gap_tolerance
     
     def solve_lp(self, tee=False):
         import cplex
-        lp = self.solver._solver_model
+        lp = self._pyomo_solver._solver_model
         var_types = lp.variables.get_types()
         n_vars = len(var_types)
         lp.set_problem_type(cplex.Cplex.problem_type.LP)
-        results = self.solver.solve(tee=tee)
+        results = self._pyomo_solver.solve(tee=tee)
         lp.variables.set_types(zip(range(n_vars), var_types))
         return {
             "Optimal value": results["Problem"][0]["Lower bound"],
@@ -238,8 +336,9 @@ class CPLEXSolver(InternalSolver):
 
 class LearningSolver:
     """
-    Mixed-Integer Linear Programming (MIP) solver that extracts information from previous runs,
-    using Machine Learning methods, to accelerate the solution of new (yet unseen) instances.
+    Mixed-Integer Linear Programming (MIP) solver that extracts information
+    from previous runs, using Machine Learning methods, to accelerate the
+    solution of new (yet unseen) instances.
     """
 
     def __init__(self,
@@ -300,8 +399,7 @@ class LearningSolver:
 
         self.tee = tee
         self.internal_solver = self._create_internal_solver()
-        self.internal_solver.set_model(model)
-        self.internal_solver.set_instance(instance)
+        self.internal_solver.set_instance(instance, model=model)
 
         logger.debug("Solving LP relaxation...")
         results = self.internal_solver.solve_lp(tee=tee)
