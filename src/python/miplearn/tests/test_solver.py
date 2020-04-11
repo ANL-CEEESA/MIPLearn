@@ -34,7 +34,8 @@ def test_internal_solver():
             }
         })
 
-        stats = solver.solve()
+        stats = solver.solve(tee=True)
+        assert len(stats["Log"]) > 100
         assert stats["Lower bound"] == 1183.0
         assert stats["Upper bound"] == 1183.0
         assert stats["Sense"] == "max"
