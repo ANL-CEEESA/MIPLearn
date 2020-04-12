@@ -1,13 +1,25 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+from io import StringIO
 
 import pyomo.environ as pe
+from miplearn.solvers import RedirectOutput
 from miplearn.solvers.cplex import CPLEXSolver
 from miplearn.solvers.gurobi import GurobiSolver
 
 from . import _get_instance
 from ...problems.knapsack import ChallengeA
+
+
+def test_redirect_output():
+    import sys
+    original_stdout = sys.stdout
+    io = StringIO()
+    with RedirectOutput([io]):
+        print("Hello world")
+    assert sys.stdout == original_stdout
+    assert io.getvalue() == "Hello world\n"
 
 
 def test_internal_solver_warm_starts():
