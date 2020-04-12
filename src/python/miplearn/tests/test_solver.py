@@ -19,7 +19,7 @@ def _get_instance():
     )
 
 
-def test_internal_solver():
+def test_internal_solver_warm_starts():
     for solver in [GurobiSolver(), CPLEXSolver(presolve=False)]:
         instance = _get_instance()
         model = instance.to_model()
@@ -29,11 +29,31 @@ def test_internal_solver():
             "x": {
                 0: 1.0,
                 1: 0.0,
+                2: 0.0,
+                3: 1.0,
+            }
+        })
+        stats = solver.solve(tee=True)
+        assert stats["Warm start value"] == 725.0
+
+        solver.set_warm_start({
+            "x": {
+                0: 1.0,
+                1: 1.0,
                 2: 1.0,
                 3: 1.0,
             }
         })
+        stats = solver.solve(tee=True)
+        assert stats["Warm start value"] is None
 
+
+def test_internal_solver():
+    for solver in [GurobiSolver(), CPLEXSolver(presolve=False)]:
+        instance = _get_instance()
+        model = instance.to_model()
+
+        solver.set_instance(instance, model)
         stats = solver.solve(tee=True)
         assert len(stats["Log"]) > 100
         assert stats["Lower bound"] == 1183.0

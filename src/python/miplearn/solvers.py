@@ -3,8 +3,9 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
+import re
 import sys
-from abc import ABC
+from abc import ABC, abstractmethod
 from copy import deepcopy
 from io import StringIO
 
@@ -246,8 +247,8 @@ class InternalSolver(ABC):
         -------
         dict
             A dictionary of solver statistics containing the following keys:
-            "Lower bound", "Upper bound", "Wallclock time", "Nodes", "Sense"
-            and "Log".
+            "Lower bound", "Upper bound", "Wallclock time", "Nodes", "Sense",
+             "Log" and "Warm start value".
         """
         total_wallclock_time = 0
         streams = [StringIO()]
@@ -257,7 +258,8 @@ class InternalSolver(ABC):
         while True:
             logger.debug("Solving MIP...")
             with RedirectOutput(streams):
-                results = self._pyomo_solver.solve(tee=True)
+                results = self._pyomo_solver.solve(tee=True,
+                                                   warmstart=self._is_warm_start_available)
             total_wallclock_time += results["Solver"][0]["Wallclock time"]
             if not hasattr(self.instance, "find_violations"):
                 break
@@ -271,14 +273,34 @@ class InternalSolver(ABC):
                 cut = self.instance.build_lazy_constraint(self.model, v)
                 self.add_constraint(cut)
 
+        log = streams[0].getvalue()
         return {
             "Lower bound": results["Problem"][0]["Lower bound"],
             "Upper bound": results["Problem"][0]["Upper bound"],
             "Wallclock time": total_wallclock_time,
             "Nodes": 1,
             "Sense": self._obj_sense,
-            "Log": streams[0].getvalue()
+            "Log": log,
+            "Warm start value": self.extract_warm_start_value(log),
         }
+
+    def extract_warm_start_value(self, log):
+        """
+        Extracts and returns the objective value of the user-provided MIP start
+        from the provided solver log. If more than one value is found, returns
+        the last one. If no value is present in the logs, returns None.
+        """
+        ws_value = None
+        for line in log.splitlines():
+            matches = re.findall(self._get_warm_start_regexp(), line)
+            if len(matches) == 0:
+                continue
+            ws_value = float(matches[0])
+        return ws_value
+
+    @abstractmethod
+    def _get_warm_start_regexp(self):
+        pass
 
 
 class GurobiSolver(InternalSolver):
@@ -324,15 +346,21 @@ class GurobiSolver(InternalSolver):
                                                warmstart=self._is_warm_start_available)
         self._pyomo_solver.set_callback(None)
         node_count = int(self._pyomo_solver._solver_model.getAttr("NodeCount"))
+
+        log = streams[0].getvalue()
         return {
             "Lower bound": results["Problem"][0]["Lower bound"],
             "Upper bound": results["Problem"][0]["Upper bound"],
             "Wallclock time": results["Solver"][0]["Wallclock time"],
             "Nodes": max(1, node_count),
             "Sense": self._obj_sense,
-            "Log": streams[0].getvalue(),
-        }    
-            
+            "Log": log,
+            "Warm start value": self.extract_warm_start_value(log),
+        }
+
+    def _get_warm_start_regexp(self):
+        return "MIP start with objective ([0-9.e+-]*)"
+
 
 class CPLEXSolver(InternalSolver):
     def __init__(self,
@@ -373,7 +401,10 @@ class CPLEXSolver(InternalSolver):
         return {
             "Optimal value": results["Problem"][0]["Lower bound"],
         }
-        
+
+    def _get_warm_start_regexp(self):
+        return "MIP start .* with objective ([0-9.e+-]*)\\."
+
 
 class LearningSolver:
     """
