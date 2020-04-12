@@ -31,9 +31,6 @@ def _parallel_solve(instance_idx):
         "Results": results,
         "Solution": instance.solution,
         "LP solution": instance.lp_solution,
-        "LP value": instance.lp_value,
-        "Upper bound": instance.upper_bound,
-        "Lower bound": instance.lower_bound,
         "Violations": instance.found_violations,
     }
 
@@ -97,6 +94,45 @@ class LearningSolver:
               model=None,
               tee=False,
               relaxation_only=False):
+        """
+        Solves the given instance. If trained machine-learning models are
+        available, they will be used to accelerate the solution process.
+
+        This method modifies the instance object. Specifically, the following
+        properties are set:
+            - instance.lp_solution
+            - instance.lp_value
+            - instance.lower_bound
+            - instance.upper_bound
+            - instance.solution
+            - instance.found_violations
+            - instance.solver_log
+        Additional solver components may set additional properties. Please
+        see their documentation for more details.
+
+        Parameters
+        ----------
+        instance: miplearn.Instance
+            The instance to be solved
+        model: pyomo.core.ConcreteModel
+            The corresponding Pyomo model. If not provided, it will be created.
+        tee: bool
+            If true, prints solver log to screen.
+        relaxation_only: bool
+            If true, solve only the root LP relaxation.
+
+        Returns
+        -------
+        dict
+            A dictionary of solver statistics containing at least the following
+            keys: "Lower bound", "Upper bound", "Wallclock time", "Nodes",
+            "Sense", "Log", "Warm start value" and "LP value".
+
+            Additional components may generate additional keys. For example,
+            ObjectiveValueComponent adds the keys "Predicted LB" and
+            "Predicted UB". See the documentation of each component for more
+            details.
+        """
 
         if model is None:
             model = instance.to_model()
@@ -118,10 +154,12 @@ class LearningSolver:
             return results
 
         results = self.internal_solver.solve(tee=tee)
+        results["LP value"] = instance.lp_value
 
         # Read MIP solution and bounds
         instance.lower_bound = results["Lower bound"]
         instance.upper_bound = results["Upper bound"]
+        instance.solver_log = results["Log"]
         instance.solution = self.internal_solver.get_solution()
 
         logger.debug("Calling after_solve callbacks...")
@@ -147,10 +185,11 @@ class LearningSolver:
         for (idx, r) in enumerate(p_map_results):
             instances[idx].solution = r["Solution"]
             instances[idx].lp_solution = r["LP solution"]
-            instances[idx].lp_value = r["LP value"]
-            instances[idx].lower_bound = r["Lower bound"]
-            instances[idx].upper_bound = r["Upper bound"]
+            instances[idx].lp_value = r["Results"]["LP value"]
+            instances[idx].lower_bound = r["Results"]["Lower bound"]
+            instances[idx].upper_bound = r["Results"]["Upper bound"]
             instances[idx].found_violations = r["Violations"]
+            instances[idx].solver_log = r["Results"]["Log"]
 
         return results
 
