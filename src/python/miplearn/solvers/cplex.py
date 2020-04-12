@@ -1,15 +1,14 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-import re
 
 import pyomo.environ as pe
 from scipy.stats import randint
 
-from .internal import InternalSolver
+from .pyomo import PyomoSolver
 
 
-class CPLEXSolver(InternalSolver):
+class CPLEXSolver(PyomoSolver):
     def __init__(self, options=None):
         """
         Creates a new CPLEXSolver.

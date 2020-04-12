@@ -8,13 +8,14 @@ from io import StringIO
 
 import pyomo.environ as pe
 from miplearn.solvers import RedirectOutput
-from miplearn.solvers.internal import InternalSolver
 from scipy.stats import randint
+
+from .pyomo import PyomoSolver
 
 logger = logging.getLogger(__name__)
 
 
-class GurobiSolver(InternalSolver):
+class GurobiSolver(PyomoSolver):
     def __init__(self,
                  use_lazy_callbacks=True,
                  options=None):

@@ -139,7 +139,7 @@ class LearningSolver:
 
         self.tee = tee
         self.internal_solver = self._create_internal_solver()
-        self.internal_solver.set_instance(instance, model=model)
+        self.internal_solver.set_instance(instance, model)
 
         logger.debug("Solving LP relaxation...")
         results = self.internal_solver.solve_lp(tee=tee)
