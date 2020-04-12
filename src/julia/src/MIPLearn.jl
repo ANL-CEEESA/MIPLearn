@@ -32,6 +32,7 @@ end
     function set_warm_start(self, solution)
         for (basename, subsolution) in solution
             for (idx, value) in subsolution
+                value != nothing || continue
                 var = self.basename_idx_to_var[basename, idx]
                 JuMP.set_start_value(var, value)
             end
@@ -45,6 +46,7 @@ end
     function fix(self, solution)
         for (basename, subsolution) in solution
             for (idx, value) in subsolution
+                value != nothing || continue
                 var = self.basename_idx_to_var[basename, idx]
                 JuMP.fix(var, value, force=true)
             end
