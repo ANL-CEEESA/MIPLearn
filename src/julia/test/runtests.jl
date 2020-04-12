@@ -9,6 +9,6 @@ logging = pyimport("logging")
 logging.basicConfig(format="%(levelname)10s %(message)s", level=logging.DEBUG)
 
 @testset "MIPLearn" begin
-    include("jump_solver.jl")
-    include("learning_solver.jl")
+    include("jump_solver_test.jl")
+    include("learning_solver_test.jl")
 end
