@@ -5,8 +5,11 @@
 
 MIPLearn is mainly written in Python, with some components written in Julia. For this
 reason, both Python 3.6+ and Julia 1.3+ are required. A mixed-integer solver is also required, and
-its Python bindings must be properly installed. Currently supported solvers include CPLEX and
-Gurobi. To install MIPLearn, run the following commands: 
+its Python bindings must be properly installed. Supported solvers are CPLEX and
+Gurobi. Optimization problems currently need to be specified in the Pyomo modeling language.
+A JuMP interface to the package is currently under development.
+
+To install MIPLearn, run the following commands: 
 
 ```bash
 git clone https://github.com/ANL-CEEESA/MIPLearn.git
