@@ -26,6 +26,12 @@ git-tree-sha1 = "62847acab40e6855a9b5905ccb99c2b5cf6b3ebb"
 uuid = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 version = "0.2.0"
 
+[[CPLEX]]
+deps = ["Libdl", "LinearAlgebra", "MathOptInterface", "MathProgBase", "SparseArrays"]
+git-tree-sha1 = "f8dac98fbff2f7d7fe58fa1fcdbefaaaf29a1f59"
+uuid = "a076750e-1247-5638-91d2-ce28b192dca0"
+version = "0.6.5"
+
 [[CPLEXW]]
 deps = ["CEnum", "Libdl"]
 git-tree-sha1 = "ebad297748ee2a12cc13b5fb07f9bbfa8a900494"
