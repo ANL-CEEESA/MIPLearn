@@ -7,6 +7,7 @@ from miplearn.solvers.cplex import CPLEXSolver
 from miplearn.solvers.gurobi import GurobiSolver
 
 from . import _get_instance
+from ...problems.knapsack import ChallengeA
 
 
 def test_internal_solver_warm_starts():
@@ -72,3 +73,13 @@ def test_internal_solver():
         solver.solve_lp()
         assert model.x[0].value == 0.5
 
+
+def test_node_count():
+    for solver in [GurobiSolver(),
+                   GurobiSolver(use_lazy_callbacks=False),
+                   CPLEXSolver()]:
+        challenge = ChallengeA()
+        solver.set_time_limit(1)
+        solver.set_instance(challenge.test_instances[0])
+        stats = solver.solve(tee=True)
+        assert stats["Nodes"] > 1

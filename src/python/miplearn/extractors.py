@@ -2,12 +2,12 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-import numpy as np
-from abc import ABC, abstractmethod
-from pyomo.core import Var
-from tqdm.auto import tqdm, trange
-from p_tqdm import p_map
 import logging
+from abc import ABC, abstractmethod
+
+import numpy as np
+from tqdm import tqdm
+
 logger = logging.getLogger(__name__)
 
 

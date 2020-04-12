@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class GurobiSolver(InternalSolver):
     def __init__(self,
-                 use_lazy_callbacks=False,
+                 use_lazy_callbacks=True,
                  options=None):
         """
         Creates a new GurobiSolver.
@@ -70,20 +70,25 @@ class GurobiSolver(InternalSolver):
             results = self._pyomo_solver.solve(tee=True,
                                                warmstart=self._is_warm_start_available)
         self._pyomo_solver.set_callback(None)
-        node_count = int(self._pyomo_solver._solver_model.getAttr("NodeCount"))
         log = streams[0].getvalue()
         return {
             "Lower bound": results["Problem"][0]["Lower bound"],
             "Upper bound": results["Problem"][0]["Upper bound"],
             "Wallclock time": results["Solver"][0]["Wallclock time"],
-            "Nodes": max(1, node_count),
+            "Nodes": self._extract_node_count(log),
             "Sense": self._obj_sense,
             "Log": log,
-            "Warm start value": self.extract_warm_start_value(log),
+            "Warm start value": self._extract_warm_start_value(log),
         }
+
+    def _extract_node_count(self, log):
+        return max(1, int(self._pyomo_solver._solver_model.getAttr("NodeCount")))
 
     def _get_warm_start_regexp(self):
         return "MIP start with objective ([0-9.e+-]*)"
+
+    def _get_node_count_regexp(self):
+        return None
 
     def _get_threads_option_name(self):
         return "Threads"
@@ -91,5 +96,9 @@ class GurobiSolver(InternalSolver):
     def _get_time_limit_option_name(self):
         return "TimeLimit"
 
+    def _get_node_limit_option_name(self):
+        return "NodeLimit"
+
     def _get_gap_tolerance_option_name(self):
         return "MIPGap"
+

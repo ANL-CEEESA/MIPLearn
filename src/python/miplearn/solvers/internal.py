@@ -208,6 +208,7 @@ class InternalSolver(ABC):
             with RedirectOutput(streams):
                 results = self._pyomo_solver.solve(tee=True,
                                                    warmstart=self._is_warm_start_available)
+                print(results)
             total_wallclock_time += results["Solver"][0]["Wallclock time"]
             if not hasattr(self.instance, "find_violations"):
                 break
@@ -226,25 +227,40 @@ class InternalSolver(ABC):
             "Lower bound": results["Problem"][0]["Lower bound"],
             "Upper bound": results["Problem"][0]["Upper bound"],
             "Wallclock time": total_wallclock_time,
-            "Nodes": 1,
+            "Nodes": self._extract_node_count(log),
             "Sense": self._obj_sense,
             "Log": log,
-            "Warm start value": self.extract_warm_start_value(log),
+            "Warm start value": self._extract_warm_start_value(log),
         }
 
-    def extract_warm_start_value(self, log):
+    @staticmethod
+    def __extract(log, regexp, default=None):
+        value = default
+        for line in log.splitlines():
+            matches = re.findall(regexp, line)
+            if len(matches) == 0:
+                continue
+            value = matches[0]
+        return value
+
+    def _extract_warm_start_value(self, log):
         """
         Extracts and returns the objective value of the user-provided MIP start
         from the provided solver log. If more than one value is found, returns
         the last one. If no value is present in the logs, returns None.
         """
-        ws_value = None
-        for line in log.splitlines():
-            matches = re.findall(self._get_warm_start_regexp(), line)
-            if len(matches) == 0:
-                continue
-            ws_value = float(matches[0])
-        return ws_value
+        value = self.__extract(log, self._get_warm_start_regexp())
+        if value is not None:
+            value = float(value)
+        return value
+
+    def _extract_node_count(self, log):
+        """
+        Extracts and returns the number of explored branch-and-bound nodes.
+        """
+        return int(self.__extract(log,
+                                  self._get_node_count_regexp(),
+                                  default=1))
 
     def set_threads(self, threads):
         key = self._get_threads_option_name()
@@ -254,12 +270,20 @@ class InternalSolver(ABC):
         key = self._get_time_limit_option_name()
         self._pyomo_solver.options[key] = time_limit
 
+    def set_node_limit(self, node_limit):
+        key = self._get_node_limit_option_name()
+        self._pyomo_solver.options[key] = node_limit
+
     def set_gap_tolerance(self, gap_tolerance):
         key = self._get_gap_tolerance_option_name()
         self._pyomo_solver.options[key] = gap_tolerance
 
     @abstractmethod
     def _get_warm_start_regexp(self):
+        pass
+
+    @abstractmethod
+    def _get_node_count_regexp(self):
         pass
 
     @abstractmethod
@@ -271,7 +295,12 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
+    def _get_node_limit_option_name(self):
+        pass
+
+    @abstractmethod
     def _get_gap_tolerance_option_name(self):
         pass
+
 
 

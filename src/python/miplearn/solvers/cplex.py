@@ -1,6 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+import re
 
 import pyomo.environ as pe
 from scipy.stats import randint
@@ -27,15 +28,6 @@ class CPLEXSolver(InternalSolver):
             for (key, value) in options.items():
                 self._pyomo_solver.options[key] = value
 
-    def set_threads(self, threads):
-        self._pyomo_solver.options["threads"] = threads
-
-    def set_time_limit(self, time_limit):
-        self._pyomo_solver.options["timelimit"] = time_limit
-
-    def set_gap_tolerance(self, gap_tolerance):
-        self._pyomo_solver.options["mip_tolerances_mipgap"] = gap_tolerance
-
     def solve_lp(self, tee=False):
         import cplex
         lp = self._pyomo_solver._solver_model
@@ -48,8 +40,20 @@ class CPLEXSolver(InternalSolver):
             "Optimal value": results["Problem"][0]["Lower bound"],
         }
 
+    def set_threads(self, threads):
+        self._pyomo_solver.options["threads"] = threads
+
+    def set_time_limit(self, time_limit):
+        self._pyomo_solver.options["timelimit"] = time_limit
+
+    def set_gap_tolerance(self, gap_tolerance):
+        self._pyomo_solver.options["mip_tolerances_mipgap"] = gap_tolerance
+
     def _get_warm_start_regexp(self):
         return "MIP start .* with objective ([0-9.e+-]*)\\."
+
+    def _get_node_count_regexp(self):
+        return "^[ *] *([0-9]+)"
 
     def _get_threads_option_name(self):
         return "threads"
@@ -57,5 +61,10 @@ class CPLEXSolver(InternalSolver):
     def _get_time_limit_option_name(self):
         return "timelimit"
 
+    def _get_node_limit_option_name(self):
+        return "mip_limits_nodes"
+
     def _get_gap_tolerance_option_name(self):
         return "mip_gap_tolerances_mipgap"
+
+
