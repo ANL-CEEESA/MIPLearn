@@ -208,7 +208,6 @@ class InternalSolver(ABC):
             with RedirectOutput(streams):
                 results = self._pyomo_solver.solve(tee=True,
                                                    warmstart=self._is_warm_start_available)
-                print(results)
             total_wallclock_time += results["Solver"][0]["Wallclock time"]
             if not hasattr(self.instance, "find_violations"):
                 break
