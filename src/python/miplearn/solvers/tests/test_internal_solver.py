@@ -50,6 +50,18 @@ def test_internal_solver_warm_starts():
         stats = solver.solve(tee=True)
         assert stats["Warm start value"] is None
 
+        solver.fix({
+            "x": {
+                0: 1.0,
+                1: 0.0,
+                2: 0.0,
+                3: 1.0,
+            }
+        })
+        stats = solver.solve(tee=True)
+        assert stats["Lower bound"] == 725.0
+        assert stats["Upper bound"] == 725.0
+
 
 def test_internal_solver():
     for solver in [GurobiSolver(), CPLEXSolver()]:
