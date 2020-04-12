@@ -9,7 +9,7 @@ jobs:
       run: |
         rm -rf ~/.conda/envs/miplearn-test
         yes | conda create --name miplearn-test python=3.6
-        julia --project=src/julia -e 'using Pkg; Pkg.instantiate()'
+        JULIA_DEPOT_PATH=/home/axavier/.julia:/opt/julia-1.3.0/depot julia --project=src/julia -e 'using Pkg; Pkg.instantiate()'
         (cd /opt/gurobi900/linux64 && ~/.conda/envs/miplearn-test/bin/python setup.py install)
         (cd /opt/cplex-12.8/cplex/python/3.6/x86-64_linux && ~/.conda/envs/miplearn-test/bin/python setup.py install)
         ~/.conda/envs/miplearn-test/bin/pip install -r src/python/requirements.txt
