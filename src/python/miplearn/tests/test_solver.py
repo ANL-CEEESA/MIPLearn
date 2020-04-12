@@ -20,7 +20,7 @@ def _get_instance():
 
 
 def test_internal_solver_warm_starts():
-    for solver in [GurobiSolver(), CPLEXSolver(presolve=False)]:
+    for solver in [GurobiSolver(), CPLEXSolver()]:
         instance = _get_instance()
         model = instance.to_model()
 
@@ -49,7 +49,7 @@ def test_internal_solver_warm_starts():
 
 
 def test_internal_solver():
-    for solver in [GurobiSolver(), CPLEXSolver(presolve=False)]:
+    for solver in [GurobiSolver(), CPLEXSolver()]:
         instance = _get_instance()
         model = instance.to_model()
 

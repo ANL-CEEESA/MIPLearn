@@ -8,6 +8,7 @@ import sys
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from io import StringIO
+from typing import Optional, List
 
 import pyomo.core.kernel.objective
 import pyomo.environ as pe
@@ -24,8 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 # Global memory for multiprocessing
-SOLVER = [None]
-INSTANCES = [None]
+SOLVER = [None]  # type: List[Optional[LearningSolver]]
+INSTANCES = [None]  # type: List[Optional[dict]]
 
 
 def _parallel_solve(instance_idx):
@@ -298,14 +299,39 @@ class InternalSolver(ABC):
             ws_value = float(matches[0])
         return ws_value
 
+    def set_threads(self, threads):
+        key = self._get_threads_option_name()
+        self._pyomo_solver.options[key] = threads
+
+    def set_time_limit(self, time_limit):
+        key = self._get_time_limit_option_name()
+        self._pyomo_solver.options[key] = time_limit
+
+    def set_gap_tolerance(self, gap_tolerance):
+        key = self._get_gap_tolerance_option_name()
+        self._pyomo_solver.options[key] = gap_tolerance
+
     @abstractmethod
     def _get_warm_start_regexp(self):
+        pass
+
+    @abstractmethod
+    def _get_threads_option_name(self):
+        pass
+
+    @abstractmethod
+    def _get_time_limit_option_name(self):
+        pass
+
+    @abstractmethod
+    def _get_gap_tolerance_option_name(self):
         pass
 
 
 class GurobiSolver(InternalSolver):
     def __init__(self,
-                 use_lazy_callbacks=False):
+                 use_lazy_callbacks=False,
+                 options=None):
         """
         Creates a new GurobiSolver.
 
@@ -314,21 +340,18 @@ class GurobiSolver(InternalSolver):
         use_lazy_callbacks: bool
             If true, lazy constraints will be enforced via lazy callbacks.
             Otherwise, they will be enforced via a simple solve-check loop.
+        options: dict
+            Dictionary of options to pass to the Pyomo solver. For example,
+            {"Threads": 4} to set the number of threads.
         """
         super().__init__()
         self._use_lazy_callbacks = use_lazy_callbacks
         self._pyomo_solver = pe.SolverFactory('gurobi_persistent')
         self._pyomo_solver.options["Seed"] = randint(low=0, high=1000).rvs()
+        if options is not None:
+            for (key, value) in options.items():
+                self._pyomo_solver.options[key] = value
     
-    def set_threads(self, threads):
-        self._pyomo_solver.options["Threads"] = threads
-    
-    def set_time_limit(self, time_limit):
-        self._pyomo_solver.options["TimeLimit"] = time_limit
-        
-    def set_gap_tolerance(self, gap_tolerance):
-        self._pyomo_solver.options["MIPGap"] = gap_tolerance
-        
     def solve(self, tee=False):
         if self._use_lazy_callbacks:
             return self._solve_with_callbacks(tee)
@@ -376,26 +399,35 @@ class GurobiSolver(InternalSolver):
     def _get_warm_start_regexp(self):
         return "MIP start with objective ([0-9.e+-]*)"
 
+    def _get_threads_option_name(self):
+        return "Threads"
+
+    def _get_time_limit_option_name(self):
+        return "TimeLimit"
+
+    def _get_gap_tolerance_option_name(self):
+        return "MIPGap"
+
 
 class CPLEXSolver(InternalSolver):
-    def __init__(self,
-                 presolve=1,
-                 mip_display=4,
-                 threads=None,
-                 time_limit=None,
-                 gap_tolerance=None):
+    def __init__(self, options=None):
+        """
+        Creates a new CPLEXSolver.
+
+        Parameters
+        ----------
+        options: dict
+            Dictionary of options to pass to the Pyomo solver. For example,
+            {"mip_display": 5} to increase the log verbosity.
+        """
         super().__init__()
         self._pyomo_solver = pe.SolverFactory('cplex_persistent')
         self._pyomo_solver.options["randomseed"] = randint(low=0, high=1000).rvs()
-        self._pyomo_solver.options["preprocessing_presolve"] = presolve
-        self._pyomo_solver.options["mip_display"] = mip_display
-        if threads is not None:
-            self.set_threads(threads)
-        if time_limit is not None:
-            self.set_time_limit(time_limit)
-        if gap_tolerance is not None:
-            self.set_gap_tolerance(gap_tolerance)
-        
+        self._pyomo_solver.options["mip_display"] = 4
+        if options is not None:
+            for (key, value) in options.items():
+                self._pyomo_solver.options[key] = value
+
     def set_threads(self, threads):
         self._pyomo_solver.options["threads"] = threads
     
@@ -419,6 +451,15 @@ class CPLEXSolver(InternalSolver):
 
     def _get_warm_start_regexp(self):
         return "MIP start .* with objective ([0-9.e+-]*)\\."
+
+    def _get_threads_option_name(self):
+        return "threads"
+
+    def _get_time_limit_option_name(self):
+        return "timelimit"
+
+    def _get_gap_tolerance_option_name(self):
+        return "mip_gap_tolerances_mipgap"
 
 
 class LearningSolver:
