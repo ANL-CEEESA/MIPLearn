@@ -5,15 +5,20 @@
 from .extractors import (SolutionExtractor,
                          InstanceFeaturesExtractor,
                          ObjectiveValueExtractor,
-                         VariableFeaturesExtractor,
-                        )
+                         VariableFeaturesExtractor)
+
 from .components.component import Component
 from .components.objective import ObjectiveValueComponent
 from .components.lazy import LazyConstraintsComponent
 from .components.primal import (PrimalSolutionComponent,
-                                AdaptivePredictor,
-                               )
+                                AdaptivePredictor)
 from .components.branching import BranchPriorityComponent
+
 from .benchmark import BenchmarkRunner
+
 from .instance import Instance
-from .solvers import LearningSolver
+
+from .solvers.learning import LearningSolver
+from .solvers.cplex import CPLEXSolver
+from .solvers.gurobi import GurobiSolver
+from .solvers.internal import InternalSolver

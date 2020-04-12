@@ -2,10 +2,13 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from .solvers import LearningSolver
 from copy import deepcopy
+
 import pandas as pd
 from tqdm.auto import tqdm
+
+from .solvers.learning import LearningSolver
+
 
 class BenchmarkRunner:
     def __init__(self, solvers):

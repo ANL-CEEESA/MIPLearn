@@ -6,9 +6,11 @@ import pickle
 import tempfile
 
 import pyomo.environ as pe
-from miplearn import LearningSolver, BranchPriorityComponent
+from miplearn import BranchPriorityComponent
+from miplearn import LearningSolver
 from miplearn.problems.knapsack import KnapsackInstance
-from miplearn.solvers import GurobiSolver, CPLEXSolver
+from miplearn.solvers.cplex import CPLEXSolver
+from miplearn.solvers.gurobi import GurobiSolver
 
 
 def _get_instance():
