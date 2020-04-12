@@ -304,8 +304,19 @@ class InternalSolver(ABC):
 
 
 class GurobiSolver(InternalSolver):
-    def __init__(self):
+    def __init__(self,
+                 use_lazy_callbacks=False):
+        """
+        Creates a new GurobiSolver.
+
+        Parameters
+        ----------
+        use_lazy_callbacks: bool
+            If true, lazy constraints will be enforced via lazy callbacks.
+            Otherwise, they will be enforced via a simple solve-check loop.
+        """
         super().__init__()
+        self._use_lazy_callbacks = use_lazy_callbacks
         self._pyomo_solver = pe.SolverFactory('gurobi_persistent')
         self._pyomo_solver.options["Seed"] = randint(low=0, high=1000).rvs()
     
@@ -319,12 +330,18 @@ class GurobiSolver(InternalSolver):
         self._pyomo_solver.options["MIPGap"] = gap_tolerance
         
     def solve(self, tee=False):
+        if self._use_lazy_callbacks:
+            return self._solve_with_callbacks(tee)
+        else:
+            return super().solve(tee)
+
+    def _solve_with_callbacks(self, tee):
         from gurobipy import GRB
 
         def cb(cb_model, cb_opt, cb_where):
             if cb_where == GRB.Callback.MIPSOL:
                 cb_opt.cbGetSolution(self._all_vars)
-                logger.debug("Finding violated constraints...")    
+                logger.debug("Finding violated constraints...")
                 violations = self.instance.find_violations(cb_model)
                 self.instance.found_violations += violations
                 logger.debug("    %d violations found" % len(violations))
@@ -337,7 +354,6 @@ class GurobiSolver(InternalSolver):
             self._pyomo_solver.set_callback(cb)
             self.instance.found_violations = []
         print(self._is_warm_start_available)
-
         streams = [StringIO()]
         if tee:
             streams += [sys.stdout]
@@ -346,7 +362,6 @@ class GurobiSolver(InternalSolver):
                                                warmstart=self._is_warm_start_available)
         self._pyomo_solver.set_callback(None)
         node_count = int(self._pyomo_solver._solver_model.getAttr("NodeCount"))
-
         log = streams[0].getvalue()
         return {
             "Lower bound": results["Problem"][0]["Lower bound"],
