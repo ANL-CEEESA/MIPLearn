@@ -3,10 +3,8 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 using Test
-using MIPLearn
-using CPLEX
-using Gurobi
 
 @testset "MIPLearn" begin
     include("jump_solver.jl")
+    #include("learning_solver.jl")
 end

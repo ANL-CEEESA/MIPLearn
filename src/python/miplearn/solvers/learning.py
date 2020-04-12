@@ -79,9 +79,8 @@ class LearningSolver:
             solver = GurobiSolver()
         elif callable(self.internal_solver_factory):
             solver = self.internal_solver_factory()
-            assert isinstance(solver, InternalSolver)
         else:
-            raise Exception("solver %s not supported" % self.internal_solver_factory)
+            solver = self.internal_solver_factory
         solver.set_threads(self.threads)
         if self.time_limit is not None:
             solver.set_time_limit(self.time_limit)

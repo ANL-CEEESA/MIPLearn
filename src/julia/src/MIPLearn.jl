@@ -15,36 +15,49 @@ Instance = miplearn.Instance
 LearningSolver = miplearn.LearningSolver
 InternalSolver = miplearn.solvers.internal.InternalSolver
 
+function varname_split(varname::String)
+    m = match(r"([^[]*)\[(.*)\]", varname)
+    return m.captures[1], m.captures[2]
+end
+
 @pydef mutable struct JuMPSolver <: InternalSolver
     function __init__(self; optimizer=CPLEX.Optimizer)
         self.optimizer = optimizer
     end
 
     function add_constraint(self, constraint)
-        @error "Not implemented"
+        @error "JuMPSolver: add_constraint not implemented"
     end
 
     function set_warm_start(self, solution)
-        for (varname, value) in solution
-            var = JuMP.variable_by_name(self.model, varname)
-            JuMP.set_start_value(var, value)
+        for (basename, subsolution) in solution
+            for (idx, value) in subsolution
+                var = self.basename_idx_to_var[basename, idx]
+                JuMP.set_start_value(var, value)
+            end
         end
     end
 
     function clear_warm_start(self)
-        @error "Not implemented"
+        @error "JuMPSolver: clear_warm_start not implemented"
     end
 
     function fix(self, solution)
-        for (varname, value) in solution
-            var = JuMP.variable_by_name(self.model, varname)
-            JuMP.fix(var, value, force=true)
+        for (basename, subsolution) in solution
+            for (idx, value) in subsolution
+                var = self.basename_idx_to_var[basename, idx]
+                JuMP.fix(var, value, force=true)
+            end
         end
     end
 
     function set_instance(self, instance, model)
         self.instance = instance
         self.model = model
+        self.var_to_basename_idx = Dict(var => varname_split(JuMP.name(var))
+                                        for var in JuMP.all_variables(self.model))
+        self.basename_idx_to_var = Dict(varname_split(JuMP.name(var)) => var
+                                        for var in JuMP.all_variables(self.model))
         self.bin_vars = [var
                          for var in JuMP.all_variables(self.model)
                          if JuMP.is_binary(var)]
@@ -102,20 +115,27 @@ InternalSolver = miplearn.solvers.internal.InternalSolver
     end
 
     function _update_solution(self)
-        self.solution =  Dict(JuMP.name(var) => JuMP.value(var)
-                              for var in JuMP.all_variables(self.model))
+        solution = Dict()
+        for var in JuMP.all_variables(self.model)
+            basename, idx = self.var_to_basename_idx[var]
+            if !haskey(solution, basename)
+                solution[basename] = Dict()
+            end
+            solution[basename][idx] = JuMP.value(var)
+        end
+        self.solution = solution
     end
 
     function set_gap_tolerance(self, gap_tolerance)
-        @error "Not implemented"
+        @error "JuMPSolver: set_gap_tolerance not implemented"
     end
 
     function set_node_limit(self)
-        @error "Not implemented"
+        @error "JuMPSolver: set_node_limit not implemented"
     end
 
     function set_threads(self, threads)
-        @error "Not implemented"
+        @error "JuMPSolver: set_threads not implemented"
     end
 
     function set_time_limit(self, time_limit)
@@ -148,6 +168,6 @@ end
     end
 end
 
-export JuMPSolver, KnapsackInstance
+export LearningSolver, JuMPSolver, KnapsackInstance
 
 end # module
