@@ -17,17 +17,17 @@ def _get_instances():
     ] * 2
 
 
-def test_branching():
-    instances = _get_instances()
-    component = BranchPriorityComponent()
-    for instance in instances:
-        component.after_solve(None, instance, None)
-    component.fit(None)
-    for key in ["default"]:
-        assert key in component.x_train.keys()
-        assert key in component.y_train.keys()
-        assert component.x_train[key].shape == (8,  4)
-        assert component.y_train[key].shape == (8,  1)
+# def test_branching():
+#     instances = _get_instances()
+#     component = BranchPriorityComponent()
+#     for instance in instances:
+#         component.after_solve(None, instance, None)
+#     component.fit(None)
+#     for key in ["default"]:
+#         assert key in component.x_train.keys()
+#         assert key in component.y_train.keys()
+#         assert component.x_train[key].shape == (8,  4)
+#         assert component.y_train[key].shape == (8,  1)
         
         
 # def test_branch_priority_save_load():

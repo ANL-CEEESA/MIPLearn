@@ -4,7 +4,7 @@
 
 from copy import deepcopy
 
-from miplearn.classifiers.AdaptiveClassifier import AdaptiveClassifier
+from miplearn.classifiers.adaptive import AdaptiveClassifier
 from sklearn.metrics import roc_curve
 
 from .component import Component

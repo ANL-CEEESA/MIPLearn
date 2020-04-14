@@ -2,21 +2,13 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+from copy import deepcopy
+
+from miplearn.classifiers.counting import CountingClassifier
+
 from .component import Component
 from ..extractors import *
 
-from abc import ABC, abstractmethod
-from copy import deepcopy
-import numpy as np
-from sklearn.pipeline import make_pipeline
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import cross_val_score
-from sklearn.metrics import roc_curve
-from sklearn.neighbors import KNeighborsClassifier
-from tqdm.auto import tqdm
-import pyomo.environ as pe
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -26,34 +18,50 @@ class LazyConstraintsComponent(Component):
     """
     
     def __init__(self,
+                 classifier=CountingClassifier(),
                  threshold=0.05):
         self.violations = set()
         self.count = {}
         self.n_samples = 0
         self.threshold = threshold
-    
+        self.classifier_prototype = classifier
+        self.classifiers = {}
+
     def before_solve(self, solver, instance, model):
-        logger.info("Enforcing %d lazy constraints" % len(self.violations))
-        for v in self.violations:
-            if self.count[v] < self.n_samples * self.threshold:
-                continue
+        logger.info("Predicting violated lazy constraints...")
+        violations = []
+        features = InstanceFeaturesExtractor().extract([instance])
+        for (v, classifier) in self.classifiers.items():
+            proba = classifier.predict_proba(features)
+            if proba[0][1] > self.threshold:
+                violations += [v]
+
+        logger.info("Enforcing %d constraints..." % len(violations))
+        for v in violations:
             cut = instance.build_lazy_constraint(model, v)
             solver.internal_solver.add_constraint(cut)
-        
+
     def after_solve(self, solver, instance, model, results):
         pass
                 
     def fit(self, training_instances):
         logger.debug("Fitting...")
-        self.n_samples = len(training_instances)
-        for instance in training_instances:
-            if not hasattr(instance, "found_violations"):
-                continue
+        features = InstanceFeaturesExtractor().extract(training_instances)
+
+        self.classifiers = {}
+        violation_to_instance_idx = {}
+        for (idx, instance) in enumerate(training_instances):
             for v in instance.found_violations:
-                self.violations.add(v)
-                if v not in self.count.keys():
-                    self.count[v] = 0
-                self.count[v] += 1
-                
+                if v not in self.classifiers:
+                    self.classifiers[v] = deepcopy(self.classifier_prototype)
+                    violation_to_instance_idx[v] = []
+                violation_to_instance_idx[v] += [idx]
+
+        for (v, classifier) in self.classifiers.items():
+            logger.debug("Training: %s" % (str(v)))
+            label = np.zeros(len(training_instances))
+            label[violation_to_instance_idx[v]] = 1.0
+            classifier.fit(features, label)
+
     def predict(self, instance, model=None):
         return self.violations

@@ -13,7 +13,7 @@ from .components.lazy import LazyConstraintsComponent
 from .components.primal import PrimalSolutionComponent
 from .components.branching import BranchPriorityComponent
 
-from .classifiers import AdaptiveClassifier
+from .classifiers.adaptive import AdaptiveClassifier
 
 from .benchmark import BenchmarkRunner
 
