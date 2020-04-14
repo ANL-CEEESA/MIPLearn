@@ -10,9 +10,10 @@ from .extractors import (SolutionExtractor,
 from .components.component import Component
 from .components.objective import ObjectiveValueComponent
 from .components.lazy import LazyConstraintsComponent
-from .components.primal import (PrimalSolutionComponent,
-                                AdaptivePredictor)
+from .components.primal import PrimalSolutionComponent
 from .components.branching import BranchPriorityComponent
+
+from .classifiers import AdaptiveClassifier
 
 from .benchmark import BenchmarkRunner
 
