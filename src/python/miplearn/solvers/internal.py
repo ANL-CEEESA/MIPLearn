@@ -3,17 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-import re
-import sys
 from abc import ABC, abstractmethod
-from io import StringIO
-
-import pyomo
-import pyomo.environ as pe
-from pyomo.core import Var
-
-from . import RedirectOutput
-from ..instance import Instance
 
 logger = logging.getLogger(__name__)
 

@@ -27,27 +27,6 @@ class CPLEXSolver(PyomoSolver):
             for (key, value) in options.items():
                 self._pyomo_solver.options[key] = value
 
-    def solve_lp(self, tee=False):
-        import cplex
-        lp = self._pyomo_solver._solver_model
-        var_types = lp.variables.get_types()
-        n_vars = len(var_types)
-        lp.set_problem_type(cplex.Cplex.problem_type.LP)
-        results = self._pyomo_solver.solve(tee=tee)
-        lp.variables.set_types(zip(range(n_vars), var_types))
-        return {
-            "Optimal value": results["Problem"][0]["Lower bound"],
-        }
-
-    def set_threads(self, threads):
-        self._pyomo_solver.options["threads"] = threads
-
-    def set_time_limit(self, time_limit):
-        self._pyomo_solver.options["timelimit"] = time_limit
-
-    def set_gap_tolerance(self, gap_tolerance):
-        self._pyomo_solver.options["mip_tolerances_mipgap"] = gap_tolerance
-
     def _get_warm_start_regexp(self):
         return "MIP start .* with objective ([0-9.e+-]*)\\."
 
@@ -64,6 +43,6 @@ class CPLEXSolver(PyomoSolver):
         return "mip_limits_nodes"
 
     def _get_gap_tolerance_option_name(self):
-        return "mip_gap_tolerances_mipgap"
+        return "mip_tolerances_mipgap"
 
 
