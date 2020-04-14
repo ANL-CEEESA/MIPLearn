@@ -70,4 +70,3 @@ def test_subtour():
         assert x[4,5] == 1.0
         solver.fit([instance])
         solver.solve(instance)
-        assert False
