@@ -67,6 +67,7 @@ class PrimalSolutionComponent(Component):
         x_test = VariableFeaturesExtractor().extract([instance])
         var_split = Extractor.split_variables(instance)
         for category in var_split.keys():
+            n = len(var_split[category])
             for (i, (var, index)) in enumerate(var_split[category]):
                 if var not in solution.keys():
                     solution[var] = {}
@@ -76,10 +77,12 @@ class PrimalSolutionComponent(Component):
                     continue
                 clf = self.classifiers[category, label]
                 if isinstance(clf, float):
-                    ws = np.array([[1-clf, clf]
-                                   for _ in range(len(var_split[category]))])
+                    ws = np.array([[1 - clf, clf] for _ in range(n)])
                 else:
                     ws = clf.predict_proba(x_test[category])
+                print("clf=", clf)
+                print("x_test=", x_test[category])
+                assert ws.shape == (n, 2), "ws.shape should be (%d, 2) not %s" % (n, ws.shape)
                 for (i, (var, index)) in enumerate(var_split[category]):
                     if ws[i, 1] >= self.threshold:
                         solution[var][index] = label
