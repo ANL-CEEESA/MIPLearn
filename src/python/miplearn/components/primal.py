@@ -7,6 +7,7 @@ from copy import deepcopy
 from miplearn.classifiers.adaptive import AdaptiveClassifier
 from miplearn.components import classifier_evaluation_dict
 from sklearn.metrics import roc_curve
+from p_tqdm import p_map
 
 from .component import Component
 from ..extractors import *
@@ -45,54 +46,63 @@ class PrimalSolutionComponent(Component):
     def after_solve(self, solver, instance, model, results):
         pass
 
-    def fit(self, training_instances):
+    def fit(self, training_instances, n_jobs=1):
         logger.debug("Extracting features...")
         features = VariableFeaturesExtractor().extract(training_instances)
         solutions = SolutionExtractor().extract(training_instances)
 
-        for category in tqdm(features.keys(), desc="Fit (primal)"):
+        def _fit(args):
+            category, label = args[0], args[1]
             x_train = features[category]
             y_train = solutions[category]
-            for label in [0, 1]:
-                y = y_train[:, label].astype(int)
+            y = y_train[:, label].astype(int)
 
-                logger.debug("Fitting predictors[%s, %s]:" % (category, label))
-                if isinstance(self.classifier_prototype, list):
-                    pred = deepcopy(self.classifier_prototype[label])
-                else:
-                    pred = deepcopy(self.classifier_prototype)
-                pred.fit(x_train, y)
-                self.classifiers[category, label] = pred
+            if isinstance(self.classifier_prototype, list):
+                clf = deepcopy(self.classifier_prototype[label])
+            else:
+                clf = deepcopy(self.classifier_prototype)
+            clf.fit(x_train, y)
 
-                # If y is either always one or always zero, set fixed threshold
-                y_avg = np.average(y)
-                if (not self.dynamic_thresholds) or y_avg <= 0.001 or y_avg >= 0.999:
-                    self.thresholds[category, label] = self.min_threshold[label]
-                    logger.debug("    Setting threshold to %.4f" % self.min_threshold[label])
-                    continue
+            y_avg = np.average(y)
+            if (not self.dynamic_thresholds) or y_avg <= 0.001 or y_avg >= 0.999:
+                return {"classifier": clf,
+                        "threshold": self.min_threshold[label]}
 
-                proba = pred.predict_proba(x_train)
-                assert isinstance(proba, np.ndarray), \
-                    "classifier should return numpy array"
-                assert proba.shape == (x_train.shape[0], 2), \
-                    "classifier should return (%d,%d)-shaped array, not %s" % (
-                        x_train.shape[0], 2, str(proba.shape))
+            proba = clf.predict_proba(x_train)
+            assert isinstance(proba, np.ndarray), \
+                "classifier should return numpy array"
+            assert proba.shape == (x_train.shape[0], 2), \
+                "classifier should return (%d,%d)-shaped array, not %s" % (
+                    x_train.shape[0], 2, str(proba.shape))
 
-                # Calculate threshold dynamically using ROC curve
-                y_scores = proba[:, 1]
-                fpr, tpr, thresholds = roc_curve(y, y_scores)
-                k = 0
-                while True:
-                    if (k + 1) > len(fpr):
-                        break
-                    if fpr[k + 1] > self.max_fpr[label]:
-                        break
-                    if thresholds[k + 1] < self.min_threshold[label]:
-                        break
-                    k = k + 1
-                logger.debug("    Setting threshold to %.4f (fpr=%.4f, tpr=%.4f)" %
-                             (thresholds[k], fpr[k], tpr[k]))
-                self.thresholds[category, label] = thresholds[k]
+            y_scores = proba[:, 1]
+            fpr, tpr, thresholds = roc_curve(y, y_scores)
+            k = 0
+            while True:
+                if (k + 1) > len(fpr):
+                    break
+                if fpr[k + 1] > self.max_fpr[label]:
+                    break
+                if thresholds[k + 1] < self.min_threshold[label]:
+                    break
+                k = k + 1
+            self.thresholds[category, label] = thresholds[k]
+
+            return {"classifier": clf,
+                    "threshold": thresholds[k]}
+
+        items = [(category, label)
+                 for category in features.keys()
+                 for label in [0, 1]]
+
+        if n_jobs == 1:
+            results = list(map(_fit, tqdm(items, desc="Fit (primal)")))
+        else:
+            results = p_map(_fit, items, num_cpus=n_jobs)
+
+        for (idx, (category, label)) in enumerate(items):
+            self.thresholds[category, label] = results[idx]["threshold"]
+            self.classifiers[category, label] = results[idx]["classifier"]
 
     def predict(self, instance):
         x_test = VariableFeaturesExtractor().extract([instance])
