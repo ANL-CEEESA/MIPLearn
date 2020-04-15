@@ -65,7 +65,7 @@ class ObjectiveValueComponent(Component):
                 "Explained variance": explained_variance_score(y_true_lb, y_pred_lb),
                 "Max error": max_error(y_true_lb, y_pred_lb),
                 "Mean absolute error": mean_absolute_error(y_true_lb, y_pred_lb),
-                "R2": np.round(r2_score(y_true_lb, y_pred_lb), 3),
+                "R2": r2_score(y_true_lb, y_pred_lb),
                 "Median absolute error": mean_absolute_error(y_true_lb, y_pred_lb),
             },
             "Upper bound": {
@@ -73,7 +73,7 @@ class ObjectiveValueComponent(Component):
                 "Explained variance": explained_variance_score(y_true_ub, y_pred_ub),
                 "Max error": max_error(y_true_ub, y_pred_ub),
                 "Mean absolute error": mean_absolute_error(y_true_ub, y_pred_ub),
-                "R2": np.round(r2_score(y_true_ub, y_pred_ub), 3),
+                "R2": r2_score(y_true_ub, y_pred_ub),
                 "Median absolute error": mean_absolute_error(y_true_ub, y_pred_ub),
             },
         }

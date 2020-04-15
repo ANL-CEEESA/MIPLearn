@@ -34,7 +34,7 @@ def test_obj_evaluate():
             'Mean absolute error': 126.5,
             'Mean squared error': 19194.5,
             'Median absolute error': 126.5,
-            'R2': -5.013,
+            'R2': -5.012843605607331,
         },
         'Upper bound': {
             'Explained variance': 0.0,
@@ -42,6 +42,6 @@ def test_obj_evaluate():
             'Mean absolute error': 126.5,
             'Mean squared error': 19194.5,
             'Median absolute error': 126.5,
-            'R2': -5.013,
+            'R2': -5.012843605607331,
         }
     }
