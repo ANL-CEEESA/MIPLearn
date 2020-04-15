@@ -77,3 +77,63 @@ def test_lazy_before():
 
     # Should ask internal solver to add generated constraint
     solver.internal_solver.add_constraint.assert_called_once_with("c1")
+
+def test_lazy_evaluate():
+    instances, models = get_training_instances_and_models()
+    component = LazyConstraintsComponent()
+    component.classifiers = {"a": Mock(spec=Classifier),
+                             "b": Mock(spec=Classifier),
+                             "c": Mock(spec=Classifier)}
+    component.classifiers["a"].predict_proba = Mock(return_value=[[1.0, 0.0]])
+    component.classifiers["b"].predict_proba = Mock(return_value=[[0.0, 1.0]])
+    component.classifiers["c"].predict_proba = Mock(return_value=[[0.0, 1.0]])
+    
+    instances[0].found_violations = ["a", "b", "c"]
+    instances[1].found_violations = ["b", "d"]
+    assert component.evaluate(instances) == {
+        0: {
+            "Accuracy": 0.75,
+            "F1 score": 0.8,
+            "Precision": 1.0,
+            "Recall": 2/3.,
+            "Predicted positive": 2,
+            "Predicted negative": 2,
+            "Condition positive": 3,
+            "Condition negative": 1,
+            "False negative": 1,
+            "False positive": 0,
+            "True negative": 1,
+            "True positive": 2,
+            "Predicted positive (%)": 50.0,
+            "Predicted negative (%)": 50.0,
+            "Condition positive (%)": 75.0,
+            "Condition negative (%)": 25.0,
+            "False negative (%)": 25.0,
+            "False positive (%)": 0,
+            "True negative (%)": 25.0,
+            "True positive (%)": 50.0,
+        },
+        1: {
+            "Accuracy": 0.5,
+            "F1 score": 0.5,
+            "Precision": 0.5,
+            "Recall": 0.5,
+            "Predicted positive": 2,
+            "Predicted negative": 2,
+            "Condition positive": 2,
+            "Condition negative": 2,
+            "False negative": 1,
+            "False positive": 1,
+            "True negative": 1,
+            "True positive": 1,
+            "Predicted positive (%)": 50.0,
+            "Predicted negative (%)": 50.0,
+            "Condition positive (%)": 50.0,
+            "Condition negative (%)": 50.0,
+            "False negative (%)": 25.0,
+            "False positive (%)": 25.0,
+            "True negative (%)": 25.0,
+            "True positive (%)": 25.0,
+        }
+    }
+    

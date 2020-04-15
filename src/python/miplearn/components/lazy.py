@@ -29,13 +29,7 @@ class LazyConstraintsComponent(Component):
 
     def before_solve(self, solver, instance, model):
         logger.info("Predicting violated lazy constraints...")
-        violations = []
-        features = InstanceFeaturesExtractor().extract([instance])
-        for (v, classifier) in self.classifiers.items():
-            proba = classifier.predict_proba(features)
-            if proba[0][1] > self.threshold:
-                violations += [v]
-
+        violations = self.predict(instance)
         logger.info("Enforcing %d constraints..." % len(violations))
         for v in violations:
             cut = instance.build_lazy_constraint(model, v)
@@ -57,11 +51,70 @@ class LazyConstraintsComponent(Component):
                     violation_to_instance_idx[v] = []
                 violation_to_instance_idx[v] += [idx]
 
-        for (v, classifier) in self.classifiers.items():
+        for (v, classifier) in tqdm(self.classifiers.items(), desc="Fit (lazy)"):
             logger.debug("Training: %s" % (str(v)))
             label = np.zeros(len(training_instances))
             label[violation_to_instance_idx[v]] = 1.0
             classifier.fit(features, label)
 
-    def predict(self, instance, model=None):
-        return self.violations
+    def predict(self, instance):
+        violations = []
+        features = InstanceFeaturesExtractor().extract([instance])
+        for (v, classifier) in self.classifiers.items():
+            proba = classifier.predict_proba(features)
+            if proba[0][1] > self.threshold:
+                violations += [v]
+        return violations
+
+    def evaluate(self, instances):
+        
+        def _classifier_evaluation_dict(tp, tn, fp, fn):
+            p = tp + fn
+            n = fp + tn
+            d = {
+                "Predicted positive": fp + tp,
+                "Predicted negative": fn + tn,
+                "Condition positive": p,
+                "Condition negative": n,
+                "True positive": tp,
+                "True negative": tn,
+                "False positive": fp,
+                "False negative": fn,
+            }
+            d["Accuracy"] = (tp + tn) / (p + n)
+            d["F1 score"] = (2 * tp) / (2 * tp + fp + fn)
+            d["Recall"] = tp / p
+            d["Precision"] = tp / (tp + fp)
+            T = (p + n) / 100.0
+            d["Predicted positive (%)"] = d["Predicted positive"] / T
+            d["Predicted negative (%)"] = d["Predicted negative"] / T
+            d["Condition positive (%)"] = d["Condition positive"] / T
+            d["Condition negative (%)"] = d["Condition negative"] / T
+            d["True positive (%)"] = d["True positive"] / T
+            d["True negative (%)"] = d["True negative"] / T
+            d["False positive (%)"] = d["False positive"] / T
+            d["False negative (%)"] = d["False negative"] / T
+            return d
+        
+        results = {}
+        
+        all_violations = set()
+        for instance in instances:
+            all_violations |= set(instance.found_violations)
+            
+        for idx in tqdm(range(len(instances)), desc="Evaluate (lazy)"):
+            instance = instances[idx]
+            condition_positive = set(instance.found_violations)
+            condition_negative = all_violations - condition_positive
+            pred_positive = set(self.predict(instance)) & all_violations
+            pred_negative = all_violations - pred_positive
+            
+            tp = len(pred_positive & condition_positive)
+            tn = len(pred_negative & condition_negative)
+            fp = len(pred_positive & condition_negative)
+            fn = len(pred_negative & condition_positive)
+            
+            results[idx] = _classifier_evaluation_dict(tp, tn, fp, fn)
+            
+            
+        return results
