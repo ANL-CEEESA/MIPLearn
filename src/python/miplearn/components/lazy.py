@@ -5,6 +5,7 @@
 from copy import deepcopy
 
 from miplearn.classifiers.counting import CountingClassifier
+from miplearn.components import classifier_evaluation_dict
 
 from .component import Component
 from ..extractors import *
@@ -67,54 +68,19 @@ class LazyConstraintsComponent(Component):
         return violations
 
     def evaluate(self, instances):
-        
-        def _classifier_evaluation_dict(tp, tn, fp, fn):
-            p = tp + fn
-            n = fp + tn
-            d = {
-                "Predicted positive": fp + tp,
-                "Predicted negative": fn + tn,
-                "Condition positive": p,
-                "Condition negative": n,
-                "True positive": tp,
-                "True negative": tn,
-                "False positive": fp,
-                "False negative": fn,
-            }
-            d["Accuracy"] = (tp + tn) / (p + n)
-            d["F1 score"] = (2 * tp) / (2 * tp + fp + fn)
-            d["Recall"] = tp / p
-            d["Precision"] = tp / (tp + fp)
-            T = (p + n) / 100.0
-            d["Predicted positive (%)"] = d["Predicted positive"] / T
-            d["Predicted negative (%)"] = d["Predicted negative"] / T
-            d["Condition positive (%)"] = d["Condition positive"] / T
-            d["Condition negative (%)"] = d["Condition negative"] / T
-            d["True positive (%)"] = d["True positive"] / T
-            d["True negative (%)"] = d["True negative"] / T
-            d["False positive (%)"] = d["False positive"] / T
-            d["False negative (%)"] = d["False negative"] / T
-            return d
-        
         results = {}
-        
         all_violations = set()
         for instance in instances:
             all_violations |= set(instance.found_violations)
-            
         for idx in tqdm(range(len(instances)), desc="Evaluate (lazy)"):
             instance = instances[idx]
             condition_positive = set(instance.found_violations)
             condition_negative = all_violations - condition_positive
             pred_positive = set(self.predict(instance)) & all_violations
             pred_negative = all_violations - pred_positive
-            
             tp = len(pred_positive & condition_positive)
             tn = len(pred_negative & condition_negative)
             fp = len(pred_positive & condition_negative)
             fn = len(pred_negative & condition_positive)
-            
-            results[idx] = _classifier_evaluation_dict(tp, tn, fp, fn)
-            
-            
+            results[idx] = classifier_evaluation_dict(tp, tn, fp, fn)
         return results
