@@ -35,7 +35,7 @@ class VariableFeaturesExtractor(Extractor):
     def extract(self, instances):
         result = {}
         for instance in tqdm(instances,
-                             desc="Extract var features",
+                             desc="Extract (vars)",
                              disable=len(instances) < 5):
             instance_features = instance.get_instance_features()
             var_split = self.split_variables(instance)
@@ -60,7 +60,7 @@ class SolutionExtractor(Extractor):
     def extract(self, instances):
         result = {}
         for instance in tqdm(instances,
-                             desc="Extract solution",
+                             desc="Extract (solution)",
                              disable=len(instances) < 5):
             var_split = self.split_variables(instance)
             for (category, var_index_pairs) in var_split.items():

@@ -104,7 +104,7 @@ class BranchPriorityComponent(Component):
         # Run strong branching on pending instances
         subcomponents = Parallel(n_jobs=n_jobs)(
             delayed(_process)(instance)
-            for instance in tqdm(self.pending_instances, desc="Branch priority")
+            for instance in tqdm(self.pending_instances, desc="Fit (branch)")
         )
         self.merge(subcomponents)
         self.pending_instances.clear()

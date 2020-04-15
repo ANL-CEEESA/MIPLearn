@@ -50,7 +50,7 @@ class PrimalSolutionComponent(Component):
         features = VariableFeaturesExtractor().extract(training_instances)
         solutions = SolutionExtractor().extract(training_instances)
 
-        for category in tqdm(features.keys(), desc="Fit (Primal)"):
+        for category in tqdm(features.keys(), desc="Fit (primal)"):
             x_train = features[category]
             y_train = solutions[category]
             for label in [0, 1]:
@@ -116,7 +116,8 @@ class PrimalSolutionComponent(Component):
     def evaluate(self, instances):
         ev = {"Fix zero": {},
               "Fix one": {}}
-        for instance_idx in tqdm(range(len(instances))):
+        for instance_idx in tqdm(range(len(instances)),
+                                 desc="Evaluate (primal)"):
             instance = instances[instance_idx]
             solution_actual = instance.solution
             solution_pred = self.predict(instance)
