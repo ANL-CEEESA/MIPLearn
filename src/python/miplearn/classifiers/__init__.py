@@ -4,6 +4,8 @@
 
 from abc import ABC, abstractmethod
 
+import numpy as np
+
 
 class Classifier(ABC):
     @abstractmethod
@@ -13,6 +15,12 @@ class Classifier(ABC):
     @abstractmethod
     def predict_proba(self, x_test):
         pass
+
+    def predict(self, x_test):
+        proba = self.predict_proba(x_test)
+        assert isinstance(proba, np.ndarray)
+        assert proba.shape == (x_test.shape[0], 2)
+        return (proba[:, 1] > 0.5).astype(float)
 
 
 class Regressor(ABC):
