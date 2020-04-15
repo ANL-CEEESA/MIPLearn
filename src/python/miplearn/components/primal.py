@@ -46,7 +46,7 @@ class PrimalSolutionComponent(Component):
         features = VariableFeaturesExtractor().extract(training_instances)
         solutions = SolutionExtractor().extract(training_instances)
 
-        for category in features.keys():
+        for category in tqdm(features.keys(), desc="Fit (primal)"):
             x_train = features[category]
             for label in [0, 1]:
                 y_train = solutions[category][:, label].astype(int)
