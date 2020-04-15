@@ -90,3 +90,11 @@ def test_evaluate():
                                    'True negative (%)': 50.0,
                                    'True positive': 1,
                                    'True positive (%)': 25.0}}}
+
+
+def test_primal_parallel_fit():
+    instances, models = get_training_instances_and_models()
+    comp = PrimalSolutionComponent()
+    comp.fit(instances, n_jobs=2)
+    assert len(comp.classifiers) == 2
+    assert len(comp.thresholds) == 2
