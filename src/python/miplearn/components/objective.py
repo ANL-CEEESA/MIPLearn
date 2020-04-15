@@ -1,6 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+from sklearn.metrics import mean_squared_error, explained_variance_score, max_error, mean_absolute_error, r2_score
 
 from .. import Component, InstanceFeaturesExtractor, ObjectiveValueExtractor
 from sklearn.linear_model import LinearRegression
@@ -52,3 +53,28 @@ class ObjectiveValueComponent(Component):
         lb = self.lb_regressor.predict(features)
         ub = self.ub_regressor.predict(features)
         return np.hstack([lb, ub])
+
+    def evaluate(self, instances):
+        y_pred = self.predict(instances)
+        y_true = np.array([[inst.lower_bound, inst.upper_bound] for inst in instances])
+        y_true_lb, y_true_ub = y_true[:, 0], y_true[:, 1]
+        y_pred_lb, y_pred_ub = y_pred[:, 1], y_pred[:, 1]
+        ev = {
+            "Lower bound": {
+                "Mean squared error": mean_squared_error(y_true_lb, y_pred_lb),
+                "Explained variance": explained_variance_score(y_true_lb, y_pred_lb),
+                "Max error": max_error(y_true_lb, y_pred_lb),
+                "Mean absolute error": mean_absolute_error(y_true_lb, y_pred_lb),
+                "R2": np.round(r2_score(y_true_lb, y_pred_lb), 3),
+                "Median absolute error": mean_absolute_error(y_true_lb, y_pred_lb),
+            },
+            "Upper bound": {
+                "Mean squared error": mean_squared_error(y_true_ub, y_pred_ub),
+                "Explained variance": explained_variance_score(y_true_ub, y_pred_ub),
+                "Max error": max_error(y_true_ub, y_pred_ub),
+                "Mean absolute error": mean_absolute_error(y_true_ub, y_pred_ub),
+                "R2": np.round(r2_score(y_true_ub, y_pred_ub), 3),
+                "Median absolute error": mean_absolute_error(y_true_ub, y_pred_ub),
+            },
+        }
+        return ev
