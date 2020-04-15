@@ -41,18 +41,22 @@ class ObjectiveValueComponent(Component):
         features = InstanceFeaturesExtractor().extract(training_instances)
         ub = ObjectiveValueExtractor(kind="upper bound").extract(training_instances)
         lb = ObjectiveValueExtractor(kind="lower bound").extract(training_instances)
+        assert ub.shape == (len(training_instances), 1)
+        assert lb.shape == (len(training_instances), 1)
         self.ub_regressor = deepcopy(self.regressor_prototype)
         self.lb_regressor = deepcopy(self.regressor_prototype)
         logger.debug("Fitting ub_regressor...")
-        self.ub_regressor.fit(features, ub)
+        self.ub_regressor.fit(features, ub.ravel())
         logger.debug("Fitting ub_regressor...")
-        self.lb_regressor.fit(features, lb)
+        self.lb_regressor.fit(features, lb.ravel())
         
     def predict(self, instances):
         features = InstanceFeaturesExtractor().extract(instances)
         lb = self.lb_regressor.predict(features)
         ub = self.ub_regressor.predict(features)
-        return np.hstack([lb, ub])
+        assert lb.shape == (len(instances),)
+        assert ub.shape == (len(instances),)
+        return np.array([lb, ub]).T
 
     def evaluate(self, instances):
         y_pred = self.predict(instances)

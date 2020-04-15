@@ -23,7 +23,7 @@ def test_usage():
 def test_obj_evaluate():
     instances, models = get_training_instances_and_models()
     reg = Mock(spec=Regressor)
-    reg.predict = Mock(return_value=np.array([[1000.0], [1000.0]]))
+    reg.predict = Mock(return_value=np.array([1000.0, 1000.0]))
     comp = ObjectiveValueComponent(regressor=reg)
     comp.fit(instances)
     ev = comp.evaluate(instances)
