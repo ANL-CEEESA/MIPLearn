@@ -17,9 +17,13 @@ def classifier_evaluation_dict(tp, tn, fp, fn):
         "False negative": fn,
         "Accuracy": (tp + tn) / (p + n),
         "F1 score": (2 * tp) / (2 * tp + fp + fn),
-        "Recall": tp / p,
-        "Precision": tp / (tp + fp),
     }
+    if p > 0:
+        d["Recall"] = tp / p
+        d["Precision"] = tp / (tp + fp)
+    else:
+        d["Recall"] = 1.0
+        d["Precision"] = 1.0
     t = (p + n) / 100.0
     d["Predicted positive (%)"] = d["Predicted positive"] / t
     d["Predicted negative (%)"] = d["Predicted negative"] / t
