@@ -50,7 +50,7 @@ def test_evaluate():
                                            2: 1,
                                            3: 1}}
     ev = comp.evaluate(instances[:1])
-    assert ev == {0: {'Fix one': {'Accuracy': 0.5,
+    assert ev == {'Fix one': {0: {'Accuracy': 0.5,
                                   'Condition negative': 1,
                                   'Condition negative (%)': 25.0,
                                   'Condition positive': 3,
@@ -69,8 +69,8 @@ def test_evaluate():
                                   'True negative': 1,
                                   'True negative (%)': 25.0,
                                   'True positive': 1,
-                                  'True positive (%)': 25.0},
-                      'Fix zero': {'Accuracy': 0.75,
+                                  'True positive (%)': 25.0}},
+                  'Fix zero': {0: {'Accuracy': 0.75,
                                    'Condition negative': 3,
                                    'Condition negative (%)': 75.0,
                                    'Condition positive': 1,

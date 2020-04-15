@@ -18,6 +18,7 @@ class PrimalSolutionComponent(Component):
     """
     A component that predicts primal solutions.
     """
+
     def __init__(self,
                  classifier=AdaptiveClassifier(),
                  mode="exact",
@@ -33,22 +34,22 @@ class PrimalSolutionComponent(Component):
         self.classifiers = {}
         self.classifier_prototype = classifier
         self.dynamic_thresholds = dynamic_thresholds
-    
+
     def before_solve(self, solver, instance, model):
         solution = self.predict(instance)
         if self.mode == "heuristic":
             solver.internal_solver.fix(solution)
         else:
             solver.internal_solver.set_warm_start(solution)
-        
+
     def after_solve(self, solver, instance, model, results):
         pass
-                
+
     def fit(self, training_instances):
         logger.debug("Extracting features...")
         features = VariableFeaturesExtractor().extract(training_instances)
         solutions = SolutionExtractor().extract(training_instances)
-        
+
         for category in tqdm(features.keys(), desc="Fit (Primal)"):
             x_train = features[category]
             y_train = solutions[category]
@@ -69,11 +70,11 @@ class PrimalSolutionComponent(Component):
                     self.thresholds[category, label] = self.min_threshold[label]
                     logger.debug("    Setting threshold to %.4f" % self.min_threshold[label])
                     continue
-                
+
                 proba = pred.predict_proba(x_train)
                 assert isinstance(proba, np.ndarray), \
                     "classifier should return numpy array"
-                assert proba.shape == (x_train.shape[0], 2),\
+                assert proba.shape == (x_train.shape[0], 2), \
                     "classifier should return (%d,%d)-shaped array, not %s" % (
                         x_train.shape[0], 2, str(proba.shape))
 
@@ -89,10 +90,10 @@ class PrimalSolutionComponent(Component):
                     if thresholds[k + 1] < self.min_threshold[label]:
                         break
                     k = k + 1
-                logger.debug("    Setting threshold to %.4f (fpr=%.4f, tpr=%.4f)"%
+                logger.debug("    Setting threshold to %.4f (fpr=%.4f, tpr=%.4f)" %
                              (thresholds[k], fpr[k], tpr[k]))
                 self.thresholds[category, label] = thresholds[k]
-                
+
     def predict(self, instance):
         x_test = VariableFeaturesExtractor().extract([instance])
         solution = {}
@@ -113,7 +114,8 @@ class PrimalSolutionComponent(Component):
         return solution
 
     def evaluate(self, instances):
-        ev = {}
+        ev = {"Fix zero": {},
+              "Fix one": {}}
         for instance_idx in tqdm(range(len(instances))):
             instance = instances[instance_idx]
             solution_actual = instance.solution
@@ -146,8 +148,6 @@ class PrimalSolutionComponent(Component):
             tn_one = len(pred_one_negative & vars_zero)
             fn_one = len(pred_one_negative & vars_one)
 
-            ev[instance_idx] = {
-                "Fix zero": classifier_evaluation_dict(tp_zero, tn_zero, fp_zero, fn_zero),
-                "Fix one": classifier_evaluation_dict(tp_one, tn_one, fp_one, fn_one),
-            }
+            ev["Fix zero"][instance_idx] = classifier_evaluation_dict(tp_zero, tn_zero, fp_zero, fn_zero)
+            ev["Fix one"][instance_idx] = classifier_evaluation_dict(tp_one, tn_one, fp_one, fn_one)
         return ev
