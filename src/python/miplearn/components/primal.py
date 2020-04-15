@@ -6,8 +6,6 @@ from copy import deepcopy
 
 from miplearn.classifiers.adaptive import AdaptiveClassifier
 from miplearn.components import classifier_evaluation_dict
-from sklearn.metrics import roc_curve
-from p_tqdm import p_map
 
 from .component import Component
 from ..extractors import *
@@ -23,10 +21,8 @@ class PrimalSolutionComponent(Component):
     def __init__(self,
                  classifier=AdaptiveClassifier(),
                  mode="exact",
-                 threshold=0.50,
-                 ):
+                 threshold=0.50):
         self.mode = mode
-        self.is_warm_start_available = False
         self.classifiers = {}
         self.threshold = threshold
         self.classifier_prototype = classifier
