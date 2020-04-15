@@ -114,7 +114,8 @@ class PrimalSolutionComponent(Component):
 
     def evaluate(self, instances):
         ev = {}
-        for (instance_idx, instance) in enumerate(instances):
+        for instance_idx in tqdm(range(len(instances))):
+            instance = instances[instance_idx]
             solution_actual = instance.solution
             solution_pred = self.predict(instance)
 

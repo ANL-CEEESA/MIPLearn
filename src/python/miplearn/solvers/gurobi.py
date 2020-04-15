@@ -63,7 +63,6 @@ class GurobiSolver(PyomoSolver):
             self._pyomo_solver.options["LazyConstraints"] = 1
             self._pyomo_solver.set_callback(cb)
             self.instance.found_violations = []
-        print(self._is_warm_start_available)
         streams = [StringIO()]
         if tee:
             streams += [sys.stdout]
