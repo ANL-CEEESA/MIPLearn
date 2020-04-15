@@ -33,8 +33,8 @@ logging.getLogger('miplearn').setLevel(logging.INFO)
 logger = logging.getLogger("benchmark")
 
 n_jobs = 10
-test_time_limit = 3600
-train_time_limit = 900
+train_time_limit = 3600
+test_time_limit = 900
 internal_solver = "gurobi"
 
 args = docopt(__doc__)
