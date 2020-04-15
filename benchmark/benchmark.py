@@ -27,12 +27,14 @@ logging.basicConfig(format='%(asctime)s %(levelname).1s %(name)s: %(message)12s'
                     datefmt='%H:%M:%S',
                     level=logging.INFO,
                     stream=sys.stdout)
+logging.getLogger('gurobipy').setLevel(logging.ERROR)
 logging.getLogger('pyomo.core').setLevel(logging.ERROR)
 logging.getLogger('miplearn').setLevel(logging.INFO)
 logger = logging.getLogger("benchmark")
 
 n_jobs = 10
-time_limit = 900
+test_time_limit = 3600
+train_time_limit = 900
 internal_solver = "gurobi"
 
 args = docopt(__doc__)
@@ -58,7 +60,7 @@ def train():
     challenge = getattr(pkg, challenge_name)()
     train_instances = challenge.training_instances
     test_instances  = challenge.test_instances
-    solver = LearningSolver(time_limit=time_limit,
+    solver = LearningSolver(time_limit=train_time_limit,
                             solver=internal_solver,
                             components={})
     solver.parallel_solve(train_instances, n_jobs=n_jobs)
@@ -70,7 +72,7 @@ def test_baseline():
     test_instances = load("%s/test_instances.bin" % basepath)
     solvers = {
         "baseline": LearningSolver(
-            time_limit=time_limit,
+            time_limit=test_time_limit,
             solver=internal_solver,
         ),
     }
@@ -85,11 +87,11 @@ def test_ml():
     test_instances = load("%s/test_instances.bin" % basepath)
     solvers = {
         "ml-exact": LearningSolver(
-            time_limit=time_limit,
+            time_limit=test_time_limit,
             solver=internal_solver,
         ),
         "ml-heuristic": LearningSolver(
-            time_limit=time_limit,
+            time_limit=test_time_limit,
             solver=internal_solver,
             mode="heuristic",
         ),
