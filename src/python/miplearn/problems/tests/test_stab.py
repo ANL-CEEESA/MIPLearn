@@ -20,6 +20,7 @@ def test_stab():
     
     
 def test_stab_generator_fixed_graph():
+    np.random.seed(42)
     from miplearn.problems.stab import MaxWeightStableSetGenerator
     gen = MaxWeightStableSetGenerator(w=uniform(loc=50., scale=10.),
                                       n=randint(low=10, high=11),
@@ -33,6 +34,7 @@ def test_stab_generator_fixed_graph():
     
     
 def test_stab_generator_random_graph():
+    np.random.seed(42)
     from miplearn.problems.stab import MaxWeightStableSetGenerator
     gen = MaxWeightStableSetGenerator(w=uniform(loc=50., scale=10.),
                                       n=randint(low=30, high=41),
