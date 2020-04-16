@@ -49,17 +49,17 @@ class AdaptiveClassifier(Classifier):
         self.classifier = None
 
     def fit(self, x_train, y_train):
-        best_clf = None
-        best_score = -float("inf")
+        best_name, best_clf, best_score = None, None, -float("inf")
         n_samples = x_train.shape[0]
-        for clf_dict in self.candidates.values():
+        for (name, clf_dict) in self.candidates.items():
             if n_samples < clf_dict["min samples"]:
                 continue
             clf = deepcopy(clf_dict["classifier"])
             clf.fit(x_train, y_train)
             score = self.evaluator.evaluate(clf, x_train, y_train)
             if score > best_score:
-                best_clf, best_score = clf, score
+                best_name, best_clf, best_score = name, clf, score
+        logger.debug("Best classifier: %s (score=%.3f)" % (best_name, best_score))
         self.classifier = best_clf
 
     def predict_proba(self, x_test):
