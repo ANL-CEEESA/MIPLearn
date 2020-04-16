@@ -38,7 +38,8 @@ def test_evaluate():
         [0., 1.],  # x[2] instances[0]
         [1., 0.],  # x[3] instances[0]
     ]))
-    comp = PrimalSolutionComponent(classifier=[clf_zero, clf_one])
+    comp = PrimalSolutionComponent(classifier=[clf_zero, clf_one],
+                                   threshold=0.50)
     comp.fit(instances[:1])
     assert comp.predict(instances[0]) == {"x": {0: 0,
                                                 1: 0,

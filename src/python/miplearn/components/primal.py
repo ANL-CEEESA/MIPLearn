@@ -4,10 +4,10 @@
 
 from copy import deepcopy
 
-from miplearn.classifiers.adaptive import AdaptiveClassifier
-from miplearn.components import classifier_evaluation_dict
-
 from .component import Component
+from ..classifiers.adaptive import AdaptiveClassifier
+from ..classifiers.threshold import MinPrecisionThreshold, DynamicThreshold
+from ..components import classifier_evaluation_dict
 from ..extractors import *
 
 logger = logging.getLogger(__name__)
@@ -21,10 +21,11 @@ class PrimalSolutionComponent(Component):
     def __init__(self,
                  classifier=AdaptiveClassifier(),
                  mode="exact",
-                 threshold=0.50):
+                 threshold=MinPrecisionThreshold(0.95)):
         self.mode = mode
         self.classifiers = {}
-        self.threshold = threshold
+        self.thresholds = {}
+        self.threshold_prototype = threshold
         self.classifier_prototype = classifier
 
     def before_solve(self, solver, instance, model):
@@ -51,6 +52,7 @@ class PrimalSolutionComponent(Component):
                 y_avg = np.average(y_train)
                 if y_avg < 0.001 or y_avg >= 0.999:
                     self.classifiers[category, label] = round(y_avg)
+                    self.thresholds[category, label] = 0.50
                     continue
 
                 # Create a copy of classifier prototype and train it
@@ -59,6 +61,12 @@ class PrimalSolutionComponent(Component):
                 else:
                     clf = deepcopy(self.classifier_prototype)
                 clf.fit(x_train, y_train)
+
+                # Find threshold (dynamic or static)
+                if isinstance(self.threshold_prototype, DynamicThreshold):
+                    self.thresholds[category, label] = self.threshold_prototype.find(clf, x_train, y_train)
+                else:
+                    self.thresholds[category, label] = deepcopy(self.threshold_prototype)
 
                 self.classifiers[category, label] = clf
 
@@ -82,7 +90,7 @@ class PrimalSolutionComponent(Component):
                     ws = clf.predict_proba(x_test[category])
                 assert ws.shape == (n, 2), "ws.shape should be (%d, 2) not %s" % (n, ws.shape)
                 for (i, (var, index)) in enumerate(var_split[category]):
-                    if ws[i, 1] >= self.threshold:
+                    if ws[i, 1] >= self.thresholds[category, label]:
                         solution[var][index] = label
         return solution
 
