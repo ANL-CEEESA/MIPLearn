@@ -11,7 +11,7 @@ from .components.component import Component
 from .components.objective import ObjectiveValueComponent
 from .components.lazy import LazyConstraintsComponent
 from .components.primal import PrimalSolutionComponent
-from .components.branching import BranchPriorityComponent
+from .components.branching import BranchPriorityComponent, BranchPriorityExtractor
 
 from .classifiers.adaptive import AdaptiveClassifier
 

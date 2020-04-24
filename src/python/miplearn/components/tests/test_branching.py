@@ -1,49 +1,45 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+from unittest.mock import Mock
 
-from miplearn import BranchPriorityComponent, LearningSolver
-from miplearn.problems.knapsack import KnapsackInstance
 import numpy as np
-import tempfile
-
-def _get_instances():
-    return [
-        KnapsackInstance(
-            weights=[23., 26., 20., 18.],
-            prices=[505., 352., 458., 220.],
-            capacity=67.,
-        ),
-    ] * 2
+from miplearn import BranchPriorityComponent, BranchPriorityExtractor
+from miplearn.classifiers import Regressor
+from miplearn.tests import get_training_instances_and_models
 
 
-# def test_branching():
-#     instances = _get_instances()
-#     component = BranchPriorityComponent()
-#     for instance in instances:
-#         component.after_solve(None, instance, None)
-#     component.fit(None)
-#     for key in ["default"]:
-#         assert key in component.x_train.keys()
-#         assert key in component.y_train.keys()
-#         assert component.x_train[key].shape == (8,  4)
-#         assert component.y_train[key].shape == (8,  1)
-        
-        
-# def test_branch_priority_save_load():
-#     state_file = tempfile.NamedTemporaryFile(mode="r")
-#     solver = LearningSolver(components={"branch-priority": BranchPriorityComponent()})
-#     solver.parallel_solve(_get_instances(), n_jobs=2)
-#     solver.fit()
-#     comp = solver.components["branch-priority"]
-#     assert comp.x_train["default"].shape == (8, 4)
-#     assert comp.y_train["default"].shape == (8, 1)
-#     assert "default" in comp.predictors.keys()
-#     solver.save_state(state_file.name)
-#
-#     solver = LearningSolver(components={"branch-priority": BranchPriorityComponent()})
-#     solver.load_state(state_file.name)
-#     comp = solver.components["branch-priority"]
-#     assert comp.x_train["default"].shape == (8, 4)
-#     assert comp.y_train["default"].shape == (8, 1)
-#     assert "default" in comp.predictors.keys()
+def test_branch_extract():
+    instances, models = get_training_instances_and_models()
+    instances[0].branch_priorities = {"x": {0: 100, 1: 200, 2: 300, 3: 400}}
+    instances[1].branch_priorities = {"x": {0: 150, 1: 250, 2: 350, 3: 450}}
+    priorities = BranchPriorityExtractor().extract(instances)
+    assert priorities["default"].tolist() == [100, 200, 300, 400, 150, 250, 350, 450]
+
+
+def test_branch_calculate():
+    instances, models = get_training_instances_and_models()
+    comp = BranchPriorityComponent()
+
+    # If instances do not have branch_priority property, fit should compute them
+    comp.fit(instances)
+    assert instances[0].branch_priorities == {"x": {0: 5730, 1: 24878, 2: 0, 3: 0,}}
+
+    # If instances already have branch_priority, fit should not modify them
+    instances[0].branch_priorities = {"x": {0: 100, 1: 200, 2: 300, 3: 400}}
+    comp.fit(instances)
+    assert instances[0].branch_priorities == {"x": {0: 100, 1: 200, 2: 300, 3: 400}}
+
+
+def test_branch_x_y_predict():
+    instances, models = get_training_instances_and_models()
+    instances[0].branch_priorities = {"x": {0: 100, 1: 200, 2: 300, 3: 400}}
+    instances[1].branch_priorities = {"x": {0: 150, 1: 250, 2: 350, 3: 450}}
+    comp = BranchPriorityComponent()
+    comp.regressors["default"] = Mock(spec=Regressor)
+    comp.regressors["default"].predict = Mock(return_value=np.array([150., 100., 0., 0.]))
+    x, y = comp.x(instances), comp.y(instances)
+    assert x["default"].shape == (8, 5)
+    assert y["default"].shape == (8,)
+    pred = comp.predict(instances[0])
+    assert pred == {"x": {0: 150., 1: 100., 2: 0., 3: 0.}}

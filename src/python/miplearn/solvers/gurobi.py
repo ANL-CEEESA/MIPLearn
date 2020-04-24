@@ -102,3 +102,10 @@ class GurobiSolver(PyomoSolver):
     def _get_gap_tolerance_option_name(self):
         return "MIPGap"
 
+    def set_branching_priorities(self, priorities):
+        from gurobipy import GRB
+        for varname in priorities.keys():
+            var = self._varname_to_var[varname]
+            for (index, priority) in priorities[varname].items():
+                gvar = self._pyomo_solver._pyomo_var_to_solver_var_map[var[index]]
+                gvar.setAttr(GRB.Attr.BranchPriority, int(round(priority)))

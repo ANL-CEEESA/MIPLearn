@@ -25,9 +25,10 @@ main: $(addsuffix /performance.png, $(CHALLENGES))
 	python benchmark.py charts $*
 
 clean:
-	rm -rvf $(CHALLENGES)
+	rm -rvf */*/*.csv
+	rm -rvf */*/*.png
 
-clean-ml:
+clean-ml: clean-charts
 	rm -rvf */*/benchmark_ml.csv
 
 clean-charts:

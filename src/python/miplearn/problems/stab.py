@@ -97,18 +97,16 @@ class MaxWeightStableSetInstance(Instance):
     def __init__(self, graph, weights):
         self.graph = graph
         self.weights = weights
-        self.model = None
-        
+
     def to_model(self):
         nodes = list(self.graph.nodes)
-        self.model = model = pe.ConcreteModel()
+        model = pe.ConcreteModel()
         model.x = pe.Var(nodes, domain=pe.Binary)
-        model.OBJ = pe.Objective(rule=lambda m : sum(m.x[v] * self.weights[v] for v in nodes),
+        model.OBJ = pe.Objective(expr=sum(model.x[v] * self.weights[v] for v in nodes),
                                  sense=pe.maximize)
         model.clique_eqs = pe.ConstraintList()
         for clique in nx.find_cliques(self.graph):
             model.clique_eqs.add(sum(model.x[i] for i in clique) <= 1)
-
         return model
     
     def get_instance_features(self):

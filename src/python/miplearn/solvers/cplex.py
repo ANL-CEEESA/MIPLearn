@@ -45,4 +45,6 @@ class CPLEXSolver(PyomoSolver):
     def _get_gap_tolerance_option_name(self):
         return "mip_tolerances_mipgap"
 
+    def set_branching_priorities(self, priorities):
+        raise NotImplementedError
 

@@ -2,147 +2,119 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from .component import Component
-from ..extractors import Extractor
-from abc import ABC, abstractmethod
-from sklearn.neighbors import KNeighborsRegressor
+import logging
+import os
+import subprocess
+import tempfile
+from copy import deepcopy
+
 import numpy as np
-from tqdm.auto import tqdm
-from joblib import Parallel, delayed
-import multiprocessing
+from pyomo.core import Var
+from pyomo.core.base.label import TextLabeler
+from sklearn.neighbors import KNeighborsRegressor
+from tqdm import tqdm
+
+from .component import Component
+from ..extractors import Extractor, VariableFeaturesExtractor
+
+logger = logging.getLogger(__name__)
 
 
-def _default_branch_priority_predictor():
-    return KNeighborsRegressor(n_neighbors=1)
+class BranchPriorityExtractor(Extractor):
+    def extract(self, instances):
+        result = {}
+        for instance in tqdm(instances,
+                             desc="Extract (branch)",
+                             disable=len(instances) < 5):
+            var_split = self.split_variables(instance)
+            for (category, var_index_pairs) in var_split.items():
+                if category not in result:
+                    result[category] = []
+                for (var_name, index) in var_index_pairs:
+                    result[category] += [instance.branch_priorities[var_name][index]]
+        for category in result:
+            result[category] = np.array(result[category])
+        return result
 
 
 class BranchPriorityComponent(Component):
     def __init__(self,
                  node_limit=10_000,
-                 predictor=_default_branch_priority_predictor,
-                ):
-        self.pending_instances = []
-        self.x_train = {}
-        self.y_train = {}
-        self.predictors = {}
+                 regressor=KNeighborsRegressor(n_neighbors=1),
+                 ):
         self.node_limit = node_limit
-        self.predictor_factory = predictor
-    
+        self.regressors = {}
+        self.regressor_prototype = regressor
+
     def before_solve(self, solver, instance, model):
-        assert solver.internal_solver.name == "gurobi_persistent", "Only GurobiPersistent is currently supported"
-        from gurobipy import GRB
-        var_split = Extractor.split_variables(instance, model)
-        for category in var_split.keys():
-            if category not in self.predictors.keys():
-                continue
-            var_index_pairs = var_split[category]
-            for (i, (var, index)) in enumerate(var_index_pairs):
-                x = self._build_x(instance, var, index)
-                y = self.predictors[category].predict([x])[0][0]
-                gvar = solver.internal_solver._pyomo_var_to_solver_var_map[var[index]]
-                gvar.setAttr(GRB.Attr.BranchPriority, int(round(y)))
+        logger.info("Predicting branching priorities...")
+        priorities = self.predict(instance)
+        solver.internal_solver.set_branching_priorities(priorities)
 
-                    
-    def after_solve(self, solver, instance, model):
-        self.pending_instances += [instance]
-    
-    def fit(self, solver, n_jobs=1):
-        def _process(instance):
-            # Create LP file
-            import subprocess, tempfile, os, sys
-            lp_file = tempfile.NamedTemporaryFile(suffix=".lp")
-            priority_file = tempfile.NamedTemporaryFile()
+    def after_solve(self, solver, instance, model, results):
+        pass
+
+    def fit(self, training_instances, n_jobs=1):
+        for instance in training_instances:
+            if not hasattr(instance, "branch_priorities"):
+                instance.branch_priorities = self.compute_priorities(instance)
+        x, y = self.x(training_instances), self.y(training_instances)
+        for category in x.keys():
+            self.regressors[category] = deepcopy(self.regressor_prototype)
+            self.regressors[category].fit(x[category], y[category])
+
+    def x(self, instances):
+        return VariableFeaturesExtractor().extract(instances)
+
+    def y(self, instances):
+        return BranchPriorityExtractor().extract(instances)
+
+    def compute_priorities(self, instance, model=None):
+        # Create LP file
+        lp_file = tempfile.NamedTemporaryFile(suffix=".lp")
+        if model is None:
             model = instance.to_model()
-            model.write(lp_file.name)
-            
-            # Run Julia script
-            src_dirname = os.path.dirname(os.path.realpath(__file__))
-            julia_dirname = "%s/../../../julia" % src_dirname
-            priority_file = tempfile.NamedTemporaryFile(mode="r")
-            subprocess.run(["julia",
-                            "--project=%s" % julia_dirname,
-                            "%s/src/branching.jl" % julia_dirname,
-                            lp_file.name,
-                            priority_file.name,
-                            str(self.node_limit),
-                           ],
-                           check=True,
-                          )
-            
-            # Parse output
-            tokens = [line.strip().split(",") for line in priority_file.readlines()]
-            lp_varname_to_priority = {t[0]: int(t[1]) for t in tokens}
-        
-            # Map priorities back to Pyomo variables
-            pyomo_var_to_priority = {}
-            from pyomo.core import Var
-            from pyomo.core.base.label import TextLabeler
-            labeler = TextLabeler()
-            symbol_map = list(model.solutions.symbol_map.values())[0]
-            
-            # Build x_train and y_train
-            comp = BranchPriorityComponent()
-            for var in model.component_objects(Var):
-                for index in var:
-                    category = instance.get_variable_category(var, index)
-                    if category is None:
-                        continue
-                    lp_varname = symbol_map.getSymbol(var[index], labeler)
-                    var_priority = lp_varname_to_priority[lp_varname]
-                    x = self._build_x(instance, var, index)
-                    y = np.array([var_priority])
-                    
-                    if category not in comp.x_train.keys():
-                        comp.x_train[category] = np.array([x])
-                        comp.y_train[category] = np.array([y])
-                    else:
-                        comp.x_train[category] = np.vstack([comp.x_train[category], x])
-                        comp.y_train[category] = np.vstack([comp.y_train[category], y])
-                
-            return comp
-        
-        # Run strong branching on pending instances
-        subcomponents = Parallel(n_jobs=n_jobs)(
-            delayed(_process)(instance)
-            for instance in tqdm(self.pending_instances, desc="Fit (branch)")
-        )
-        self.merge(subcomponents)
-        self.pending_instances.clear()
+        model.write(lp_file.name)
 
-        # Retrain ML predictors
-        for category in self.x_train.keys():
-            x_train = self.x_train[category]
-            y_train = self.y_train[category]
-            self.predictors[category] = self.predictor_factory()
-            self.predictors[category].fit(x_train, y_train)
-        
-    def _build_x(self, instance, var, index):
-        instance_features = instance.get_instance_features()
-        var_features = instance.get_variable_features(var, index)
-        return np.hstack([instance_features, var_features])
-            
-    def merge(self, other_components):
-        keys = set(self.x_train.keys())
-        for comp in other_components:
-            self.pending_instances += comp.pending_instances
-            keys = keys.union(set(comp.x_train.keys()))
-            
-        # Merge x_train and y_train
-        for key in keys:
-            x_train_submatrices = [comp.x_train[key]
-                                   for comp in other_components
-                                   if key in comp.x_train.keys()]
-            y_train_submatrices = [comp.y_train[key]
-                                   for comp in other_components
-                                   if key in comp.y_train.keys()]
-            if key in self.x_train.keys():
-                x_train_submatrices += [self.x_train[key]]
-                y_train_submatrices += [self.y_train[key]]
-            self.x_train[key] = np.vstack(x_train_submatrices)
-            self.y_train[key] = np.vstack(y_train_submatrices)
-            
-        # Merge trained ML predictors
-        for comp in other_components:
-            for key in comp.predictors.keys():
-                if key not in self.predictors.keys():
-                    self.predictors[key] = comp.predictors[key]
+        # Run Julia script
+        src_dirname = os.path.dirname(os.path.realpath(__file__))
+        julia_dirname = "%s/../../../julia" % src_dirname
+        priority_file = tempfile.NamedTemporaryFile(mode="r")
+        subprocess.run(["julia",
+                        "--project=%s" % julia_dirname,
+                        "%s/src/branching.jl" % julia_dirname,
+                        lp_file.name,
+                        priority_file.name,
+                        str(self.node_limit)],
+                       check=True)
+
+        # Parse output
+        tokens = [line.strip().split(",") for line in priority_file.readlines()]
+        lp_varname_to_priority = {t[0]: int(t[1]) for t in tokens}
+
+        # Map priorities back to Pyomo variables
+        labeler = TextLabeler()
+        symbol_map = list(model.solutions.symbol_map.values())[0]
+        priorities = {}
+        for var in model.component_objects(Var):
+            priorities[var.name] = {}
+            for index in var:
+                category = instance.get_variable_category(var, index)
+                if category is None:
+                    continue
+                lp_varname = symbol_map.getSymbol(var[index], labeler)
+                var_priority = lp_varname_to_priority[lp_varname]
+                priorities[var.name][index] = var_priority
+        return priorities
+
+    def predict(self, instance):
+        priority = {}
+        x_test = self.x([instance])
+        var_split = Extractor.split_variables(instance)
+        for category in self.regressors.keys():
+            y_test = self.regressors[category].predict(x_test[category])
+            for (i, (var, index)) in enumerate(var_split[category]):
+                if var not in priority.keys():
+                    priority[var] = {}
+                priority[var][index] = y_test[i]
+        return priority
