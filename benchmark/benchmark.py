@@ -66,8 +66,8 @@ def train():
     solver = LearningSolver(time_limit=train_time_limit,
                             solver=internal_solver)
     solver.add(BranchPriorityComponent())
-    solver.parallel_solve(train_instances[:1], n_jobs=n_jobs)
-    solver.fit(train_instances[:1])
+    solver.parallel_solve(train_instances, n_jobs=n_jobs)
+    solver.fit(train_instances)
     save(train_instances, "%s/train_instances.bin" % basepath)
     save(test_instances, "%s/test_instances.bin" % basepath)
 

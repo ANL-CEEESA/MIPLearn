@@ -55,7 +55,7 @@ class BranchPriorityComponent(Component):
         pass
 
     def fit(self, training_instances, n_jobs=1):
-        for instance in training_instances:
+        for instance in tqdm(training_instances, desc="Fit (branch)"):
             if not hasattr(instance, "branch_priorities"):
                 instance.branch_priorities = self.compute_priorities(instance)
         x, y = self.x(training_instances), self.y(training_instances)
