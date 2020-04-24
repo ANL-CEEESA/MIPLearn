@@ -21,7 +21,7 @@ class PrimalSolutionComponent(Component):
     def __init__(self,
                  classifier=AdaptiveClassifier(),
                  mode="exact",
-                 threshold=MinPrecisionThreshold(0.95)):
+                 threshold=MinPrecisionThreshold(0.98)):
         self.mode = mode
         self.classifiers = {}
         self.thresholds = {}
