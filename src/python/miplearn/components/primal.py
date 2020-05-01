@@ -38,6 +38,12 @@ class PrimalSolutionComponent(Component):
     def after_solve(self, solver, instance, model, results):
         pass
 
+    def x(self, training_instances):
+        return VariableFeaturesExtractor().extract(training_instances)
+
+    def y(self, training_instances):
+        return SolutionExtractor().extract(training_instances)
+
     def fit(self, training_instances, n_jobs=1):
         logger.debug("Extracting features...")
         features = VariableFeaturesExtractor().extract(training_instances)
