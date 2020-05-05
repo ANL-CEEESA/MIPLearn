@@ -25,7 +25,7 @@ import miplearn
 ```
 
 !!! note
-    To install MIPLearn in another Python environment, switch to that enviroment before running `make install`. To install the package in development mode, run `make develop` instead.
+    To install MIPLearn in another Python environment, switch to that environment before running `make install`. To install the package in development mode, run `make develop` instead.
 
 ### Using `LearningSolver`
 

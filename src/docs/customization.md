@@ -45,12 +45,12 @@ solver = LearningSolver()
 solver.add(LazyConstraintComponent(...))
 ```
 
-## Adjusting component aggresiveness
+## Adjusting component aggressiveness
 
 The aggressiveness of classification components (such as `PrimalSolutionComponent` and `LazyConstraintComponent`) can
 be adjusted through the `threshold` constructor argument. Internally, these components ask the ML models how confident
 they are on each prediction (through the `predict_proba` method in the sklearn API), and only take into account
-predictions which have probabilities above the threshold. Lowering a component's threshold increases its aggresiveness,
+predictions which have probabilities above the threshold. Lowering a component's threshold increases its aggressiveness,
 while raising a component's threshold makes it more conservative. 
 
 MIPLearn also includes `MinPrecisionThreshold`, a dynamic threshold which adjusts itself automatically during training

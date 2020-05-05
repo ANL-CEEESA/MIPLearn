@@ -20,9 +20,9 @@ The package uses Machine Learning (ML) to automatically identify patterns in pre
 * [Benchmark utilities](benchmark.md)
 * [Benchmark problems, challenges and results](problems.md)
 * [Customizing the solver](customization.md)
-* [License, authors, references and acknowledgements](about.md)
+* [License, authors, references and acknowledgments](about.md)
 
-### Souce Code
+### Source Code
 
 * [https://github.com/ANL-CEEESA/MIPLearn](https://github.com/ANL-CEEESA/MIPLearn)
 

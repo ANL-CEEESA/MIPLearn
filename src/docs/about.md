@@ -5,7 +5,7 @@
 * **Alinson S. Xavier,** Argonne National Laboratory <<axavier@anl.gov>>
 * **Feng Qiu,** Argonne National Laboratory <<fqiu@anl.gov>>
 
-### Acknowledgements
+### Acknowledgments
 
 * Based upon work supported by Laboratory Directed Research and Development (LDRD) funding from Argonne National Laboratory, provided by the Director, Office of Science, of the U.S. Department of Energy under Contract No. DE-AC02-06CH11357.
 
