@@ -61,3 +61,74 @@ more aggressive, this precision may be lowered.
 ```python
 PrimalSolutionComponent(threshold=MinPrecisionThreshold(0.95))
 ```
+
+### Evaluating component performance
+
+MIPLearn allows solver components to be modified and evaluated in isolation. In the following example, we build and
+fit `PrimalSolutionComponent` outside a solver, then evaluate its performance.
+
+```python
+from miplearn import PrimalSolutionComponent
+
+# User-provided set os solved training instances
+train_instances = [...]
+
+# Construct and fit component on a subset of the training set
+comp = PrimalSolutionComponent()
+comp.fit(train_instances[:100])
+
+# Evaluate performance on an additional set of training instances
+ev = comp.evaluate(train_instances[100:150])
+``` 
+
+The method `evaluate` returns a dictionary with performance evaluation statistics for each training instance provided,
+and for each type of prediction the component makes. To obtain a summary across all instances, pandas may be used, as below:
+
+```python
+import pandas as pd
+pd.DataFrame(ev["Fix one"]).mean(axis=1)
+```
+```
+Predicted positive          3.120000
+Predicted negative        196.880000
+Condition positive         62.500000
+Condition negative        137.500000
+True positive               3.060000
+True negative             137.440000
+False positive              0.060000
+False negative             59.440000
+Accuracy                    0.702500
+F1 score                    0.093050
+Recall                      0.048921
+Precision                   0.981667
+Predicted positive (%)      1.560000
+Predicted negative (%)     98.440000
+Condition positive (%)     31.250000
+Condition negative (%)     68.750000
+True positive (%)           1.530000
+True negative (%)          68.720000
+False positive (%)          0.030000
+False negative (%)         29.720000
+dtype: float64
+```
+
+Regression components (such as `ObjectiveValueComponent`) can also be used similarly, as shown in the next example:
+
+```python
+from miplearn import ObjectiveValueComponent
+comp = ObjectiveValueComponent()
+comp.fit(train_instances[:100])
+ev = comp.evaluate(train_instances[100:150])
+
+import pandas as pd
+pd.DataFrame(ev).mean(axis=1)
+```
+```
+Mean squared error       7001.977827
+Explained variance          0.519790
+Max error                 242.375804
+Mean absolute error        65.843924
+R2                          0.517612
+Median absolute error      65.843924
+dtype: float64
+```
