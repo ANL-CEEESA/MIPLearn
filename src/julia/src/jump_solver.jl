@@ -131,6 +131,10 @@ end
         @error "JuMPSolver: set_threads not implemented"
     end
 
+    function set_branching_priorities(self, priorities)
+        @error "JuMPSolver: set_branching_priorities not implemented"
+    end
+
     function set_time_limit(self, time_limit)
         JuMP.set_time_limit_sec(self.model, time_limit)
     end

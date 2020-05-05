@@ -2,11 +2,10 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from miplearn import LearningSolver
-from miplearn.problems.stab import MaxWeightStableSetInstance
-from miplearn.problems.stab import MaxWeightStableSetGenerator
 import networkx as nx
 import numpy as np
+from miplearn import LearningSolver
+from miplearn.problems.stab import MaxWeightStableSetInstance
 from scipy.stats import uniform, randint
 
 
@@ -16,7 +15,7 @@ def test_stab():
     instance = MaxWeightStableSetInstance(graph, weights)
     solver = LearningSolver()
     solver.solve(instance)
-    assert instance.model.OBJ() == 2.
+    assert instance.lower_bound == 2.
     
     
 def test_stab_generator_fixed_graph():
