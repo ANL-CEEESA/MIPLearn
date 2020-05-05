@@ -48,8 +48,8 @@ class LearningSolver:
                  mode="exact",
                  solver="gurobi",
                  threads=4,
-                 time_limit=None):
-
+                 time_limit=None,
+                 node_limit=None):
         self.components = {}
         self.mode = mode
         self.internal_solver = None
@@ -58,6 +58,7 @@ class LearningSolver:
         self.time_limit = time_limit
         self.gap_tolerance = gap_tolerance
         self.tee = False
+        self.node_limit = node_limit
 
         if components is not None:
             for comp in components:
@@ -86,6 +87,8 @@ class LearningSolver:
             solver.set_time_limit(self.time_limit)
         if self.gap_tolerance is not None:
             solver.set_gap_tolerance(self.gap_tolerance)
+        if self.node_limit is not None:
+            solver.set_node_limit(self.node_limit)
         return solver
 
     def solve(self,

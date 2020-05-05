@@ -5,106 +5,62 @@
 import logging
 from copy import deepcopy
 
-import numpy as np
-
 from miplearn.classifiers import Classifier
-from sklearn.model_selection import cross_val_score
+from miplearn.classifiers.counting import CountingClassifier
+from miplearn.classifiers.evaluator import ClassifierEvaluator
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 logger = logging.getLogger(__name__)
 
 
 class AdaptiveClassifier(Classifier):
     """
-    A classifier that automatically switches strategies based on the number of
-    samples and cross-validation scores.
+    A meta-classifier which dynamically selects what actual classifier to use
+    based on its cross-validation score on a particular training data set.
     """
+
     def __init__(self,
-                 predictor=None,
-                 min_samples_predict=1,
-                 min_samples_cv=100,
-                 thr_fix=0.999,
-                 thr_alpha=0.50,
-                 thr_balance=0.95,
-                 ):
-        self.min_samples_predict = min_samples_predict
-        self.min_samples_cv = min_samples_cv
-        self.thr_fix = thr_fix
-        self.thr_alpha = thr_alpha
-        self.thr_balance = thr_balance
-        self.predictor_factory = predictor
-        self.predictor = None
+                 candidates=None,
+                 evaluator=ClassifierEvaluator()):
+        """
+        Initializes the meta-classifier.
+        """
+        if candidates is None:
+            candidates = {
+                "knn(100)": {
+                    "classifier": KNeighborsClassifier(n_neighbors=100),
+                    "min samples": 100,
+                },
+                "logistic": {
+                    "classifier": make_pipeline(StandardScaler(),
+                                                LogisticRegression()),
+                    "min samples": 30,
+                },
+                "counting": {
+                    "classifier": CountingClassifier(),
+                    "min samples": 0,
+                }
+            }
+        self.candidates = candidates
+        self.evaluator = evaluator
+        self.classifier = None
 
     def fit(self, x_train, y_train):
+        best_name, best_clf, best_score = None, None, -float("inf")
         n_samples = x_train.shape[0]
-
-        # If number of samples is too small, don't predict anything.
-        if n_samples < self.min_samples_predict:
-            logger.debug("    Too few samples (%d); always predicting false" % n_samples)
-            self.predictor = 0
-            return
-
-        # If vast majority of observations are false, always return false.
-        y_train_avg = np.average(y_train)
-        if y_train_avg <= 1.0 - self.thr_fix:
-            logger.debug("    Most samples are negative (%.3f); always returning false" % y_train_avg)
-            self.predictor = 0
-            return
-
-        # If vast majority of observations are true, always return true.
-        if y_train_avg >= self.thr_fix:
-            logger.debug("    Most samples are positive (%.3f); always returning true" % y_train_avg)
-            self.predictor = 1
-            return
-
-        # If classes are too unbalanced, don't predict anything.
-        if y_train_avg < (1 - self.thr_balance) or y_train_avg > self.thr_balance:
-            logger.debug("    Classes are too unbalanced (%.3f); always returning false" % y_train_avg)
-            self.predictor = 0
-            return
-
-        # Select ML model if none is provided
-        if self.predictor_factory is None:
-            if n_samples < 30:
-                from sklearn.neighbors import KNeighborsClassifier
-                self.predictor_factory = KNeighborsClassifier(n_neighbors=n_samples)
-            else:
-                from sklearn.pipeline import make_pipeline
-                from sklearn.preprocessing import StandardScaler
-                from sklearn.linear_model import LogisticRegression
-                self.predictor_factory = make_pipeline(StandardScaler(), LogisticRegression())
-
-        # Create predictor
-        if callable(self.predictor_factory):
-            pred = self.predictor_factory()
-        else:
-            pred = deepcopy(self.predictor_factory)
-
-        # Skip cross-validation if number of samples is too small
-        if n_samples < self.min_samples_cv:
-            logger.debug("    Too few samples (%d); skipping cross validation" % n_samples)
-            self.predictor = pred
-            self.predictor.fit(x_train, y_train)
-            return
-
-        # Calculate cross-validation score
-        cv_score = np.mean(cross_val_score(pred, x_train, y_train, cv=5))
-        dummy_score = max(y_train_avg, 1 - y_train_avg)
-        cv_thr = 1. * self.thr_alpha + dummy_score * (1 - self.thr_alpha)
-
-        # If cross-validation score is too low, don't predict anything.
-        if cv_score < cv_thr:
-            logger.debug("    Score is too low (%.3f < %.3f); always returning false" % (cv_score, cv_thr))
-            self.predictor = 0
-        else:
-            logger.debug("    Score is acceptable (%.3f > %.3f); training classifier" % (cv_score, cv_thr))
-            self.predictor = pred
-            self.predictor.fit(x_train, y_train)
+        for (name, clf_dict) in self.candidates.items():
+            if n_samples < clf_dict["min samples"]:
+                continue
+            clf = deepcopy(clf_dict["classifier"])
+            clf.fit(x_train, y_train)
+            score = self.evaluator.evaluate(clf, x_train, y_train)
+            if score > best_score:
+                best_name, best_clf, best_score = name, clf, score
+        logger.debug("Best classifier: %s (score=%.3f)" % (best_name, best_score))
+        self.classifier = best_clf
 
     def predict_proba(self, x_test):
-        if isinstance(self.predictor, int):
-            y_pred = np.zeros((x_test.shape[0], 2))
-            y_pred[:, self.predictor] = 1.0
-            return y_pred
-        else:
-            return self.predictor.predict_proba(x_test)
-
+        return self.classifier.predict_proba(x_test)

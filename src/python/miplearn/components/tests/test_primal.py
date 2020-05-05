@@ -39,7 +39,7 @@ def test_evaluate():
         [1., 0.],  # x[3] instances[0]
     ]))
     comp = PrimalSolutionComponent(classifier=[clf_zero, clf_one],
-                                   dynamic_thresholds=False)
+                                   threshold=0.50)
     comp.fit(instances[:1])
     assert comp.predict(instances[0]) == {"x": {0: 0,
                                                 1: 0,
@@ -97,4 +97,3 @@ def test_primal_parallel_fit():
     comp = PrimalSolutionComponent()
     comp.fit(instances, n_jobs=2)
     assert len(comp.classifiers) == 2
-    assert len(comp.thresholds) == 2

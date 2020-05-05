@@ -21,7 +21,8 @@ class CountingClassifier(Classifier):
         self.mean = np.mean(y_train)
 
     def predict_proba(self, x_test):
-        return np.array([[1 - self.mean, self.mean]])
+        return np.array([[1 - self.mean, self.mean]
+                         for _ in range(x_test.shape[0])])
 
     def __repr__(self):
-        return "CountingClassifier(mean=%.3f)" % self.mean
+        return "CountingClassifier(mean=%s)" % self.mean

@@ -4,12 +4,10 @@
 
 from copy import deepcopy
 
-from miplearn.classifiers.adaptive import AdaptiveClassifier
-from miplearn.components import classifier_evaluation_dict
-from sklearn.metrics import roc_curve
-from p_tqdm import p_map
-
 from .component import Component
+from ..classifiers.adaptive import AdaptiveClassifier
+from ..classifiers.threshold import MinPrecisionThreshold, DynamicThreshold
+from ..components import classifier_evaluation_dict
 from ..extractors import *
 
 logger = logging.getLogger(__name__)
@@ -23,18 +21,12 @@ class PrimalSolutionComponent(Component):
     def __init__(self,
                  classifier=AdaptiveClassifier(),
                  mode="exact",
-                 max_fpr=[1e-3, 1e-3],
-                 min_threshold=[0.75, 0.75],
-                 dynamic_thresholds=True,
-                 ):
+                 threshold=MinPrecisionThreshold(0.98)):
         self.mode = mode
-        self.is_warm_start_available = False
-        self.max_fpr = max_fpr
-        self.min_threshold = min_threshold
-        self.thresholds = {}
         self.classifiers = {}
+        self.thresholds = {}
+        self.threshold_prototype = threshold
         self.classifier_prototype = classifier
-        self.dynamic_thresholds = dynamic_thresholds
 
     def before_solve(self, solver, instance, model):
         solution = self.predict(instance)
@@ -46,79 +38,64 @@ class PrimalSolutionComponent(Component):
     def after_solve(self, solver, instance, model, results):
         pass
 
+    def x(self, training_instances):
+        return VariableFeaturesExtractor().extract(training_instances)
+
+    def y(self, training_instances):
+        return SolutionExtractor().extract(training_instances)
+
     def fit(self, training_instances, n_jobs=1):
         logger.debug("Extracting features...")
         features = VariableFeaturesExtractor().extract(training_instances)
         solutions = SolutionExtractor().extract(training_instances)
 
-        def _fit(args):
-            category, label = args[0], args[1]
+        for category in tqdm(features.keys(), desc="Fit (primal)"):
             x_train = features[category]
-            y_train = solutions[category]
-            y = y_train[:, label].astype(int)
+            for label in [0, 1]:
+                y_train = solutions[category][:, label].astype(int)
 
-            if isinstance(self.classifier_prototype, list):
-                clf = deepcopy(self.classifier_prototype[label])
-            else:
-                clf = deepcopy(self.classifier_prototype)
-            clf.fit(x_train, y)
+                # If all samples are either positive or negative, make constant predictions
+                y_avg = np.average(y_train)
+                if y_avg < 0.001 or y_avg >= 0.999:
+                    self.classifiers[category, label] = round(y_avg)
+                    self.thresholds[category, label] = 0.50
+                    continue
 
-            y_avg = np.average(y)
-            if (not self.dynamic_thresholds) or y_avg <= 0.001 or y_avg >= 0.999:
-                return {"classifier": clf,
-                        "threshold": self.min_threshold[label]}
+                # Create a copy of classifier prototype and train it
+                if isinstance(self.classifier_prototype, list):
+                    clf = deepcopy(self.classifier_prototype[label])
+                else:
+                    clf = deepcopy(self.classifier_prototype)
+                clf.fit(x_train, y_train)
 
-            proba = clf.predict_proba(x_train)
-            assert isinstance(proba, np.ndarray), \
-                "classifier should return numpy array"
-            assert proba.shape == (x_train.shape[0], 2), \
-                "classifier should return (%d,%d)-shaped array, not %s" % (
-                    x_train.shape[0], 2, str(proba.shape))
+                # Find threshold (dynamic or static)
+                if isinstance(self.threshold_prototype, DynamicThreshold):
+                    self.thresholds[category, label] = self.threshold_prototype.find(clf, x_train, y_train)
+                else:
+                    self.thresholds[category, label] = deepcopy(self.threshold_prototype)
 
-            y_scores = proba[:, 1]
-            fpr, tpr, thresholds = roc_curve(y, y_scores)
-            k = 0
-            while True:
-                if (k + 1) > len(fpr):
-                    break
-                if fpr[k + 1] > self.max_fpr[label]:
-                    break
-                if thresholds[k + 1] < self.min_threshold[label]:
-                    break
-                k = k + 1
-            self.thresholds[category, label] = thresholds[k]
-
-            return {"classifier": clf,
-                    "threshold": thresholds[k]}
-
-        items = [(category, label)
-                 for category in features.keys()
-                 for label in [0, 1]]
-
-        if n_jobs == 1:
-            results = list(map(_fit, tqdm(items, desc="Fit (primal)")))
-        else:
-            results = p_map(_fit, items, num_cpus=n_jobs)
-
-        for (idx, (category, label)) in enumerate(items):
-            self.thresholds[category, label] = results[idx]["threshold"]
-            self.classifiers[category, label] = results[idx]["classifier"]
+                self.classifiers[category, label] = clf
 
     def predict(self, instance):
-        x_test = VariableFeaturesExtractor().extract([instance])
         solution = {}
+        x_test = VariableFeaturesExtractor().extract([instance])
         var_split = Extractor.split_variables(instance)
         for category in var_split.keys():
+            n = len(var_split[category])
             for (i, (var, index)) in enumerate(var_split[category]):
                 if var not in solution.keys():
                     solution[var] = {}
                 solution[var][index] = None
-                for label in [0, 1]:
-                    if (category, label) not in self.classifiers.keys():
-                        continue
-                    ws = self.classifiers[category, label].predict_proba(x_test[category])
-                    logger.debug("%s[%s] ws=%.6f threshold=%.6f" %
-                                 (var, index, ws[i, 1], self.thresholds[category, label]))
+            for label in [0, 1]:
+                if (category, label) not in self.classifiers.keys():
+                    continue
+                clf = self.classifiers[category, label]
+                if isinstance(clf, float):
+                    ws = np.array([[1 - clf, clf] for _ in range(n)])
+                else:
+                    ws = clf.predict_proba(x_test[category])
+                assert ws.shape == (n, 2), "ws.shape should be (%d, 2) not %s" % (n, ws.shape)
+                for (i, (var, index)) in enumerate(var_split[category]):
                     if ws[i, 1] >= self.thresholds[category, label]:
                         solution[var][index] = label
         return solution

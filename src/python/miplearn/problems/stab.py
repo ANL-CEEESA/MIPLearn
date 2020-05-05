@@ -97,26 +97,34 @@ class MaxWeightStableSetInstance(Instance):
     def __init__(self, graph, weights):
         self.graph = graph
         self.weights = weights
-        self.model = None
-        
+
     def to_model(self):
         nodes = list(self.graph.nodes)
-        edges = list(self.graph.edges)
-        self.model = model = pe.ConcreteModel()
+        model = pe.ConcreteModel()
         model.x = pe.Var(nodes, domain=pe.Binary)
-        model.OBJ = pe.Objective(rule=lambda m : sum(m.x[v] * self.weights[v] for v in nodes),
+        model.OBJ = pe.Objective(expr=sum(model.x[v] * self.weights[v] for v in nodes),
                                  sense=pe.maximize)
-        model.edge_eqs = pe.ConstraintList()
-        for edge in edges:
-            model.edge_eqs.add(model.x[edge[0]] + model.x[edge[1]] <= 1)
-
+        model.clique_eqs = pe.ConstraintList()
+        for clique in nx.find_cliques(self.graph):
+            model.clique_eqs.add(sum(model.x[i] for i in clique) <= 1)
         return model
     
     def get_instance_features(self):
-        return np.array(self.weights)
-    
-    def get_variable_features(self, var, index):
         return np.ones(0)
-    
+
+    def get_variable_features(self, var, index):
+        neighbor_weights = [0] * 15
+        neighbor_degrees = [100] * 15
+        for n in self.graph.neighbors(index):
+            neighbor_weights += [self.weights[n] / self.weights[index]]
+            neighbor_degrees += [self.graph.degree(n) / self.graph.degree(index)]
+        neighbor_weights.sort(reverse=True)
+        neighbor_degrees.sort()
+        features = []
+        features += neighbor_weights[:5]
+        features += neighbor_degrees[:5]
+        features += [self.graph.degree(index)]
+        return np.array(features)
+
     def get_variable_category(self, var, index):
-        return index
+        return "default"

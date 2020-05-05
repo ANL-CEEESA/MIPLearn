@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class Extractor(ABC):
     @abstractmethod
-    def extract(self, instances, models):
+    def extract(self, instances,):
         pass
     
     @staticmethod
@@ -81,7 +81,7 @@ class SolutionExtractor(Extractor):
     
     
 class InstanceFeaturesExtractor(Extractor):
-    def extract(self, instances, models=None):
+    def extract(self, instances):
         return np.vstack([
             np.hstack([
                 instance.get_instance_features(),
@@ -96,7 +96,7 @@ class ObjectiveValueExtractor(Extractor):
         assert kind in ["lower bound", "upper bound", "lp"]
         self.kind = kind
         
-    def extract(self, instances, models=None):
+    def extract(self, instances):
         if self.kind == "lower bound":
             return np.array([[instance.lower_bound] for instance in instances])
         if self.kind == "upper bound":
