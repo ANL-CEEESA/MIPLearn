@@ -146,6 +146,7 @@
                 
             <li class="second-level"><a href="#evaluating-component-performance">Evaluating component performance</a></li>
                 
+                <li class="third-level"><a href="#using-customized-ml-classifiers-and-regressors">Using customized ML classifiers and regressors</a></li>
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -265,6 +266,27 @@ Mean absolute error        65.843924
 R2                          0.517612
 Median absolute error      65.843924
 dtype: float64
+</code></pre>
+
+<h3 id="using-customized-ml-classifiers-and-regressors">Using customized ML classifiers and regressors</h3>
+<p>By default, given a training set of instantes, MIPLearn trains a fixed set of ML classifiers and regressors, then
+selects the best one based on cross-validation performance. Alternatively, the user specify which model a component
+should use through the <code>classifier</code> or <code>regressor</code> contructor parameters. The provided classifiers and regressors must 
+follow the sklearn API. In particular, classifiers must provide the methods <code>fit</code>, <code>predict_proba</code> and <code>predict</code>,
+while regressors must provide the methods <code>fit</code> and <code>predict</code></p>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>MIPLearn must be able to generate a copy of any custom ML classifiers and regressors through 
+the standard  <code>copy.deepcopy</code> method. This currently makes it incompatible with Keras and TensorFlow
+predictors. This is a known limitation, which will be addressed in a future version.</p>
+</div>
+<p>The example below shows how to construct a <code>PrimalSolutionComponent</code> which internally uses
+sklearn's <code>KNeighborsClassifiers</code>. Any other sklearn classifier or pipeline can be used. </p>
+<pre><code class="python">from miplearn import PrimalSolutionComponent
+from sklearn.neighbors import KNeighborsClassifier
+
+comp = PrimalSolutionComponent(classifier=KNeighborsClassifier(n_neighbors=5))
+comp.fit(train_instances)
 </code></pre></div>
         
         
