@@ -141,7 +141,7 @@ dtype: float64
 ### Using customized ML classifiers and regressors
 
 By default, given a training set of instantes, MIPLearn trains a fixed set of ML classifiers and regressors, then
-selects the best one based on cross-validation performance. Alternatively, the user specify which model a component
+selects the best one based on cross-validation performance. Alternatively, the user may specify which ML model a component
 should use through the `classifier` or `regressor` contructor parameters. The provided classifiers and regressors must 
 follow the sklearn API. In particular, classifiers must provide the methods `fit`, `predict_proba` and `predict`,
 while regressors must provide the methods `fit` and `predict`
