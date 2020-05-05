@@ -1,6 +1,8 @@
 # Customization
 
-## Selecting the internal MIP solver
+## Customizing solver parameters
+
+### Selecting the internal MIP solver
 
 By default, `LearningSolver` uses [Gurobi](https://www.gurobi.com/) as its internal MIP solver. Another supported solver is [IBM ILOG CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio). To switch between solvers, use the `solver` constructor argument, as shown below. It is also possible to specify a time limit (in seconds) and a relative MIP gap tolerance.
 
@@ -11,7 +13,7 @@ solver = LearningSolver(solver="cplex",
                         gap_tolerance=1e-3)
 ```
 
-## Selecting solver components
+## Customizing solver components
 
 `LearningSolver` is composed by a number of individual machine-learning components, each targeting a different part of the solution process. Each component can be individually enabled, disabled or customized. The following components are enabled by default:
 
@@ -22,6 +24,8 @@ solver = LearningSolver(solver="cplex",
 The following components are also available, but not enabled by default:
 
 * `BranchPriorityComponent`: Predicts good branch priorities for decision variables.
+
+### Selecting components
 
 To create a `LearningSolver` with a specific set of components, the `components` constructor argument may be used, as the next example shows:
 
@@ -45,7 +49,7 @@ solver = LearningSolver()
 solver.add(LazyConstraintComponent(...))
 ```
 
-## Adjusting component aggressiveness
+### Adjusting component aggressiveness
 
 The aggressiveness of classification components (such as `PrimalSolutionComponent` and `LazyConstraintComponent`) can
 be adjusted through the `threshold` constructor argument. Internally, these components ask the ML models how confident
@@ -62,7 +66,7 @@ more aggressive, this precision may be lowered.
 PrimalSolutionComponent(threshold=MinPrecisionThreshold(0.95))
 ```
 
-## Evaluating component performance
+### Evaluating component performance
 
 MIPLearn allows solver components to be modified, trained and evaluated in isolation. In the following example, we build and
 fit `PrimalSolutionComponent` outside the solver, then evaluate its performance.
