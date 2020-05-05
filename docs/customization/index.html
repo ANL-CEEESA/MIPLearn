@@ -144,7 +144,8 @@
                 
             <li class="second-level"><a href="#adjusting-component-aggresiveness">Adjusting component aggresiveness</a></li>
                 
-                <li class="third-level"><a href="#evaluating-component-performance">Evaluating component performance</a></li>
+            <li class="second-level"><a href="#evaluating-component-performance">Evaluating component performance</a></li>
+                
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -201,8 +202,8 @@ more aggressive, this precision may be lowered.</p>
 <pre><code class="python">PrimalSolutionComponent(threshold=MinPrecisionThreshold(0.95))
 </code></pre>
 
-<h3 id="evaluating-component-performance">Evaluating component performance</h3>
-<p>MIPLearn allows solver components to be modified and evaluated in isolation. In the following example, we build and
+<h2 id="evaluating-component-performance">Evaluating component performance</h2>
+<p>MIPLearn allows solver components to be modified, trained and evaluated in isolation. In the following example, we build and
 fit <code>PrimalSolutionComponent</code> outside a solver, then evaluate its performance.</p>
 <pre><code class="python">from miplearn import PrimalSolutionComponent
 
@@ -223,7 +224,7 @@ and for each type of prediction the component makes. To obtain a summary across 
 pd.DataFrame(ev[&quot;Fix one&quot;]).mean(axis=1)
 </code></pre>
 
-<pre><code>Predicted positive          3.120000
+<pre><code class="text">Predicted positive          3.120000
 Predicted negative        196.880000
 Condition positive         62.500000
 Condition negative        137.500000
@@ -256,7 +257,7 @@ import pandas as pd
 pd.DataFrame(ev).mean(axis=1)
 </code></pre>
 
-<pre><code>Mean squared error       7001.977827
+<pre><code class="text">Mean squared error       7001.977827
 Explained variance          0.519790
 Max error                 242.375804
 Mean absolute error        65.843924

@@ -62,9 +62,9 @@ more aggressive, this precision may be lowered.
 PrimalSolutionComponent(threshold=MinPrecisionThreshold(0.95))
 ```
 
-### Evaluating component performance
+## Evaluating component performance
 
-MIPLearn allows solver components to be modified and evaluated in isolation. In the following example, we build and
+MIPLearn allows solver components to be modified, trained and evaluated in isolation. In the following example, we build and
 fit `PrimalSolutionComponent` outside a solver, then evaluate its performance.
 
 ```python
@@ -88,7 +88,7 @@ and for each type of prediction the component makes. To obtain a summary across 
 import pandas as pd
 pd.DataFrame(ev["Fix one"]).mean(axis=1)
 ```
-```
+```text
 Predicted positive          3.120000
 Predicted negative        196.880000
 Condition positive         62.500000
@@ -123,7 +123,7 @@ ev = comp.evaluate(train_instances[100:150])
 import pandas as pd
 pd.DataFrame(ev).mean(axis=1)
 ```
-```
+```text
 Mean squared error       7001.977827
 Explained variance          0.519790
 Max error                 242.375804
@@ -132,3 +132,4 @@ R2                          0.517612
 Median absolute error      65.843924
 dtype: float64
 ```
+
