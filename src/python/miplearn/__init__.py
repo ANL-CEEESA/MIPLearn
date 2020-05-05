@@ -14,6 +14,7 @@ from .components.primal import PrimalSolutionComponent
 from .components.branching import BranchPriorityComponent, BranchPriorityExtractor
 
 from .classifiers.adaptive import AdaptiveClassifier
+from .classifiers.threshold import MinPrecisionThreshold
 
 from .benchmark import BenchmarkRunner
 

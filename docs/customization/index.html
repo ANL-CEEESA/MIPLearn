@@ -197,7 +197,7 @@ while raising a component's threshold makes it more conservative. </p>
 to achieve a minimum desired true positive rate (also known as precision). The example below shows how to initialize
 a <code>PrimalSolutionComponent</code> which achieves 95% precision, possibly at the cost of a lower recall. To make the component
 more aggressive, this precision may be lowered.</p>
-<pre><code class="python">comp = PrimalSolutionComponent(threshold=MinPrecisionThreshold(0.98))
+<pre><code class="python">PrimalSolutionComponent(threshold=MinPrecisionThreshold(0.95))
 </code></pre></div>
         
         

@@ -59,5 +59,5 @@ a `PrimalSolutionComponent` which achieves 95% precision, possibly at the cost o
 more aggressive, this precision may be lowered.
 
 ```python
-comp = PrimalSolutionComponent(threshold=MinPrecisionThreshold(0.98))
+PrimalSolutionComponent(threshold=MinPrecisionThreshold(0.95))
 ```
