@@ -65,15 +65,15 @@ PrimalSolutionComponent(threshold=MinPrecisionThreshold(0.95))
 ## Evaluating component performance
 
 MIPLearn allows solver components to be modified, trained and evaluated in isolation. In the following example, we build and
-fit `PrimalSolutionComponent` outside a solver, then evaluate its performance.
+fit `PrimalSolutionComponent` outside the solver, then evaluate its performance.
 
 ```python
 from miplearn import PrimalSolutionComponent
 
-# User-provided set os solved training instances
+# User-provided set of previously-solved instances
 train_instances = [...]
 
-# Construct and fit component on a subset of the training set
+# Construct and fit component on a subset of training instances
 comp = PrimalSolutionComponent()
 comp.fit(train_instances[:100])
 
@@ -112,7 +112,8 @@ False negative (%)         29.720000
 dtype: float64
 ```
 
-Regression components (such as `ObjectiveValueComponent`) can also be used similarly, as shown in the next example:
+Regression components (such as `ObjectiveValueComponent`) can also be trained and evaluated similarly,
+as the next example shows:
 
 ```python
 from miplearn import ObjectiveValueComponent
