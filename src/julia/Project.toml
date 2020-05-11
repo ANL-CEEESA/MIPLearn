@@ -12,4 +12,9 @@ MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TimerOutputs = "a759f4b9-e2f1-59dc-863e-4aeb61b1ea8f"
 TinyBnB = "1b2a1171-e557-4eeb-a4d6-6c23d7e94fcd"
+
+[compat]
+CPLEX = "0.6"
+JuMP = "0.21"

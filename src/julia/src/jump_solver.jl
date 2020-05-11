@@ -3,17 +3,39 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 using JuMP
+using CPLEX
 using MathOptInterface
 const MOI = MathOptInterface
+using TimerOutputs
+
+mutable struct JuMPSolverData
+    basename_idx_to_var
+    var_to_basename_idx
+    optimizer
+    instance
+    model
+    bin_vars
+    solution
+end
 
 function varname_split(varname::String)
     m = match(r"([^[]*)\[(.*)\]", varname)
+    if m == nothing
+        return varname, ""
+    end
     return m.captures[1], m.captures[2]
 end
 
 @pydef mutable struct JuMPSolver <: InternalSolver
-    function __init__(self; optimizer=CPLEX.Optimizer)
-        self.optimizer = optimizer
+    function __init__(self; optimizer=nothing)
+        self.data = JuMPSolverData(nothing,  # basename_idx_to_var
+                                   nothing,  # var_to_basename_idx
+                                   optimizer,
+                                   nothing,  # instance
+                                   nothing,  # model
+                                   nothing,  # bin_vars
+                                   nothing,  # solution
+                                  ) 
     end
 
     function add_constraint(self, constraint)
@@ -21,10 +43,11 @@ end
     end
 
     function set_warm_start(self, solution)
+        basename_idx_to_var = self.data.basename_idx_to_var
         for (basename, subsolution) in solution
             for (idx, value) in subsolution
                 value != nothing || continue
-                var = self.basename_idx_to_var[basename, idx]
+                var = basename_idx_to_var[basename, idx]
                 JuMP.set_start_value(var, value)
             end
         end
@@ -35,88 +58,126 @@ end
     end
 
     function fix(self, solution)
-        for (basename, subsolution) in solution
-            for (idx, value) in subsolution
-                value != nothing || continue
-                var = self.basename_idx_to_var[basename, idx]
-                JuMP.fix(var, value, force=true)
+        @timeit "fix" begin
+            basename_idx_to_var = self.data.basename_idx_to_var
+            for (basename, subsolution) in solution
+                for (idx, value) in subsolution
+                    value != nothing || continue
+                    var = basename_idx_to_var[basename, idx]
+                    JuMP.fix(var, value, force=true)
+                end
             end
         end
     end
 
     function set_instance(self, instance, model)
-        self.instance = instance
-        self.model = model
-        self.var_to_basename_idx = Dict(var => varname_split(JuMP.name(var))
-                                        for var in JuMP.all_variables(self.model))
-        self.basename_idx_to_var = Dict(varname_split(JuMP.name(var)) => var
-                                        for var in JuMP.all_variables(self.model))
-        self.bin_vars = [var
-                         for var in JuMP.all_variables(self.model)
-                         if JuMP.is_binary(var)]
-        JuMP.set_optimizer(self.model, self.optimizer)
+        @timeit "set_instance" begin
+            self.data.instance = instance
+            self.data.model = model
+            self.data.var_to_basename_idx = Dict(var => varname_split(JuMP.name(var))
+                                            for var in JuMP.all_variables(model))
+            self.data.basename_idx_to_var = Dict(varname_split(JuMP.name(var)) => var
+                                            for var in JuMP.all_variables(model))
+            self.data.bin_vars = [var
+                             for var in JuMP.all_variables(model)
+                             if JuMP.is_binary(var)]
+            if self.data.optimizer != nothing
+                JuMP.set_optimizer(model, self.data.optimizer)
+            end
+        end
     end
 
     function solve(self; tee=false)
-        JuMP.optimize!(self.model)
-        self._update_solution()
-
-        primal_bound = JuMP.objective_value(self.model)
-        dual_bound = JuMP.objective_bound(self.model)
-
-        if JuMP.objective_sense(self.model) == MOI.MIN_SENSE
-            sense = "min"
-            lower_bound = dual_bound
-            upper_bound = primal_bound
-        else
-            sense = "max"
-            lower_bound = primal_bound
-            upper_bound = dual_bound
+        @timeit "solve" begin
+            instance, model = self.data.instance, self.data.model
+            wallclock_time = 0
+            found_violations = []
+            
+            while true
+                @timeit "optimize!" begin
+                    JuMP.optimize!(model)
+                end
+                wallclock_time += JuMP.solve_time(model)
+                @timeit "find_violations" begin
+                    violations = instance.find_violations(model)
+                end
+                @info "$(length(violations)) violations found"
+                if length(violations) == 0
+                    break
+                end
+                append!(found_violations, violations)
+                for v in violations
+                    instance.build_lazy_constraint(self.data.model, v)
+                end
+            end
+            @timeit "update solution" begin
+                self._update_solution()
+                self.data.instance.found_violations = found_violations
+            end
+            primal_bound = JuMP.objective_value(model)
+            dual_bound = JuMP.objective_bound(model)
+            if JuMP.objective_sense(model) == MOI.MIN_SENSE
+                sense = "min"
+                lower_bound = dual_bound
+                upper_bound = primal_bound
+            else
+                sense = "max"
+                lower_bound = primal_bound
+                upper_bound = dual_bound
+            end
         end
-
-        @show primal_bound, dual_bound
-
         return Dict("Lower bound" => lower_bound,
                     "Upper bound" => upper_bound,
                     "Sense" => sense,
-                    "Wallclock time" => JuMP.solve_time(self.model),
+                    "Wallclock time" => wallclock_time,
                     "Nodes" => 1,
                     "Log" => nothing,
                     "Warm start value" => nothing)
     end
 
     function solve_lp(self; tee=false)
-        for var in self.bin_vars
-            JuMP.unset_binary(var)
-            JuMP.set_upper_bound(var, 1.0)
-            JuMP.set_lower_bound(var, 0.0)
+        @timeit "solve_lp" begin
+            model = self.data.model
+            bin_vars = self.data.bin_vars
+            @timeit "unset_binary" begin
+                for var in bin_vars
+                    JuMP.unset_binary(var)
+                    JuMP.set_upper_bound(var, 1.0)
+                    JuMP.set_lower_bound(var, 0.0)
+                end
+            end
+            @timeit "optimize" begin
+                JuMP.optimize!(model)
+            end
+            @timeit "update solution" begin
+                self._update_solution()
+            end
+            obj_value = JuMP.objective_value(model)
+            @timeit "set_binary" begin
+                for var in bin_vars
+                    JuMP.set_binary(var)
+                end
+            end
         end
-
-        JuMP.optimize!(self.model)
-        obj_value = JuMP.objective_value(self.model)
-        self._update_solution()
-
-        for var in self.bin_vars
-            JuMP.set_binary(var)
-        end
-
         return Dict("Optimal value" => obj_value)
     end
 
     function get_solution(self)
-        return self.solution
+        return self.data.solution
     end
 
     function _update_solution(self)
+        var_to_basename_idx, model = self.data.var_to_basename_idx, self.data.model
         solution = Dict()
-        for var in JuMP.all_variables(self.model)
-            basename, idx = self.var_to_basename_idx[var]
+        for var in JuMP.all_variables(model)
+            var in keys(var_to_basename_idx) || continue
+            basename, idx = var_to_basename_idx[var]
             if !haskey(solution, basename)
                 solution[basename] = Dict()
             end
             solution[basename][idx] = JuMP.value(var)
         end
-        self.solution = solution
+        self.data.solution = solution
     end
 
     function set_gap_tolerance(self, gap_tolerance)
@@ -136,6 +197,6 @@ end
     end
 
     function set_time_limit(self, time_limit)
-        JuMP.set_time_limit_sec(self.model, time_limit)
+        JuMP.set_time_limit_sec(self.data.model, time_limit)
     end
 end
