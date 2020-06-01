@@ -13,9 +13,9 @@ from ..extractors import *
 logger = logging.getLogger(__name__)
 
 
-class LazyConstraintsComponent(Component):
+class UserCutsComponent(Component):
     """
-    A component that predicts which lazy constraints to enforce.
+    A component that predicts which user cuts to enforce.
     """
     
     def __init__(self,
@@ -29,11 +29,11 @@ class LazyConstraintsComponent(Component):
         self.classifiers = {}
 
     def before_solve(self, solver, instance, model):
-        logger.info("Predicting violated lazy constraints...")
+        logger.info("Predicting violated user cuts...")
         violations = self.predict(instance)
-        logger.info("Enforcing %d constraints..." % len(violations))
+        logger.info("Enforcing %d cuts..." % len(violations))
         for v in violations:
-            cut = instance.build_lazy_constraint(model, v)
+            cut = instance.build_user_cut(model, v)
             solver.internal_solver.add_constraint(cut)
 
     def after_solve(self, solver, instance, model, results):
@@ -46,13 +46,13 @@ class LazyConstraintsComponent(Component):
         self.classifiers = {}
         violation_to_instance_idx = {}
         for (idx, instance) in enumerate(training_instances):
-            for v in instance.found_violated_lazy_constraints:
+            for v in instance.found_violated_user_cuts:
                 if v not in self.classifiers:
                     self.classifiers[v] = deepcopy(self.classifier_prototype)
                     violation_to_instance_idx[v] = []
                 violation_to_instance_idx[v] += [idx]
 
-        for (v, classifier) in tqdm(self.classifiers.items(), desc="Fit (lazy)"):
+        for (v, classifier) in tqdm(self.classifiers.items(), desc="Fit (user cuts)"):
             logger.debug("Training: %s" % (str(v)))
             label = np.zeros(len(training_instances))
             label[violation_to_instance_idx[v]] = 1.0
@@ -71,10 +71,10 @@ class LazyConstraintsComponent(Component):
         results = {}
         all_violations = set()
         for instance in instances:
-            all_violations |= set(instance.found_violated_lazy_constraints)
+            all_violations |= set(instance.found_violated_user_cuts)
         for idx in tqdm(range(len(instances)), desc="Evaluate (lazy)"):
             instance = instances[idx]
-            condition_positive = set(instance.found_violated_lazy_constraints)
+            condition_positive = set(instance.found_violated_user_cuts)
             condition_negative = all_violations - condition_positive
             pred_positive = set(self.predict(instance)) & all_violations
             pred_negative = all_violations - pred_positive

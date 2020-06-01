@@ -121,20 +121,19 @@ class PyomoSolver(InternalSolver):
         streams = [StringIO()]
         if tee:
             streams += [sys.stdout]
-        self.instance.found_violations = []
+        self.instance.found_violated_lazy_constraints = []
+        self.instance.found_violated_user_cuts = []
         while True:
             logger.debug("Solving MIP...")
             with RedirectOutput(streams):
                 results = self._pyomo_solver.solve(tee=True,
                                                    warmstart=self._is_warm_start_available)
             total_wallclock_time += results["Solver"][0]["Wallclock time"]
-            if not hasattr(self.instance, "find_violations"):
-                break
             logger.debug("Finding violated constraints...")
-            violations = self.instance.find_violations(self.model)
+            violations = self.instance.find_violated_lazy_constraints(self.model)
             if len(violations) == 0:
                 break
-            self.instance.found_violations += violations
+            self.instance.found_violated_lazy_constraints += violations
             logger.debug("    %d violations found" % len(violations))
             for v in violations:
                 cut = self.instance.build_lazy_constraint(self.model, v)

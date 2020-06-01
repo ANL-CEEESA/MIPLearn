@@ -34,7 +34,8 @@ def test_learning_solver():
             assert round(instance.lp_solution["x"][2], 3) == 1.000
             assert round(instance.lp_solution["x"][3], 3) == 0.000
             assert round(instance.lp_value, 3) == 1287.923
-            assert instance.found_violations == []
+            assert instance.found_violated_lazy_constraints == []
+            assert instance.found_violated_user_cuts == []
             assert len(instance.solver_log) > 100
 
             solver.fit([instance])

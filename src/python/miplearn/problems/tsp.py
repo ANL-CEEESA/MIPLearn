@@ -151,7 +151,7 @@ class TravelingSalesmanInstance(Instance):
     def get_variable_category(self, var_name, index):
         return index
     
-    def find_violations(self, model):
+    def find_violated_lazy_constraints(self, model):
         selected_edges = [e for e in model.edges if model.x[e].value > 0.5]
         graph = nx.Graph()
         graph.add_edges_from(selected_edges)
@@ -167,3 +167,9 @@ class TravelingSalesmanInstance(Instance):
                      if (e[0] in component and e[1] not in component) or
                         (e[0] not in component and e[1] in component)]
         return model.eq_subtour.add(sum(model.x[e] for e in cut_edges) >= 2)
+
+    def find_violated_user_cuts(self, model):
+        return self.find_violated_lazy_constraints(model)
+
+    def build_user_cut(self, model, violation):
+        return self.build_lazy_constraint(model, violation)

@@ -49,26 +49,45 @@ class GurobiSolver(PyomoSolver):
         from gurobipy import GRB
 
         def cb(cb_model, cb_opt, cb_where):
-            if cb_where == GRB.Callback.MIPSOL:
-                cb_opt.cbGetSolution(self._all_vars)
-                logger.debug("Finding violated constraints...")
-                violations = self.instance.find_violations(cb_model)
-                self.instance.found_violations += violations
-                logger.debug("    %d violations found" % len(violations))
-                for v in violations:
-                    cut = self.instance.build_lazy_constraint(cb_model, v)
-                    cb_opt.cbLazy(cut)
+            try:
+                # User cuts
+                if cb_where == GRB.Callback.MIPNODE:
+                    logger.debug("Finding violated cutting planes...")
+                    cb_opt.cbGetNodeRel(self._all_vars)
+                    violations = self.instance.find_violated_user_cuts(cb_model)
+                    self.instance.found_violated_user_cuts += violations
+                    logger.debug("    %d found" % len(violations))
+                    for v in violations:
+                        cut = self.instance.build_user_cut(cb_model, v)
+                        cb_opt.cbCut(cut)
 
-        if hasattr(self.instance, "find_violations"):
-            self._pyomo_solver.options["LazyConstraints"] = 1
-            self._pyomo_solver.set_callback(cb)
-            self.instance.found_violations = []
+                # Lazy constraints
+                if cb_where == GRB.Callback.MIPSOL:
+                    cb_opt.cbGetSolution(self._all_vars)
+                    logger.debug("Finding violated lazy constraints...")
+                    violations = self.instance.find_violated_lazy_constraints(cb_model)
+                    self.instance.found_violated_lazy_constraints += violations
+                    logger.debug("    %d found" % len(violations))
+                    for v in violations:
+                        cut = self.instance.build_lazy_constraint(cb_model, v)
+                        cb_opt.cbLazy(cut)
+            except Exception as e:
+                logger.error(e)
+
+        self._pyomo_solver.options["LazyConstraints"] = 1
+        self._pyomo_solver.options["PreCrush"] = 1
+        self._pyomo_solver.set_callback(cb)
+
+        self.instance.found_violated_lazy_constraints = []
+        self.instance.found_violated_user_cuts = []
+
         streams = [StringIO()]
         if tee:
             streams += [sys.stdout]
         with RedirectOutput(streams):
             results = self._pyomo_solver.solve(tee=True,
                                                warmstart=self._is_warm_start_available)
+
         self._pyomo_solver.set_callback(None)
         log = streams[0].getvalue()
         return {

@@ -10,10 +10,10 @@ from p_tqdm import p_map
 
 from .cplex import CPLEXSolver
 from .gurobi import GurobiSolver
-from .internal import InternalSolver
 from .. import (ObjectiveValueComponent,
                 PrimalSolutionComponent,
-                LazyConstraintsComponent)
+                LazyConstraintsComponent,
+                UserCutsComponent)
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,8 @@ def _parallel_solve(instance_idx):
         "Results": results,
         "Solution": instance.solution,
         "LP solution": instance.lp_solution,
-        "Violations": instance.found_violations,
+        "Violated lazy constraints": instance.found_violated_lazy_constraints,
+        "Violated user cuts": instance.found_violated_user_cuts,
     }
 
 
@@ -67,6 +68,7 @@ class LearningSolver:
             self.add(ObjectiveValueComponent())
             self.add(PrimalSolutionComponent())
             self.add(LazyConstraintsComponent())
+            self.add(UserCutsComponent())
 
         assert self.mode in ["exact", "heuristic"]
         for component in self.components.values():
@@ -107,7 +109,7 @@ class LearningSolver:
             - instance.lower_bound
             - instance.upper_bound
             - instance.solution
-            - instance.found_violations
+            - instance.found_violated_lazy_constraints
             - instance.solver_log
         Additional solver components may set additional properties. Please
         see their documentation for more details.
@@ -190,7 +192,8 @@ class LearningSolver:
             instances[idx].lp_value = r["Results"]["LP value"]
             instances[idx].lower_bound = r["Results"]["Lower bound"]
             instances[idx].upper_bound = r["Results"]["Upper bound"]
-            instances[idx].found_violations = r["Violations"]
+            instances[idx].found_violated_lazy_constraints = r["Violated lazy constraints"]
+            instances[idx].found_violated_user_cuts = r["Violated user cuts"]
             instances[idx].solver_log = r["Results"]["Log"]
 
         return results

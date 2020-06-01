@@ -61,6 +61,8 @@ def test_subtour():
     for solver_name in ['gurobi', 'cplex']:
         solver = LearningSolver(solver=solver_name)
         solver.solve(instance)
+        assert hasattr(instance, "found_violated_lazy_constraints")
+        assert hasattr(instance, "found_violated_user_cuts")
         x = instance.solution["x"]
         assert x[0,1] == 1.0
         assert x[0,4] == 1.0

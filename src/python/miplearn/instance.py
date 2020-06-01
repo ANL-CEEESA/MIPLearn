@@ -76,7 +76,7 @@ class Instance(ABC):
         """
         return "default"
 
-    def find_violations(self, model):
+    def find_violated_lazy_constraints(self, model):
         """
         Returns lazy constraint violations found for the current solution.
         
@@ -99,16 +99,22 @@ class Instance(ABC):
         """
         Returns a Pyomo constraint which fixes a given violation.
         
-        This method is typically called immediately after find_violations. The violation object
-        provided to this method is exactly the same object returned earlier by find_violations.
+        This method is typically called immediately after find_violated_lazy_constraints. The violation object
+        provided to this method is exactly the same object returned earlier by find_violated_lazy_constraints.
         After some training, LearningSolver may decide to proactively build some lazy constraints
         at the beginning of the optimization process, before a solution is even available. In this
         case, build_lazy_constraints will be called without a corresponding call to
-        find_violations.
+        find_violated_lazy_constraints.
         
         The implementation should not directly add the constraint to the model. The constraint
         will be added by LearningSolver after the method returns.
         
         For a concrete example, see TravelingSalesmanInstance.
         """
+        pass
+
+    def find_violated_user_cuts(self, model):
+        return []
+
+    def build_user_cut(self, model, violation):
         pass

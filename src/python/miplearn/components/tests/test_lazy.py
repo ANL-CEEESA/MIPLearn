@@ -15,8 +15,8 @@ E = 0.1
 
 def test_lazy_fit():
     instances, models = get_training_instances_and_models()
-    instances[0].found_violations = ["a", "b"]
-    instances[1].found_violations = ["b", "c"]
+    instances[0].found_violated_lazy_constraints = ["a", "b"]
+    instances[1].found_violated_lazy_constraints = ["b", "c"]
     classifier = Mock(spec=Classifier)
     component = LazyConstraintsComponent(classifier=classifier)
 
@@ -78,6 +78,7 @@ def test_lazy_before():
     # Should ask internal solver to add generated constraint
     solver.internal_solver.add_constraint.assert_called_once_with("c1")
 
+
 def test_lazy_evaluate():
     instances, models = get_training_instances_and_models()
     component = LazyConstraintsComponent()
@@ -88,8 +89,8 @@ def test_lazy_evaluate():
     component.classifiers["b"].predict_proba = Mock(return_value=[[0.0, 1.0]])
     component.classifiers["c"].predict_proba = Mock(return_value=[[0.0, 1.0]])
     
-    instances[0].found_violations = ["a", "b", "c"]
-    instances[1].found_violations = ["b", "d"]
+    instances[0].found_violated_lazy_constraints = ["a", "b", "c"]
+    instances[1].found_violated_lazy_constraints = ["b", "d"]
     assert component.evaluate(instances) == {
         0: {
             "Accuracy": 0.75,
