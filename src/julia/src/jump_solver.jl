@@ -91,28 +91,28 @@ end
         @timeit "solve" begin
             instance, model = self.data.instance, self.data.model
             wallclock_time = 0
-            found_violations = []
-            
+            found_lazy = []
             while true
                 @timeit "optimize!" begin
                     JuMP.optimize!(model)
                 end
                 wallclock_time += JuMP.solve_time(model)
-                @timeit "find_violations" begin
-                    violations = instance.find_violations(model)
+                @timeit "find_violated_lazy_constraints" begin
+                    violations = instance.find_violated_lazy_constraints(model)
                 end
                 @info "$(length(violations)) violations found"
                 if length(violations) == 0
                     break
                 end
-                append!(found_violations, violations)
+                append!(found_lazy, violations)
                 for v in violations
                     instance.build_lazy_constraint(self.data.model, v)
                 end
             end
             @timeit "update solution" begin
                 self._update_solution()
-                self.data.instance.found_violations = found_violations
+                instance.found_violated_lazy_constraints = found_lazy
+                instance.found_violated_user_cuts = []
             end
             primal_bound = JuMP.objective_value(model)
             dual_bound = JuMP.objective_bound(model)
