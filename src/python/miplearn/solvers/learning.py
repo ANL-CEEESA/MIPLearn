@@ -5,15 +5,14 @@
 import logging
 from copy import deepcopy
 from typing import Optional, List
-
 from p_tqdm import p_map
 
-from .cplex import CPLEXSolver
-from .gurobi import GurobiSolver
 from .. import (ObjectiveValueComponent,
                 PrimalSolutionComponent,
                 LazyConstraintsComponent,
                 UserCutsComponent)
+from .pyomo.cplex import CplexPyomoSolver
+from .pyomo.gurobi import GurobiPyomoSolver
 
 logger = logging.getLogger(__name__)
 
@@ -77,9 +76,9 @@ class LearningSolver:
     def _create_internal_solver(self):
         logger.debug("Initializing %s" % self.internal_solver_factory)
         if self.internal_solver_factory == "cplex":
-            solver = CPLEXSolver()
+            solver = CplexPyomoSolver()
         elif self.internal_solver_factory == "gurobi":
-            solver = GurobiSolver()
+            solver = GurobiPyomoSolver()
         elif callable(self.internal_solver_factory):
             solver = self.internal_solver_factory()
         else:

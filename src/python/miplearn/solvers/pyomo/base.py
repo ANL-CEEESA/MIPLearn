@@ -2,24 +2,27 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-import logging
 import re
 import sys
+import logging
+import pyomo
 from abc import abstractmethod
 from io import StringIO
-
-import pyomo
-import pyomo.environ as pe
+from pyomo import environ as pe
 from pyomo.core import Var
 
-from . import RedirectOutput
-from .internal import InternalSolver
-from ..instance import Instance
+from .. import RedirectOutput
+from ..internal import InternalSolver
+from ...instance import Instance
 
 logger = logging.getLogger(__name__)
 
 
-class PyomoSolver(InternalSolver):
+class BasePyomoSolver(InternalSolver):
+    """
+    Base class for all Pyomo solvers.
+    """
+
     def __init__(self):
         self.instance = None
         self.model = None

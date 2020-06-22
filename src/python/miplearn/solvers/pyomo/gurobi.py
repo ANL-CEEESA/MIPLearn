@@ -2,25 +2,24 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-import logging
 import sys
+import logging
 from io import StringIO
-
-import pyomo.environ as pe
-from miplearn.solvers import RedirectOutput
+from pyomo import environ as pe
 from scipy.stats import randint
 
-from .pyomo import PyomoSolver
+from .base import BasePyomoSolver
+from .. import RedirectOutput
 
 logger = logging.getLogger(__name__)
 
 
-class GurobiSolver(PyomoSolver):
+class GurobiPyomoSolver(BasePyomoSolver):
     def __init__(self,
                  use_lazy_callbacks=True,
                  options=None):
         """
-        Creates a new GurobiSolver.
+        Creates a new Gurobi solver, accessed through Pyomo.
 
         Parameters
         ----------

@@ -5,9 +5,8 @@
 import pickle
 import tempfile
 
-from miplearn import BranchPriorityComponent
+from miplearn import BranchPriorityComponent, GurobiPyomoSolver
 from miplearn import LearningSolver
-from miplearn.solvers.gurobi import GurobiSolver
 
 from . import _get_instance
 
@@ -15,7 +14,7 @@ from . import _get_instance
 def test_learning_solver():
     instance = _get_instance()
     for mode in ["exact", "heuristic"]:
-        for internal_solver in ["cplex", "gurobi", GurobiSolver]:
+        for internal_solver in ["cplex", "gurobi", GurobiPyomoSolver]:
             solver = LearningSolver(time_limit=300,
                                     gap_tolerance=1e-3,
                                     threads=1,

@@ -2,16 +2,16 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-import pyomo.environ as pe
+from pyomo import environ as pe
 from scipy.stats import randint
 
-from .pyomo import PyomoSolver
+from .base import BasePyomoSolver
 
 
-class CPLEXSolver(PyomoSolver):
+class CplexPyomoSolver(BasePyomoSolver):
     def __init__(self, options=None):
         """
-        Creates a new CPLEXSolver.
+        Creates a new CPLEX solver, accessed through Pyomo.
 
         Parameters
         ----------
@@ -47,4 +47,3 @@ class CPLEXSolver(PyomoSolver):
 
     def set_branching_priorities(self, priorities):
         raise NotImplementedError
-

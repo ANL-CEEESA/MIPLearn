@@ -5,8 +5,7 @@ from io import StringIO
 
 import pyomo.environ as pe
 from miplearn.solvers import RedirectOutput
-from miplearn.solvers.cplex import CPLEXSolver
-from miplearn.solvers.gurobi import GurobiSolver
+from miplearn import CplexPyomoSolver, GurobiPyomoSolver
 
 from . import _get_instance
 from ...problems.knapsack import ChallengeA
@@ -23,7 +22,7 @@ def test_redirect_output():
 
 
 def test_internal_solver_warm_starts():
-    for solver in [GurobiSolver(), CPLEXSolver()]:
+    for solver in [GurobiPyomoSolver(), CplexPyomoSolver()]:
         instance = _get_instance()
         model = instance.to_model()
 
@@ -64,7 +63,7 @@ def test_internal_solver_warm_starts():
 
 
 def test_internal_solver():
-    for solver in [GurobiSolver(), CPLEXSolver()]:
+    for solver in [GurobiPyomoSolver(), CplexPyomoSolver()]:
         instance = _get_instance()
         model = instance.to_model()
 
@@ -99,9 +98,9 @@ def test_internal_solver():
 
 
 def test_node_count():
-    for solver in [GurobiSolver(),
-                   GurobiSolver(use_lazy_callbacks=False),
-                   CPLEXSolver()]:
+    for solver in [GurobiPyomoSolver(),
+                   GurobiPyomoSolver(use_lazy_callbacks=False),
+                   CplexPyomoSolver()]:
         challenge = ChallengeA()
         solver.set_time_limit(1)
         solver.set_instance(challenge.test_instances[0])

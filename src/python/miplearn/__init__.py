@@ -12,7 +12,8 @@ from .components.objective import ObjectiveValueComponent
 from .components.lazy import LazyConstraintsComponent
 from .components.cuts import UserCutsComponent
 from .components.primal import PrimalSolutionComponent
-from .components.branching import BranchPriorityComponent, BranchPriorityExtractor
+from .components.branching import (BranchPriorityComponent,
+                                   BranchPriorityExtractor)
 
 from .classifiers.adaptive import AdaptiveClassifier
 from .classifiers.threshold import MinPrecisionThreshold
@@ -21,7 +22,8 @@ from .benchmark import BenchmarkRunner
 
 from .instance import Instance
 
-from .solvers.learning import LearningSolver
-from .solvers.cplex import CPLEXSolver
-from .solvers.gurobi import GurobiSolver
+from .solvers.pyomo.base import BasePyomoSolver
+from .solvers.pyomo.cplex import CplexPyomoSolver
+from .solvers.pyomo.gurobi import GurobiPyomoSolver
 from .solvers.internal import InternalSolver
+from .solvers.learning import LearningSolver

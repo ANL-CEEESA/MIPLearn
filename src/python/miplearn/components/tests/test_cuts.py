@@ -4,7 +4,7 @@
 import numpy as np
 import pyomo.environ as pe
 
-from miplearn import Instance, GurobiSolver, LearningSolver
+from miplearn import Instance, GurobiPyomoSolver, LearningSolver
 from miplearn.problems.knapsack import ChallengeA
 
 
@@ -25,7 +25,7 @@ class CutInstance(Instance):
 
 def test_cut():
     challenge = ChallengeA()
-    gurobi = GurobiSolver()
+    gurobi = GurobiPyomoSolver()
     solver = LearningSolver(solver=gurobi, time_limit=10)
     solver.solve(challenge.training_instances[0])
     # assert False
