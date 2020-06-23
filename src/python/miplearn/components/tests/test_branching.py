@@ -6,11 +6,11 @@ from unittest.mock import Mock
 import numpy as np
 from miplearn import BranchPriorityComponent, BranchPriorityExtractor
 from miplearn.classifiers import Regressor
-from miplearn.tests import get_training_instances_and_models
+from miplearn.tests import get_test_pyomo_instances
 
 
 def test_branch_extract():
-    instances, models = get_training_instances_and_models()
+    instances, models = get_test_pyomo_instances()
     instances[0].branch_priorities = {"x": {0: 100, 1: 200, 2: 300, 3: 400}}
     instances[1].branch_priorities = {"x": {0: 150, 1: 250, 2: 350, 3: 450}}
     priorities = BranchPriorityExtractor().extract(instances)
@@ -18,7 +18,7 @@ def test_branch_extract():
 
 
 def test_branch_calculate():
-    instances, models = get_training_instances_and_models()
+    instances, models = get_test_pyomo_instances()
     comp = BranchPriorityComponent()
 
     # If instances do not have branch_priority property, fit should compute them
@@ -32,7 +32,7 @@ def test_branch_calculate():
 
 
 def test_branch_x_y_predict():
-    instances, models = get_training_instances_and_models()
+    instances, models = get_test_pyomo_instances()
     instances[0].branch_priorities = {"x": {0: 100, 1: 200, 2: 300, 3: 400}}
     instances[1].branch_priorities = {"x": {0: 150, 1: 250, 2: 350, 3: 450}}
     comp = BranchPriorityComponent()

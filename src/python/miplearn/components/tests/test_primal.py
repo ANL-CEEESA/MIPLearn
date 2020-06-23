@@ -7,11 +7,11 @@ from unittest.mock import Mock
 import numpy as np
 from miplearn import PrimalSolutionComponent
 from miplearn.classifiers import Classifier
-from miplearn.tests import get_training_instances_and_models
+from miplearn.tests import get_test_pyomo_instances
 
 
 def test_predict():
-    instances, models = get_training_instances_and_models()
+    instances, models = get_test_pyomo_instances()
     comp = PrimalSolutionComponent()
     comp.fit(instances)
     solution = comp.predict(instances[0])
@@ -23,7 +23,7 @@ def test_predict():
 
 
 def test_evaluate():
-    instances, models = get_training_instances_and_models()
+    instances, models = get_test_pyomo_instances()
     clf_zero = Mock(spec=Classifier)
     clf_zero.predict_proba = Mock(return_value=np.array([
         [0., 1.],  # x[0]
@@ -93,7 +93,7 @@ def test_evaluate():
 
 
 def test_primal_parallel_fit():
-    instances, models = get_training_instances_and_models()
+    instances, models = get_test_pyomo_instances()
     comp = PrimalSolutionComponent()
     comp.fit(instances, n_jobs=2)
     assert len(comp.classifiers) == 2

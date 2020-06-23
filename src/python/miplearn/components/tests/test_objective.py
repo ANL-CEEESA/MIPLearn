@@ -7,11 +7,11 @@ from unittest.mock import Mock
 import numpy as np
 from miplearn import ObjectiveValueComponent
 from miplearn.classifiers import Regressor
-from miplearn.tests import get_training_instances_and_models
+from miplearn.tests import get_test_pyomo_instances
 
 
 def test_usage():
-    instances, models = get_training_instances_and_models()
+    instances, models = get_test_pyomo_instances()
     comp = ObjectiveValueComponent()
     comp.fit(instances)
     assert instances[0].lower_bound == 1183.0
@@ -21,7 +21,7 @@ def test_usage():
 
 
 def test_obj_evaluate():
-    instances, models = get_training_instances_and_models()
+    instances, models = get_test_pyomo_instances()
     reg = Mock(spec=Regressor)
     reg.predict = Mock(return_value=np.array([1000.0, 1000.0]))
     comp = ObjectiveValueComponent(regressor=reg)

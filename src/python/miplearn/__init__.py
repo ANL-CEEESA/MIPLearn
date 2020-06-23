@@ -25,5 +25,6 @@ from .instance import Instance
 from .solvers.pyomo.base import BasePyomoSolver
 from .solvers.pyomo.cplex import CplexPyomoSolver
 from .solvers.pyomo.gurobi import GurobiPyomoSolver
+from .solvers.guroby import GurobiSolver
 from .solvers.internal import InternalSolver
 from .solvers.learning import LearningSolver

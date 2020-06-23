@@ -5,7 +5,7 @@ from miplearn import LearningSolver
 from miplearn.problems.knapsack import KnapsackInstance
 
 
-def get_training_instances_and_models():
+def get_test_pyomo_instances():
     instances = [
         KnapsackInstance(
             weights=[23., 26., 20., 18.],

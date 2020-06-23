@@ -251,3 +251,25 @@ class KnapsackInstance(Instance):
             self.weights[index],
             self.prices[index],
         ])
+
+
+class GurobiKnapsackInstance(KnapsackInstance):
+    """
+    Simpler (one-dimensional) knapsack instance, implemented directly in Gurobi
+    instead of Pyomo, used for testing.
+    """
+    def __init__(self, weights, prices, capacity):
+        super().__init__(weights, prices, capacity)
+
+    def to_model(self):
+        import gurobipy as gp
+        from gurobipy import GRB
+
+        model = gp.Model("Knapsack")
+        n = len(self.weights)
+        x = model.addVars(n, vtype=GRB.BINARY, name="x")
+        model.addConstr(gp.quicksum(x[i] * self.weights[i]
+                                    for i in range(n)) <= self.capacity)
+        model.setObjective(gp.quicksum(x[i] * self.prices[i]
+                                       for i in range(n)), GRB.MAXIMIZE)
+        return model

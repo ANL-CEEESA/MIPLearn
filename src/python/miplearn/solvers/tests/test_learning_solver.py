@@ -2,19 +2,23 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import logging
 import pickle
 import tempfile
 
-from miplearn import BranchPriorityComponent, GurobiPyomoSolver
+from miplearn import BranchPriorityComponent
 from miplearn import LearningSolver
 
-from . import _get_instance
+from . import _get_instance, _get_internal_solvers
+
+logger = logging.getLogger(__name__)
 
 
 def test_learning_solver():
-    instance = _get_instance()
     for mode in ["exact", "heuristic"]:
-        for internal_solver in ["cplex", "gurobi", GurobiPyomoSolver]:
+        for internal_solver in _get_internal_solvers():
+            logger.info("Solver: %s" % internal_solver)
+            instance = _get_instance(internal_solver)
             solver = LearningSolver(time_limit=300,
                                     gap_tolerance=1e-3,
                                     threads=1,
@@ -46,12 +50,13 @@ def test_learning_solver():
 
 
 def test_parallel_solve():
-    instances = [_get_instance() for _ in range(10)]
-    solver = LearningSolver()
-    results = solver.parallel_solve(instances, n_jobs=3)
-    assert len(results) == 10
-    for instance in instances:
-        assert len(instance.solution["x"].keys()) == 4
+    for internal_solver in _get_internal_solvers():
+        instances = [_get_instance(internal_solver) for _ in range(10)]
+        solver = LearningSolver(solver=internal_solver)
+        results = solver.parallel_solve(instances, n_jobs=3)
+        assert len(results) == 10
+        for instance in instances:
+            assert len(instance.solution["x"].keys()) == 4
 
 
 def test_add_components():
