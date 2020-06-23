@@ -90,7 +90,7 @@ class PrimalSolutionComponent(Component):
                 if (category, label) not in self.classifiers.keys():
                     continue
                 clf = self.classifiers[category, label]
-                if isinstance(clf, float):
+                if isinstance(clf, float) or isinstance(clf, int):
                     ws = np.array([[1 - clf, clf] for _ in range(n)])
                 else:
                     ws = clf.predict_proba(x_test[category])
