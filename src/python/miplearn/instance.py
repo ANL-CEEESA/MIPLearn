@@ -3,6 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from abc import ABC, abstractmethod
+import pickle, gzip
 
 
 class Instance(ABC):
@@ -118,3 +119,11 @@ class Instance(ABC):
 
     def build_user_cut(self, model, violation):
         pass
+    
+    def load(self, filename):
+        with gzip.open(filename, "rb") as f:
+            self.__dict__ = pickle.load(f)
+        
+    def dump(self, filename):
+        with gzip.open(filename, "wb") as f:
+            pickle.dump(self.__dict__, f)
