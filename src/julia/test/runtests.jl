@@ -6,7 +6,7 @@ using Test
 using PyCall
 
 logging = pyimport("logging")
-logging.basicConfig(format="%(levelname)10s %(message)s", level=logging.DEBUG)
+logging.basicConfig(format="%(levelname)10s %(message)s", level=logging.INFO)
 
 @testset "MIPLearn" begin
     include("jump_solver_test.jl")

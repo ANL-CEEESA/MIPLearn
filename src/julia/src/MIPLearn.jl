@@ -14,4 +14,4 @@ module MIPLearn
     include("knapsack.jl")
 
     export Instance, LearningSolver, InternalSolver, JuMPSolver
-end # module
+end

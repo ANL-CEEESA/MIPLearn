@@ -15,7 +15,7 @@ mutable struct JuMPSolverData
     instance
     model
     bin_vars
-    solution
+    solution::Union{Nothing,Dict{String,Dict{String,Float64}}}
 end
 
 function varname_split(varname::String)
@@ -26,8 +26,18 @@ function varname_split(varname::String)
     return m.captures[1], m.captures[2]
 end
 
+
+function set_solver_verbosity!(model::JuMP.Model, tee::Bool)
+    if tee
+        JuMP.unset_silent(model)
+    else
+        JuMP.set_silent(model)
+    end
+end
+
+
 @pydef mutable struct JuMPSolver <: InternalSolver
-    function __init__(self; optimizer=nothing)
+    function __init__(self; optimizer)
         self.data = JuMPSolverData(nothing,  # basename_idx_to_var
                                    nothing,  # var_to_basename_idx
                                    optimizer,
@@ -39,7 +49,7 @@ end
     end
 
     function add_constraint(self, constraint)
-        @error "JuMPSolver: add_constraint not implemented"
+        @warn "JuMPSolver: add_constraint not implemented"
     end
 
     function set_warm_start(self, solution)
@@ -90,6 +100,7 @@ end
     function solve(self; tee=false)
         @timeit "solve" begin
             instance, model = self.data.instance, self.data.model
+            set_solver_verbosity!(model, tee)
             wallclock_time = 0
             found_lazy = []
             while true
@@ -100,7 +111,7 @@ end
                 @timeit "find_violated_lazy_constraints" begin
                     violations = instance.find_violated_lazy_constraints(model)
                 end
-                @info "$(length(violations)) violations found"
+                #@info "$(length(violations)) violations found"
                 if length(violations) == 0
                     break
                 end
@@ -138,6 +149,7 @@ end
     function solve_lp(self; tee=false)
         @timeit "solve_lp" begin
             model = self.data.model
+            set_solver_verbosity!(model, tee)
             bin_vars = self.data.bin_vars
             @timeit "unset_binary" begin
                 for var in bin_vars
@@ -168,12 +180,12 @@ end
 
     function _update_solution(self)
         var_to_basename_idx, model = self.data.var_to_basename_idx, self.data.model
-        solution = Dict()
+        solution = Dict{String,Dict{String,Float64}}()
         for var in JuMP.all_variables(model)
             var in keys(var_to_basename_idx) || continue
             basename, idx = var_to_basename_idx[var]
             if !haskey(solution, basename)
-                solution[basename] = Dict()
+                solution[basename] = Dict{String,Float64}()
             end
             solution[basename][idx] = JuMP.value(var)
         end
@@ -181,19 +193,19 @@ end
     end
 
     function set_gap_tolerance(self, gap_tolerance)
-        @error "JuMPSolver: set_gap_tolerance not implemented"
+        @warn "JuMPSolver: set_gap_tolerance not implemented"
     end
 
     function set_node_limit(self)
-        @error "JuMPSolver: set_node_limit not implemented"
+        @warn "JuMPSolver: set_node_limit not implemented"
     end
 
     function set_threads(self, threads)
-        @error "JuMPSolver: set_threads not implemented"
+        @warn "JuMPSolver: set_threads not implemented"
     end
 
     function set_branching_priorities(self, priorities)
-        @error "JuMPSolver: set_branching_priorities not implemented"
+        @warn "JuMPSolver: set_branching_priorities not implemented"
     end
 
     function set_time_limit(self, time_limit)
