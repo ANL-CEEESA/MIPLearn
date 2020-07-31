@@ -9,9 +9,10 @@ module MIPLearn
     Instance = miplearn.Instance
     LearningSolver = miplearn.LearningSolver
     InternalSolver = miplearn.solvers.internal.InternalSolver
+    BenchmarkRunner = miplearn.BenchmarkRunner
 
     include("jump_solver.jl")
     include("knapsack.jl")
 
-    export Instance, LearningSolver, InternalSolver, JuMPSolver
+    export Instance, LearningSolver, InternalSolver, JuMPSolver, BenchmarkRunner
 end

@@ -34,6 +34,7 @@ end
         @test stats["Upper bound"] == 1183.0
         @test stats["Sense"] == "max"
         @test stats["Wallclock time"] > 0
+        @test length(stats["Log"]) > 100
 
         solution = solver.get_solution()
         @test solution["x"]["1"] == 1.0
@@ -43,6 +44,7 @@ end
 
         stats = solver.solve_lp()
         @test round(stats["Optimal value"], digits=3) == 1287.923
+        @test length(stats["Log"]) > 100
 
         solution = solver.get_solution()
         @test round(solution["x"]["1"], digits=3) == 1.000
