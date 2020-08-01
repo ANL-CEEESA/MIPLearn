@@ -3,10 +3,9 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 using Test
-using PyCall
+using MIPLearn
 
-logging = pyimport("logging")
-logging.basicConfig(format="%(levelname)10s %(message)s", level=logging.INFO)
+MIPLearn.setup_logger()
 
 @testset "MIPLearn" begin
     include("jump_solver_test.jl")

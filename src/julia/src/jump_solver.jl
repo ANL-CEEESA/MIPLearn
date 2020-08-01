@@ -51,7 +51,6 @@ function optimize_and_capture_output!(model; tee::Bool=false)
         end
         return log
     end
-    JuMP.unset_silent(model)
     JuMP.optimize!(model)
     sleep(1)
     redirect_stdout(original_stdout)

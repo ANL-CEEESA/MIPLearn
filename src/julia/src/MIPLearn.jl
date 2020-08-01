@@ -4,15 +4,18 @@
 
 __precompile__(false)
 module MIPLearn
-    using PyCall
-    miplearn = pyimport("miplearn")
-    Instance = miplearn.Instance
-    LearningSolver = miplearn.LearningSolver
-    InternalSolver = miplearn.solvers.internal.InternalSolver
-    BenchmarkRunner = miplearn.BenchmarkRunner
 
-    include("jump_solver.jl")
-    include("knapsack.jl")
+using PyCall
+miplearn = pyimport("miplearn")
+Instance = miplearn.Instance
+LearningSolver = miplearn.LearningSolver
+InternalSolver = miplearn.solvers.internal.InternalSolver
+BenchmarkRunner = miplearn.BenchmarkRunner
 
-    export Instance, LearningSolver, InternalSolver, JuMPSolver, BenchmarkRunner
-end
+include("jump_solver.jl")
+include("knapsack.jl")
+include("log.jl")
+
+export Instance, LearningSolver, InternalSolver, JuMPSolver, BenchmarkRunner
+
+end # module

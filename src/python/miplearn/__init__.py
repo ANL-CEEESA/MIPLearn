@@ -28,3 +28,5 @@ from .solvers.pyomo.gurobi import GurobiPyomoSolver
 from .solvers.guroby import GurobiSolver
 from .solvers.internal import InternalSolver
 from .solvers.learning import LearningSolver
+
+from .log import setup_logger
