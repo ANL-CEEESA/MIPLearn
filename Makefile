@@ -1,13 +1,15 @@
 PYTHON := python3
 PYTEST := pytest
+PIP := pip3
 PYTEST_ARGS := -W ignore::DeprecationWarning -vv -x --log-level=DEBUG
-JULIA := julia --color=yes --project=src/julia --sysimage build/sysimage.so
+JULIA := julia --color=yes --project=src/julia
+JULIA_SYSIMAGE := $(JULIA) --sysimage build/sysimage.so
 
 all: docs test
 
 build/sysimage.so: src/julia/Manifest.toml src/julia/Project.toml
 	mkdir -p build
-	julia --color=yes --project=src/julia src/julia/sysimage.jl
+	$(JULIA) src/julia/sysimage.jl
 
 develop:
 	cd src/python && $(PYTHON) setup.py develop
@@ -15,14 +17,16 @@ develop:
 docs:
 	mkdocs build
 
-install:
+install: install-python
+
+install-python:
 	cd src/python && $(PYTHON) setup.py install
 
 install-julia:
 	$(JULIA) -e "using Pkg; Pkg.instantiate()"
 
 uninstall:
-	pip uninstall miplearn
+	$(PIP) uninstall miplearn
 
 test: test-python test-julia
 
@@ -33,6 +37,6 @@ test-python-watch:
 	cd src/python && pytest-watch -- $(PYTEST_ARGS)
 
 test-julia: build/sysimage.so
-	$(JULIA) src/julia/test/runtests.jl
+	$(JULIA_SYSIMAGE) src/julia/test/runtests.jl
 
-.PHONY: test test-python test-julia test-watch docs
+.PHONY: test test-python test-julia test-watch docs install
