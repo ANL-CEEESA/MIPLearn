@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from abc import ABC, abstractmethod
-import pickle, gzip
+import pickle, gzip, json
 
 
 class Instance(ABC):
@@ -121,9 +121,11 @@ class Instance(ABC):
         pass
     
     def load(self, filename):
-        with gzip.open(filename, "rb") as f:
-            self.__dict__ = pickle.load(f)
+        with gzip.GzipFile(filename, 'r') as f:
+            data = json.loads(f.read().decode('utf-8'))
+        self.__dict__ = data
         
     def dump(self, filename):
-        with gzip.open(filename, "wb") as f:
-            pickle.dump(self.__dict__, f)
+        data = json.dumps(self.__dict__, indent=2).encode('utf-8')
+        with gzip.GzipFile(filename, 'w') as f:
+            f.write(data)
