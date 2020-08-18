@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_namespace_packages
 
 setup(
     name='miplearn',
@@ -6,7 +6,7 @@ setup(
     description='A Machine-Learning Framework for Mixed-Integer Optimization',
     author='Alinson S. Xavier',
     author_email='axavier@anl.gov',
-    packages=['miplearn'],
+    packages=find_namespace_packages(),
     install_requires=[
         'docopt',
         'matplotlib',
