@@ -16,8 +16,8 @@ def test_usage():
     comp.fit(instances)
     assert instances[0].lower_bound == 1183.0
     assert instances[0].upper_bound == 1183.0
-    assert comp.predict(instances).tolist() == [[1183.0, 1183.0],
-                                                [1070.0, 1070.0]]
+    assert np.round(comp.predict(instances), 2).tolist() == [[1183.0, 1183.0],
+                                                             [1070.0, 1070.0]]
 
 
 def test_obj_evaluate():
