@@ -1,10 +1,13 @@
 docopt
 matplotlib
+mkdocs
+mkdocs-cinder
 networkx
 numpy
 p_tqdm
 pandas
 pyomo
+pytest
 python-markdown-math
 seaborn
 sklearn
