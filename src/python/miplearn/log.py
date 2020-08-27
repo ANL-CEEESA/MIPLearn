@@ -5,13 +5,22 @@
 from datetime import timedelta
 import logging
 import time
+import sys
 
-log_colors = {
-    "green":  '\033[92m',
-    "yellow": '\033[93m',
-    "red":    '\033[91m',
-    "reset":  '\033[0m',
-}
+if sys.stdout.isatty():
+    log_colors = {
+        "green":  '\033[92m',
+        "yellow": '\033[93m',
+        "red":    '\033[91m',
+        "reset":  '\033[0m',
+    }
+else:
+    log_colors = {
+        "green": "",
+        "yellow": "",
+        "red": "",
+        "reset": "",
+    }
 
 class TimeFormatter():
     def __init__(self, start_time):
