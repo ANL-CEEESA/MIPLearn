@@ -222,8 +222,7 @@ end
     set_branching_priorities(self, priorities) =
         @warn "JuMPSolver: set_branching_priorities not implemented"
     
-    add_constraint(self, constraint) =
-        error("JuMPSolver.add_constraint should never be called")
+    add_constraint(self, constraint) = nothing
 
     clear_warm_start(self) =
         error("JuMPSolver.clear_warm_start should never be called")
