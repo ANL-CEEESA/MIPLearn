@@ -2,6 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import sys
 from copy import deepcopy
 
 from miplearn.classifiers.counting import CountingClassifier
@@ -47,12 +48,17 @@ class LazyConstraintsComponent(Component):
         violation_to_instance_idx = {}
         for (idx, instance) in enumerate(training_instances):
             for v in instance.found_violated_lazy_constraints:
+                if isinstance(v, list):
+                    v = tuple(v)
                 if v not in self.classifiers:
                     self.classifiers[v] = deepcopy(self.classifier_prototype)
                     violation_to_instance_idx[v] = []
                 violation_to_instance_idx[v] += [idx]
 
-        for (v, classifier) in tqdm(self.classifiers.items(), desc="Fit (lazy)"):
+        for (v, classifier) in tqdm(self.classifiers.items(),
+                                    desc="Fit (lazy)",
+                                    disable=not sys.stdout.isatty(),
+                                   ):
             logger.debug("Training: %s" % (str(v)))
             label = np.zeros(len(training_instances))
             label[violation_to_instance_idx[v]] = 1.0
@@ -72,7 +78,10 @@ class LazyConstraintsComponent(Component):
         all_violations = set()
         for instance in instances:
             all_violations |= set(instance.found_violated_lazy_constraints)
-        for idx in tqdm(range(len(instances)), desc="Evaluate (lazy)"):
+        for idx in tqdm(range(len(instances)),
+                        desc="Evaluate (lazy)",
+                        disable=not sys.stdout.isatty(),
+                       ):
             instance = instances[idx]
             condition_positive = set(instance.found_violated_lazy_constraints)
             condition_negative = all_violations - condition_positive

@@ -2,6 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import sys
 from copy import deepcopy
 
 from miplearn.classifiers.counting import CountingClassifier
@@ -52,7 +53,10 @@ class UserCutsComponent(Component):
                     violation_to_instance_idx[v] = []
                 violation_to_instance_idx[v] += [idx]
 
-        for (v, classifier) in tqdm(self.classifiers.items(), desc="Fit (user cuts)"):
+        for (v, classifier) in tqdm(self.classifiers.items(),
+                                    desc="Fit (user cuts)",
+                                    disable=not sys.stdout.isatty(),
+                                   ):
             logger.debug("Training: %s" % (str(v)))
             label = np.zeros(len(training_instances))
             label[violation_to_instance_idx[v]] = 1.0
@@ -72,7 +76,10 @@ class UserCutsComponent(Component):
         all_violations = set()
         for instance in instances:
             all_violations |= set(instance.found_violated_user_cuts)
-        for idx in tqdm(range(len(instances)), desc="Evaluate (lazy)"):
+        for idx in tqdm(range(len(instances)),
+                        desc="Evaluate (lazy)",
+                        disable=not sys.stdout.isatty(),
+                       ):
             instance = instances[idx]
             condition_positive = set(instance.found_violated_user_cuts)
             condition_negative = all_violations - condition_positive

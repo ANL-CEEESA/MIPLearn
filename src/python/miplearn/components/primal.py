@@ -3,6 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from copy import deepcopy
+import sys
 
 from .component import Component
 from ..classifiers.adaptive import AdaptiveClassifier
@@ -49,7 +50,10 @@ class PrimalSolutionComponent(Component):
         features = VariableFeaturesExtractor().extract(training_instances)
         solutions = SolutionExtractor().extract(training_instances)
 
-        for category in tqdm(features.keys(), desc="Fit (primal)"):
+        for category in tqdm(features.keys(),
+                             desc="Fit (primal)",
+                             disable=not sys.stdout.isatty(),
+                            ):
             x_train = features[category]
             for label in [0, 1]:
                 y_train = solutions[category][:, label].astype(int)
@@ -104,7 +108,9 @@ class PrimalSolutionComponent(Component):
         ev = {"Fix zero": {},
               "Fix one": {}}
         for instance_idx in tqdm(range(len(instances)),
-                                 desc="Evaluate (primal)"):
+                                 desc="Evaluate (primal)",
+                                 disable=not sys.stdout.isatty(),
+                                ):
             instance = instances[instance_idx]
             solution_actual = instance.solution
             solution_pred = self.predict(instance)

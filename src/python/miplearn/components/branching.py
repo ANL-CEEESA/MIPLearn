@@ -4,6 +4,7 @@
 
 import logging
 import os
+import sys
 import subprocess
 import tempfile
 from copy import deepcopy
@@ -25,7 +26,8 @@ class BranchPriorityExtractor(Extractor):
         result = {}
         for instance in tqdm(instances,
                              desc="Extract (branch)",
-                             disable=len(instances) < 5):
+                             disable=len(instances) < 5 or (not sys.stdout.isatty()),
+                            ):
             var_split = self.split_variables(instance)
             for (category, var_index_pairs) in var_split.items():
                 if category not in result:
@@ -55,7 +57,10 @@ class BranchPriorityComponent(Component):
         pass
 
     def fit(self, training_instances, n_jobs=1):
-        for instance in tqdm(training_instances, desc="Fit (branch)"):
+        for instance in tqdm(training_instances,
+                             desc="Fit (branch)",
+                             disable=not sys.stdout.isatty(),
+                            ):
             if not hasattr(instance, "branch_priorities"):
                 instance.branch_priorities = self.compute_priorities(instance)
         x, y = self.x(training_instances), self.y(training_instances)
