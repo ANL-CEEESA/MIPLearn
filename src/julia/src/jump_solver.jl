@@ -137,6 +137,21 @@ function update_solution!(data::JuMPSolverData)
 end
 
 
+function get_variables(data::JuMPSolverData)
+    var_to_basename_idx, model = data.var_to_basename_idx, data.model
+    variables = Dict()
+    for var in JuMP.all_variables(model)
+        var in keys(var_to_basename_idx) || continue
+        basename, idx = var_to_basename_idx[var]
+        if !haskey(variables, basename)
+            variables[basename] = []
+        end
+        push!(variables[basename], idx)
+    end
+    return variables
+end
+
+
 function set_instance!(data::JuMPSolverData, instance, model)
     data.instance = instance
     data.model = model
@@ -210,6 +225,9 @@ end
     
     get_solution(self) =
         self.data.solution
+
+    get_variables(self) =
+        get_variables(self.data)
     
     set_time_limit(self, time_limit) =
         self.data.time_limit = time_limit

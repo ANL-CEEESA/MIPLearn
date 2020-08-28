@@ -84,7 +84,6 @@ class GurobiSolver(InternalSolver):
         }
 
     def solve(self, tee=False):
-        all_vars = self.model.getVars()
         self.instance.found_violated_lazy_constraints = []
         self.instance.found_violated_user_cuts = []
         streams = [StringIO()]
@@ -135,6 +134,14 @@ class GurobiSolver(InternalSolver):
             for (idx, var) in vardict.items():
                 solution[varname][idx] = var.x
         return solution
+
+    def get_variables(self):
+        variables = {}
+        for (varname, vardict) in self._all_vars.items():
+            variables[varname] = {}
+            for (idx, var) in vardict.items():
+                variables[varname] += [idx]
+        return variables
 
     def add_constraint(self, constraint):
         self.model.addConstr(constraint)

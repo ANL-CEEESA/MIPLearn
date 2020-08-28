@@ -150,5 +150,15 @@ class InternalSolver(ABC):
     def set_gap_tolerance(self, gap_tolerance):
         pass
 
+    @abstractmethod
+    def get_variables(self):
+        pass
 
+    def get_empty_solution(self):
+        solution = {}
+        for (var, indices) in self.get_variables().items():
+            solution[var] = {}
+            for idx in indices:
+                solution[var][idx] = 0.0
+        return solution
 

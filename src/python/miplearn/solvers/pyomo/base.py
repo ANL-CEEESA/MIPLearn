@@ -56,6 +56,14 @@ class BasePyomoSolver(InternalSolver):
                 solution[str(var)][index] = var[index].value
         return solution
 
+    def get_variables(self):
+        variables = {}
+        for var in self.model.component_objects(Var):
+            variables[str(var)] = []
+            for index in var:
+                variables[str(var)] += [index]
+        return variables
+
     def set_warm_start(self, solution):
         self.clear_warm_start()
         count_total, count_fixed = 0, 0

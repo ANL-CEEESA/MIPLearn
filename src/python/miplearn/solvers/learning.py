@@ -97,7 +97,8 @@ class LearningSolver:
               instance,
               model=None,
               tee=False,
-              relaxation_only=False):
+              relaxation_only=False,
+              solve_lp_first=True):
         """
         Solves the given instance. If trained machine-learning models are
         available, they will be used to accelerate the solution process.
@@ -111,8 +112,12 @@ class LearningSolver:
             - instance.solution
             - instance.found_violated_lazy_constraints
             - instance.solver_log
+
         Additional solver components may set additional properties. Please
         see their documentation for more details.
+
+        If `solve_lp_first` is False, the properties lp_solution and lp_value
+        will be set to dummy values.
 
         Parameters
         ----------
@@ -124,6 +129,11 @@ class LearningSolver:
             If true, prints solver log to screen.
         relaxation_only: bool
             If true, solve only the root LP relaxation.
+        solve_lp_first: bool
+            If true, solve LP relaxation first, then solve original MILP. This
+            option should be activated if the LP relaxation is not very
+            expensive to solve and if it provides good hints for the integer
+            solution.
 
         Returns
         -------
@@ -145,10 +155,14 @@ class LearningSolver:
         self.internal_solver = self._create_internal_solver()
         self.internal_solver.set_instance(instance, model)
 
-        logger.debug("Solving LP relaxation...")
-        results = self.internal_solver.solve_lp(tee=tee)
-        instance.lp_solution = self.internal_solver.get_solution()
-        instance.lp_value = results["Optimal value"]
+        if solve_lp_first:
+            logger.debug("Solving LP relaxation...")
+            results = self.internal_solver.solve_lp(tee=tee)
+            instance.lp_solution = self.internal_solver.get_solution()
+            instance.lp_value = results["Optimal value"]
+        else:
+            instance.lp_solution = self.internal_solver.get_empty_solution()
+            instance.lp_value = 0.0
 
         logger.debug("Running before_solve callbacks...")
         for component in self.components.values():
