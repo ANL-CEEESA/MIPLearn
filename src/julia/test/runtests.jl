@@ -8,6 +8,7 @@ using MIPLearn
 MIPLearn.setup_logger()
 
 @testset "MIPLearn" begin
+    include("knapsack.jl")
     include("jump_solver_test.jl")
     include("learning_solver_test.jl")
 end

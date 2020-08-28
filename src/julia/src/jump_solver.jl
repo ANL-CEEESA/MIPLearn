@@ -17,6 +17,7 @@ mutable struct JuMPSolverData
     model
     bin_vars
     solution::Union{Nothing,Dict{String,Dict{String,Float64}}}
+    time_limit::Union{Nothing, Float64}
 end
 
 
@@ -61,6 +62,9 @@ end
 
 function solve(data::JuMPSolverData; tee::Bool=false)
     instance, model = data.instance, data.model
+    if data.time_limit != nothing
+        JuMP.set_time_limit_sec(model, data.time_limit)
+    end
     wallclock_time = 0
     found_lazy = []
     log = ""
@@ -174,10 +178,9 @@ function set_warm_start!(data::JuMPSolverData, solution)
         end
     end
     @info "Setting warm start values for $count variables"
-end    
+end 
 
-
-@pydef mutable struct JuMPSolver <: InternalSolver
+@pydef mutable struct JuMPSolver <: miplearn.solvers.internal.InternalSolver
     function __init__(self; optimizer)
         self.data = JuMPSolverData(nothing,  # basename_idx_to_var
                                    nothing,  # var_to_basename_idx
@@ -186,6 +189,7 @@ end
                                    nothing,  # model
                                    nothing,  # bin_vars
                                    nothing,  # solution
+                                   nothing,  # time limit
                                   ) 
     end
 
@@ -208,7 +212,7 @@ end
         self.data.solution
     
     set_time_limit(self, time_limit) =
-        JuMP.set_time_limit_sec(self.data.model, time_limit)
+        self.data.time_limit = time_limit
 
     set_gap_tolerance(self, gap_tolerance) =
         @warn "JuMPSolver: set_gap_tolerance not implemented"
@@ -228,3 +232,5 @@ end
         error("JuMPSolver.clear_warm_start should never be called")
 
 end
+
+export JuMPSolver, solve!, fit!, add!

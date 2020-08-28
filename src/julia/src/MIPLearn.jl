@@ -8,14 +8,34 @@ module MIPLearn
 using PyCall
 miplearn = pyimport("miplearn")
 Instance = miplearn.Instance
-LearningSolver = miplearn.LearningSolver
-InternalSolver = miplearn.solvers.internal.InternalSolver
 BenchmarkRunner = miplearn.BenchmarkRunner
 
-include("jump_solver.jl")
-include("knapsack.jl")
-include("log.jl")
+macro pycall(expr)
+    quote
+        err_msg = nothing
+        result = nothing
+        try
+            result = $(esc(expr))
+        catch err
+            args = err.val.args[1]
+            if (err isa PyCall.PyError) && (args isa String) && startswith(args, "Julia")
+                err_msg = replace(args, r"Stacktrace.*" => "")
+            else
+                rethrow(err)
+            end
+        end
+        if err_msg != nothing
+            error(err_msg)
+        end
+        result
+    end
+end
 
-export Instance, LearningSolver, InternalSolver, JuMPSolver, BenchmarkRunner
+include("log.jl")
+include("jump_solver.jl")
+include("learning_solver.jl")
+include("instance.jl")
+
+export Instance, BenchmarkRunner
 
 end # module
