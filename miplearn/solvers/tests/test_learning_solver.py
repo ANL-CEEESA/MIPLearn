@@ -64,4 +64,4 @@ def test_add_components():
     solver.add(LazyConstraintsComponent())
     solver.add(LazyConstraintsComponent())
     assert len(solver.components) == 1
-    assert "BranchPriorityComponent" in solver.components
+    assert "LazyConstraintsComponent" in solver.components
