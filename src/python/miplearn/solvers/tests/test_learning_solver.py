@@ -6,7 +6,7 @@ import logging
 import pickle
 import tempfile
 
-from miplearn import BranchPriorityComponent
+from miplearn import LazyConstraintsComponent
 from miplearn import LearningSolver
 
 from . import _get_instance, _get_internal_solvers
@@ -61,7 +61,7 @@ def test_parallel_solve():
 
 def test_add_components():
     solver = LearningSolver(components=[])
-    solver.add(BranchPriorityComponent())
-    solver.add(BranchPriorityComponent())
+    solver.add(LazyConstraintsComponent())
+    solver.add(LazyConstraintsComponent())
     assert len(solver.components) == 1
     assert "BranchPriorityComponent" in solver.components

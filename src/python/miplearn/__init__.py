@@ -12,8 +12,6 @@ from .components.objective import ObjectiveValueComponent
 from .components.lazy import LazyConstraintsComponent
 from .components.cuts import UserCutsComponent
 from .components.primal import PrimalSolutionComponent
-from .components.branching import (BranchPriorityComponent,
-                                   BranchPriorityExtractor)
 
 from .classifiers.adaptive import AdaptiveClassifier
 from .classifiers.threshold import MinPrecisionThreshold
