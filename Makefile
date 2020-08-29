@@ -5,19 +5,22 @@ PYTEST_ARGS := -W ignore::DeprecationWarning -vv -x --log-level=DEBUG
 
 all: docs test
 
+clean:
+	rm -rf build
+
 develop:
-	cd src/python && $(PYTHON) setup.py develop
+	$(PYTHON) setup.py develop
 
 docs:
 	mkdocs build
 
 install:
-	cd src/python && $(PYTHON) setup.py install
+	$(PYTHON) setup.py install
 
 uninstall:
 	$(PIP) uninstall miplearn
 
 test:
-	cd src/python && $(PYTEST) $(PYTEST_ARGS)
+	$(PYTEST) $(PYTEST_ARGS)
 
 .PHONY: test test-watch docs install
