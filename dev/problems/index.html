@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="../img/favicon.ico">
+
+    
+    <title>Problems - MIPLearn</title>
+    
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
+    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../css/base.min.css" rel="stylesheet">
+    <link href="../css/cinder.min.css" rel="stylesheet">
+
+    
+    <link href="../css/custom.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            <a class="navbar-brand" href="..">MIPLearn</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../usage/">Usage</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../benchmark/">Benchmark</a>
+                    </li>
+                
+                
+                
+                    <li class="active">
+                        <a href="./">Problems</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../customization/">Customization</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../about/">About</a>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../benchmark/">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="next" href="../customization/">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/ANL-CEEESA/MIPLearn/edit/master/src/docs/problems.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#benchmark-problems-challenges-and-results">Benchmark Problems, Challenges and Results</a></li>
+            <li class="second-level"><a href="#preliminaries">Preliminaries</a></li>
+                
+                <li class="third-level"><a href="#benchmark-challenges">Benchmark challenges</a></li>
+                <li class="third-level"><a href="#baseline-results">Baseline results</a></li>
+            <li class="second-level"><a href="#maximum-weight-stable-set-problem">Maximum Weight Stable Set Problem</a></li>
+                
+                <li class="third-level"><a href="#problem-definition">Problem definition</a></li>
+                <li class="third-level"><a href="#random-instance-generator">Random instance generator</a></li>
+                <li class="third-level"><a href="#challenge-a">Challenge A</a></li>
+            <li class="second-level"><a href="#traveling-salesman-problem">Traveling Salesman Problem</a></li>
+                
+                <li class="third-level"><a href="#problem-definition_1">Problem definition</a></li>
+                <li class="third-level"><a href="#random-problem-generator">Random problem generator</a></li>
+                <li class="third-level"><a href="#challenge-a_1">Challenge A</a></li>
+            <li class="second-level"><a href="#multidimensional-0-1-knapsack-problem">Multidimensional 0-1 Knapsack Problem</a></li>
+                
+                <li class="third-level"><a href="#problem-definition_2">Problem definition</a></li>
+                <li class="third-level"><a href="#random-instance-generator_1">Random instance generator</a></li>
+                <li class="third-level"><a href="#challenge-a_2">Challenge A</a></li>
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h1 id="benchmark-problems-challenges-and-results">Benchmark Problems, Challenges and Results</h1>
+<p>MIPLearn provides a selection of benchmark problems and random instance generators, covering applications from different fields, that can be used to evaluate new learning-enhanced MIP techniques in a measurable and reproducible way. In this page, we describe these problems, the included instance generators, and we present some benchmark results for  <code>LearningSolver</code> with default parameters.</p>
+<h2 id="preliminaries">Preliminaries</h2>
+<h3 id="benchmark-challenges">Benchmark challenges</h3>
+<p>When evaluating the performance of a conventional MIP solver, <em>benchmark sets</em>, such as MIPLIB and TSPLIB, are typically used. The performance of newly proposed solvers or solution techniques are typically measured as the average (or total) running time the solver takes to solve the entire benchmark set. For Learning-Enhanced MIP solvers, it is also necessary to specify what instances should the solver be trained on (the <em>training instances</em>) before solving the actual set of instances we are interested in (the <em>test instances</em>). If the training instances are very similar to the test instances, we would expect a Learning-Enhanced Solver to present stronger perfomance benefits.</p>
+<p>In MIPLearn, each optimization problem comes with a set of <strong>benchmark challenges</strong>, which specify how should the training and test instances be generated. The first challenges are typically easier, in the sense that training and test instances are very similar. Later challenges gradually make the sets more distinct, and therefore harder to learn from.</p>
+<h3 id="baseline-results">Baseline results</h3>
+<p>To illustrate the performance of <code>LearningSolver</code>, and to set a baseline for newly proposed techniques, we present in this page, for each benchmark challenge, a small set of computational results measuring the solution speed of the solver and the solution quality with default parameters. For more detailed computational studies, see <a href="../about/#references">references</a>. We compare three solvers:</p>
+<ul>
+<li><strong>baseline:</strong> Gurobi 9.0 with default settings (a conventional state-of-the-art MIP solver)</li>
+<li><strong>ml-exact:</strong> <code>LearningSolver</code> with default settings, using Gurobi 9.0 as internal MIP solver</li>
+<li><strong>ml-heuristic:</strong> Same as above, but with <code>mode="heuristic"</code></li>
+</ul>
+<p>All experiments presented here were performed on a Linux server (Ubuntu Linux 18.04 LTS) with Intel Xeon Gold 6230s (2 processors, 40 cores, 80 threads) and 256 GB RAM (DDR4, 2933 MHz). All solvers were restricted to use 4 threads, with no time limits, and 10 instances were solved simultaneously at a time.</p>
+<h2 id="maximum-weight-stable-set-problem">Maximum Weight Stable Set Problem</h2>
+<h3 id="problem-definition">Problem definition</h3>
+<p>Given a simple undirected graph $G=(V,E)$ and weights $w \in \mathbb{R}^V$, the problem is to find a stable set $S \subseteq V$ that maximizes $ \sum_{v \in V} w_v$. We recall that a subset $S \subseteq V$ is a <em>stable set</em> if no two vertices of $S$ are adjacent. This is one of Karp's 21 NP-complete problems.</p>
+<h3 id="random-instance-generator">Random instance generator</h3>
+<p>The class <code>MaxWeightStableSetGenerator</code> can be used to generate random instances of this problem, with user-specified probability distributions. When the constructor parameter <code>fix_graph=True</code> is provided, one random Erdős-Rényi graph $G_{n,p}$ is generated during the constructor, where $n$ and $p$ are sampled from user-provided probability distributions <code>n</code> and <code>p</code>. To generate each instance, the generator independently samples each $w_v$ from the user-provided probability distribution <code>w</code>. When <code>fix_graph=False</code>, a new random graph is generated for each instance, while the remaining parameters are sampled in the same way.</p>
+<h3 id="challenge-a">Challenge A</h3>
+<ul>
+<li>Fixed random Erdős-Rényi graph $G_{n,p}$ with $n=200$ and $p=5\%$</li>
+<li>Random vertex weights $w_v \sim U(100, 150)$</li>
+<li>500 training instances, 50 test instances</li>
+</ul>
+<pre><code class="python">MaxWeightStableSetGenerator(w=uniform(loc=100., scale=50.),
+                            n=randint(low=200, high=201),
+                            p=uniform(loc=0.05, scale=0.0),
+                            fix_graph=True)
+</code></pre>
+
+<p><img alt="alt" src="../figures/benchmark_stab_a.png" /></p>
+<h2 id="traveling-salesman-problem">Traveling Salesman Problem</h2>
+<h3 id="problem-definition_1">Problem definition</h3>
+<p>Given a list of cities and the distance between each pair of cities, the problem asks for the
+shortest route starting at the first city, visiting each other city exactly once, then returning
+to the first city. This problem is a generalization of the Hamiltonian path problem, one of Karp's
+21 NP-complete problems.</p>
+<h3 id="random-problem-generator">Random problem generator</h3>
+<p>The class <code>TravelingSalesmanGenerator</code> can be used to generate random instances of this
+problem. Initially, the generator creates $n$ cities $(x_1,y_1),\ldots,(x_n,y_n) \in \mathbb{R}^2$,
+where $n, x_i$ and $y_i$ are sampled independently from the provided probability distributions <code>n</code>,
+<code>x</code> and <code>y</code>. For each pair of cities $(i,j)$, the distance $d_{i,j}$ between them is set to:
+<script type="math/tex; mode=display">
+    d_{i,j} = \gamma_{i,j} \sqrt{(x_i-x_j)^2 + (y_i - y_j)^2}
+</script>
+where $\gamma_{i,j}$ is sampled from the distribution <code>gamma</code>.</p>
+<p>If <code>fix_cities=True</code> is provided, the list of cities is kept the same for all generated instances.
+The $gamma$ values, and therefore also the distances, are still different.</p>
+<p>By default, all distances $d_{i,j}$ are rounded to the nearest integer.  If <code>round=False</code>
+is provided, this rounding will be disabled.</p>
+<h3 id="challenge-a_1">Challenge A</h3>
+<ul>
+<li>Fixed list of 350 cities in the $[0, 1000]^2$ square</li>
+<li>$\gamma_{i,j} \sim U(0.95, 1.05)$</li>
+<li>500 training instances, 50 test instances</li>
+</ul>
+<pre><code class="python">TravelingSalesmanGenerator(x=uniform(loc=0.0, scale=1000.0),
+                           y=uniform(loc=0.0, scale=1000.0),
+                           n=randint(low=350, high=351),
+                           gamma=uniform(loc=0.95, scale=0.1),
+                           fix_cities=True,
+                           round=True,
+                          )
+</code></pre>
+
+<p><img alt="alt" src="../figures/benchmark_tsp_a.png" /></p>
+<h2 id="multidimensional-0-1-knapsack-problem">Multidimensional 0-1 Knapsack Problem</h2>
+<h3 id="problem-definition_2">Problem definition</h3>
+<p>Given a set of $n$ items and $m$ types of resources (also called <em>knapsacks</em>), the problem is to find a subset of items that maximizes profit without consuming more resources than it is available. More precisely, the problem is:</p>
+<p>
+<script type="math/tex; mode=display">\begin{align*}
+    \text{maximize}
+        & \sum_{j=1}^n p_j x_j
+        \\
+    \text{subject to}
+        & \sum_{j=1}^n w_{ij} x_j \leq b_i
+        & \forall i=1,\ldots,m \\
+    & x_j \in \{0,1\}
+        & \forall j=1,\ldots,n
+\end{align*}</script>
+</p>
+<h3 id="random-instance-generator_1">Random instance generator</h3>
+<p>The class <code>MultiKnapsackGenerator</code> can be used to generate random instances of this problem. The number of items $n$ and knapsacks $m$ are sampled from the user-provided probability distributions <code>n</code> and <code>m</code>. The weights $w_{ij}$ are sampled independently from the provided distribution <code>w</code>. The capacity of knapsack $i$ is set to</p>
+<p>
+<script type="math/tex; mode=display">
+    b_i = \alpha_i \sum_{j=1}^n w_{ij}
+</script>
+</p>
+<p>where $\alpha_i$, the tightness ratio, is sampled from the provided probability
+distribution <code>alpha</code>. To make the instances more challenging, the costs of the items
+are linearly correlated to their average weights. More specifically, the price of each
+item $j$ is set to:</p>
+<p>
+<script type="math/tex; mode=display">
+    p_j = \sum_{i=1}^m \frac{w_{ij}}{m} + K  u_j,
+</script>
+</p>
+<p>where $K$, the correlation coefficient, and $u_j$, the correlation multiplier, are sampled
+from the provided probability distributions <code>K</code> and <code>u</code>.</p>
+<p>If <code>fix_w=True</code> is provided, then $w_{ij}$ are kept the same in all generated instances. This also implies that $n$ and $m$ are kept fixed. Although the prices and capacities are derived from $w_{ij}$, as long as <code>u</code> and <code>K</code> are not constants, the generated instances will still not be completely identical.</p>
+<p>If a probability distribution <code>w_jitter</code> is provided, then item weights will be set to $w_{ij} \gamma_{ij}$ where $\gamma_{ij}$ is sampled from <code>w_jitter</code>. When combined with <code>fix_w=True</code>, this argument may be used to generate instances where the weight of each item is roughly the same, but not exactly identical, across all instances. The prices of the items and the capacities of the knapsacks will be calculated as above, but using these perturbed weights instead.</p>
+<p>By default, all generated prices, weights and capacities are rounded to the nearest integer number. If <code>round=False</code> is provided, this rounding will be disabled.</p>
+<div class="admonition note">
+<p class="admonition-title">References</p>
+<ul>
+<li>Freville, Arnaud, and Gérard Plateau. <em>An efficient preprocessing procedure for the multidimensional 0–1 knapsack problem.</em> Discrete applied mathematics 49.1-3 (1994): 189-212.</li>
+<li>Fréville, Arnaud. <em>The multidimensional 0–1 knapsack problem: An overview.</em> European Journal of Operational Research 155.1 (2004): 1-21.</li>
+</ul>
+</div>
+<h3 id="challenge-a_2">Challenge A</h3>
+<ul>
+<li>250 variables, 10 constraints, fixed weights</li>
+<li>$w \sim U(0, 1000), \gamma \sim U(0.95, 1.05)$</li>
+<li>$K = 500, u \sim U(0, 1), \alpha = 0.25$</li>
+<li>500 training instances, 50 test instances</li>
+</ul>
+<pre><code class="python">MultiKnapsackGenerator(n=randint(low=250, high=251),
+                       m=randint(low=10, high=11),
+                       w=uniform(loc=0.0, scale=1000.0),
+                       K=uniform(loc=500.0, scale=0.0),
+                       u=uniform(loc=0.0, scale=1.0),
+                       alpha=uniform(loc=0.25, scale=0.0),
+                       fix_w=True,
+                       w_jitter=uniform(loc=0.95, scale=0.1),
+                      )
+</code></pre>
+
+<p><img alt="alt" src="../figures/benchmark_knapsack_a.png" /></p></div>
+        
+        
+    </div>
+
+    <footer class="col-md-12 text-center">
+        
+        <hr>
+        <p>
+        <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.</small><br>
+        
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+        </p>
+
+        
+        
+    </footer>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../js/bootstrap-3.0.3.min.js"></script>
+    
+    <script>var base_url = ".."</script>
+    
+    <script src="../js/base.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="../js/mathjax.js"></script>
+    <script src="../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    </body>
+
+</html>
