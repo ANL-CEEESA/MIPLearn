@@ -26,5 +26,5 @@ For installation instructions, basic usage and benchmarks results, see the [offi
 License
 -------
 
-Released under the modified BSD license. See `COPYING.md` for more details.
+Released under the modified BSD license. See `LICENSE` for more details.
 
