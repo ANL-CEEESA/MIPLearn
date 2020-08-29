@@ -11,8 +11,8 @@ jobs:
         yes | conda create --name miplearn-test python=3.6
         (cd /opt/gurobi900/linux64 && ~/.conda/envs/miplearn-test/bin/python setup.py install)
         (cd /opt/cplex-12.8/cplex/python/3.6/x86-64_linux && ~/.conda/envs/miplearn-test/bin/python setup.py install)
-        ~/.conda/envs/miplearn-test/bin/pip install -r src/python/requirements.txt
-        make install-python install-julia PYTHON=~/.conda/envs/miplearn-test/bin/python
-        ~/.conda/envs/miplearn-test/bin/pytest src/python
-        make test-julia
+        make install test \
+                PYTHON=~/.conda/envs/miplearn-test/bin/python \
+                PIP=~/.conda/envs/miplearn-test/bin/pip3 \
+                PYTEST=~/.conda/envs/miplearn-test/bin/pytest
 

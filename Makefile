@@ -15,6 +15,7 @@ docs:
 	mkdocs build
 
 install:
+	$(PIP) install -r requirements.txt
 	$(PYTHON) setup.py install
 
 uninstall:
