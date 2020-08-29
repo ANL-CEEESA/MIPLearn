@@ -8,7 +8,7 @@
     
     
     
-    <link rel="../img/favicon.ico">
+    <link rel="shortcut icon" href="../img/favicon.ico">
 
     
     <title>Usage - MIPLearn</title>
@@ -23,6 +23,10 @@
     <link href="../css/base.min.css" rel="stylesheet">
     <link href="../css/cinder.min.css" rel="stylesheet">
 
+    
+        
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
+        
     
     <link href="../css/custom.css" rel="stylesheet">
 
@@ -118,7 +122,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="https://github.com/ANL-CEEESA/MIPLearn/edit/master/src/docs/usage.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                        <a href="https://github.com/ANL-CEEESA/MIPLearn/edit/dev/docs/usage.md"><i class="fab fa-github"></i> Edit on GitHub</a>
                     </li>
             </ul>
         </div>
@@ -151,15 +155,9 @@
 
 <h1 id="usage">Usage</h1>
 <h3 id="installation">Installation</h3>
-<p>MIPLearn is mainly written in Python, with some components written in Julia. For this
-reason, both Python 3.6+ and Julia 1.3+ are required. A mixed-integer solver is also required, and
-its Python bindings must be properly installed. Supported solvers are CPLEX and
-Gurobi. Optimization problems currently need to be specified in the Pyomo modeling language.
-A JuMP interface to the package is currently under development.</p>
-<p>To install MIPLearn, run the following commands: </p>
-<pre><code class="bash">git clone https://github.com/ANL-CEEESA/MIPLearn.git
-cd MIPLearn
-make install
+<p>In these docs, we describe the Python/Pyomo version of the package, although a <a href="https://github.com/ANL-CEEESA/MIPLearn.jl">Julia/JuMP version</a> is also available. A mixed-integer solver is also required and its Python bindings must be properly installed. Supported solvers are currently CPLEX and Gurobi.</p>
+<p>To install MIPLearn, run: </p>
+<pre><code class="bash">pip3 install miplearn
 </code></pre>
 
 <p>After installation, the package <code>miplearn</code> should become available to Python. It can be imported
@@ -167,10 +165,6 @@ as follows:</p>
 <pre><code class="python">import miplearn
 </code></pre>
 
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>To install MIPLearn in another Python environment, switch to that environment before running <code>make install</code>. To install the package in development mode, run <code>make develop</code> instead.</p>
-</div>
 <h3 id="using-learningsolver">Using <code>LearningSolver</code></h3>
 <p>The main class provided by this package is <code>LearningSolver</code>, a learning-enhanced MIP solver which uses information from previously solved instances to accelerate the solution of new instances. The following example shows its basic usage:</p>
 <pre><code class="python">from miplearn import LearningSolver
@@ -276,7 +270,13 @@ solver.parallel_solve(test_instances)
     </footer>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="../js/bootstrap-3.0.3.min.js"></script>
+
     
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+        
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
     <script>var base_url = ".."</script>
     
     <script src="../js/base.js"></script>
