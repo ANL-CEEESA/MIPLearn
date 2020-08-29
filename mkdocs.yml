@@ -2,7 +2,7 @@ site_name: MIPLearn
 theme: cinder
 copyright: "Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved."
 repo_url: https://github.com/ANL-CEEESA/MIPLearn
-edit_uri: edit/master/src/docs/
+edit_uri: edit/dev/docs/
 nav:
     - Home: index.md
     - Usage: usage.md

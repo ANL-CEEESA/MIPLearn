@@ -1,20 +1,13 @@
 # Usage
 
-
 ### Installation
 
-MIPLearn is mainly written in Python, with some components written in Julia. For this
-reason, both Python 3.6+ and Julia 1.3+ are required. A mixed-integer solver is also required, and
-its Python bindings must be properly installed. Supported solvers are CPLEX and
-Gurobi. Optimization problems currently need to be specified in the Pyomo modeling language.
-A JuMP interface to the package is currently under development.
+In these docs, we describe the Python/Pyomo version of the package, although a [Julia/JuMP version](https://github.com/ANL-CEEESA/MIPLearn.jl) is also available. A mixed-integer solver is also required and its Python bindings must be properly installed. Supported solvers are currently CPLEX and Gurobi.
 
-To install MIPLearn, run the following commands: 
+To install MIPLearn, run: 
 
 ```bash
-git clone https://github.com/ANL-CEEESA/MIPLearn.git
-cd MIPLearn
-make install
+pip3 install miplearn
 ```
 
 After installation, the package `miplearn` should become available to Python. It can be imported
@@ -23,9 +16,6 @@ as follows:
 ```python
 import miplearn
 ```
-
-!!! note
-    To install MIPLearn in another Python environment, switch to that environment before running `make install`. To install the package in development mode, run `make develop` instead.
 
 ### Using `LearningSolver`
 
