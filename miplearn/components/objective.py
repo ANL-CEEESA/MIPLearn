@@ -23,10 +23,11 @@ class ObjectiveValueComponent(Component):
     
     def before_solve(self, solver, instance, model):
         if self.ub_regressor is not None:
+            logger.info("Predicting optimal value...")
             lb, ub = self.predict([instance])[0]
             instance.predicted_ub = ub
             instance.predicted_lb = lb
-            logger.info("Predicted objective: [%.2f, %.2f]" % (lb, ub))
+            logger.info("Predicted values: lb=%.2f, ub=%.2f" % (lb, ub))
     
     def after_solve(self, solver, instance, model, results):
         if self.ub_regressor is not None:

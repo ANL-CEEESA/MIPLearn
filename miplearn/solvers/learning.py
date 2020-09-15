@@ -156,7 +156,7 @@ class LearningSolver:
         self.internal_solver.set_instance(instance, model)
 
         if solve_lp_first:
-            logger.debug("Solving LP relaxation...")
+            logger.info("Solving LP relaxation...")
             results = self.internal_solver.solve_lp(tee=tee)
             instance.lp_solution = self.internal_solver.get_solution()
             instance.lp_value = results["Optimal value"]
@@ -171,6 +171,7 @@ class LearningSolver:
         if relaxation_only:
             return results
 
+        logger.info("Solving MILP...")
         results = self.internal_solver.solve(tee=tee)
         results["LP value"] = instance.lp_value
 

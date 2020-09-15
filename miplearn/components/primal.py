@@ -30,6 +30,7 @@ class PrimalSolutionComponent(Component):
         self.classifier_prototype = classifier
 
     def before_solve(self, solver, instance, model):
+        logger.info("Predicting primal solution...")
         solution = self.predict(instance)
         if self.mode == "heuristic":
             solver.internal_solver.fix(solution)

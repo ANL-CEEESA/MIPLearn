@@ -32,7 +32,7 @@ class UserCutsComponent(Component):
     def before_solve(self, solver, instance, model):
         logger.info("Predicting violated user cuts...")
         violations = self.predict(instance)
-        logger.info("Enforcing %d cuts..." % len(violations))
+        logger.info("Enforcing %d user cuts..." % len(violations))
         for v in violations:
             cut = instance.build_user_cut(model, v)
             solver.internal_solver.add_constraint(cut)

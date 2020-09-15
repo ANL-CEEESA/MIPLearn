@@ -32,7 +32,7 @@ class LazyConstraintsComponent(Component):
     def before_solve(self, solver, instance, model):
         logger.info("Predicting violated lazy constraints...")
         violations = self.predict(instance)
-        logger.info("Enforcing %d constraints..." % len(violations))
+        logger.info("Enforcing %d lazy constraints..." % len(violations))
         for v in violations:
             cut = instance.build_lazy_constraint(model, v)
             solver.internal_solver.add_constraint(cut)
