@@ -126,7 +126,7 @@ class InternalSolver(ABC):
 
         Parameters
         ----------
-        iteration_cb: function
+        iteration_cb: () -> Bool
             By default, InternalSolver makes a single call to the native `solve`
             method and returns the result. If an iteration callback is provided
             instead, InternalSolver enters a loop, where `solve` and `iteration_cb`

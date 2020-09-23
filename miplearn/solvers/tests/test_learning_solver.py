@@ -64,4 +64,4 @@ def test_add_components():
     solver.add(DynamicLazyConstraintsComponent())
     solver.add(DynamicLazyConstraintsComponent())
     assert len(solver.components) == 1
-    assert "LazyConstraintsComponent" in solver.components
+    assert "DynamicLazyConstraintsComponent" in solver.components

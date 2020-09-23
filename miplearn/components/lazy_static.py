@@ -35,13 +35,20 @@ class StaticLazyConstraintsComponent(Component):
     def after_solve(self, solver, instance, model, results):
         pass
 
-    def on_callback(self, solver, instance, model):
-        print(self.pool)
+    def after_iteration(self, solver, instance, model):
+        logger.debug("Finding violated (static) lazy constraints...")
+        n_added = 0
         for c in self.pool:
             if not solver.internal_solver.is_constraint_satisfied(c.obj):
                 self.pool.remove(c)
                 solver.internal_solver.add_constraint(c.obj)
                 instance.found_violated_lazy_constraints += [c.cid]
+                n_added += 1
+        if n_added > 0:
+            logger.debug("    %d violations found" % n_added)
+            return True
+        else:
+            return False
                 
     def fit(self, training_instances):
         logger.debug("Extracting x and y...")

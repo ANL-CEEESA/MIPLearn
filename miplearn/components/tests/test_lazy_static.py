@@ -95,8 +95,9 @@ def test_usage_with_solver():
     ])
     internal.add_constraint.reset_mock()
 
-    # LearningSolver calls callback (first time)
-    component.on_callback(solver, instance, None)
+    # LearningSolver calls after_iteration (first time)
+    should_repeat = component.after_iteration(solver, instance, None)
+    assert should_repeat
 
     # Should ask internal solver to verify if constraints in the pool are
     # satisfied and add the ones that are not
@@ -105,8 +106,9 @@ def test_usage_with_solver():
     internal.add_constraint.assert_called_once_with("<c2>")
     internal.add_constraint.reset_mock()
 
-    # LearningSolver calls callback (second time)
-    component.on_callback(solver, instance, None)
+    # LearningSolver calls after_iteration (second time)
+    should_repeat = component.after_iteration(solver, instance, None)
+    assert not should_repeat
 
     # The lazy constraint pool should be empty by now, so no calls should be made
     internal.is_constraint_satisfied.assert_not_called()

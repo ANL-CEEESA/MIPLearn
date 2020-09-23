@@ -21,3 +21,6 @@ class Component(ABC):
     @abstractmethod
     def fit(self, training_instances):
         pass
+
+    def after_iteration(self, solver, instance, model):
+        return False

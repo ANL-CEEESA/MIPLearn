@@ -171,8 +171,15 @@ class LearningSolver:
         if relaxation_only:
             return results
 
+        def iteration_cb():
+            should_repeat = False
+            for component in self.components.values():
+                if component.after_iteration(self, instance, model):
+                    should_repeat = True
+            return should_repeat
+
         logger.info("Solving MILP...")
-        results = self.internal_solver.solve(tee=tee)
+        results = self.internal_solver.solve(tee=tee, iteration_cb=iteration_cb)
         results["LP value"] = instance.lp_value
 
         # Read MIP solution and bounds
