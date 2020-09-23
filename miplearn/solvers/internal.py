@@ -8,6 +8,10 @@ from abc import ABC, abstractmethod
 logger = logging.getLogger(__name__)
 
 
+class ExtractedConstraint(ABC):
+    pass
+
+
 class InternalSolver(ABC):
     """
     Abstract class representing the MIP solver used internally by LearningSolver.
@@ -132,6 +136,27 @@ class InternalSolver(ABC):
             "Lower bound", "Upper bound", "Wallclock time", "Nodes", "Sense",
              "Log" and "Warm start value".
         """
+        pass
+
+    # @abstractmethod
+    def get_constraint_names(self):
+        """
+        Returns a list of strings, containing the name of each constraint in the
+        model.
+        """
+        pass
+
+    # @abstractmethod
+    def extract_constraint(self, cname):
+        """
+        Removes a given constraint from the model and returns an object `c` which
+        can be used to verify if the removed constraint is still satisfied by
+        the current solution, using `is_constraint_satisfied(c)`, and can potentially
+        be re-added to the model using `add_constraint(c)`.
+        """
+        pass
+
+    def is_constraint_satisfied(self, c):
         pass
 
     @abstractmethod

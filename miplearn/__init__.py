@@ -10,6 +10,7 @@ from .extractors import (SolutionExtractor,
 from .components.component import Component
 from .components.objective import ObjectiveValueComponent
 from .components.lazy import LazyConstraintsComponent
+from .components.lazy_static import StaticLazyConstraintsComponent
 from .components.cuts import UserCutsComponent
 from .components.primal import PrimalSolutionComponent
 

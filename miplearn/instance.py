@@ -77,6 +77,18 @@ class Instance(ABC):
         """
         return "default"
 
+    def has_static_lazy_constraints(self):
+        return False
+
+    def has_dynamic_lazy_constraints(self):
+        return False
+
+    def is_constraint_lazy(self, cid):
+        return False
+
+    def get_lazy_constraint_features(self, cid):
+        pass
+
     def find_violated_lazy_constraints(self, model):
         """
         Returns lazy constraint violations found for the current solution.
