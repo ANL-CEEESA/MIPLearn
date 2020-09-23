@@ -119,13 +119,19 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def solve(self, tee=False):
+    def solve(self, tee=False, iteration_cb=None):
         """
         Solves the currently loaded instance. After this method finishes,
         the best solution found can be retrieved by calling `get_solution`.
 
         Parameters
         ----------
+        iteration_cb: function
+            By default, InternalSolver makes a single call to the native `solve`
+            method and returns the result. If an iteration callback is provided
+            instead, InternalSolver enters a loop, where `solve` and `iteration_cb`
+            are called alternatively. To stop the loop, `iteration_cb` should
+            return False. Any other result causes the solver to loop again.
         tee: bool
             If true, prints the solver log to the screen.
 
@@ -138,25 +144,25 @@ class InternalSolver(ABC):
         """
         pass
 
-    # @abstractmethod
-    def get_constraint_names(self):
+    @abstractmethod
+    def get_constraints_ids(self):
         """
-        Returns a list of strings, containing the name of each constraint in the
-        model.
+        Returns a list of ids, which uniquely identify each constraint in the model.
         """
         pass
 
-    # @abstractmethod
-    def extract_constraint(self, cname):
+    @abstractmethod
+    def extract_constraint(self, cid):
         """
-        Removes a given constraint from the model and returns an object `c` which
+        Removes a given constraint from the model and returns an object `cobj` which
         can be used to verify if the removed constraint is still satisfied by
-        the current solution, using `is_constraint_satisfied(c)`, and can potentially
-        be re-added to the model using `add_constraint(c)`.
+        the current solution, using `is_constraint_satisfied(cobj)`, and can potentially
+        be re-added to the model using `add_constraint(cobj)`.
         """
         pass
 
-    def is_constraint_satisfied(self, c):
+    @abstractmethod
+    def is_constraint_satisfied(self, cobj):
         pass
 
     @abstractmethod

@@ -30,6 +30,7 @@ class LazyConstraintsComponent(Component):
         self.classifiers = {}
 
     def before_solve(self, solver, instance, model):
+        instance.found_violated_lazy_constraints = []
         logger.info("Predicting violated lazy constraints...")
         violations = self.predict(instance)
         logger.info("Enforcing %d lazy constraints..." % len(violations))

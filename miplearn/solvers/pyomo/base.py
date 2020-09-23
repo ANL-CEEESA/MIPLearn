@@ -9,7 +9,7 @@ import pyomo
 from abc import abstractmethod
 from io import StringIO
 from pyomo import environ as pe
-from pyomo.core import Var
+from pyomo.core import Var, Constraint
 
 from .. import RedirectOutput
 from ..internal import InternalSolver
@@ -32,6 +32,7 @@ class BasePyomoSolver(InternalSolver):
         self._pyomo_solver = None
         self._obj_sense = None
         self._varname_to_var = {}
+        self._cname_to_constr = {}
 
     def solve_lp(self, tee=False):
         for var in self._bin_vars:
@@ -93,22 +94,30 @@ class BasePyomoSolver(InternalSolver):
         self.instance = instance
         self.model = model
         self._pyomo_solver.set_instance(model)
+        self._update_obj()
+        self._update_vars()
+        self._update_constrs()
 
-        # Update objective sense
+    def _update_obj(self):
         self._obj_sense = "max"
         if self._pyomo_solver._objective.sense == pyomo.core.kernel.objective.minimize:
             self._obj_sense = "min"
 
-        # Update variables
+    def _update_vars(self):
         self._all_vars = []
         self._bin_vars = []
         self._varname_to_var = {}
-        for var in model.component_objects(Var):
+        for var in self.model.component_objects(Var):
             self._varname_to_var[var.name] = var
             for idx in var:
                 self._all_vars += [var[idx]]
                 if var[idx].domain == pyomo.core.base.set_types.Binary:
                     self._bin_vars += [var[idx]]
+
+    def _update_constrs(self):
+        self._cname_to_constr = {}
+        for constr in self.model.component_objects(Constraint):
+            self._cname_to_constr[constr.name] = constr
 
     def fix(self, solution):
         count_total, count_fixed = 0, 0
@@ -126,12 +135,15 @@ class BasePyomoSolver(InternalSolver):
 
     def add_constraint(self, constraint):
         self._pyomo_solver.add_constraint(constraint)
+        self._update_constrs()
 
-    def solve(self, tee=False):
+    def solve(self, tee=False, iteration_cb=None):
         total_wallclock_time = 0
         streams = [StringIO()]
         if tee:
             streams += [sys.stdout]
+        if iteration_cb is None:
+            iteration_cb = lambda: False
         self.instance.found_violated_lazy_constraints = []
         self.instance.found_violated_user_cuts = []
         while True:
@@ -140,16 +152,9 @@ class BasePyomoSolver(InternalSolver):
                 results = self._pyomo_solver.solve(tee=True,
                                                    warmstart=self._is_warm_start_available)
             total_wallclock_time += results["Solver"][0]["Wallclock time"]
-            logger.debug("Finding violated constraints...")
-            violations = self.instance.find_violated_lazy_constraints(self.model)
-            if len(violations) == 0:
+            should_repeat = iteration_cb()
+            if not should_repeat:
                 break
-            self.instance.found_violated_lazy_constraints += violations
-            logger.debug("    %d violations found" % len(violations))
-            for v in violations:
-                cut = self.instance.build_lazy_constraint(self.model, v)
-                self.add_constraint(cut)
-
         log = streams[0].getvalue()
         return {
             "Lower bound": results["Problem"][0]["Lower bound"],
@@ -197,6 +202,15 @@ class BasePyomoSolver(InternalSolver):
     def set_gap_tolerance(self, gap_tolerance):
         key = self._get_gap_tolerance_option_name()
         self._pyomo_solver.options[key] = gap_tolerance
+
+    def get_constraints_ids(self):
+        return list(self._cname_to_constr.keys())
+
+    def extract_constraint(self, cid):
+        raise Exception("Not implemented")
+
+    def is_constraint_satisfied(self, cobj):
+        raise Exception("Not implemented")
 
     @abstractmethod
     def _get_warm_start_regexp(self):

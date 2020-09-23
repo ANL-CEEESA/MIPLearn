@@ -269,7 +269,8 @@ class GurobiKnapsackInstance(KnapsackInstance):
         n = len(self.weights)
         x = model.addVars(n, vtype=GRB.BINARY, name="x")
         model.addConstr(gp.quicksum(x[i] * self.weights[i]
-                                    for i in range(n)) <= self.capacity)
+                                    for i in range(n)) <= self.capacity,
+                        "eq_capacity")
         model.setObjective(gp.quicksum(x[i] * self.prices[i]
                                        for i in range(n)), GRB.MAXIMIZE)
         return model

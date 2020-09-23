@@ -30,6 +30,7 @@ class UserCutsComponent(Component):
         self.classifiers = {}
 
     def before_solve(self, solver, instance, model):
+        instance.found_violated_user_cuts = []
         logger.info("Predicting violated user cuts...")
         violations = self.predict(instance)
         logger.info("Enforcing %d user cuts..." % len(violations))

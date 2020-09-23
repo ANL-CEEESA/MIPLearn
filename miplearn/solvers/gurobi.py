@@ -26,7 +26,6 @@ class GurobiSolver(InternalSolver):
         self.params = params
         self._all_vars = None
         self._bin_vars = None
-        self._varname_to_var = None
 
     def set_instance(self, instance, model=None):
         if model is None:
@@ -83,45 +82,30 @@ class GurobiSolver(InternalSolver):
             "Log": log
         }
 
-    def solve(self, tee=False):
-        self.instance.found_violated_lazy_constraints = []
-        self.instance.found_violated_user_cuts = []
+    def solve(self, tee=False, iteration_cb=None):
+        total_wallclock_time = 0
+        total_nodes = 0
         streams = [StringIO()]
         if tee:
             streams += [sys.stdout]
+        if iteration_cb is None:
+            iteration_cb = lambda : False
+        while True:
+            logger.debug("Solving MIP...")
+            with RedirectOutput(streams):
+                self.model.optimize()
+            total_wallclock_time += self.model.runtime
+            total_nodes += int(self.model.nodeCount)
+            should_repeat = iteration_cb()
+            if not should_repeat:
+                break
 
-        def cb(cb_model, cb_where):
-            try:
-                # User cuts
-                if cb_where == self.GRB.Callback.MIPNODE:
-                    logger.debug("Finding violated cutting planes...")
-                    violations = self.instance.find_violated_user_cuts(cb_model)
-                    self.instance.found_violated_user_cuts += violations
-                    logger.debug("    %d found" % len(violations))
-                    for v in violations:
-                        cut = self.instance.build_user_cut(cb_model, v)
-                        cb_model.cbCut(cut)
-
-                # Lazy constraints
-                if cb_where == self.GRB.Callback.MIPSOL:
-                    logger.debug("Finding violated lazy constraints...")
-                    violations = self.instance.find_violated_lazy_constraints(cb_model)
-                    self.instance.found_violated_lazy_constraints += violations
-                    logger.debug("    %d found" % len(violations))
-                    for v in violations:
-                        cut = self.instance.build_lazy_constraint(cb_model, v)
-                        cb_model.cbLazy(cut)
-            except Exception as e:
-                logger.error(e)
-
-        with RedirectOutput(streams):
-            self.model.optimize(cb)
         log = streams[0].getvalue()
         return {
             "Lower bound": self.model.objVal,
             "Upper bound": self.model.objBound,
-            "Wallclock time": self.model.runtime,
-            "Nodes": int(self.model.nodeCount),
+            "Wallclock time": total_wallclock_time,
+            "Nodes": total_nodes,
             "Sense": ("min" if self.model.modelSense == 1 else "max"),
             "Log": log,
             "Warm start value": self._extract_warm_start_value(log),
@@ -143,8 +127,13 @@ class GurobiSolver(InternalSolver):
                 variables[varname] += [idx]
         return variables
 
-    def add_constraint(self, constraint):
-        self.model.addConstr(constraint)
+    def add_constraint(self, constraint, name=""):
+        if type(constraint) is tuple:
+            lhs, sense, rhs, name = constraint
+            logger.debug(lhs, sense, rhs)
+            self.model.addConstr(lhs, sense, rhs, name)
+        else:
+            self.model.addConstr(constraint, name=name)
 
     def set_warm_start(self, solution):
         count_fixed, count_total = 0, 0
@@ -171,6 +160,31 @@ class GurobiSolver(InternalSolver):
                 var.vtype = self.GRB.CONTINUOUS
                 var.lb = value
                 var.ub = value
+
+    def get_constraints_ids(self):
+        self.model.update()
+        return [c.ConstrName for c in self.model.getConstrs()]
+
+    def extract_constraint(self, cid):
+        constr = self.model.getConstrByName(cid)
+        cobj = (self.model.getRow(constr),
+                constr.sense,
+                constr.RHS,
+                constr.ConstrName)
+        self.model.remove(constr)
+        return cobj
+
+    def is_constraint_satisfied(self, cobj, tol=1e-5):
+        lhs, sense, rhs, name = cobj
+        lhs_value = lhs.getValue()
+        if sense == "<":
+            return lhs_value <= rhs + tol
+        elif sense == ">":
+            return lhs_value >= rhs - tol
+        elif sense == "=":
+            return abs(rhs - lhs_value) < tol
+        else:
+            raise Exception("Unknown sense: %s" % sense)
 
     def set_branching_priorities(self, priorities):
         logger.warning("set_branching_priorities not implemented")
