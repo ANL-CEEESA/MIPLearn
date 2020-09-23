@@ -14,7 +14,7 @@ from ..extractors import *
 logger = logging.getLogger(__name__)
 
 
-class LazyConstraintsComponent(Component):
+class DynamicLazyConstraintsComponent(Component):
     """
     A component that predicts which lazy constraints to enforce.
     """

@@ -5,7 +5,7 @@
 from unittest.mock import Mock
 
 import numpy as np
-from miplearn import LazyConstraintsComponent, LearningSolver, InternalSolver
+from miplearn import DynamicLazyConstraintsComponent, LearningSolver, InternalSolver
 from miplearn.classifiers import Classifier
 from miplearn.tests import get_test_pyomo_instances
 from numpy.linalg import norm
@@ -18,7 +18,7 @@ def test_lazy_fit():
     instances[0].found_violated_lazy_constraints = ["a", "b"]
     instances[1].found_violated_lazy_constraints = ["b", "c"]
     classifier = Mock(spec=Classifier)
-    component = LazyConstraintsComponent(classifier=classifier)
+    component = DynamicLazyConstraintsComponent(classifier=classifier)
 
     component.fit(instances)
 
@@ -55,7 +55,7 @@ def test_lazy_before():
     instances[0].build_lazy_constraint = Mock(return_value="c1")
     solver = LearningSolver()
     solver.internal_solver = Mock(spec=InternalSolver)
-    component = LazyConstraintsComponent(threshold=0.10)
+    component = DynamicLazyConstraintsComponent(threshold=0.10)
     component.classifiers = {"a": Mock(spec=Classifier),
                              "b": Mock(spec=Classifier)}
     component.classifiers["a"].predict_proba = Mock(return_value=[[0.95, 0.05]])
@@ -81,7 +81,7 @@ def test_lazy_before():
 
 def test_lazy_evaluate():
     instances, models = get_test_pyomo_instances()
-    component = LazyConstraintsComponent()
+    component = DynamicLazyConstraintsComponent()
     component.classifiers = {"a": Mock(spec=Classifier),
                              "b": Mock(spec=Classifier),
                              "c": Mock(spec=Classifier)}

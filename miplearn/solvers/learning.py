@@ -9,7 +9,7 @@ from p_tqdm import p_map
 
 from .. import (ObjectiveValueComponent,
                 PrimalSolutionComponent,
-                LazyConstraintsComponent,
+                DynamicLazyConstraintsComponent,
                 UserCutsComponent)
 from .pyomo.cplex import CplexPyomoSolver
 from .pyomo.gurobi import GurobiPyomoSolver
@@ -66,7 +66,7 @@ class LearningSolver:
         else:
             self.add(ObjectiveValueComponent())
             self.add(PrimalSolutionComponent())
-            self.add(LazyConstraintsComponent())
+            self.add(DynamicLazyConstraintsComponent())
             self.add(UserCutsComponent())
 
         assert self.mode in ["exact", "heuristic"]

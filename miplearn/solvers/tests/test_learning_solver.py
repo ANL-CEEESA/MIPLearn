@@ -6,7 +6,7 @@ import logging
 import pickle
 import tempfile
 
-from miplearn import LazyConstraintsComponent
+from miplearn import DynamicLazyConstraintsComponent
 from miplearn import LearningSolver
 
 from . import _get_instance, _get_internal_solvers
@@ -61,7 +61,7 @@ def test_parallel_solve():
 
 def test_add_components():
     solver = LearningSolver(components=[])
-    solver.add(LazyConstraintsComponent())
-    solver.add(LazyConstraintsComponent())
+    solver.add(DynamicLazyConstraintsComponent())
+    solver.add(DynamicLazyConstraintsComponent())
     assert len(solver.components) == 1
     assert "LazyConstraintsComponent" in solver.components
