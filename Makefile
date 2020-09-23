@@ -2,7 +2,7 @@ PYTHON      := python3
 PYTEST      := pytest
 PIP         := pip3
 PYTEST_ARGS := -W ignore::DeprecationWarning -vv -x --log-level=DEBUG
-VERSION     := `cat VERSION | sed 's/\.[0-9]*$$//'`
+VERSION     := 0.2
 
 all: docs test
 
