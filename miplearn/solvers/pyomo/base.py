@@ -203,7 +203,7 @@ class BasePyomoSolver(InternalSolver):
         key = self._get_gap_tolerance_option_name()
         self._pyomo_solver.options[key] = gap_tolerance
 
-    def get_constraints_ids(self):
+    def get_constraint_ids(self):
         return list(self._cname_to_constr.keys())
 
     def extract_constraint(self, cid):

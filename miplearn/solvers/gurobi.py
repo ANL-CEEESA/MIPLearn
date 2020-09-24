@@ -15,10 +15,11 @@ logger = logging.getLogger(__name__)
 class GurobiSolver(InternalSolver):
     def __init__(self, params=None):
         if params is None:
-            params = {
-                "LazyConstraints": 1,
-                "PreCrush": 1,
-            }
+            params = {}
+            # params = {
+            #     "LazyConstraints": 1,
+            #     "PreCrush": 1,
+            # }
         from gurobipy import GRB
         self.GRB = GRB
         self.instance = None
@@ -83,6 +84,7 @@ class GurobiSolver(InternalSolver):
         }
 
     def solve(self, tee=False, iteration_cb=None):
+        self._apply_params()
         total_wallclock_time = 0
         total_nodes = 0
         streams = [StringIO()]
@@ -122,7 +124,7 @@ class GurobiSolver(InternalSolver):
     def get_variables(self):
         variables = {}
         for (varname, vardict) in self._all_vars.items():
-            variables[varname] = {}
+            variables[varname] = []
             for (idx, var) in vardict.items():
                 variables[varname] += [idx]
         return variables
@@ -161,7 +163,7 @@ class GurobiSolver(InternalSolver):
                 var.lb = value
                 var.ub = value
 
-    def get_constraints_ids(self):
+    def get_constraint_ids(self):
         self.model.update()
         return [c.ConstrName for c in self.model.getConstrs()]
 

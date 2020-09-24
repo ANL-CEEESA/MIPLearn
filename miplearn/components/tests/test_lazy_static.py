@@ -14,7 +14,7 @@ from miplearn.classifiers import Classifier
 def test_usage_with_solver():
     solver = Mock(spec=LearningSolver)
     internal = solver.internal_solver = Mock(spec=InternalSolver)
-    internal.get_constraint_names = Mock(return_value=["c1", "c2", "c3", "c4"])
+    internal.get_constraint_ids = Mock(return_value=["c1", "c2", "c3", "c4"])
     internal.extract_constraint = Mock(side_effect=lambda cid: "<%s>" % cid)
     internal.is_constraint_satisfied = Mock(return_value=False)
 
@@ -59,7 +59,7 @@ def test_usage_with_solver():
     instance.has_static_lazy_constraints.assert_called_once()
 
     # Should ask internal solver for a list of constraints in the model
-    internal.get_constraint_names.assert_called_once()
+    internal.get_constraint_ids.assert_called_once()
 
     # Should ask if each constraint in the model is lazy
     instance.is_constraint_lazy.assert_has_calls([

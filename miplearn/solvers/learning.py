@@ -40,6 +40,14 @@ class LearningSolver:
     Mixed-Integer Linear Programming (MIP) solver that extracts information
     from previous runs, using Machine Learning methods, to accelerate the
     solution of new (yet unseen) instances.
+
+    Parameters
+    ----------
+    solve_lp_first: bool
+        If true, solve LP relaxation first, then solve original MILP. This
+        option should be activated if the LP relaxation is not very
+        expensive to solve and if it provides good hints for the integer
+        solution.
     """
 
     def __init__(self,
@@ -49,7 +57,8 @@ class LearningSolver:
                  solver="gurobi",
                  threads=None,
                  time_limit=None,
-                 node_limit=None):
+                 node_limit=None,
+                 solve_lp_first=True):
         self.components = {}
         self.mode = mode
         self.internal_solver = None
@@ -59,6 +68,7 @@ class LearningSolver:
         self.gap_tolerance = gap_tolerance
         self.tee = False
         self.node_limit = node_limit
+        self.solve_lp_first = solve_lp_first
 
         if components is not None:
             for comp in components:
@@ -84,21 +94,23 @@ class LearningSolver:
         else:
             solver = self.internal_solver_factory
         if self.threads is not None:
+            logger.info("Setting threads to %d" % self.threads)
             solver.set_threads(self.threads)
         if self.time_limit is not None:
+            logger.info("Setting time limit to %f" % self.time_limit)
             solver.set_time_limit(self.time_limit)
         if self.gap_tolerance is not None:
+            logger.info("Setting gap tolerance to %f" % self.gap_tolerance)
             solver.set_gap_tolerance(self.gap_tolerance)
         if self.node_limit is not None:
+            logger.info("Setting node limit to %d" % self.node_limit)
             solver.set_node_limit(self.node_limit)
         return solver
 
     def solve(self,
               instance,
               model=None,
-              tee=False,
-              relaxation_only=False,
-              solve_lp_first=True):
+              tee=False):
         """
         Solves the given instance. If trained machine-learning models are
         available, they will be used to accelerate the solution process.
@@ -127,13 +139,6 @@ class LearningSolver:
             The corresponding Pyomo model. If not provided, it will be created.
         tee: bool
             If true, prints solver log to screen.
-        relaxation_only: bool
-            If true, solve only the root LP relaxation.
-        solve_lp_first: bool
-            If true, solve LP relaxation first, then solve original MILP. This
-            option should be activated if the LP relaxation is not very
-            expensive to solve and if it provides good hints for the integer
-            solution.
 
         Returns
         -------
@@ -155,7 +160,7 @@ class LearningSolver:
         self.internal_solver = self._create_internal_solver()
         self.internal_solver.set_instance(instance, model)
 
-        if solve_lp_first:
+        if self.solve_lp_first:
             logger.info("Solving LP relaxation...")
             results = self.internal_solver.solve_lp(tee=tee)
             instance.lp_solution = self.internal_solver.get_solution()
@@ -167,9 +172,6 @@ class LearningSolver:
         logger.debug("Running before_solve callbacks...")
         for component in self.components.values():
             component.before_solve(self, instance, model)
-
-        if relaxation_only:
-            return results
 
         def iteration_cb():
             should_repeat = False

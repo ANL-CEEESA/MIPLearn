@@ -110,7 +110,7 @@ def test_internal_solver():
 
         # New constraint should affect solution and should be listed in
         # constraint ids
-        assert solver.get_constraints_ids() == ["eq_capacity", "cut"]
+        assert solver.get_constraint_ids() == ["eq_capacity", "cut"]
         stats = solver.solve()
         assert stats["Lower bound"] == 1030.0
 
@@ -120,7 +120,7 @@ def test_internal_solver():
 
             # New constraint should no longer affect solution and should no longer
             # be listed in constraint ids
-            assert solver.get_constraints_ids() == ["eq_capacity"]
+            assert solver.get_constraint_ids() == ["eq_capacity"]
             stats = solver.solve()
             assert stats["Lower bound"] == 1183.0
 
@@ -131,7 +131,7 @@ def test_internal_solver():
             solver.add_constraint(cobj)
 
             # Constraint should affect solution again
-            assert solver.get_constraints_ids() == ["eq_capacity", "cut"]
+            assert solver.get_constraint_ids() == ["eq_capacity", "cut"]
             stats = solver.solve()
             assert stats["Lower bound"] == 1030.0
 

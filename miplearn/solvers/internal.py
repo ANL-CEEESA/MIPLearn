@@ -145,7 +145,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def get_constraints_ids(self):
+    def get_constraint_ids(self):
         """
         Returns a list of ids, which uniquely identify each constraint in the model.
         """
