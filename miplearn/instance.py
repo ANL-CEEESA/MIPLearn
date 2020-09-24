@@ -78,9 +78,9 @@ class Instance(ABC):
         model to predict the values of both variables. If the returned category is None, ML
         models will ignore the variable.
 
-        By default, returns None.
+        By default, returns "default".
         """
-        return None
+        return "default"
 
     def has_static_lazy_constraints(self):
         return False
