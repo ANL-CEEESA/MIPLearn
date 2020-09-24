@@ -2,8 +2,11 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import gzip
+import json
 from abc import ABC, abstractmethod
-import pickle, gzip, json
+
+import numpy as np
 
 
 class Instance(ABC):
@@ -23,7 +26,6 @@ class Instance(ABC):
         """
         pass
 
-    @abstractmethod
     def get_instance_features(self):
         """
         Returns a 1-dimensional Numpy array of (numerical) features describing the entire instance.
@@ -41,10 +43,11 @@ class Instance(ABC):
         The returned array MUST have the same length for all relevant instances of the problem. If
         two instances map into arrays of different lengths, they cannot be solved by the same
         LearningSolver object.
-        """
-        pass
 
-    @abstractmethod
+        By default, returns [0].
+        """
+        return np.zeros(1)
+
     def get_variable_features(self, var, index):
         """
         Returns a 1-dimensional array of (numerical) features describing a particular decision
@@ -61,8 +64,10 @@ class Instance(ABC):
         
         Like instance features, the arrays returned by this method MUST have the same length for
         all variables within the same category, for all relevant instances of the problem.
+
+        By default, returns [0].
         """
-        pass
+        return np.zeros(1)
 
     def get_variable_category(self, var, index):
         """
@@ -70,12 +75,12 @@ class Instance(ABC):
         variable.
         
         If two variables have the same category, LearningSolver will use the same internal ML
-        model to predict the values of both variables. By default, all variables belong to the
-        "default" category, and therefore only one ML model is used for all variables.
-        
-        If the returned category is None, ML models will ignore the variable.
+        model to predict the values of both variables. If the returned category is None, ML
+        models will ignore the variable.
+
+        By default, returns None.
         """
-        return "default"
+        return None
 
     def has_static_lazy_constraints(self):
         return False
@@ -87,7 +92,10 @@ class Instance(ABC):
         return False
 
     def get_lazy_constraint_features(self, cid):
-        pass
+        return np.zeros(1)
+
+    def get_lazy_constraint_category(self, cid):
+        return cid
 
     def find_violated_lazy_constraints(self, model):
         """
@@ -131,12 +139,12 @@ class Instance(ABC):
 
     def build_user_cut(self, model, violation):
         pass
-    
+
     def load(self, filename):
         with gzip.GzipFile(filename, 'r') as f:
             data = json.loads(f.read().decode('utf-8'))
         self.__dict__ = data
-        
+
     def dump(self, filename):
         data = json.dumps(self.__dict__, indent=2).encode('utf-8')
         with gzip.GzipFile(filename, 'w') as f:
