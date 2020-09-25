@@ -1,0 +1,28 @@
+.navbar-default {
+  border-bottom: 0px;
+  background-color: #fff;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+}
+
+a, .navbar-default a {
+  color: #06a !important;
+  font-weight: normal;
+}
+
+.disabled > a {
+  color: #999 !important;
+}
+
+.navbar-default a:hover,
+.navbar-default .active,
+.active > a {
+  background-color: #f0f0f0 !important;
+}
+
+.icon-bar {
+  background-color: #666 !important;
+}
+
+.navbar-collapse {
+  border-color: #fff !important;
+}
