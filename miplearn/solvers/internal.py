@@ -119,7 +119,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def solve(self, tee=False, iteration_cb=None):
+    def solve(self, tee=False, iteration_cb=None, lazy_cb=None):
         """
         Solves the currently loaded instance. After this method finishes,
         the best solution found can be retrieved by calling `get_solution`.
@@ -132,7 +132,15 @@ class InternalSolver(ABC):
             instead, InternalSolver enters a loop, where `solve` and `iteration_cb`
             are called alternatively. To stop the loop, `iteration_cb` should
             return False. Any other result causes the solver to loop again.
-        tee: bool
+        lazy_cb: (internal_solver, model) -> None
+            This function is called whenever the solver finds a new candidate
+            solution and can be used to add lazy constraints to the model. Only
+            two operations within the callback are allowed:
+                - Querying the value of a variable, through `get_value(var, idx)`
+                - Querying if a constraint is satisfied, through `is_constraint_satisfied(cobj)`
+                - Adding a new constraint to the problem, through `add_constraint`
+            Additional operations may be allowed by specific subclasses.
+        tee: Bool
             If true, prints the solver log to the screen.
 
         Returns
@@ -141,6 +149,13 @@ class InternalSolver(ABC):
             A dictionary of solver statistics containing the following keys:
             "Lower bound", "Upper bound", "Wallclock time", "Nodes", "Sense",
              "Log" and "Warm start value".
+        """
+        pass
+
+    @abstractmethod
+    def get_value(self, var_name, index):
+        """
+        Returns the current value of a decision variable.
         """
         pass
 

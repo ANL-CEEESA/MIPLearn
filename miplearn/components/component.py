@@ -24,3 +24,6 @@ class Component(ABC):
 
     def after_iteration(self, solver, instance, model):
         return False
+
+    def on_lazy_callback(self, solver, instance, model):
+        return

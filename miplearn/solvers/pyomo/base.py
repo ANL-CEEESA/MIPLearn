@@ -57,6 +57,10 @@ class BasePyomoSolver(InternalSolver):
                 solution[str(var)][index] = var[index].value
         return solution
 
+    def get_value(self, var_name, index):
+        var = self._varname_to_var[var_name]
+        return var[index].value
+
     def get_variables(self):
         variables = {}
         for var in self.model.component_objects(Var):
@@ -137,7 +141,12 @@ class BasePyomoSolver(InternalSolver):
         self._pyomo_solver.add_constraint(constraint)
         self._update_constrs()
 
-    def solve(self, tee=False, iteration_cb=None):
+    def solve(self,
+              tee=False,
+              iteration_cb=None,
+              lazy_cb=None):
+        if lazy_cb is not None:
+            raise Exception("lazy callback not supported")
         total_wallclock_time = 0
         streams = [StringIO()]
         if tee:

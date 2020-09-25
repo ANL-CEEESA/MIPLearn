@@ -7,13 +7,13 @@ from miplearn.problems.knapsack import KnapsackInstance, GurobiKnapsackInstance
 
 
 def _get_instance(solver):
-    if issubclass(solver, BasePyomoSolver):
+    if issubclass(solver, BasePyomoSolver) or isinstance(solver, BasePyomoSolver):
         return KnapsackInstance(
             weights=[23., 26., 20., 18.],
             prices=[505., 352., 458., 220.],
             capacity=67.,
         )
-    if issubclass(solver, GurobiSolver):
+    if issubclass(solver, GurobiSolver) or isinstance(solver, GurobiSolver):
         return GurobiKnapsackInstance(
             weights=[23., 26., 20., 18.],
             prices=[505., 352., 458., 220.],

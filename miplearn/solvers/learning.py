@@ -31,34 +31,61 @@ def _parallel_solve(instance_idx):
         "Solution": instance.solution,
         "LP solution": instance.lp_solution,
         "Violated lazy constraints": instance.found_violated_lazy_constraints,
-        "Violated user cuts": instance.found_violated_user_cuts,
+        #"Violated user cuts": instance.found_violated_user_cuts,
     }
 
 
 class LearningSolver:
-    """
-    Mixed-Integer Linear Programming (MIP) solver that extracts information
-    from previous runs, using Machine Learning methods, to accelerate the
-    solution of new (yet unseen) instances.
-
-    Parameters
-    ----------
-    solve_lp_first: bool
-        If true, solve LP relaxation first, then solve original MILP. This
-        option should be activated if the LP relaxation is not very
-        expensive to solve and if it provides good hints for the integer
-        solution.
-    """
-
     def __init__(self,
                  components=None,
-                 gap_tolerance=None,
+                 gap_tolerance=1e-4,
                  mode="exact",
                  solver="gurobi",
                  threads=None,
                  time_limit=None,
                  node_limit=None,
-                 solve_lp_first=True):
+                 solve_lp_first=True,
+                 use_lazy_cb=False):
+        """
+        Mixed-Integer Linear Programming (MIP) solver that extracts information
+        from previous runs and uses Machine Learning methods to accelerate the
+        solution of new (yet unseen) instances.
+
+        Parameters
+        ----------
+        components
+            Set of components in the solver. By default, includes:
+                - ObjectiveValueComponent
+                - PrimalSolutionComponent
+                - DynamicLazyConstraintsComponent
+                - UserCutsComponent
+        gap_tolerance
+            Relative MIP gap tolerance. By default, 1e-4.
+        mode
+            If "exact", solves problem to optimality, keeping all optimality
+            guarantees provided by the MIP solver. If "heuristic", uses machine
+            learning more agressively, and may return suboptimal solutions.
+        solver
+            The internal MIP solver to use. Can be either "cplex", "gurobi", a
+            solver class such as GurobiSolver, or a solver instance such as
+            GurobiSolver().
+        threads
+            Maximum number of threads to use. If None, uses solver default.
+        time_limit
+            Maximum running time in seconds. If None, uses solver default.
+        node_limit
+            Maximum number of branch-and-bound nodes to explore. If None, uses
+            solver default.
+        use_lazy_cb
+            If True, uses lazy callbacks to enforce lazy constraints, instead of
+            a simple solver loop. This functionality may not supported by
+            all internal MIP solvers.
+        solve_lp_first: bool
+            If true, solve LP relaxation first, then solve original MILP. This
+            option should be activated if the LP relaxation is not very
+            expensive to solve and if it provides good hints for the integer
+            solution.
+        """
         self.components = {}
         self.mode = mode
         self.internal_solver = None
@@ -69,6 +96,7 @@ class LearningSolver:
         self.tee = False
         self.node_limit = node_limit
         self.solve_lp_first = solve_lp_first
+        self.use_lazy_cb = use_lazy_cb
 
         if components is not None:
             for comp in components:
@@ -122,14 +150,12 @@ class LearningSolver:
             - instance.lower_bound
             - instance.upper_bound
             - instance.solution
-            - instance.found_violated_lazy_constraints
             - instance.solver_log
-
         Additional solver components may set additional properties. Please
         see their documentation for more details.
 
-        If `solve_lp_first` is False, the properties lp_solution and lp_value
-        will be set to dummy values.
+        If `solver.solve_lp_first` is False, the properties lp_solution and
+        lp_value will be set to dummy values.
 
         Parameters
         ----------
@@ -175,13 +201,23 @@ class LearningSolver:
 
         def iteration_cb():
             should_repeat = False
-            for component in self.components.values():
-                if component.after_iteration(self, instance, model):
+            for comp in self.components.values():
+                if comp.after_iteration(self, instance, model):
                     should_repeat = True
             return should_repeat
 
+        def lazy_cb_wrapper(cb_solver, cb_model):
+            for comp in self.components.values():
+                comp.on_lazy_callback(self, instance, model)
+
+        lazy_cb = None
+        if self.use_lazy_cb:
+            lazy_cb = lazy_cb_wrapper
+
         logger.info("Solving MILP...")
-        results = self.internal_solver.solve(tee=tee, iteration_cb=iteration_cb)
+        results = self.internal_solver.solve(tee=tee,
+                                             iteration_cb=iteration_cb,
+                                             lazy_cb=lazy_cb)
         results["LP value"] = instance.lp_value
 
         # Read MIP solution and bounds
@@ -217,7 +253,7 @@ class LearningSolver:
             instances[idx].lower_bound = r["Results"]["Lower bound"]
             instances[idx].upper_bound = r["Results"]["Upper bound"]
             instances[idx].found_violated_lazy_constraints = r["Violated lazy constraints"]
-            instances[idx].found_violated_user_cuts = r["Violated user cuts"]
+            #instances[idx].found_violated_user_cuts = r["Violated user cuts"]
             instances[idx].solver_log = r["Results"]["Log"]
 
         return results

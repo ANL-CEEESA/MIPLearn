@@ -13,6 +13,9 @@ from miplearn.classifiers import Classifier
 
 def test_usage_with_solver():
     solver = Mock(spec=LearningSolver)
+    solver.use_lazy_cb = False
+    solver.gap_tolerance = 1e-4
+
     internal = solver.internal_solver = Mock(spec=InternalSolver)
     internal.get_constraint_ids = Mock(return_value=["c1", "c2", "c3", "c4"])
     internal.extract_constraint = Mock(side_effect=lambda cid: "<%s>" % cid)
@@ -37,7 +40,8 @@ def test_usage_with_solver():
         "c4": "type-b",
     }[cid])
 
-    component = StaticLazyConstraintsComponent(threshold=0.90)
+    component = StaticLazyConstraintsComponent(threshold=0.90,
+                                               use_two_phase_gap=False)
     component.classifiers = {
         "type-a": Mock(spec=Classifier),
         "type-b": Mock(spec=Classifier),
