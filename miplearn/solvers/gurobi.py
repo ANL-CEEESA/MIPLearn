@@ -146,14 +146,21 @@ class GurobiSolver(InternalSolver):
             should_repeat = iteration_cb()
             if not should_repeat:
                 break
-
         log = streams[0].getvalue()
+        if self.model.modelSense == 1:
+            sense = "min"
+            lb = self.model.objBound
+            ub = self.model.objVal
+        else:
+            sense = "max"
+            lb = self.model.objVal
+            ub = self.model.objBound
         return {
-            "Lower bound": self.model.objVal,
-            "Upper bound": self.model.objBound,
+            "Lower bound": lb,
+            "Upper bound": ub,
             "Wallclock time": total_wallclock_time,
             "Nodes": total_nodes,
-            "Sense": ("min" if self.model.modelSense == 1 else "max"),
+            "Sense": sense,
             "Log": log,
             "Warm start value": self._extract_warm_start_value(log),
         }
@@ -302,8 +309,19 @@ class GurobiSolver(InternalSolver):
             value = matches[0]
         return value
 
-    def __getstate__(self):
-        return self.params
+    def __getstate__(self):     
+        return {
+            "params": self.params,
+            "lazy_cb_where": self.lazy_cb_where,
+        }
 
     def __setstate__(self, state):
-        self.params = state
+        from gurobipy import GRB
+        self.params = state["params"]
+        self.lazy_cb_where = state["lazy_cb_where"]
+        self.GRB = GRB
+        self.instance = None
+        self.model = None
+        self._all_vars = None
+        self._bin_vars = None
+        self.cb_where = None        
