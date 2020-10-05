@@ -5,6 +5,8 @@
 from copy import deepcopy
 
 import pandas as pd
+import numpy as np
+import logging
 from tqdm.auto import tqdm
 
 from .solvers.learning import LearningSolver
@@ -19,22 +21,30 @@ class BenchmarkRunner:
         self.results = None
         
     def solve(self, instances, tee=False):
-        for (name, solver) in self.solvers.items():
+        for (solver_name, solver) in self.solvers.items():
             for i in tqdm(range(len((instances)))):
                 results = solver.solve(deepcopy(instances[i]), tee=tee)
-                self._push_result(results, solver=solver, name=name, instance=i)
+                self._push_result(results, solver=solver, solver_name=solver_name, instance=i)
 
-    def parallel_solve(self, instances, n_jobs=1, n_trials=1):
-        instances = instances * n_trials
-        for (name, solver) in self.solvers.items():
-            results = solver.parallel_solve(instances,
+    def parallel_solve(self,
+                       instances,
+                       n_jobs=1,
+                       n_trials=1,
+                       index_offset=0,
+                      ):
+        self._silence_miplearn_logger()
+        trials = instances * n_trials
+        for (solver_name, solver) in self.solvers.items():
+            results = solver.parallel_solve(trials,
                                             n_jobs=n_jobs,
-                                            label="Solve (%s)" % name)
-            for i in range(len(instances)):
+                                            label="Solve (%s)" % solver_name)
+            for i in range(len(trials)):
+                idx = (i % len(instances)) + index_offset
                 self._push_result(results[i],
                                   solver=solver,
-                                  name=name,
-                                  instance=i)
+                                  solver_name=solver_name,
+                                  instance=idx)
+        self._restore_miplearn_logger()
     
     def raw_results(self):
         return self.results
@@ -46,14 +56,14 @@ class BenchmarkRunner:
         self.results = pd.read_csv(filename, index_col=0)
         
     def load_state(self, filename):
-        for (name, solver) in self.solvers.items():
+        for (solver_name, solver) in self.solvers.items():
             solver.load_state(filename)
 
     def fit(self, training_instances):
-        for (name, solver) in self.solvers.items():
+        for (solver_name, solver) in self.solvers.items():
             solver.fit(training_instances)
             
-    def _push_result(self, result, solver, name, instance):
+    def _push_result(self, result, solver, solver_name, instance):
         if self.results is None:
             self.results = pd.DataFrame(columns=["Solver",
                                                  "Instance",
@@ -74,7 +84,7 @@ class BenchmarkRunner:
             result["Predicted LB"] = float("nan")
             result["Predicted UB"] = float("nan")
         self.results = self.results.append({
-            "Solver": name,
+            "Solver": solver_name,
             "Instance": instance,
             "Wallclock Time": result["Wallclock time"],
             "Lower Bound": lb,
@@ -90,7 +100,7 @@ class BenchmarkRunner:
         best_lower_bound = groups["Lower Bound"].transform("max")
         best_upper_bound = groups["Upper Bound"].transform("min")
         best_gap = groups["Gap"].transform("min")
-        best_nodes = groups["Nodes"].transform("min")
+        best_nodes = np.maximum(1, groups["Nodes"].transform("min"))
         best_wallclock_time = groups["Wallclock Time"].transform("min")
         self.results["Relative Lower Bound"] = \
                 self.results["Lower Bound"] / best_lower_bound
@@ -135,7 +145,7 @@ class BenchmarkRunner:
                       ax=ax1,
                       jitter=0.25,
                       size=4.0,
-                   );
+                   )
         sns.barplot(x="Solver",
                     y="Wallclock Time",
                     data=results,
@@ -143,7 +153,7 @@ class BenchmarkRunner:
                     errwidth=0.,
                     alpha=0.4,
                     estimator=median,
-                   );
+                   )
         ax1.set(ylabel='Wallclock Time (s)')
         
         # Figure 2: Solver x Gap (%)
@@ -154,7 +164,7 @@ class BenchmarkRunner:
                       data=results[results["Mode"] != "heuristic"],
                       ax=ax2,
                       size=4.0,
-                     );
+                     )
         
         # Figure 3: Solver x Primal Value
         ax3.set_ylim(0.95,1.05)
@@ -163,7 +173,7 @@ class BenchmarkRunner:
                       jitter=0.25,
                       data=results[results["Mode"] == "heuristic"],
                       ax=ax3,
-                     );
+                     )
 
         # Figure 4: Predicted vs Actual Objective Value
         sns.scatterplot(x=obj_column,
@@ -171,12 +181,23 @@ class BenchmarkRunner:
                         hue="Solver",
                         data=results[results["Mode"] != "heuristic"],
                         ax=ax4,
-                       );
+                       )
         xlim, ylim = ax4.get_xlim(), ax4.get_ylim()
-        ax4.plot([-1e10, 1e10], [-1e10, 1e10], ls='-', color="#cccccc");
+        ax4.plot([-1e10, 1e10], [-1e10, 1e10], ls='-', color="#cccccc")
         ax4.set_xlim(xlim)
         ax4.set_ylim(ylim)
         ax4.get_legend().remove()
 
         fig.tight_layout()
-        plt.savefig(filename, bbox_inches='tight', dpi=150)        
+        plt.savefig(filename, bbox_inches='tight', dpi=150)
+        
+    def _silence_miplearn_logger(self):
+        miplearn_logger = logging.getLogger("miplearn")
+        self.prev_log_level = miplearn_logger.getEffectiveLevel()
+        miplearn_logger.setLevel(logging.WARNING)    
+        
+    def _restore_miplearn_logger(self):
+        miplearn_logger = logging.getLogger("miplearn")
+        miplearn_logger.setLevel(self.prev_log_level)    
+        
+    
