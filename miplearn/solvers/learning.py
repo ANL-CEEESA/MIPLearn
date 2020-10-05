@@ -238,13 +238,13 @@ class LearningSolver:
                        label="Solve"):
 
         self.internal_solver = None
+        self._silence_miplearn_logger()
         SOLVER[0] = self
         INSTANCES[0] = instances
         p_map_results = p_map(_parallel_solve,
                               list(range(len(instances))),
                               num_cpus=n_jobs,
                               desc=label)
-
         results = [p["Results"] for p in p_map_results]
         for (idx, r) in enumerate(p_map_results):
             instances[idx].solution = r["Solution"]
@@ -255,7 +255,7 @@ class LearningSolver:
             instances[idx].found_violated_lazy_constraints = r["Violated lazy constraints"]
             #instances[idx].found_violated_user_cuts = r["Violated user cuts"]
             instances[idx].solver_log = r["Results"]["Log"]
-
+        self._restore_miplearn_logger()
         return results
 
     def fit(self, training_instances):
@@ -268,6 +268,15 @@ class LearningSolver:
         name = component.__class__.__name__
         self.components[name] = component
 
+    def _silence_miplearn_logger(self):
+        miplearn_logger = logging.getLogger("miplearn")
+        self.prev_log_level = miplearn_logger.getEffectiveLevel()
+        miplearn_logger.setLevel(logging.WARNING)    
+        
+    def _restore_miplearn_logger(self):
+        miplearn_logger = logging.getLogger("miplearn")
+        miplearn_logger.setLevel(self.prev_log_level)    
+        
     def __getstate__(self):
         self.internal_solver = None
         return self.__dict__
