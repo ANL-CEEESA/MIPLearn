@@ -41,7 +41,8 @@ def test_usage_with_solver():
     }[cid])
 
     component = StaticLazyConstraintsComponent(threshold=0.90,
-                                               use_two_phase_gap=False)
+                                               use_two_phase_gap=False,
+                                               violation_tolerance=1.0)
     component.classifiers = {
         "type-a": Mock(spec=Classifier),
         "type-b": Mock(spec=Classifier),
@@ -105,7 +106,7 @@ def test_usage_with_solver():
 
     # Should ask internal solver to verify if constraints in the pool are
     # satisfied and add the ones that are not
-    internal.is_constraint_satisfied.assert_called_once_with("<c2>")
+    internal.is_constraint_satisfied.assert_called_once_with("<c2>", tol=1.0)
     internal.is_constraint_satisfied.reset_mock()
     internal.add_constraint.assert_called_once_with("<c2>")
     internal.add_constraint.reset_mock()
