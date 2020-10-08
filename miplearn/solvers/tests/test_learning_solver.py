@@ -5,6 +5,7 @@
 import logging
 import pickle
 import tempfile
+import os
 
 from miplearn import DynamicLazyConstraintsComponent
 from miplearn import LearningSolver
@@ -65,3 +66,45 @@ def test_add_components():
     solver.add(DynamicLazyConstraintsComponent())
     assert len(solver.components) == 1
     assert "DynamicLazyConstraintsComponent" in solver.components
+
+
+def test_solve_fit_from_disk():
+    for internal_solver in _get_internal_solvers():
+        # Create instances and pickle them
+        filenames = []
+        for k in range(3):
+            instance = _get_instance(internal_solver)
+            with tempfile.NamedTemporaryFile(suffix=".pkl",
+                                             delete=False) as file:
+                filenames += [file.name]
+                pickle.dump(instance, file)
+        
+        # Test: solve
+        solver = LearningSolver(solver=internal_solver)
+        solver.solve(filenames[0])
+        with open(filenames[0], "rb") as file:
+            instance = pickle.load(file)
+            assert hasattr(instance, "solution")
+            
+        # Test: parallel_solve
+        solver.parallel_solve(filenames)
+        for filename in filenames:
+            with open(filename, "rb") as file:
+                instance = pickle.load(file)
+                assert hasattr(instance, "solution")
+                
+        # Test: solve (with specified output)
+        output = [f + ".out" for f in filenames]
+        solver.solve(filenames[0], output=output[0])
+        assert os.path.isfile(output[0])
+            
+        # Test: parallel_solve (with specified output)
+        solver.parallel_solve(filenames, output=output)
+        for filename in output:
+            assert os.path.isfile(filename)
+            
+        # Delete temporary files
+        for filename in filenames:
+            os.remove(filename)
+        for filename in output:
+            os.remove(filename)
