@@ -177,6 +177,21 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
+    def relax(self):
+        """
+        Drops all integrality constraints from the model.
+        """
+        pass
+
+    @abstractmethod
+    def get_constraint_slacks(self):
+        """
+        Returns a dictionary mapping constraint name to the constraint slack
+        in the current solution.
+        """
+        pass
+
+    @abstractmethod
     def is_constraint_satisfied(self, cobj):
         pass
 

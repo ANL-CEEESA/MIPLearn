@@ -25,7 +25,7 @@ class StaticLazyConstraintsComponent(Component):
                  use_two_phase_gap=True,
                  large_gap=1e-2,
                  violation_tolerance=-0.5,
-                ):
+                 ):
         self.threshold = threshold
         self.classifier_prototype = classifier
         self.classifiers = {}
@@ -116,11 +116,11 @@ class StaticLazyConstraintsComponent(Component):
         logger.info("Extracting lazy constraints...")
         for cid in solver.internal_solver.get_constraint_ids():
             if instance.is_constraint_lazy(cid):
-                category = instance.get_lazy_constraint_category(cid)
+                category = instance.get_constraint_category(cid)
                 if category not in x:
                     x[category] = []
                     constraints[category] = []
-                x[category] += [instance.get_lazy_constraint_features(cid)]
+                x[category] += [instance.get_constraint_features(cid)]
                 c = LazyConstraint(cid=cid,
                                    obj=solver.internal_solver.extract_constraint(cid))
                 constraints[category] += [c]
@@ -147,7 +147,7 @@ class StaticLazyConstraintsComponent(Component):
         constraints = {}
         for instance in train_instances:
             for cid in instance.found_violated_lazy_constraints:
-                category = instance.get_lazy_constraint_category(cid)
+                category = instance.get_constraint_category(cid)
                 if category not in constraints:
                     constraints[category] = set()
                 constraints[category].add(cid)
@@ -162,7 +162,7 @@ class StaticLazyConstraintsComponent(Component):
             result[category] = []
             for instance in train_instances:
                 for cid in cids:
-                    result[category].append(instance.get_lazy_constraint_features(cid))
+                    result[category].append(instance.get_constraint_features(cid))
         return result
 
     def y(self, train_instances):

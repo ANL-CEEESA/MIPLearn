@@ -82,6 +82,12 @@ class Instance(ABC):
         """
         return "default"
 
+    def get_constraint_features(self, cid):
+        return np.zeros(1)
+
+    def get_constraint_category(self, cid):
+        return cid
+
     def has_static_lazy_constraints(self):
         return False
 
@@ -90,12 +96,6 @@ class Instance(ABC):
 
     def is_constraint_lazy(self, cid):
         return False
-
-    def get_lazy_constraint_features(self, cid):
-        return np.zeros(1)
-
-    def get_lazy_constraint_category(self, cid):
-        return cid
 
     def find_violated_lazy_constraints(self, model):
         """

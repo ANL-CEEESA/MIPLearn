@@ -29,12 +29,12 @@ def test_usage_with_solver():
         "c3": True,
         "c4": True,
     }[cid])
-    instance.get_lazy_constraint_features = Mock(side_effect=lambda cid: {
+    instance.get_constraint_features = Mock(side_effect=lambda cid: {
         "c2": [1.0, 0.0],
         "c3": [0.5, 0.5],
         "c4": [1.0],
     }[cid])
-    instance.get_lazy_constraint_category = Mock(side_effect=lambda cid: {
+    instance.get_constraint_category = Mock(side_effect=lambda cid: {
         "c2": "type-a",
         "c3": "type-a",
         "c4": "type-b",
@@ -72,13 +72,13 @@ def test_usage_with_solver():
     ])
 
     # For the lazy ones, should ask for features
-    instance.get_lazy_constraint_features.assert_has_calls([
+    instance.get_constraint_features.assert_has_calls([
         call("c2"), call("c3"), call("c4"),
     ])
 
     # Should also ask for categories
-    assert instance.get_lazy_constraint_category.call_count == 3
-    instance.get_lazy_constraint_category.assert_has_calls([
+    assert instance.get_constraint_category.call_count == 3
+    instance.get_constraint_category.assert_has_calls([
         call("c2"), call("c3"), call("c4"),
     ])
 
@@ -126,14 +126,14 @@ def test_usage_with_solver():
 def test_fit():
     instance_1 = Mock(spec=Instance)
     instance_1.found_violated_lazy_constraints = ["c1", "c2", "c4", "c5"]
-    instance_1.get_lazy_constraint_category = Mock(side_effect=lambda cid: {
+    instance_1.get_constraint_category = Mock(side_effect=lambda cid: {
         "c1": "type-a",
         "c2": "type-a",
         "c3": "type-a",
         "c4": "type-b",
         "c5": "type-b",
     }[cid])
-    instance_1.get_lazy_constraint_features = Mock(side_effect=lambda cid: {
+    instance_1.get_constraint_features = Mock(side_effect=lambda cid: {
         "c1": [1, 1],
         "c2": [1, 2],
         "c3": [1, 3],
@@ -143,14 +143,14 @@ def test_fit():
 
     instance_2 = Mock(spec=Instance)
     instance_2.found_violated_lazy_constraints = ["c2", "c3", "c4"]
-    instance_2.get_lazy_constraint_category = Mock(side_effect=lambda cid: {
+    instance_2.get_constraint_category = Mock(side_effect=lambda cid: {
         "c1": "type-a",
         "c2": "type-a",
         "c3": "type-a",
         "c4": "type-b",
         "c5": "type-b",
     }[cid])
-    instance_2.get_lazy_constraint_features = Mock(side_effect=lambda cid: {
+    instance_2.get_constraint_features = Mock(side_effect=lambda cid: {
         "c1": [2, 1],
         "c2": [2, 2],
         "c3": [2, 3],

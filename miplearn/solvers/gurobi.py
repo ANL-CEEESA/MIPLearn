@@ -274,6 +274,13 @@ class GurobiSolver(InternalSolver):
         else:
             raise Exception("Unknown sense: %s" % sense)
 
+    def get_constraint_slacks(self):
+        return {c.ConstrName: c.Slack for c in self.model.getConstrs()}
+
+    def relax(self):
+        self.model = self.model.relax()
+        self._update_vars()
+
     def set_branching_priorities(self, priorities):
         self._raise_if_callback()
         logger.warning("set_branching_priorities not implemented")

@@ -29,7 +29,6 @@ def classifier_evaluation_dict(tp, tn, fp, fn):
     else:
         d["Precision"] = 1.0
 
-
     t = (p + n) / 100.0
     d["Predicted positive (%)"] = d["Predicted positive"] / t
     d["Predicted negative (%)"] = d["Predicted negative"] / t

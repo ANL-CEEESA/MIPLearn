@@ -13,6 +13,7 @@ from .components.lazy_dynamic import DynamicLazyConstraintsComponent
 from .components.lazy_static import StaticLazyConstraintsComponent
 from .components.cuts import UserCutsComponent
 from .components.primal import PrimalSolutionComponent
+from .components.relaxation import RelaxationComponent
 
 from .classifiers.adaptive import AdaptiveClassifier
 from .classifiers.threshold import MinPrecisionThreshold

@@ -25,13 +25,20 @@ INSTANCES = [None]  # type: List[Optional[dict]]
 def _parallel_solve(instance_idx):
     solver = deepcopy(SOLVER[0])
     instance = INSTANCES[0][instance_idx]
-    results = solver.solve(instance)
+    if not hasattr(instance, "found_violated_lazy_constraints"):
+        instance.found_violated_lazy_constraints = []
+    if not hasattr(instance, "found_violated_user_cuts"):
+        instance.found_violated_user_cuts = []
+    if not hasattr(instance, "slacks"):
+        instance.slacks = {}
+    solver_results = solver.solve(instance)
     return {
-        "Results": results,
-        "Solution": instance.solution,
-        "LP solution": instance.lp_solution,
-        "Violated lazy constraints": instance.found_violated_lazy_constraints,
-        #"Violated user cuts": instance.found_violated_user_cuts,
+        "solver_results": solver_results,
+        "solution": instance.solution,
+        "lp_solution": instance.lp_solution,
+        "found_violated_lazy_constraints": instance.found_violated_lazy_constraints,
+        "found_violated_user_cuts": instance.found_violated_user_cuts,
+        "slacks": instance.slacks
     }
 
 
@@ -245,16 +252,17 @@ class LearningSolver:
                               list(range(len(instances))),
                               num_cpus=n_jobs,
                               desc=label)
-        results = [p["Results"] for p in p_map_results]
+        results = [p["solver_results"] for p in p_map_results]
         for (idx, r) in enumerate(p_map_results):
-            instances[idx].solution = r["Solution"]
-            instances[idx].lp_solution = r["LP solution"]
-            instances[idx].lp_value = r["Results"]["LP value"]
-            instances[idx].lower_bound = r["Results"]["Lower bound"]
-            instances[idx].upper_bound = r["Results"]["Upper bound"]
-            instances[idx].found_violated_lazy_constraints = r["Violated lazy constraints"]
-            #instances[idx].found_violated_user_cuts = r["Violated user cuts"]
-            instances[idx].solver_log = r["Results"]["Log"]
+            instances[idx].solution = r["solution"]
+            instances[idx].lp_solution = r["lp_solution"]
+            instances[idx].lp_value = r["solver_results"]["LP value"]
+            instances[idx].lower_bound = r["solver_results"]["Lower bound"]
+            instances[idx].upper_bound = r["solver_results"]["Upper bound"]
+            instances[idx].found_violated_lazy_constraints = r["found_violated_lazy_constraints"]
+            instances[idx].found_violated_user_cuts = r["found_violated_user_cuts"]
+            instances[idx].slacks = r["slacks"]
+            instances[idx].solver_log = r["solver_results"]["Log"]
         self._restore_miplearn_logger()
         return results
 

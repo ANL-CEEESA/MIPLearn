@@ -244,3 +244,9 @@ class BasePyomoSolver(InternalSolver):
     @abstractmethod
     def _get_gap_tolerance_option_name(self):
         pass
+
+    def relax(self):
+        raise Exception("not implemented")
+
+    def get_constraint_slacks(self):
+        raise Exception("not implemented")
