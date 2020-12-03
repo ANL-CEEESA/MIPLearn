@@ -2,7 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from miplearn import BasePyomoSolver, GurobiSolver, GurobiPyomoSolver, CplexPyomoSolver
+from miplearn import BasePyomoSolver, GurobiSolver, GurobiPyomoSolver
 from miplearn.problems.knapsack import KnapsackInstance, GurobiKnapsackInstance
 
 
@@ -23,4 +23,4 @@ def _get_instance(solver):
 
 
 def _get_internal_solvers():
-    return [GurobiPyomoSolver, CplexPyomoSolver, GurobiSolver]
+    return [GurobiPyomoSolver, GurobiSolver]
