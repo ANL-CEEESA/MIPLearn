@@ -32,7 +32,7 @@ def test_instance():
         [1., 2., 1., 0.],
     ])
     instance = TravelingSalesmanInstance(n_cities, distances)
-    for solver_name in ['gurobi', 'cplex']:
+    for solver_name in ['gurobi']:
         solver = LearningSolver(solver=solver_name)
         solver.solve(instance)
         x = instance.solution["x"]
@@ -58,7 +58,7 @@ def test_subtour():
     ])
     distances = squareform(pdist(cities))
     instance = TravelingSalesmanInstance(n_cities, distances)
-    for solver_name in ['gurobi', 'cplex']:
+    for solver_name in ['gurobi']:
         solver = LearningSolver(solver=solver_name)
         solver.solve(instance)
         assert hasattr(instance, "found_violated_lazy_constraints")
