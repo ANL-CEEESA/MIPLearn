@@ -59,7 +59,9 @@
 
             <!-- Main title -->
 
-            <a class="navbar-brand" href="..">MIPLearn</a>
+            
+              <a class="navbar-brand" href="..">MIPLearn</a>
+            
         </div>
 
         <!-- Expanded navigation -->
@@ -183,12 +185,11 @@
 <li>Random vertex weights $w_v \sim U(100, 150)$</li>
 <li>500 training instances, 50 test instances</li>
 </ul>
-<pre><code class="python">MaxWeightStableSetGenerator(w=uniform(loc=100., scale=50.),
+<pre><code class="language-python">MaxWeightStableSetGenerator(w=uniform(loc=100., scale=50.),
                             n=randint(low=200, high=201),
                             p=uniform(loc=0.05, scale=0.0),
                             fix_graph=True)
 </code></pre>
-
 <p><img alt="alt" src="../figures/benchmark_stab_a.png" /></p>
 <h2 id="traveling-salesman-problem">Traveling Salesman Problem</h2>
 <h3 id="problem-definition_1">Problem definition</h3>
@@ -215,7 +216,7 @@ is provided, this rounding will be disabled.</p>
 <li>$\gamma_{i,j} \sim U(0.95, 1.05)$</li>
 <li>500 training instances, 50 test instances</li>
 </ul>
-<pre><code class="python">TravelingSalesmanGenerator(x=uniform(loc=0.0, scale=1000.0),
+<pre><code class="language-python">TravelingSalesmanGenerator(x=uniform(loc=0.0, scale=1000.0),
                            y=uniform(loc=0.0, scale=1000.0),
                            n=randint(low=350, high=351),
                            gamma=uniform(loc=0.95, scale=0.1),
@@ -223,7 +224,6 @@ is provided, this rounding will be disabled.</p>
                            round=True,
                           )
 </code></pre>
-
 <p><img alt="alt" src="../figures/benchmark_tsp_a.png" /></p>
 <h2 id="multidimensional-0-1-knapsack-problem">Multidimensional 0-1 Knapsack Problem</h2>
 <h3 id="problem-definition_2">Problem definition</h3>
@@ -275,7 +275,7 @@ from the provided probability distributions <code>K</code> and <code>u</code>.</
 <li>$K = 500, u \sim U(0, 1), \alpha = 0.25$</li>
 <li>500 training instances, 50 test instances</li>
 </ul>
-<pre><code class="python">MultiKnapsackGenerator(n=randint(low=250, high=251),
+<pre><code class="language-python">MultiKnapsackGenerator(n=randint(low=250, high=251),
                        m=randint(low=10, high=11),
                        w=uniform(loc=0.0, scale=1000.0),
                        K=uniform(loc=500.0, scale=0.0),
@@ -285,24 +285,27 @@ from the provided probability distributions <code>K</code> and <code>u</code>.</
                        w_jitter=uniform(loc=0.95, scale=0.1),
                       )
 </code></pre>
-
 <p><img alt="alt" src="../figures/benchmark_knapsack_a.png" /></p></div>
         
         
     </div>
 
-    <footer class="col-md-12 text-center">
-        
-        <hr>
-        <p>
-        <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.</small><br>
-        
-        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
-        </p>
+    
+      <footer class="col-md-12 text-center">
+          
+          
+            <hr>
+            <p>
+            <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.</small><br>
+            
+            <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+            </p>
+          
 
-        
-        
-    </footer>
+          
+          
+      </footer>
+    
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="../js/bootstrap-3.0.3.min.js"></script>
 
