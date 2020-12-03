@@ -1,6 +1,6 @@
 PYTHON      := python3
 PYTEST      := pytest
-PIP         := pip3
+PIP         := $(PYTHON) -m pip
 PYTEST_ARGS := -W ignore::DeprecationWarning -vv -x --log-level=DEBUG
 VERSION     := 0.2
 
@@ -24,8 +24,11 @@ docs:
 docs-dev:
 	mkdocs build -d ../docs/dev/
 
-install:
+install-deps:
+	$(PIP) install -i https://pypi.gurobi.com gurobipy
 	$(PIP) install -r requirements.txt
+
+install:
 	$(PYTHON) setup.py install
 
 uninstall:
