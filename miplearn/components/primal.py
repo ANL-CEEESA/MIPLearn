@@ -53,7 +53,6 @@ class PrimalSolutionComponent(Component):
 
         for category in tqdm(features.keys(),
                              desc="Fit (primal)",
-                             disable=not sys.stdout.isatty(),
                             ):
             x_train = features[category]
             for label in [0, 1]:
@@ -110,7 +109,6 @@ class PrimalSolutionComponent(Component):
               "Fix one": {}}
         for instance_idx in tqdm(range(len(instances)),
                                  desc="Evaluate (primal)",
-                                 disable=not sys.stdout.isatty(),
                                 ):
             instance = instances[instance_idx]
             solution_actual = instance.solution

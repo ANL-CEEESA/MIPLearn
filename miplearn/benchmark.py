@@ -37,7 +37,8 @@ class BenchmarkRunner:
         for (solver_name, solver) in self.solvers.items():
             results = solver.parallel_solve(trials,
                                             n_jobs=n_jobs,
-                                            label="Solve (%s)" % solver_name)
+                                            label="Solve (%s)" % solver_name,
+                                            output=None)
             for i in range(len(trials)):
                 idx = (i % len(instances)) + index_offset
                 self._push_result(results[i],
