@@ -101,7 +101,7 @@ def test_usage_with_solver():
     internal.add_constraint.reset_mock()
 
     # LearningSolver calls after_iteration (first time)
-    should_repeat = component.after_iteration(solver, instance, None)
+    should_repeat = component.iteration_cb(solver, instance, None)
     assert should_repeat
 
     # Should ask internal solver to verify if constraints in the pool are
@@ -112,7 +112,7 @@ def test_usage_with_solver():
     internal.add_constraint.reset_mock()
 
     # LearningSolver calls after_iteration (second time)
-    should_repeat = component.after_iteration(solver, instance, None)
+    should_repeat = component.iteration_cb(solver, instance, None)
     assert not should_repeat
 
     # The lazy constraint pool should be empty by now, so no calls should be made

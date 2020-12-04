@@ -135,7 +135,7 @@ class InternalSolver(ABC):
         lazy_cb: (internal_solver, model) -> None
             This function is called whenever the solver finds a new candidate
             solution and can be used to add lazy constraints to the model. Only
-            two operations within the callback are allowed:
+            the following operations within the callback are allowed:
                 - Querying the value of a variable, through `get_value(var, idx)`
                 - Querying if a constraint is satisfied, through `is_constraint_satisfied(cobj)`
                 - Adding a new constraint to the problem, through `add_constraint`

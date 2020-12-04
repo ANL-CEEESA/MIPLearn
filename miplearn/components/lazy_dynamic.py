@@ -38,7 +38,7 @@ class DynamicLazyConstraintsComponent(Component):
             cut = instance.build_lazy_constraint(model, v)
             solver.internal_solver.add_constraint(cut)
 
-    def after_iteration(self, solver, instance, model):
+    def iteration_cb(self, solver, instance, model):
         logger.debug("Finding violated (dynamic) lazy constraints...")
         violations = instance.find_violated_lazy_constraints(model)
         if len(violations) == 0:

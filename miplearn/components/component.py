@@ -22,8 +22,8 @@ class Component(ABC):
     def fit(self, training_instances):
         pass
 
-    def after_iteration(self, solver, instance, model):
+    def iteration_cb(self, solver, instance, model):
         return False
 
-    def on_lazy_callback(self, solver, instance, model):
+    def lazy_cb(self, solver, instance, model):
         return

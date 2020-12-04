@@ -209,13 +209,13 @@ class LearningSolver:
         def iteration_cb():
             should_repeat = False
             for comp in self.components.values():
-                if comp.after_iteration(self, instance, model):
+                if comp.iteration_cb(self, instance, model):
                     should_repeat = True
             return should_repeat
 
         def lazy_cb_wrapper(cb_solver, cb_model):
             for comp in self.components.values():
-                comp.on_lazy_callback(self, instance, model)
+                comp.lazy_cb(self, instance, model)
 
         lazy_cb = None
         if self.use_lazy_cb:

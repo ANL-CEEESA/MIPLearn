@@ -51,7 +51,7 @@ class StaticLazyConstraintsComponent(Component):
     def after_solve(self, solver, instance, model, results):
         pass
 
-    def after_iteration(self, solver, instance, model):
+    def iteration_cb(self, solver, instance, model):
         if solver.use_lazy_cb:
             return False
         else:
@@ -67,7 +67,7 @@ class StaticLazyConstraintsComponent(Component):
                 else:
                     return False
 
-    def on_lazy_callback(self, solver, instance, model):
+    def lazy_cb(self, solver, instance, model):
         self._check_and_add(instance, solver)
 
     def _check_and_add(self, instance, solver):
