@@ -42,10 +42,13 @@ class RelaxationComponent(Component):
         this threshold equals a small positive number to compensate for numerical issues.
     check_dropped : bool, optional
         If `check_dropped` is true, then, after the problem is solved, the component verifies that all dropped
-        constraints are still satisfied and re-adds the ones that are not.
+        constraints are still satisfied, re-adds the violated ones and resolves the problem. This loop continues until
+        either no violations are found, or a maximum number of iterations is reached.
     violation_tolerance : float, optional
         If `check_dropped` is true, a constraint is considered satisfied during the check if its violation is smaller
         than this tolerance.
+    max_iterations : int
+        If `check_dropped` is true, set the maximum number of iterations in the lazy constraint loop.
     """
 
     def __init__(self,
@@ -54,6 +57,7 @@ class RelaxationComponent(Component):
                  slack_tolerance=1e-5,
                  check_dropped=False,
                  violation_tolerance=1e-5,
+                 max_iterations=3,
                  ):
         self.classifiers = {}
         self.classifier_prototype = classifier
@@ -62,8 +66,12 @@ class RelaxationComponent(Component):
         self.pool = []
         self.check_dropped = check_dropped
         self.violation_tolerance = violation_tolerance
+        self.max_iterations = max_iterations
+        self.current_iteration = 0
 
     def before_solve(self, solver, instance, _):
+        self.current_iteration = 0
+
         logger.info("Relaxing integrality...")
         solver.internal_solver.relax()
 
@@ -177,6 +185,9 @@ class RelaxationComponent(Component):
     def iteration_cb(self, solver, instance, model):
         if not self.check_dropped:
             return False
+        if self.current_iteration >= self.max_iterations:
+            return False
+        self.current_iteration += 1
         logger.debug("Checking that dropped constraints are satisfied...")
         constraints_to_add = []
         for c in self.pool:
