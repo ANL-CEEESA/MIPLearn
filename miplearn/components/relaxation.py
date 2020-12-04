@@ -6,36 +6,59 @@ import logging
 import sys
 from copy import deepcopy
 
-import numpy as np
-from miplearn.components import classifier_evaluation_dict
 from tqdm import tqdm
 
 from miplearn import Component
 from miplearn.classifiers.counting import CountingClassifier
+from miplearn.components import classifier_evaluation_dict
+from miplearn.components.lazy_static import LazyConstraint
 
 logger = logging.getLogger(__name__)
 
 
 class RelaxationComponent(Component):
     """
-    A Component which builds a relaxation of the problem by dropping constraints.
+    A Component that tries to build a relaxation that is simultaneously strong and easy to solve.
 
-    Currently, this component drops all integrality constraints, as well as
-    all inequality constraints which are not likely binding in the LP relaxation.
-    In a future version of MIPLearn, this component may decide to keep some
-    integrality constraints it it determines that they have small impact on
-    running time, but large impact on dual bound.
+    Currently, this component performs the following operations:
+        - Drops all integrality constraints
+        - Drops all inequality constraints that are not likely to be binding.
+
+    In future versions of MIPLearn, this component may keep some integrality constraints and perform other operations.
+
+    Parameters
+    ----------
+    classifier : Classifier, optional
+        Classifier used to predict whether each constraint is binding or not. One deep copy of this classifier
+        is made for each constraint category.
+    threshold : float, optional
+        If the probability that a constraint is binding exceeds this threshold, the constraint is dropped from the
+        linear relaxation.
+    slack_tolerance : float, optional
+        If a constraint has slack greater than this threshold, then the constraint is considered loose. By default,
+        this threshold equals a small positive number to compensate for numerical issues.
+    check_dropped : bool, optional
+        If `check_dropped` is true, then, after the problem is solved, the component verifies that all dropped
+        constraints are still satisfied and re-adds the ones that are not.
+    violation_tolerance : float, optional
+        If `check_dropped` is true, a constraint is considered satisfied during the check if its violation is smaller
+        than this tolerance.
     """
 
     def __init__(self,
                  classifier=CountingClassifier(),
                  threshold=0.95,
                  slack_tolerance=1e-5,
+                 check_dropped=False,
+                 violation_tolerance=1e-5,
                  ):
         self.classifiers = {}
         self.classifier_prototype = classifier
         self.threshold = threshold
         self.slack_tolerance = slack_tolerance
+        self.pool = []
+        self.check_dropped = check_dropped
+        self.violation_tolerance = violation_tolerance
 
     def before_solve(self, solver, instance, _):
         logger.info("Relaxing integrality...")
@@ -47,14 +70,14 @@ class RelaxationComponent(Component):
                                 constraint_ids=cids,
                                 return_constraints=True)
         y = self.predict(x)
-        n_removed = 0
         for category in y.keys():
             for i in range(len(y[category])):
                 if y[category][i][0] == 1:
                     cid = constraints[category][i]
-                    solver.internal_solver.extract_constraint(cid)
-                    n_removed += 1
-        logger.info("Removed %d predicted redundant LP constraints" % n_removed)
+                    c = LazyConstraint(cid=cid,
+                                       obj=solver.internal_solver.extract_constraint(cid))
+                    self.pool += [c]
+        logger.info("Extracted %d predicted constraints" % len(self.pool))
 
     def after_solve(self, solver, instance, model, results):
         instance.slacks = solver.internal_solver.get_constraint_slacks()
@@ -120,7 +143,7 @@ class RelaxationComponent(Component):
             if category not in self.classifiers:
                 continue
             y[category] = []
-            #x_cat = np.array(x_cat)
+            # x_cat = np.array(x_cat)
             proba = self.classifiers[category].predict_proba(x_cat)
             for i in range(len(proba)):
                 if proba[i][1] >= self.threshold:
@@ -148,4 +171,19 @@ class RelaxationComponent(Component):
                         tn += 1
         return classifier_evaluation_dict(tp, tn, fp, fn)
 
-
+    def iteration_cb(self, solver, instance, model):
+        if not self.check_dropped:
+            return False
+        logger.debug("Checking that dropped constraints are satisfied...")
+        constraints_to_add = []
+        for c in self.pool:
+            if not solver.internal_solver.is_constraint_satisfied(c.obj, self.violation_tolerance):
+                constraints_to_add.append(c)
+        for c in constraints_to_add:
+            self.pool.remove(c)
+            solver.internal_solver.add_constraint(c.obj)
+        if len(constraints_to_add) > 0:
+            logger.info("%8d constraints %8d in the pool" % (len(constraints_to_add), len(self.pool)))
+            return True
+        else:
+            return False

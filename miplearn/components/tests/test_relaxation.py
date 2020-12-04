@@ -11,7 +11,7 @@ from miplearn import (RelaxationComponent,
 from miplearn.classifiers import Classifier
 
 
-def test_usage_with_solver():
+def _setup():
     solver = Mock(spec=LearningSolver)
 
     internal = solver.internal_solver = Mock(spec=InternalSolver)
@@ -22,6 +22,8 @@ def test_usage_with_solver():
         "c3": 0.0,
         "c4": 1.4,
     })
+    internal.extract_constraint = Mock(side_effect=lambda cid: "<%s>" % cid)
+    internal.is_constraint_satisfied = Mock(return_value=False)
 
     instance = Mock(spec=Instance)
     instance.get_constraint_features = Mock(side_effect=lambda cid: {
@@ -36,20 +38,28 @@ def test_usage_with_solver():
         "c4": "type-b",
     }[cid])
 
-    component = RelaxationComponent()
-    component.classifiers = {
+    classifiers = {
         "type-a": Mock(spec=Classifier),
         "type-b": Mock(spec=Classifier),
     }
-    component.classifiers["type-a"].predict_proba = \
+    classifiers["type-a"].predict_proba = \
         Mock(return_value=[
             [0.20, 0.80],
             [0.05, 0.95],
         ])
-    component.classifiers["type-b"].predict_proba = \
+    classifiers["type-b"].predict_proba = \
         Mock(return_value=[
             [0.02, 0.98],
         ])
+
+    return solver, internal, instance, classifiers
+
+
+def test_usage():
+    solver, internal, instance, classifiers = _setup()
+
+    component = RelaxationComponent()
+    component.classifiers = classifiers
 
     # LearningSolver calls before_solve
     component.before_solve(solver, instance, None)
@@ -96,6 +106,44 @@ def test_usage_with_solver():
         "c3": 0.0,
         "c4": 1.4,
     }
+
+
+def test_usage_with_check_dropped():
+    solver, internal, instance, classifiers = _setup()
+
+    component = RelaxationComponent(check_dropped=True,
+                                    violation_tolerance=1e-3)
+    component.classifiers = classifiers
+
+    # LearningSolver call before_solve
+    component.before_solve(solver, instance, None)
+
+    # Assert constraints are extracted
+    assert internal.extract_constraint.call_count == 2
+    internal.extract_constraint.assert_has_calls([
+        call("c3"), call("c4"),
+    ])
+
+    # LearningSolver calls iteration_cb (first time)
+    should_repeat = component.iteration_cb(solver, instance, None)
+
+    # Should ask LearningSolver to repeat
+    assert should_repeat
+
+    # Should ask solver if removed constraints are satisfied (mock always returns false)
+    internal.is_constraint_satisfied.assert_has_calls([
+        call("<c3>", 1e-3),
+        call("<c4>", 1e-3),
+    ])
+
+    # Should add constraints back to LP relaxation
+    internal.add_constraint.assert_has_calls([
+        call("<c3>"), call("<c4>")
+    ])
+
+    # LearningSolver calls iteration_cb (second time)
+    should_repeat = component.iteration_cb(solver, instance, None)
+    assert not should_repeat
 
 
 def test_x_y_fit_predict_evaluate():
@@ -182,7 +230,3 @@ def test_x_y_fit_predict_evaluate():
     assert ev["True negative"] == 1
     assert ev["False positive"] == 1
     assert ev["False negative"] == 0
-
-
-
-
