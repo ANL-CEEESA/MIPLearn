@@ -115,8 +115,9 @@ For more significant performance benefits, `LearningSolver` can also be configur
 !!! danger
     The `heuristic` mode provides no optimality guarantees, and therefore should only be used if the solver is first trained on a large and representative set of training instances. Training on a small or non-representative set of instances may produce low-quality solutions, or make the solver incorrectly classify new instances as infeasible.
 
+## 6. Scaling Up
 
-## 6. Saving and loading solver state
+### 6.1 Saving and loading solver state
 
 After solving a large number of training instances, it may be desirable to save the current state of `LearningSolver` to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the standard `pickle` module, as the following example illustrates:
 
@@ -134,12 +135,14 @@ for instance in training_instances:
 solver.fit(training_instances)
 
 # Save trained solver to disk
-pickle.dump(solver, open("solver.pickle", "wb"))
+with open("solver.pickle", "wb") as file:
+    pickle.dump(solver, file)
 
 # Application restarts...
 
 # Load trained solver from disk
-solver = pickle.load(open("solver.pickle", "rb"))
+with open("solver.pickle", "rb") as file:
+    solver = pickle.load(file)
 
 # Solve additional instances
 test_instances = [...]
@@ -148,9 +151,9 @@ for instance in test_instances:
 ```
 
 
-## 7. Solving training instances in parallel
+### 6.2 Solving instances in parallel
 
-In many situations, training and test instances can be solved in parallel to accelerate the training process. `LearningSolver` provides the method `parallel_solve(instances)` to easily achieve this:
+In many situations, instances can be solved in parallel to accelerate the training process. `LearningSolver` provides the method `parallel_solve(instances)` to easily achieve this:
 
 ```python
 from miplearn import LearningSolver
@@ -166,6 +169,55 @@ solver.parallel_solve(test_instances)
 ```
 
 
-## 8. Current Limitations
+### 6.3 Solving instances from the disk
 
-* Only binary and continuous decision variables are currently supported.
+In all examples above, we have assumed that instances are available as Python objects, stored in memory. When problem instances are very large, or when there is a large number of problem instances, this approach may require an excessive amount of memory. To reduce memory requirements, MIPLearn can also operate on instances that are stored on disk. More precisely, the methods `fit`, `solve` and `parallel_solve` in `LearningSolver` can operate on filenames (or lists of filenames) instead of instance objects, as the next example illustrates.
+Instance files must be pickled instance objects. The method `solve` loads at most one instance to memory at a time, while `parallel_solve` loads at most `n_jobs` instances.
+
+
+```python
+from miplearn import LearningSolver
+
+# Construct and pickle 600 problem instances
+for i in range(600):
+    instance = CustomInstance([...])
+    with open("instance_%03d.pkl" % i, "w") as file:
+        pickle.dump(instance, obj)
+        
+# Split instances into training and test
+test_instances  = ["instance_%03d.pkl" % i for i in range(500)]
+train_instances = ["instance_%03d.pkl" % i for i in range(500, 600)]
+
+# Create solver
+solver = LearningSolver([...])
+
+# Solve training instances 
+solver.parallel_solve(train_instances, n_jobs=4)
+
+# Train ML models
+solver.fit(train_instances)
+
+# Solve test instances 
+solver.parallel_solve(test_instances, n_jobs=4)
+```
+
+
+By default, `solve` and `parallel_solve` modify files in place. That is, after the instances are loaded from disk and solved, MIPLearn writes them back to the disk, overwriting the original files. To write to an alternative file instead, the argument `output` may be used. In `solve`, this argument should be a single filename. In `parallel_solve`, it should be a list, containing exactly as many filenames as instances. If `output` is `None`, the modifications are simply discarded. This can be useful, for example, during benchmarks.
+
+```python
+# Solve a single instance file and store the output to another file
+solver.solve("knapsack_1.orig.pkl", output="knapsack_1.solved.pkl")
+
+# Solve a list of instance files
+instances = ["knapsack_%03d.orig.pkl" % i for i in range(100)]
+output = ["knapsack_%03d.solved.pkl" % i for i in range(100)]
+solver.parallel_solve(instances, output=output)
+
+# Solve instances and discard solutions and training data
+solver.parallel_solve(instances, output=None)
+```
+
+
+## 7. Current Limitations
+
+* Only binary and continuous decision variables are currently supported. General integer variables are not currently supported by all solver components.

@@ -3,6 +3,11 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
+import pickle
+import os
+import tempfile
+import gzip
+
 from copy import deepcopy
 from typing import Optional, List
 from p_tqdm import p_map
@@ -20,26 +25,21 @@ logger = logging.getLogger(__name__)
 # Global memory for multiprocessing
 SOLVER = [None]  # type: List[Optional[LearningSolver]]
 INSTANCES = [None]  # type: List[Optional[dict]]
+OUTPUTS = [None]
 
 
-def _parallel_solve(instance_idx):
+def _parallel_solve(idx):
     solver = deepcopy(SOLVER[0])
-    instance = INSTANCES[0][instance_idx]
-    if not hasattr(instance, "found_violated_lazy_constraints"):
-        instance.found_violated_lazy_constraints = []
-    if not hasattr(instance, "found_violated_user_cuts"):
-        instance.found_violated_user_cuts = []
-    if not hasattr(instance, "slacks"):
-        instance.slacks = {}
-    solver_results = solver.solve(instance)
-    return {
-        "solver_results": solver_results,
-        "solution": instance.solution,
-        "lp_solution": instance.lp_solution,
-        "found_violated_lazy_constraints": instance.found_violated_lazy_constraints,
-        "found_violated_user_cuts": instance.found_violated_user_cuts,
-        "slacks": instance.slacks
-    }
+    if OUTPUTS[0] is None:
+        output = None
+    elif len(OUTPUTS[0]) == 0:
+        output = ""
+    else:
+        output = OUTPUTS[0][idx]
+    instance = INSTANCES[0][idx]
+    print(instance)
+    stats = solver.solve(instance, output=output)
+    return (stats, instance)
 
 
 class LearningSolver:
@@ -145,31 +145,43 @@ class LearningSolver:
     def solve(self,
               instance,
               model=None,
+              output="",
               tee=False):
         """
         Solves the given instance. If trained machine-learning models are
         available, they will be used to accelerate the solution process.
+        
+        The argument `instance` may be either an Instance object or a
+        filename pointing to a pickled Instance object. 
 
         This method modifies the instance object. Specifically, the following
         properties are set:
+        
             - instance.lp_solution
             - instance.lp_value
             - instance.lower_bound
             - instance.upper_bound
             - instance.solution
             - instance.solver_log
+            
         Additional solver components may set additional properties. Please
-        see their documentation for more details.
+        see their documentation for more details. If a filename is provided,
+        then the file is modified in-place. That is, the original file is
+        overwritten.
 
         If `solver.solve_lp_first` is False, the properties lp_solution and
         lp_value will be set to dummy values.
 
         Parameters
         ----------
-        instance: miplearn.Instance
-            The instance to be solved
+        instance: miplearn.Instance or str
+            The instance to be solved, or a filename.
         model: pyomo.core.ConcreteModel
             The corresponding Pyomo model. If not provided, it will be created.
+        output: str or None
+            If instance is a filename and output is provided, write the modified
+            instance to this file, instead of replacing the original file. If
+            output is None, discard modified instance.
         tee: bool
             If true, prints solver log to screen.
 
@@ -185,7 +197,21 @@ class LearningSolver:
             "Predicted UB". See the documentation of each component for more
             details.
         """
-
+        
+        filename = None
+        fileformat = None
+        if isinstance(instance, str):
+            filename = instance
+            logger.info("Reading: %s" % filename)
+            if filename.endswith(".gz"):
+                fileformat = "pickle-gz"
+                with gzip.GzipFile(filename, "rb") as file:
+                    instance = pickle.load(file)
+            else:
+                fileformat = "pickle"
+                with open(filename, "rb") as file:
+                    instance = pickle.load(file)
+                
         if model is None:
             model = instance.to_model()
 
@@ -236,35 +262,60 @@ class LearningSolver:
         logger.debug("Calling after_solve callbacks...")
         for component in self.components.values():
             component.after_solve(self, instance, model, results)
+            
+        if filename is not None and output is not None:
+            output_filename = output
+            if len(output) == 0:
+                output_filename = filename
+            logger.info("Writing: %s" % output_filename)
+            if fileformat == "pickle":
+                with open(output_filename, "wb") as file:
+                    pickle.dump(instance, file)
+            else:
+                with gzip.GzipFile(output_filename, "wb") as file:
+                    pickle.dump(instance, file)
 
         return results
 
-    def parallel_solve(self,
-                       instances,
-                       n_jobs=4,
-                       label="Solve"):
-
+    def parallel_solve(self, instances, n_jobs=4, label="Solve", output=[]):
+        """
+        Solves multiple instances in parallel.
+        
+        This method is equivalent to calling `solve` for each item on the list,
+        but it processes multiple instances at the same time. Like `solve`, this
+        method modifies each instance in place. Also like `solve`, a list of
+        filenames may be provided.
+        
+        Parameters
+        ----------
+        instances: [miplearn.Instance] or [str]
+            The instances to be solved
+        n_jobs: int
+            Number of instances to solve in parallel at a time.
+            
+        Returns
+        -------
+        Returns a list of dictionaries, with one entry for each provided instance.
+        This dictionary is the same you would obtain by calling:
+        
+            [solver.solve(p) for p in instances]
+        
+        """
         self.internal_solver = None
         self._silence_miplearn_logger()
         SOLVER[0] = self
+        OUTPUTS[0] = output
         INSTANCES[0] = instances
-        p_map_results = p_map(_parallel_solve,
-                              list(range(len(instances))),
-                              num_cpus=n_jobs,
-                              desc=label)
-        results = [p["solver_results"] for p in p_map_results]
-        for (idx, r) in enumerate(p_map_results):
-            instances[idx].solution = r["solution"]
-            instances[idx].lp_solution = r["lp_solution"]
-            instances[idx].lp_value = r["solver_results"]["LP value"]
-            instances[idx].lower_bound = r["solver_results"]["Lower bound"]
-            instances[idx].upper_bound = r["solver_results"]["Upper bound"]
-            instances[idx].found_violated_lazy_constraints = r["found_violated_lazy_constraints"]
-            instances[idx].found_violated_user_cuts = r["found_violated_user_cuts"]
-            instances[idx].slacks = r["slacks"]
-            instances[idx].solver_log = r["solver_results"]["Log"]
+        results = p_map(_parallel_solve,
+                        list(range(len(instances))),
+                        num_cpus=n_jobs,
+                        desc=label)
+        stats = []
+        for (idx, (s, instance)) in enumerate(results):
+            stats.append(s)
+            instances[idx] = instance
         self._restore_miplearn_logger()
-        return results
+        return stats
 
     def fit(self, training_instances):
         if len(training_instances) == 0:
