@@ -1,11 +1,15 @@
-![Build status](https://img.shields.io/github/workflow/status/ANL-CEEESA/MIPLearn/Test)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4287567.svg)](https://doi.org/10.5281/zenodo.4287567)
-<a href="https://github.com/ANL-CEEESA/MIPLearn/releases/latest">
-<img src="https://img.shields.io/github/v/release/ANL-CEEESA/MIPLearn">
-</a>
-
-MIPLearn
-========
+<h1 align="center">MIPLearn</h1>
+<p align="center">
+  <a href="https://github.com/ANL-CEEESA/MIPLearn/actions">
+    <img src="https://github.com/ANL-CEEESA/MIPLearn/workflows/Test/badge.svg">
+  </a>
+  <a href="https://doi.org/10.5281/zenodo.4287567">
+    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.4287567.svg">
+  </a>
+  <a href="https://github.com/ANL-CEEESA/MIPLearn/releases/">
+    <img src="https://img.shields.io/github/v/release/ANL-CEEESA/MIPLearn?include_prereleases&label=pre-release">
+  </a>
+</p>
 
 **MIPLearn** is an extensible framework for **Learning-Enhanced Mixed-Integer Optimization**, an approach targeted at discrete optimization problems that need to be repeatedly solved with only minor changes to input data.
 
