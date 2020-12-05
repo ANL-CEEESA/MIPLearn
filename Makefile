@@ -34,6 +34,9 @@ install:
 uninstall:
 	$(PIP) uninstall miplearn
 
+reformat:
+	$(PYTHON) -m black miplearn
+
 test:
 	$(PYTEST) $(PYTEST_ARGS)
 

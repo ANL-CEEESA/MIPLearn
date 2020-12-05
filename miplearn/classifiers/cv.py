@@ -11,6 +11,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,12 +29,14 @@ class CrossValidatedClassifier(Classifier):
     acceptable. Other numbers are a linear interpolation of these two extremes.
     """
 
-    def __init__(self,
-                 classifier=LogisticRegression(),
-                 threshold=0.75,
-                 constant=0.0,
-                 cv=5,
-                 scoring='accuracy'):
+    def __init__(
+        self,
+        classifier=LogisticRegression(),
+        threshold=0.75,
+        constant=0.0,
+        cv=5,
+        scoring="accuracy",
+    ):
         self.classifier = None
         self.classifier_prototype = classifier
         self.constant = constant
@@ -45,24 +48,36 @@ class CrossValidatedClassifier(Classifier):
         # Calculate dummy score and absolute score threshold
         y_train_avg = np.average(y_train)
         dummy_score = max(y_train_avg, 1 - y_train_avg)
-        absolute_threshold = 1. * self.threshold + dummy_score * (1 - self.threshold)
+        absolute_threshold = 1.0 * self.threshold + dummy_score * (1 - self.threshold)
 
         # Calculate cross validation score and decide which classifier to use
         clf = deepcopy(self.classifier_prototype)
-        cv_score = float(np.mean(cross_val_score(clf,
-                                                 x_train,
-                                                 y_train,
-                                                 cv=self.cv,
-                                                 scoring=self.scoring)))
+        cv_score = float(
+            np.mean(
+                cross_val_score(
+                    clf,
+                    x_train,
+                    y_train,
+                    cv=self.cv,
+                    scoring=self.scoring,
+                )
+            )
+        )
         if cv_score >= absolute_threshold:
-            logger.debug("cv_score is above threshold (%.2f >= %.2f); keeping" %
-                         (cv_score, absolute_threshold))
+            logger.debug(
+                "cv_score is above threshold (%.2f >= %.2f); keeping"
+                % (cv_score, absolute_threshold)
+            )
             self.classifier = clf
         else:
-            logger.debug("cv_score is below threshold (%.2f < %.2f); discarding" %
-                         (cv_score, absolute_threshold))
-            self.classifier = DummyClassifier(strategy="constant",
-                                              constant=self.constant)
+            logger.debug(
+                "cv_score is below threshold (%.2f < %.2f); discarding"
+                % (cv_score, absolute_threshold)
+            )
+            self.classifier = DummyClassifier(
+                strategy="constant",
+                constant=self.constant,
+            )
 
         # Train chosen classifier
         self.classifier.fit(x_train, y_train)

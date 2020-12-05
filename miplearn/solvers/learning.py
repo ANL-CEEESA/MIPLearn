@@ -12,10 +12,12 @@ from copy import deepcopy
 from typing import Optional, List
 from p_tqdm import p_map
 
-from .. import (ObjectiveValueComponent,
-                PrimalSolutionComponent,
-                DynamicLazyConstraintsComponent,
-                UserCutsComponent)
+from .. import (
+    ObjectiveValueComponent,
+    PrimalSolutionComponent,
+    DynamicLazyConstraintsComponent,
+    UserCutsComponent,
+)
 from .pyomo.cplex import CplexPyomoSolver
 from .pyomo.gurobi import GurobiPyomoSolver
 
@@ -43,16 +45,18 @@ def _parallel_solve(idx):
 
 
 class LearningSolver:
-    def __init__(self,
-                 components=None,
-                 gap_tolerance=1e-4,
-                 mode="exact",
-                 solver="gurobi",
-                 threads=None,
-                 time_limit=None,
-                 node_limit=None,
-                 solve_lp_first=True,
-                 use_lazy_cb=False):
+    def __init__(
+        self,
+        components=None,
+        gap_tolerance=1e-4,
+        mode="exact",
+        solver="gurobi",
+        threads=None,
+        time_limit=None,
+        node_limit=None,
+        solve_lp_first=True,
+        use_lazy_cb=False,
+    ):
         """
         Mixed-Integer Linear Programming (MIP) solver that extracts information
         from previous runs and uses Machine Learning methods to accelerate the
@@ -142,28 +146,30 @@ class LearningSolver:
             solver.set_node_limit(self.node_limit)
         return solver
 
-    def solve(self,
-              instance,
-              model=None,
-              output="",
-              tee=False):
+    def solve(
+        self,
+        instance,
+        model=None,
+        output="",
+        tee=False,
+    ):
         """
         Solves the given instance. If trained machine-learning models are
         available, they will be used to accelerate the solution process.
-        
+
         The argument `instance` may be either an Instance object or a
-        filename pointing to a pickled Instance object. 
+        filename pointing to a pickled Instance object.
 
         This method modifies the instance object. Specifically, the following
         properties are set:
-        
+
             - instance.lp_solution
             - instance.lp_value
             - instance.lower_bound
             - instance.upper_bound
             - instance.solution
             - instance.solver_log
-            
+
         Additional solver components may set additional properties. Please
         see their documentation for more details. If a filename is provided,
         then the file is modified in-place. That is, the original file is
@@ -197,7 +203,7 @@ class LearningSolver:
             "Predicted UB". See the documentation of each component for more
             details.
         """
-        
+
         filename = None
         fileformat = None
         if isinstance(instance, str):
@@ -211,7 +217,7 @@ class LearningSolver:
                 fileformat = "pickle"
                 with open(filename, "rb") as file:
                     instance = pickle.load(file)
-                
+
         if model is None:
             model = instance.to_model()
 
@@ -248,9 +254,11 @@ class LearningSolver:
             lazy_cb = lazy_cb_wrapper
 
         logger.info("Solving MILP...")
-        results = self.internal_solver.solve(tee=tee,
-                                             iteration_cb=iteration_cb,
-                                             lazy_cb=lazy_cb)
+        results = self.internal_solver.solve(
+            tee=tee,
+            iteration_cb=iteration_cb,
+            lazy_cb=lazy_cb,
+        )
         results["LP value"] = instance.lp_value
 
         # Read MIP solution and bounds
@@ -262,7 +270,7 @@ class LearningSolver:
         logger.debug("Calling after_solve callbacks...")
         for component in self.components.values():
             component.after_solve(self, instance, model, results)
-            
+
         if filename is not None and output is not None:
             output_filename = output
             if len(output) == 0:
@@ -280,36 +288,38 @@ class LearningSolver:
     def parallel_solve(self, instances, n_jobs=4, label="Solve", output=[]):
         """
         Solves multiple instances in parallel.
-        
+
         This method is equivalent to calling `solve` for each item on the list,
         but it processes multiple instances at the same time. Like `solve`, this
         method modifies each instance in place. Also like `solve`, a list of
         filenames may be provided.
-        
+
         Parameters
         ----------
         instances: [miplearn.Instance] or [str]
             The instances to be solved
         n_jobs: int
             Number of instances to solve in parallel at a time.
-            
+
         Returns
         -------
         Returns a list of dictionaries, with one entry for each provided instance.
         This dictionary is the same you would obtain by calling:
-        
+
             [solver.solve(p) for p in instances]
-        
+
         """
         self.internal_solver = None
         self._silence_miplearn_logger()
         SOLVER[0] = self
         OUTPUTS[0] = output
         INSTANCES[0] = instances
-        results = p_map(_parallel_solve,
-                        list(range(len(instances))),
-                        num_cpus=n_jobs,
-                        desc=label)
+        results = p_map(
+            _parallel_solve,
+            list(range(len(instances))),
+            num_cpus=n_jobs,
+            desc=label,
+        )
         stats = []
         for (idx, (s, instance)) in enumerate(results):
             stats.append(s)
@@ -330,12 +340,12 @@ class LearningSolver:
     def _silence_miplearn_logger(self):
         miplearn_logger = logging.getLogger("miplearn")
         self.prev_log_level = miplearn_logger.getEffectiveLevel()
-        miplearn_logger.setLevel(logging.WARNING)    
-        
+        miplearn_logger.setLevel(logging.WARNING)
+
     def _restore_miplearn_logger(self):
         miplearn_logger = logging.getLogger("miplearn")
-        miplearn_logger.setLevel(self.prev_log_level)    
-        
+        miplearn_logger.setLevel(self.prev_log_level)
+
     def __getstate__(self):
         self.internal_solver = None
         return self.__dict__

@@ -22,9 +22,11 @@ class AdaptiveClassifier(Classifier):
     based on its cross-validation score on a particular training data set.
     """
 
-    def __init__(self,
-                 candidates=None,
-                 evaluator=ClassifierEvaluator()):
+    def __init__(
+        self,
+        candidates=None,
+        evaluator=ClassifierEvaluator(),
+    ):
         """
         Initializes the meta-classifier.
         """
@@ -35,14 +37,13 @@ class AdaptiveClassifier(Classifier):
                     "min samples": 100,
                 },
                 "logistic": {
-                    "classifier": make_pipeline(StandardScaler(),
-                                                LogisticRegression()),
+                    "classifier": make_pipeline(StandardScaler(), LogisticRegression()),
                     "min samples": 30,
                 },
                 "counting": {
                     "classifier": CountingClassifier(),
                     "min samples": 0,
-                }
+                },
             }
         self.candidates = candidates
         self.evaluator = evaluator

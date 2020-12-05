@@ -51,14 +51,15 @@ class RelaxationComponent(Component):
         If `check_dropped` is true, set the maximum number of iterations in the lazy constraint loop.
     """
 
-    def __init__(self,
-                 classifier=CountingClassifier(),
-                 threshold=0.95,
-                 slack_tolerance=1e-5,
-                 check_dropped=False,
-                 violation_tolerance=1e-5,
-                 max_iterations=3,
-                 ):
+    def __init__(
+        self,
+        classifier=CountingClassifier(),
+        threshold=0.95,
+        slack_tolerance=1e-5,
+        check_dropped=False,
+        violation_tolerance=1e-5,
+        max_iterations=3,
+    ):
         self.classifiers = {}
         self.classifier_prototype = classifier
         self.threshold = threshold
@@ -77,16 +78,20 @@ class RelaxationComponent(Component):
 
         logger.info("Predicting redundant LP constraints...")
         cids = solver.internal_solver.get_constraint_ids()
-        x, constraints = self.x([instance],
-                                constraint_ids=cids,
-                                return_constraints=True)
+        x, constraints = self.x(
+            [instance],
+            constraint_ids=cids,
+            return_constraints=True,
+        )
         y = self.predict(x)
         for category in y.keys():
             for i in range(len(y[category])):
                 if y[category][i][0] == 1:
                     cid = constraints[category][i]
-                    c = LazyConstraint(cid=cid,
-                                       obj=solver.internal_solver.extract_constraint(cid))
+                    c = LazyConstraint(
+                        cid=cid,
+                        obj=solver.internal_solver.extract_constraint(cid),
+                    )
                     self.pool += [c]
         logger.info("Extracted %d predicted constraints" % len(self.pool))
 
@@ -98,21 +103,19 @@ class RelaxationComponent(Component):
         x = self.x(training_instances)
         y = self.y(training_instances)
         logger.debug("Fitting...")
-        for category in tqdm(x.keys(),
-                             desc="Fit (relaxation)"):
+        for category in tqdm(x.keys(), desc="Fit (relaxation)"):
             if category not in self.classifiers:
                 self.classifiers[category] = deepcopy(self.classifier_prototype)
             self.classifiers[category].fit(x[category], y[category])
 
-    def x(self,
-          instances,
-          constraint_ids=None,
-          return_constraints=False):
+    def x(self, instances, constraint_ids=None, return_constraints=False):
         x = {}
         constraints = {}
-        for instance in tqdm(InstanceIterator(instances),
-                             desc="Extract (relaxation:x)",
-                             disable=len(instances) < 5):
+        for instance in tqdm(
+            InstanceIterator(instances),
+            desc="Extract (relaxation:x)",
+            disable=len(instances) < 5,
+        ):
             if constraint_ids is not None:
                 cids = constraint_ids
             else:
@@ -133,9 +136,11 @@ class RelaxationComponent(Component):
 
     def y(self, instances):
         y = {}
-        for instance in tqdm(InstanceIterator(instances),
-                             desc="Extract (relaxation:y)",
-                             disable=len(instances) < 5):
+        for instance in tqdm(
+            InstanceIterator(instances),
+            desc="Extract (relaxation:y)",
+            disable=len(instances) < 5,
+        ):
             for (cid, slack) in instance.slacks.items():
                 category = instance.get_constraint_category(cid)
                 if category is None:
@@ -154,7 +159,7 @@ class RelaxationComponent(Component):
             if category not in self.classifiers:
                 continue
             y[category] = []
-            #x_cat = np.array(x_cat)
+            # x_cat = np.array(x_cat)
             proba = self.classifiers[category].predict_proba(x_cat)
             for i in range(len(proba)):
                 if proba[i][1] >= self.threshold:
@@ -191,13 +196,19 @@ class RelaxationComponent(Component):
         logger.debug("Checking that dropped constraints are satisfied...")
         constraints_to_add = []
         for c in self.pool:
-            if not solver.internal_solver.is_constraint_satisfied(c.obj, self.violation_tolerance):
+            if not solver.internal_solver.is_constraint_satisfied(
+                c.obj,
+                self.violation_tolerance,
+            ):
                 constraints_to_add.append(c)
         for c in constraints_to_add:
             self.pool.remove(c)
             solver.internal_solver.add_constraint(c.obj)
         if len(constraints_to_add) > 0:
-            logger.info("%8d constraints %8d in the pool" % (len(constraints_to_add), len(self.pool)))
+            logger.info(
+                "%8d constraints %8d in the pool"
+                % (len(constraints_to_add), len(self.pool))
+            )
             return True
         else:
             return False

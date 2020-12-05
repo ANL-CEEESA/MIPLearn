@@ -15,8 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class GurobiPyomoSolver(BasePyomoSolver):
-    def __init__(self,
-                 options=None):
+    def __init__(self, options=None):
         """
         Creates a new Gurobi solver, accessed through Pyomo.
 
@@ -27,7 +26,7 @@ class GurobiPyomoSolver(BasePyomoSolver):
             {"Threads": 4} to set the number of threads.
         """
         super().__init__()
-        self._pyomo_solver = pe.SolverFactory('gurobi_persistent')
+        self._pyomo_solver = pe.SolverFactory("gurobi_persistent")
         self._pyomo_solver.options["Seed"] = randint(low=0, high=1000).rvs()
         if options is not None:
             for (key, value) in options.items():
@@ -56,6 +55,7 @@ class GurobiPyomoSolver(BasePyomoSolver):
 
     def set_branching_priorities(self, priorities):
         from gurobipy import GRB
+
         for varname in priorities.keys():
             var = self._varname_to_var[varname]
             for (index, priority) in priorities[varname].items():

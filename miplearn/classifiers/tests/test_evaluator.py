@@ -17,4 +17,3 @@ def test_evaluator():
     ev = ClassifierEvaluator()
     assert ev.evaluate(clf_a, x_train, y_train) == 1.0
     assert ev.evaluate(clf_b, x_train, y_train) == 0.5
-

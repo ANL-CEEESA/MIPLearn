@@ -81,8 +81,10 @@ class BasePyomoSolver(InternalSolver):
                     count_fixed += 1
         if count_fixed > 0:
             self._is_warm_start_available = True
-        logger.info("Setting start values for %d variables (out of %d)" %
-                    (count_fixed, count_total))
+        logger.info(
+            "Setting start values for %d variables (out of %d)"
+            % (count_fixed, count_total)
+        )
 
     def clear_warm_start(self):
         for var in self._all_vars:
@@ -134,17 +136,19 @@ class BasePyomoSolver(InternalSolver):
                 count_fixed += 1
                 var[index].fix(solution[varname][index])
                 self._pyomo_solver.update_var(var[index])
-        logger.info("Fixing values for %d variables (out of %d)" %
-                    (count_fixed, count_total))
+        logger.info(
+            "Fixing values for %d variables (out of %d)"
+            % (
+                count_fixed,
+                count_total,
+            )
+        )
 
     def add_constraint(self, constraint):
         self._pyomo_solver.add_constraint(constraint)
         self._update_constrs()
 
-    def solve(self,
-              tee=False,
-              iteration_cb=None,
-              lazy_cb=None):
+    def solve(self, tee=False, iteration_cb=None, lazy_cb=None):
         if lazy_cb is not None:
             raise Exception("lazy callback not supported")
         total_wallclock_time = 0
@@ -158,8 +162,10 @@ class BasePyomoSolver(InternalSolver):
         while True:
             logger.debug("Solving MIP...")
             with RedirectOutput(streams):
-                results = self._pyomo_solver.solve(tee=True,
-                                                   warmstart=self._is_warm_start_available)
+                results = self._pyomo_solver.solve(
+                    tee=True,
+                    warmstart=self._is_warm_start_available,
+                )
             total_wallclock_time += results["Solver"][0]["Wallclock time"]
             should_repeat = iteration_cb()
             if not should_repeat:
@@ -192,9 +198,7 @@ class BasePyomoSolver(InternalSolver):
         return value
 
     def _extract_node_count(self, log):
-        return int(self.__extract(log,
-                                  self._get_node_count_regexp(),
-                                  default=1))
+        return int(self.__extract(log, self._get_node_count_regexp(), default=1))
 
     def set_threads(self, threads):
         key = self._get_threads_option_name()

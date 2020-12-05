@@ -20,11 +20,13 @@ def test_learning_solver():
         for internal_solver in _get_internal_solvers():
             logger.info("Solver: %s" % internal_solver)
             instance = _get_instance(internal_solver)
-            solver = LearningSolver(time_limit=300,
-                                    gap_tolerance=1e-3,
-                                    threads=1,
-                                    solver=internal_solver,
-                                    mode=mode)
+            solver = LearningSolver(
+                time_limit=300,
+                gap_tolerance=1e-3,
+                threads=1,
+                solver=internal_solver,
+                mode=mode,
+            )
 
             solver.solve(instance)
             assert instance.solution["x"][0] == 1.0
@@ -74,35 +76,34 @@ def test_solve_fit_from_disk():
         filenames = []
         for k in range(3):
             instance = _get_instance(internal_solver)
-            with tempfile.NamedTemporaryFile(suffix=".pkl",
-                                             delete=False) as file:
+            with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as file:
                 filenames += [file.name]
                 pickle.dump(instance, file)
-        
+
         # Test: solve
         solver = LearningSolver(solver=internal_solver)
         solver.solve(filenames[0])
         with open(filenames[0], "rb") as file:
             instance = pickle.load(file)
             assert hasattr(instance, "solution")
-            
+
         # Test: parallel_solve
         solver.parallel_solve(filenames)
         for filename in filenames:
             with open(filename, "rb") as file:
                 instance = pickle.load(file)
                 assert hasattr(instance, "solution")
-                
+
         # Test: solve (with specified output)
         output = [f + ".out" for f in filenames]
         solver.solve(filenames[0], output=output[0])
         assert os.path.isfile(output[0])
-            
+
         # Test: parallel_solve (with specified output)
         solver.parallel_solve(filenames, output=output)
         for filename in output:
             assert os.path.isfile(filename)
-            
+
         # Delete temporary files
         for filename in filenames:
             os.remove(filename)

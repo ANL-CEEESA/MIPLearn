@@ -2,10 +2,12 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from .extractors import (SolutionExtractor,
-                         InstanceFeaturesExtractor,
-                         ObjectiveValueExtractor,
-                         VariableFeaturesExtractor)
+from .extractors import (
+    SolutionExtractor,
+    InstanceFeaturesExtractor,
+    ObjectiveValueExtractor,
+    VariableFeaturesExtractor,
+)
 
 from .components.component import Component
 from .components.objective import ObjectiveValueComponent

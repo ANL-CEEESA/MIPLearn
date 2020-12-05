@@ -20,7 +20,7 @@ class CplexPyomoSolver(BasePyomoSolver):
             {"mip_display": 5} to increase the log verbosity.
         """
         super().__init__()
-        self._pyomo_solver = pe.SolverFactory('cplex_persistent')
+        self._pyomo_solver = pe.SolverFactory("cplex_persistent")
         self._pyomo_solver.options["randomseed"] = randint(low=0, high=1000).rvs()
         self._pyomo_solver.options["mip_display"] = 4
         if options is not None:

@@ -1,13 +1,20 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from sklearn.metrics import mean_squared_error, explained_variance_score, max_error, mean_absolute_error, r2_score
+from sklearn.metrics import (
+    mean_squared_error,
+    explained_variance_score,
+    max_error,
+    mean_absolute_error,
+    r2_score,
+)
 
 from .. import Component, InstanceFeaturesExtractor, ObjectiveValueExtractor
 from sklearn.linear_model import LinearRegression
 from copy import deepcopy
 import numpy as np
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -15,12 +22,12 @@ class ObjectiveValueComponent(Component):
     """
     A Component which predicts the optimal objective value of the problem.
     """
-    def __init__(self,
-                 regressor=LinearRegression()):
+
+    def __init__(self, regressor=LinearRegression()):
         self.ub_regressor = None
         self.lb_regressor = None
         self.regressor_prototype = regressor
-    
+
     def before_solve(self, solver, instance, model):
         if self.ub_regressor is not None:
             logger.info("Predicting optimal value...")
@@ -28,7 +35,7 @@ class ObjectiveValueComponent(Component):
             instance.predicted_ub = ub
             instance.predicted_lb = lb
             logger.info("Predicted values: lb=%.2f, ub=%.2f" % (lb, ub))
-    
+
     def after_solve(self, solver, instance, model, results):
         if self.ub_regressor is not None:
             results["Predicted UB"] = instance.predicted_ub
@@ -36,7 +43,7 @@ class ObjectiveValueComponent(Component):
         else:
             results["Predicted UB"] = None
             results["Predicted LB"] = None
-    
+
     def fit(self, training_instances):
         logger.debug("Extracting features...")
         features = InstanceFeaturesExtractor().extract(training_instances)
@@ -50,7 +57,7 @@ class ObjectiveValueComponent(Component):
         self.ub_regressor.fit(features, ub.ravel())
         logger.debug("Fitting ub_regressor...")
         self.lb_regressor.fit(features, lb.ravel())
-        
+
     def predict(self, instances):
         features = InstanceFeaturesExtractor().extract(instances)
         lb = self.lb_regressor.predict(features)

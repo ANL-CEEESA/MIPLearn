@@ -7,7 +7,8 @@ import logging
 import time
 import sys
 
-class TimeFormatter():
+
+class TimeFormatter:
     def __init__(self, start_time, log_colors):
         self.start_time = start_time
         self.log_colors = log_colors
@@ -19,21 +20,23 @@ class TimeFormatter():
             color = self.log_colors["yellow"]
         else:
             color = self.log_colors["green"]
-        return "%s[%12.3f]%s %s" % (color,
-                                    record.created - self.start_time,
-                                    self.log_colors["reset"],
-                                    record.getMessage())
+        return "%s[%12.3f]%s %s" % (
+            color,
+            record.created - self.start_time,
+            self.log_colors["reset"],
+            record.getMessage(),
+        )
 
-def setup_logger(start_time=None,
-                 force_color=False):
+
+def setup_logger(start_time=None, force_color=False):
     if start_time is None:
         start_time = time.time()
     if sys.stdout.isatty() or force_color:
         log_colors = {
-            "green":  '\033[92m',
-            "yellow": '\033[93m',
-            "red":    '\033[91m',
-            "reset":  '\033[0m',
+            "green": "\033[92m",
+            "yellow": "\033[93m",
+            "red": "\033[91m",
+            "reset": "\033[0m",
         }
     else:
         log_colors = {
@@ -41,7 +44,7 @@ def setup_logger(start_time=None,
             "yellow": "",
             "red": "",
             "reset": "",
-        }        
+        }
     handler = logging.StreamHandler()
     handler.setFormatter(TimeFormatter(start_time, log_colors))
     logging.getLogger().addHandler(handler)

@@ -1,0 +1,3 @@
+[tool.black]
+py36 = true
+include = '\.pyi?$'

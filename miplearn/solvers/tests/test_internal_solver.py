@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 def test_redirect_output():
     import sys
+
     original_stdout = sys.stdout
     io = StringIO()
     with RedirectOutput([io]):
@@ -31,36 +32,42 @@ def test_internal_solver_warm_starts():
         model = instance.to_model()
         solver = solver_class()
         solver.set_instance(instance, model)
-        solver.set_warm_start({
-            "x": {
-                0: 1.0,
-                1: 0.0,
-                2: 0.0,
-                3: 1.0,
+        solver.set_warm_start(
+            {
+                "x": {
+                    0: 1.0,
+                    1: 0.0,
+                    2: 0.0,
+                    3: 1.0,
+                }
             }
-        })
+        )
         stats = solver.solve(tee=True)
         assert stats["Warm start value"] == 725.0
 
-        solver.set_warm_start({
-            "x": {
-                0: 1.0,
-                1: 1.0,
-                2: 1.0,
-                3: 1.0,
+        solver.set_warm_start(
+            {
+                "x": {
+                    0: 1.0,
+                    1: 1.0,
+                    2: 1.0,
+                    3: 1.0,
+                }
             }
-        })
+        )
         stats = solver.solve(tee=True)
         assert stats["Warm start value"] is None
 
-        solver.fix({
-            "x": {
-                0: 1.0,
-                1: 0.0,
-                2: 0.0,
-                3: 1.0,
+        solver.fix(
+            {
+                "x": {
+                    0: 1.0,
+                    1: 0.0,
+                    2: 0.0,
+                    3: 1.0,
+                }
             }
-        })
+        )
         stats = solver.solve(tee=True)
         assert stats["Lower bound"] == 725.0
         assert stats["Upper bound"] == 725.0

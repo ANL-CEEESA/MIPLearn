@@ -30,11 +30,15 @@ class MinPrecisionThreshold(DynamicThreshold):
     def find(self, clf, x_train, y_train):
         proba = clf.predict_proba(x_train)
 
-        assert isinstance(proba, np.ndarray), \
-            "classifier should return numpy array"
-        assert proba.shape == (x_train.shape[0], 2), \
-            "classifier should return (%d,%d)-shaped array, not %s" % (
-                x_train.shape[0], 2, str(proba.shape))
+        assert isinstance(proba, np.ndarray), "classifier should return numpy array"
+        assert proba.shape == (
+            x_train.shape[0],
+            2,
+        ), "classifier should return (%d,%d)-shaped array, not %s" % (
+            x_train.shape[0],
+            2,
+            str(proba.shape),
+        )
 
         fps, tps, thresholds = _binary_clf_curve(y_train, proba[:, 1])
         precision = tps / (tps + fps)

@@ -9,15 +9,15 @@ class Component(ABC):
     """
     A Component is an object which adds functionality to a LearningSolver.
     """
-    
+
     @abstractmethod
     def before_solve(self, solver, instance, model):
         pass
-    
+
     @abstractmethod
     def after_solve(self, solver, instance, model, results):
         pass
-    
+
     @abstractmethod
     def fit(self, training_instances):
         pass

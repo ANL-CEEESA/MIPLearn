@@ -9,20 +9,22 @@ from miplearn.problems.knapsack import KnapsackInstance, GurobiKnapsackInstance
 
 def _get_instance(solver):
     def _is_subclass_or_instance(solver, parentClass):
-        return isinstance(solver, parentClass) or (isclass(solver) and issubclass(solver, parentClass))
+        return isinstance(solver, parentClass) or (
+            isclass(solver) and issubclass(solver, parentClass)
+        )
 
     if _is_subclass_or_instance(solver, BasePyomoSolver):
         return KnapsackInstance(
-            weights=[23., 26., 20., 18.],
-            prices=[505., 352., 458., 220.],
-            capacity=67.,
+            weights=[23.0, 26.0, 20.0, 18.0],
+            prices=[505.0, 352.0, 458.0, 220.0],
+            capacity=67.0,
         )
 
     if _is_subclass_or_instance(solver, GurobiSolver):
         return GurobiKnapsackInstance(
-            weights=[23., 26., 20., 18.],
-            prices=[505., 352., 458., 220.],
-            capacity=67.,
+            weights=[23.0, 26.0, 20.0, 18.0],
+            prices=[505.0, 352.0, 458.0, 220.0],
+            capacity=67.0,
         )
 
     assert False

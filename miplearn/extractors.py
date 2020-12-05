@@ -18,10 +18,10 @@ class InstanceIterator:
     def __init__(self, instances):
         self.instances = instances
         self.current = 0
-        
+
     def __iter__(self):
         return self
-    
+
     def __next__(self):
         if self.current >= len(self.instances):
             raise StopIteration
@@ -40,9 +40,9 @@ class InstanceIterator:
 
 class Extractor(ABC):
     @abstractmethod
-    def extract(self, instances,):
+    def extract(self, instances):
         pass
-    
+
     @staticmethod
     def split_variables(instance):
         assert hasattr(instance, "lp_solution")
@@ -57,13 +57,15 @@ class Extractor(ABC):
                 result[category] += [(var_name, index)]
         return result
 
-    
+
 class VariableFeaturesExtractor(Extractor):
     def extract(self, instances):
         result = {}
-        for instance in tqdm(InstanceIterator(instances),
-                             desc="Extract (vars)",
-                             disable=len(instances) < 5):
+        for instance in tqdm(
+            InstanceIterator(instances),
+            desc="Extract (vars)",
+            disable=len(instances) < 5,
+        ):
             instance_features = instance.get_instance_features()
             var_split = self.split_variables(instance)
             for (category, var_index_pairs) in var_split.items():
@@ -71,9 +73,9 @@ class VariableFeaturesExtractor(Extractor):
                     result[category] = []
                 for (var_name, index) in var_index_pairs:
                     result[category] += [
-                        instance_features.tolist() + \
-                        instance.get_variable_features(var_name, index).tolist() + \
-                        [instance.lp_solution[var_name][index]]
+                        instance_features.tolist()
+                        + instance.get_variable_features(var_name, index).tolist()
+                        + [instance.lp_solution[var_name][index]]
                     ]
         for category in result:
             result[category] = np.array(result[category])
@@ -83,12 +85,14 @@ class VariableFeaturesExtractor(Extractor):
 class SolutionExtractor(Extractor):
     def __init__(self, relaxation=False):
         self.relaxation = relaxation
-        
+
     def extract(self, instances):
         result = {}
-        for instance in tqdm(InstanceIterator(instances),
-                             desc="Extract (solution)",
-                             disable=len(instances) < 5):
+        for instance in tqdm(
+            InstanceIterator(instances),
+            desc="Extract (solution)",
+            disable=len(instances) < 5,
+        ):
             var_split = self.split_variables(instance)
             for (category, var_index_pairs) in var_split.items():
                 if category not in result:
@@ -103,33 +107,40 @@ class SolutionExtractor(Extractor):
                     else:
                         result[category] += [[1 - v, v]]
         for category in result:
-            result[category] = np.array(result[category])            
+            result[category] = np.array(result[category])
         return result
-    
-    
+
+
 class InstanceFeaturesExtractor(Extractor):
     def extract(self, instances):
-        return np.vstack([
-            np.hstack([
-                instance.get_instance_features(),
-                instance.lp_value,
-            ])
-            for instance in InstanceIterator(instances)
-        ])
-    
-    
+        return np.vstack(
+            [
+                np.hstack(
+                    [
+                        instance.get_instance_features(),
+                        instance.lp_value,
+                    ]
+                )
+                for instance in InstanceIterator(instances)
+            ]
+        )
+
+
 class ObjectiveValueExtractor(Extractor):
     def __init__(self, kind="lp"):
         assert kind in ["lower bound", "upper bound", "lp"]
         self.kind = kind
-        
+
     def extract(self, instances):
         if self.kind == "lower bound":
-            return np.array([[instance.lower_bound]
-                             for instance in InstanceIterator(instances)])
+            return np.array(
+                [[instance.lower_bound] for instance in InstanceIterator(instances)]
+            )
         if self.kind == "upper bound":
-            return np.array([[instance.upper_bound]
-                             for instance in InstanceIterator(instances)])
+            return np.array(
+                [[instance.upper_bound] for instance in InstanceIterator(instances)]
+            )
         if self.kind == "lp":
-            return np.array([[instance.lp_value]
-                             for instance in InstanceIterator(instances)])
+            return np.array(
+                [[instance.lp_value] for instance in InstanceIterator(instances)]
+            )

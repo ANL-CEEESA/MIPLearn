@@ -28,9 +28,9 @@ def test_lazy_fit():
     assert "c" in component.classifiers
 
     # Should provide correct x_train to each classifier
-    expected_x_train_a = np.array([[67., 21.75, 1287.92], [70., 23.75, 1199.83]])
-    expected_x_train_b = np.array([[67., 21.75, 1287.92], [70., 23.75, 1199.83]])
-    expected_x_train_c = np.array([[67., 21.75, 1287.92], [70., 23.75, 1199.83]])
+    expected_x_train_a = np.array([[67.0, 21.75, 1287.92], [70.0, 23.75, 1199.83]])
+    expected_x_train_b = np.array([[67.0, 21.75, 1287.92], [70.0, 23.75, 1199.83]])
+    expected_x_train_c = np.array([[67.0, 21.75, 1287.92], [70.0, 23.75, 1199.83]])
     actual_x_train_a = component.classifiers["a"].fit.call_args[0][0]
     actual_x_train_b = component.classifiers["b"].fit.call_args[0][0]
     actual_x_train_c = component.classifiers["c"].fit.call_args[0][0]
@@ -56,16 +56,15 @@ def test_lazy_before():
     solver = LearningSolver()
     solver.internal_solver = Mock(spec=InternalSolver)
     component = DynamicLazyConstraintsComponent(threshold=0.10)
-    component.classifiers = {"a": Mock(spec=Classifier),
-                             "b": Mock(spec=Classifier)}
+    component.classifiers = {"a": Mock(spec=Classifier), "b": Mock(spec=Classifier)}
     component.classifiers["a"].predict_proba = Mock(return_value=[[0.95, 0.05]])
     component.classifiers["b"].predict_proba = Mock(return_value=[[0.02, 0.80]])
 
     component.before_solve(solver, instances[0], models[0])
 
     # Should ask classifier likelihood of each constraint being violated
-    expected_x_test_a = np.array([[67., 21.75, 1287.92]])
-    expected_x_test_b = np.array([[67., 21.75, 1287.92]])
+    expected_x_test_a = np.array([[67.0, 21.75, 1287.92]])
+    expected_x_test_b = np.array([[67.0, 21.75, 1287.92]])
     actual_x_test_a = component.classifiers["a"].predict_proba.call_args[0][0]
     actual_x_test_b = component.classifiers["b"].predict_proba.call_args[0][0]
     assert norm(expected_x_test_a - actual_x_test_a) < E
@@ -82,13 +81,15 @@ def test_lazy_before():
 def test_lazy_evaluate():
     instances, models = get_test_pyomo_instances()
     component = DynamicLazyConstraintsComponent()
-    component.classifiers = {"a": Mock(spec=Classifier),
-                             "b": Mock(spec=Classifier),
-                             "c": Mock(spec=Classifier)}
+    component.classifiers = {
+        "a": Mock(spec=Classifier),
+        "b": Mock(spec=Classifier),
+        "c": Mock(spec=Classifier),
+    }
     component.classifiers["a"].predict_proba = Mock(return_value=[[1.0, 0.0]])
     component.classifiers["b"].predict_proba = Mock(return_value=[[0.0, 1.0]])
     component.classifiers["c"].predict_proba = Mock(return_value=[[0.0, 1.0]])
-    
+
     instances[0].found_violated_lazy_constraints = ["a", "b", "c"]
     instances[1].found_violated_lazy_constraints = ["b", "d"]
     assert component.evaluate(instances) == {
@@ -96,7 +97,7 @@ def test_lazy_evaluate():
             "Accuracy": 0.75,
             "F1 score": 0.8,
             "Precision": 1.0,
-            "Recall": 2/3.,
+            "Recall": 2 / 3.0,
             "Predicted positive": 2,
             "Predicted negative": 2,
             "Condition positive": 3,
@@ -135,6 +136,5 @@ def test_lazy_evaluate():
             "False positive (%)": 25.0,
             "True negative (%)": 25.0,
             "True positive (%)": 25.0,
-        }
+        },
     }
-    

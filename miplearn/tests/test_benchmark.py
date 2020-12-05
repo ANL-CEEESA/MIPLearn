@@ -11,8 +11,9 @@ from scipy.stats import randint
 
 def test_benchmark():
     # Generate training and test instances
-    train_instances = MaxWeightStableSetGenerator(n=randint(low=25, high=26)).generate(5)    
-    test_instances  = MaxWeightStableSetGenerator(n=randint(low=25, high=26)).generate(3)
+    generator = MaxWeightStableSetGenerator(n=randint(low=25, high=26))
+    train_instances = generator.generate(5)
+    test_instances = generator.generate(3)
 
     # Training phase...
     training_solver = LearningSolver()
@@ -26,11 +27,11 @@ def test_benchmark():
     benchmark = BenchmarkRunner(test_solvers)
     benchmark.fit(train_instances)
     benchmark.parallel_solve(test_instances, n_jobs=2, n_trials=2)
-    assert benchmark.raw_results().values.shape == (12,16)
-    
+    assert benchmark.raw_results().values.shape == (12, 16)
+
     benchmark.save_results("/tmp/benchmark.csv")
     assert os.path.isfile("/tmp/benchmark.csv")
-    
+
     benchmark = BenchmarkRunner(test_solvers)
     benchmark.load_results("/tmp/benchmark.csv")
-    assert benchmark.raw_results().values.shape == (12,16)
+    assert benchmark.raw_results().values.shape == (12, 16)

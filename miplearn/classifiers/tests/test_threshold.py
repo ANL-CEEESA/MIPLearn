@@ -11,12 +11,16 @@ from miplearn.classifiers.threshold import MinPrecisionThreshold
 
 def test_threshold_dynamic():
     clf = Mock(spec=Classifier)
-    clf.predict_proba = Mock(return_value=np.array([
-        [0.10, 0.90],
-        [0.10, 0.90],
-        [0.20, 0.80],
-        [0.30, 0.70],
-    ]))
+    clf.predict_proba = Mock(
+        return_value=np.array(
+            [
+                [0.10, 0.90],
+                [0.10, 0.90],
+                [0.20, 0.80],
+                [0.30, 0.70],
+            ]
+        )
+    )
     x_train = np.array([0, 1, 2, 3])
     y_train = np.array([1, 1, 0, 0])
 
@@ -31,4 +35,3 @@ def test_threshold_dynamic():
 
     threshold = MinPrecisionThreshold(min_precision=0.00)
     assert threshold.find(clf, x_train, y_train) == 0.70
-

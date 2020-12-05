@@ -222,4 +222,3 @@ class InternalSolver(ABC):
             for idx in indices:
                 solution[var][idx] = 0.0
         return solution
-

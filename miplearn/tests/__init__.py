@@ -8,14 +8,14 @@ from miplearn.problems.knapsack import KnapsackInstance
 def get_test_pyomo_instances():
     instances = [
         KnapsackInstance(
-            weights=[23., 26., 20., 18.],
-            prices=[505., 352., 458., 220.],
-            capacity=67.,
+            weights=[23.0, 26.0, 20.0, 18.0],
+            prices=[505.0, 352.0, 458.0, 220.0],
+            capacity=67.0,
         ),
         KnapsackInstance(
-            weights=[25., 30., 22., 18.],
-            prices=[500., 365., 420., 150.],
-            capacity=70.,
+            weights=[25.0, 30.0, 22.0, 18.0],
+            prices=[500.0, 365.0, 420.0, 150.0],
+            capacity=70.0,
         ),
     ]
     models = [instance.to_model() for instance in instances]
