@@ -13,6 +13,7 @@ from tqdm import tqdm
 from miplearn import Component
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.components import classifier_evaluation_dict
+from miplearn.components.composite import CompositeComponent
 from miplearn.components.lazy_static import LazyConstraint
 from miplearn.extractors import InstanceIterator
 
@@ -21,36 +22,83 @@ logger = logging.getLogger(__name__)
 
 class RelaxationComponent(Component):
     """
-    A Component that tries to build a relaxation that is simultaneously strong and easy to solve.
+    A Component that tries to build a relaxation that is simultaneously strong and easy
+    to solve.
 
     Currently, this component performs the following operations:
         - Drops all integrality constraints
         - Drops all inequality constraints that are not likely to be binding.
 
-    In future versions of MIPLearn, this component may keep some integrality constraints and perform other operations.
+    In future versions of MIPLearn, this component may keep some integrality constraints
+    and perform other operations.
 
     Parameters
     ----------
     classifier : Classifier, optional
-        Classifier used to predict whether each constraint is binding or not. One deep copy of this classifier
-        is made for each constraint category.
+        Classifier used to predict whether each constraint is binding or not. One deep
+        copy of this classifier is made for each constraint category.
     threshold : float, optional
-        If the probability that a constraint is binding exceeds this threshold, the constraint is dropped from the
-        linear relaxation.
+        If the probability that a constraint is binding exceeds this threshold, the
+        constraint is dropped from the linear relaxation.
     slack_tolerance : float, optional
-        If a constraint has slack greater than this threshold, then the constraint is considered loose. By default,
-        this threshold equals a small positive number to compensate for numerical issues.
+        If a constraint has slack greater than this threshold, then the constraint is
+        considered loose. By default, this threshold equals a small positive number to
+        compensate for numerical issues.
     check_dropped : bool, optional
-        If `check_dropped` is true, then, after the problem is solved, the component verifies that all dropped
-        constraints are still satisfied, re-adds the violated ones and resolves the problem. This loop continues until
-        either no violations are found, or a maximum number of iterations is reached.
+        If `check_dropped` is true, then, after the problem is solved, the component
+        verifies that all dropped constraints are still satisfied, re-adds the violated
+        ones and resolves the problem. This loop continues until either no violations
+        are found, or a maximum number of iterations is reached.
     violation_tolerance : float, optional
-        If `check_dropped` is true, a constraint is considered satisfied during the check if its violation is smaller
-        than this tolerance.
+        If `check_dropped` is true, a constraint is considered satisfied during the
+        check if its violation is smaller than this tolerance.
     max_iterations : int
-        If `check_dropped` is true, set the maximum number of iterations in the lazy constraint loop.
+        If `check_dropped` is true, set the maximum number of iterations in the lazy
+        constraint loop.
     """
 
+    def __init__(
+        self,
+        classifier=CountingClassifier(),
+        threshold=0.95,
+        slack_tolerance=1e-5,
+        check_dropped=False,
+        violation_tolerance=1e-5,
+        max_iterations=3,
+    ):
+        self.steps = [
+            RelaxIntegralityStep(),
+            DropRedundantInequalitiesStep(
+                classifier=classifier,
+                threshold=threshold,
+                slack_tolerance=slack_tolerance,
+                violation_tolerance=violation_tolerance,
+                max_iterations=max_iterations,
+                check_dropped=check_dropped,
+            ),
+        ]
+        self.composite = CompositeComponent(self.steps)
+
+    def before_solve(self, solver, instance, model):
+        self.composite.before_solve(solver, instance, model)
+
+    def after_solve(self, solver, instance, model, results):
+        self.composite.after_solve(solver, instance, model, results)
+
+    def fit(self, training_instances):
+        self.composite.fit(training_instances)
+
+    def iteration_cb(self, solver, instance, model):
+        return self.composite.iteration_cb(solver, instance, model)
+
+
+class RelaxIntegralityStep(Component):
+    def before_solve(self, solver, instance, _):
+        logger.info("Relaxing integrality...")
+        solver.internal_solver.relax()
+
+
+class DropRedundantInequalitiesStep(Component):
     def __init__(
         self,
         classifier=CountingClassifier(),
@@ -72,9 +120,6 @@ class RelaxationComponent(Component):
 
     def before_solve(self, solver, instance, _):
         self.current_iteration = 0
-
-        logger.info("Relaxing integrality...")
-        solver.internal_solver.relax()
 
         logger.info("Predicting redundant LP constraints...")
         cids = solver.internal_solver.get_constraint_ids()
@@ -103,7 +148,7 @@ class RelaxationComponent(Component):
         x = self.x(training_instances)
         y = self.y(training_instances)
         logger.debug("Fitting...")
-        for category in tqdm(x.keys(), desc="Fit (relaxation)"):
+        for category in tqdm(x.keys(), desc="Fit (rlx:drop_ineq)"):
             if category not in self.classifiers:
                 self.classifiers[category] = deepcopy(self.classifier_prototype)
             self.classifiers[category].fit(x[category], y[category])
@@ -113,7 +158,7 @@ class RelaxationComponent(Component):
         constraints = {}
         for instance in tqdm(
             InstanceIterator(instances),
-            desc="Extract (relaxation:x)",
+            desc="Extract (rlx:drop_ineq:x)",
             disable=len(instances) < 5,
         ):
             if constraint_ids is not None:
@@ -138,7 +183,7 @@ class RelaxationComponent(Component):
         y = {}
         for instance in tqdm(
             InstanceIterator(instances),
-            desc="Extract (relaxation:y)",
+            desc="Extract (rlx:drop_ineq:y)",
             disable=len(instances) < 5,
         ):
             for (cid, slack) in instance.slacks.items():

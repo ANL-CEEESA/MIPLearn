@@ -7,9 +7,10 @@ from miplearn import Component
 
 class CompositeComponent(Component):
     """
-    A Component which redirects each method call to one or more subcomponents. Useful
-    for breaking down complex components into smaller classes. See RelaxationComponent
-    for a concrete example.
+    A Component which redirects each method call to one or more subcomponents.
+
+    Useful for breaking down complex components into smaller classes. See
+    RelaxationComponent for a concrete example.
 
     Parameters
     ----------

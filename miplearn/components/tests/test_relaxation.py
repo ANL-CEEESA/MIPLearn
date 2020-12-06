@@ -6,6 +6,7 @@ from unittest.mock import Mock, call
 
 from miplearn import RelaxationComponent, LearningSolver, Instance, InternalSolver
 from miplearn.classifiers import Classifier
+from miplearn.components.relaxation import DropRedundantInequalitiesStep
 
 
 def _setup():
@@ -64,7 +65,8 @@ def test_usage():
     solver, internal, instance, classifiers = _setup()
 
     component = RelaxationComponent()
-    component.classifiers = classifiers
+    drop_ineqs_step = component.steps[1]
+    drop_ineqs_step.classifiers = classifiers
 
     # LearningSolver calls before_solve
     component.before_solve(solver, instance, None)
@@ -97,10 +99,10 @@ def test_usage():
     )
 
     # Should ask ML to predict whether constraint should be removed
-    component.classifiers["type-a"].predict_proba.assert_called_once_with(
+    drop_ineqs_step.classifiers["type-a"].predict_proba.assert_called_once_with(
         [[1.0, 0.0], [0.5, 0.5]]
     )
-    component.classifiers["type-b"].predict_proba.assert_called_once_with([[1.0]])
+    drop_ineqs_step.classifiers["type-b"].predict_proba.assert_called_once_with([[1.0]])
 
     # Should ask internal solver to remove constraints predicted as redundant
     assert internal.extract_constraint.call_count == 2
@@ -131,7 +133,8 @@ def test_usage_with_check_dropped():
     solver, internal, instance, classifiers = _setup()
 
     component = RelaxationComponent(check_dropped=True, violation_tolerance=1e-3)
-    component.classifiers = classifiers
+    drop_ineqs_step = component.steps[1]
+    drop_ineqs_step.classifiers = classifiers
 
     # LearningSolver call before_solve
     component.before_solve(solver, instance, None)
@@ -169,7 +172,7 @@ def test_usage_with_check_dropped():
 
 def test_x_y_fit_predict_evaluate():
     instances = [Mock(spec=Instance), Mock(spec=Instance)]
-    component = RelaxationComponent(slack_tolerance=0.05, threshold=0.80)
+    component = DropRedundantInequalitiesStep(slack_tolerance=0.05, threshold=0.80)
     component.classifiers = {
         "type-a": Mock(spec=Classifier),
         "type-b": Mock(spec=Classifier),
