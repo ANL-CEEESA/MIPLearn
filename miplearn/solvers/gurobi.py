@@ -274,6 +274,14 @@ class GurobiSolver(InternalSolver):
     def get_constraint_slacks(self):
         return {c.ConstrName: c.Slack for c in self.model.getConstrs()}
 
+    def set_constraint_sense(self, cid, sense):
+        c = self.model.getConstrByName(cid)
+        c.Sense = sense
+
+    def set_constraint_rhs(self, cid, rhs):
+        c = self.model.getConstrByName(cid)
+        c.RHS = rhs
+
     def relax(self):
         self.model = self.model.relax()
         self._update_vars()

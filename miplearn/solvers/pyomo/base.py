@@ -219,12 +219,6 @@ class BasePyomoSolver(InternalSolver):
     def get_constraint_ids(self):
         return list(self._cname_to_constr.keys())
 
-    def extract_constraint(self, cid):
-        raise Exception("Not implemented")
-
-    def is_constraint_satisfied(self, cobj):
-        raise Exception("Not implemented")
-
     @abstractmethod
     def _get_warm_start_regexp(self):
         pass
@@ -249,8 +243,20 @@ class BasePyomoSolver(InternalSolver):
     def _get_gap_tolerance_option_name(self):
         pass
 
+    def extract_constraint(self, cid):
+        raise Exception("Not implemented")
+
+    def is_constraint_satisfied(self, cobj):
+        raise Exception("Not implemented")
+
     def relax(self):
         raise Exception("not implemented")
 
     def get_constraint_slacks(self):
         raise Exception("not implemented")
+
+    def set_constraint_sense(self, cid, sense):
+        raise Exception("Not implemented")
+
+    def set_constraint_rhs(self, cid, rhs):
+        raise Exception("Not implemented")

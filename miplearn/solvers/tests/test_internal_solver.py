@@ -122,7 +122,7 @@ def test_internal_solver():
         assert stats["Lower bound"] == 1030.0
 
         if isinstance(solver, GurobiSolver):
-            # Extract new constraint
+            # Extract the new constraint
             cobj = solver.extract_constraint("cut")
 
             # New constraint should no longer affect solution and should no longer
@@ -144,6 +144,13 @@ def test_internal_solver():
 
             # New constraint should now be satisfied
             assert solver.is_constraint_satisfied(cobj)
+
+            # Relax problem and make cut into an equality constraint
+            solver.relax()
+            solver.set_constraint_rhs("cut", 0.5)
+            solver.set_constraint_sense("cut", "=")
+            stats = solver.solve()
+            assert round(stats["Lower bound"]) == 1179.0
 
 
 def test_iteration_cb():

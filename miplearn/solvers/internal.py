@@ -196,6 +196,14 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
+    def set_constraint_sense(self, cid, sense):
+        pass
+
+    @abstractmethod
+    def set_constraint_rhs(self, cid, rhs):
+        pass
+
+    @abstractmethod
     def set_threads(self, threads):
         pass
 
