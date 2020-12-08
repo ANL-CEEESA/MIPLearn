@@ -54,6 +54,8 @@ class BasePyomoSolver(InternalSolver):
         for var in self.model.component_objects(Var):
             solution[str(var)] = {}
             for index in var:
+                if var[index].fixed:
+                    continue
                 solution[str(var)][index] = var[index].value
         return solution
 
@@ -66,6 +68,8 @@ class BasePyomoSolver(InternalSolver):
         for var in self.model.component_objects(Var):
             variables[str(var)] = []
             for index in var:
+                if var[index].fixed:
+                    continue
                 variables[str(var)] += [index]
         return variables
 
