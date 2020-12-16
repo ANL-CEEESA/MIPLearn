@@ -10,7 +10,9 @@ CHALLENGES := \
     knapsack/ChallengeA \
     tsp/ChallengeA
 
-main: $(addsuffix /performance.png, $(CHALLENGES))
+test: $(addsuffix /performance.png, $(CHALLENGES))
+
+train: $(addsuffix /train_instances.bin, $(CHALLENGES))
 
 %/train_instances.bin:
 	python benchmark.py train $*

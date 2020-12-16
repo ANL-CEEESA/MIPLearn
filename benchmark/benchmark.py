@@ -3,16 +3,21 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-"""Benchmark script
+"""MIPLearn Benchmark Scripts
 
 Usage:
-    benchmark.py train <challenge>
-    benchmark.py test-baseline <challenge>
-    benchmark.py test-ml <challenge>
+    benchmark.py train [options] <challenge>
+    benchmark.py test-baseline [options] <challenge>
+    benchmark.py test-ml [options] <challenge>
     benchmark.py charts <challenge>
     
 Options:
-    -h --help    Show this screen
+    -h --help               Show this screen
+    --jobs=<n>              Number of instances to solve simultaneously [default: 10]
+    --train-time-limit=<n>  Solver time limit during training in seconds [default: 3600]
+    --test-time-limit=<n>   Solver time limit during test in seconds [default: 900]
+    --solver-threads=<n>    Number of threads the solver is allowed to use [default: 4]
+    --solver=<s>            Internal MILP solver to use [default: gurobi]
 """
 import importlib
 import logging
@@ -36,14 +41,15 @@ logging.getLogger("pyomo.core").setLevel(logging.ERROR)
 logging.getLogger("miplearn").setLevel(logging.INFO)
 logger = logging.getLogger("benchmark")
 
-n_jobs = 10
-train_time_limit = 3600
-test_time_limit = 900
-internal_solver = "gurobi"
-
 args = docopt(__doc__)
 basepath = args["<challenge>"]
 pathlib.Path(basepath).mkdir(parents=True, exist_ok=True)
+
+n_jobs = int(args["--jobs"])
+n_threads = int(args["--solver-threads"])
+train_time_limit = int(args["--train-time-limit"])
+test_time_limit = int(args["--test-time-limit"])
+internal_solver = args["--solver"]
 
 
 def save(obj, filename):
@@ -68,6 +74,7 @@ def train():
     solver = LearningSolver(
         time_limit=train_time_limit,
         solver=internal_solver,
+        threads=n_threads,
     )
     solver.parallel_solve(train_instances, n_jobs=n_jobs)
     save(train_instances, "%s/train_instances.bin" % basepath)
@@ -80,6 +87,7 @@ def test_baseline():
         "baseline": LearningSolver(
             time_limit=test_time_limit,
             solver=internal_solver,
+            threads=n_threads,
         ),
     }
     benchmark = BenchmarkRunner(solvers)
@@ -95,10 +103,12 @@ def test_ml():
         "ml-exact": LearningSolver(
             time_limit=test_time_limit,
             solver=internal_solver,
+            threads=n_threads,
         ),
         "ml-heuristic": LearningSolver(
             time_limit=test_time_limit,
             solver=internal_solver,
+            threads=n_threads,
             mode="heuristic",
         ),
     }
