@@ -68,7 +68,6 @@ def train():
     solver = LearningSolver(
         time_limit=train_time_limit,
         solver=internal_solver,
-        components={},
     )
     solver.parallel_solve(train_instances, n_jobs=n_jobs)
     save(train_instances, "%s/train_instances.bin" % basepath)
