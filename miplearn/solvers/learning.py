@@ -39,7 +39,6 @@ def _parallel_solve(idx):
     else:
         output = OUTPUTS[0][idx]
     instance = INSTANCES[0][idx]
-    print(instance)
     stats = solver.solve(instance, output=output)
     return (stats, instance)
 
