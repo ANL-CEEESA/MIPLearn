@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Feature Request
+    url: https://github.com/ANL-CEEESA/MIPLearn/discussions/categories/feature-requests
+    about:  Submit ideas for new features and small enhancements
+  - name: Help & FAQ
+    url: https://github.com/ANL-CEEESA/MIPLearn/discussions/categories/help-faq
+    about: Ask questions about the package and get help from the community
