@@ -9,6 +9,9 @@
   <a href="https://github.com/ANL-CEEESA/MIPLearn/releases/">
     <img src="https://img.shields.io/github/v/release/ANL-CEEESA/MIPLearn?include_prereleases&label=pre-release">
   </a>
+  <a href="https://github.com/ANL-CEEESA/MIPLearn/discussions">
+    <img src="https://img.shields.io/badge/GitHub-Discussions-%23fc4ebc" />
+  </a>
 </p>
 
 **MIPLearn** is an extensible framework for **Learning-Enhanced Mixed-Integer Optimization**, an approach targeted at discrete optimization problems that need to be repeatedly solved with only minor changes to input data.
