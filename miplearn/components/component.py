@@ -6,6 +6,10 @@
 class Component:
     """
     A Component is an object which adds functionality to a LearningSolver.
+
+    For better code maintainability, LearningSolver simply delegates most of its
+    functionality to Components. Each Component is responsible for exactly one ML
+    strategy.
     """
 
     def before_solve(self, solver, instance, model):

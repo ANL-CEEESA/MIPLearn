@@ -23,7 +23,6 @@ from .pyomo.gurobi import GurobiPyomoSolver
 
 logger = logging.getLogger(__name__)
 
-
 # Global memory for multiprocessing
 SOLVER = [None]  # type: List[Optional[LearningSolver]]
 INSTANCES = [None]  # type: List[Optional[dict]]
@@ -45,6 +44,47 @@ def _parallel_solve(idx):
 
 
 class LearningSolver:
+    """
+    Mixed-Integer Linear Programming (MIP) solver that extracts information
+    from previous runs and uses Machine Learning methods to accelerate the
+    solution of new (yet unseen) instances.
+
+    Parameters
+    ----------
+    components
+        Set of components in the solver. By default, includes:
+            - ObjectiveValueComponent
+            - PrimalSolutionComponent
+            - DynamicLazyConstraintsComponent
+            - UserCutsComponent
+    gap_tolerance
+        Relative MIP gap tolerance. By default, 1e-4.
+    mode
+        If "exact", solves problem to optimality, keeping all optimality
+        guarantees provided by the MIP solver. If "heuristic", uses machine
+        learning more aggressively, and may return suboptimal solutions.
+    solver
+        The internal MIP solver to use. Can be either "cplex", "gurobi", a
+        solver class such as GurobiSolver, or a solver instance such as
+        GurobiSolver().
+    threads
+        Maximum number of threads to use. If None, uses solver default.
+    time_limit
+        Maximum running time in seconds. If None, uses solver default.
+    node_limit
+        Maximum number of branch-and-bound nodes to explore. If None, uses
+        solver default.
+    use_lazy_cb
+        If True, uses lazy callbacks to enforce lazy constraints, instead of
+        a simple solver loop. This functionality may not supported by
+        all internal MIP solvers.
+    solve_lp_first: bool
+        If true, solve LP relaxation first, then solve original MILP. This
+        option should be activated if the LP relaxation is not very
+        expensive to solve and if it provides good hints for the integer
+        solution.
+    """
+
     def __init__(
         self,
         components=None,
@@ -57,46 +97,6 @@ class LearningSolver:
         solve_lp_first=True,
         use_lazy_cb=False,
     ):
-        """
-        Mixed-Integer Linear Programming (MIP) solver that extracts information
-        from previous runs and uses Machine Learning methods to accelerate the
-        solution of new (yet unseen) instances.
-
-        Parameters
-        ----------
-        components
-            Set of components in the solver. By default, includes:
-                - ObjectiveValueComponent
-                - PrimalSolutionComponent
-                - DynamicLazyConstraintsComponent
-                - UserCutsComponent
-        gap_tolerance
-            Relative MIP gap tolerance. By default, 1e-4.
-        mode
-            If "exact", solves problem to optimality, keeping all optimality
-            guarantees provided by the MIP solver. If "heuristic", uses machine
-            learning more agressively, and may return suboptimal solutions.
-        solver
-            The internal MIP solver to use. Can be either "cplex", "gurobi", a
-            solver class such as GurobiSolver, or a solver instance such as
-            GurobiSolver().
-        threads
-            Maximum number of threads to use. If None, uses solver default.
-        time_limit
-            Maximum running time in seconds. If None, uses solver default.
-        node_limit
-            Maximum number of branch-and-bound nodes to explore. If None, uses
-            solver default.
-        use_lazy_cb
-            If True, uses lazy callbacks to enforce lazy constraints, instead of
-            a simple solver loop. This functionality may not supported by
-            all internal MIP solvers.
-        solve_lp_first: bool
-            If true, solve LP relaxation first, then solve original MILP. This
-            option should be activated if the LP relaxation is not very
-            expensive to solve and if it provides good hints for the integer
-            solution.
-        """
         self.components = {}
         self.mode = mode
         self.internal_solver = None
