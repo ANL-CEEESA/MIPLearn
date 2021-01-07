@@ -31,7 +31,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
         self,
         classifier=CountingClassifier(),
         threshold=0.95,
-        slack_tolerance=1e-5,
+        slack_tolerance=0.0,
     ):
         self.classifiers = {}
         self.classifier_prototype = classifier
