@@ -61,18 +61,14 @@ def _setup():
     return solver, internal, instance, classifiers
 
 
-def test_usage():
+def test_drop_redundant():
     solver, internal, instance, classifiers = _setup()
 
-    component = RelaxationComponent()
-    drop_ineqs_step = component.steps[1]
-    drop_ineqs_step.classifiers = classifiers
+    component = DropRedundantInequalitiesStep()
+    component.classifiers = classifiers
 
     # LearningSolver calls before_solve
     component.before_solve(solver, instance, None)
-
-    # Should relax integrality of the problem
-    internal.relax.assert_called_once()
 
     # Should query list of constraints
     internal.get_constraint_ids.assert_called_once()
@@ -99,10 +95,10 @@ def test_usage():
     )
 
     # Should ask ML to predict whether constraint should be removed
-    drop_ineqs_step.classifiers["type-a"].predict_proba.assert_called_once_with(
+    component.classifiers["type-a"].predict_proba.assert_called_once_with(
         [[1.0, 0.0], [0.5, 0.5]]
     )
-    drop_ineqs_step.classifiers["type-b"].predict_proba.assert_called_once_with([[1.0]])
+    component.classifiers["type-b"].predict_proba.assert_called_once_with([[1.0]])
 
     # Should ask internal solver to remove constraints predicted as redundant
     assert internal.extract_constraint.call_count == 2
@@ -129,12 +125,13 @@ def test_usage():
     }
 
 
-def test_usage_with_check_dropped():
+def test_drop_redundant_with_check_dropped():
     solver, internal, instance, classifiers = _setup()
 
-    component = RelaxationComponent(check_dropped=True, violation_tolerance=1e-3)
-    drop_ineqs_step = component.steps[1]
-    drop_ineqs_step.classifiers = classifiers
+    component = DropRedundantInequalitiesStep(
+        check_dropped=True, violation_tolerance=1e-3
+    )
+    component.classifiers = classifiers
 
     # LearningSolver call before_solve
     component.before_solve(solver, instance, None)
