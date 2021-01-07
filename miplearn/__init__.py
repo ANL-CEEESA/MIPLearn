@@ -16,6 +16,9 @@ from .components.lazy_static import StaticLazyConstraintsComponent
 from .components.cuts import UserCutsComponent
 from .components.primal import PrimalSolutionComponent
 from .components.relaxation import RelaxationComponent
+from .components.steps.convert_tight import ConvertTightIneqsIntoEqsStep
+from .components.steps.relax_integrality import RelaxIntegralityStep
+from .components.steps.drop_redundant import DropRedundantInequalitiesStep
 
 from .classifiers.adaptive import AdaptiveClassifier
 from .classifiers.threshold import MinPrecisionThreshold
