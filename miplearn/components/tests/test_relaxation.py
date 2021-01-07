@@ -2,6 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import numpy as np
 from unittest.mock import Mock, call
 
 from miplearn import LearningSolver, Instance, InternalSolver
@@ -28,9 +29,9 @@ def _setup():
     instance = Mock(spec=Instance)
     instance.get_constraint_features = Mock(
         side_effect=lambda cid: {
-            "c2": [1.0, 0.0],
-            "c3": [0.5, 0.5],
-            "c4": [1.0],
+            "c2": np.array([1.0, 0.0]),
+            "c3": np.array([0.5, 0.5]),
+            "c4": np.array([1.0]),
         }[cid]
     )
     instance.get_constraint_category = Mock(
@@ -47,15 +48,19 @@ def _setup():
         "type-b": Mock(spec=Classifier),
     }
     classifiers["type-a"].predict_proba = Mock(
-        return_value=[
-            [0.20, 0.80],
-            [0.05, 0.95],
-        ]
+        return_value=np.array(
+            [
+                [0.20, 0.80],
+                [0.05, 0.95],
+            ]
+        )
     )
     classifiers["type-b"].predict_proba = Mock(
-        return_value=[
-            [0.02, 0.98],
-        ]
+        return_value=np.array(
+            [
+                [0.02, 0.98],
+            ]
+        )
     )
 
     return solver, internal, instance, classifiers
@@ -95,10 +100,10 @@ def test_drop_redundant():
     )
 
     # Should ask ML to predict whether constraint should be removed
-    component.classifiers["type-a"].predict_proba.assert_called_once_with(
-        [[1.0, 0.0], [0.5, 0.5]]
-    )
-    component.classifiers["type-b"].predict_proba.assert_called_once_with([[1.0]])
+    type_a_actual = component.classifiers["type-a"].predict_proba.call_args[0][0]
+    type_b_actual = component.classifiers["type-b"].predict_proba.call_args[0][0]
+    np.testing.assert_array_equal(type_a_actual, np.array([[1.0, 0.0], [0.5, 0.5]]))
+    np.testing.assert_array_equal(type_b_actual, np.array([[1.0]]))
 
     # Should ask internal solver to remove constraints predicted as redundant
     assert internal.extract_constraint.call_count == 2
@@ -176,14 +181,16 @@ def test_x_y_fit_predict_evaluate():
     }
     component.classifiers["type-a"].predict_proba = Mock(
         return_value=[
-            [0.20, 0.80],
+            np.array([0.20, 0.80]),
         ]
     )
     component.classifiers["type-b"].predict_proba = Mock(
-        return_value=[
-            [0.50, 0.50],
-            [0.05, 0.95],
-        ]
+        return_value=np.array(
+            [
+                [0.50, 0.50],
+                [0.05, 0.95],
+            ]
+        )
     )
 
     # First mock instance
@@ -203,9 +210,9 @@ def test_x_y_fit_predict_evaluate():
     )
     instances[0].get_constraint_features = Mock(
         side_effect=lambda cid: {
-            "c2": [1.0, 0.0],
-            "c3": [0.5, 0.5],
-            "c4": [1.0],
+            "c2": np.array([1.0, 0.0]),
+            "c3": np.array([0.5, 0.5]),
+            "c4": np.array([1.0]),
         }[cid]
     )
 
@@ -226,32 +233,47 @@ def test_x_y_fit_predict_evaluate():
     )
     instances[1].get_constraint_features = Mock(
         side_effect=lambda cid: {
-            "c3": [0.3, 0.4],
-            "c4": [0.7],
-            "c5": [0.8],
+            "c3": np.array([0.3, 0.4]),
+            "c4": np.array([0.7]),
+            "c5": np.array([0.8]),
         }[cid]
     )
 
     expected_x = {
-        "type-a": [[1.0, 0.0], [0.5, 0.5], [0.3, 0.4]],
-        "type-b": [[1.0], [0.7], [0.8]],
+        "type-a": np.array(
+            [
+                [1.0, 0.0],
+                [0.5, 0.5],
+                [0.3, 0.4],
+            ]
+        ),
+        "type-b": np.array(
+            [
+                [1.0],
+                [0.7],
+                [0.8],
+            ]
+        ),
     }
-    expected_y = {"type-a": [[0], [0], [1]], "type-b": [[1], [0], [0]]}
+    expected_y = {
+        "type-a": np.array([[0], [0], [1]]),
+        "type-b": np.array([[1], [0], [0]]),
+    }
 
     # Should build X and Y matrices correctly
-    assert component.x(instances) == expected_x
-    assert component.y(instances) == expected_y
+    actual_x = component.x(instances)
+    actual_y = component.y(instances)
+    for category in ["type-a", "type-b"]:
+        np.testing.assert_array_equal(actual_x[category], expected_x[category])
+        np.testing.assert_array_equal(actual_y[category], expected_y[category])
 
     # Should pass along X and Y matrices to classifiers
     component.fit(instances)
-    component.classifiers["type-a"].fit.assert_called_with(
-        expected_x["type-a"],
-        expected_y["type-a"],
-    )
-    component.classifiers["type-b"].fit.assert_called_with(
-        expected_x["type-b"],
-        expected_y["type-b"],
-    )
+    for category in ["type-a", "type-b"]:
+        actual_x = component.classifiers[category].fit.call_args[0][0]
+        actual_y = component.classifiers[category].fit.call_args[0][1]
+        np.testing.assert_array_equal(actual_x, expected_x[category])
+        np.testing.assert_array_equal(actual_y, expected_y[category])
 
     assert component.predict(expected_x) == {"type-a": [[1]], "type-b": [[0], [1]]}
 

@@ -5,6 +5,7 @@
 import logging
 from copy import deepcopy
 
+import numpy as np
 from tqdm import tqdm
 
 from miplearn import Component
@@ -101,6 +102,8 @@ class DropRedundantInequalitiesStep(Component):
                     constraints[category] = []
                 x[category] += [instance.get_constraint_features(cid)]
                 constraints[category] += [cid]
+        for category in x.keys():
+            x[category] = np.array(x[category])
         if return_constraints:
             return x, constraints
         else:
@@ -131,7 +134,7 @@ class DropRedundantInequalitiesStep(Component):
             if category not in self.classifiers:
                 continue
             y[category] = []
-            # x_cat = np.array(x_cat)
+            x_cat = np.array(x_cat)
             proba = self.classifiers[category].predict_proba(x_cat)
             for i in range(len(proba)):
                 if proba[i][1] >= self.threshold:
