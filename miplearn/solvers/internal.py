@@ -184,7 +184,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def get_constraint_slacks(self):
+    def get_inequality_slacks(self):
         """
         Returns a dictionary mapping constraint name to the constraint slack
         in the current solution.

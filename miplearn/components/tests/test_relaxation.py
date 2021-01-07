@@ -14,7 +14,7 @@ def _setup():
 
     internal = solver.internal_solver = Mock(spec=InternalSolver)
     internal.get_constraint_ids = Mock(return_value=["c1", "c2", "c3", "c4"])
-    internal.get_constraint_slacks = Mock(
+    internal.get_inequality_slacks = Mock(
         side_effect=lambda: {
             "c1": 0.5,
             "c2": 0.0,
@@ -112,8 +112,8 @@ def test_drop_redundant():
     # LearningSolver calls after_solve
     component.after_solve(solver, instance, None, None)
 
-    # Should query slack for all constraints
-    internal.get_constraint_slacks.assert_called_once()
+    # Should query slack for all inequalities
+    internal.get_inequality_slacks.assert_called_once()
 
     # Should store constraint slacks in instance object
     assert hasattr(instance, "slacks")

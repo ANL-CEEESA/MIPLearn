@@ -271,8 +271,9 @@ class GurobiSolver(InternalSolver):
         else:
             raise Exception("Unknown sense: %s" % sense)
 
-    def get_constraint_slacks(self):
-        return {c.ConstrName: c.Slack for c in self.model.getConstrs()}
+    def get_inequality_slacks(self):
+        ineqs = [c for c in self.model.getConstrs() if c.sense != "="]
+        return {c.ConstrName: c.Slack for c in ineqs}
 
     def set_constraint_sense(self, cid, sense):
         c = self.model.getConstrByName(cid)

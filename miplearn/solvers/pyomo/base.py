@@ -252,7 +252,7 @@ class BasePyomoSolver(InternalSolver):
     def relax(self):
         raise Exception("not implemented")
 
-    def get_constraint_slacks(self):
+    def get_inequality_slacks(self):
         raise Exception("not implemented")
 
     def set_constraint_sense(self, cid, sense):

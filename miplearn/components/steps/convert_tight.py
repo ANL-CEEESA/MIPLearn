@@ -57,7 +57,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
         logger.info(f"Converted {n_converted} inequalities into equalities")
 
     def after_solve(self, solver, instance, model, results):
-        instance.slacks = solver.internal_solver.get_constraint_slacks()
+        instance.slacks = solver.internal_solver.get_inequality_slacks()
 
     def fit(self, training_instances):
         logger.debug("Extracting x and y...")
