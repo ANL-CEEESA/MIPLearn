@@ -4,7 +4,7 @@
 
 from unittest.mock import Mock, call
 
-from miplearn import RelaxationComponent, LearningSolver, Instance, InternalSolver
+from miplearn import LearningSolver, Instance, InternalSolver
 from miplearn.classifiers import Classifier
 from miplearn.components.relaxation import DropRedundantInequalitiesStep
 
