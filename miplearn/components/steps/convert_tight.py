@@ -113,7 +113,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
                     continue
                 if category not in y:
                     y[category] = []
-                if slack <= self.slack_tolerance:
+                if 0 <= slack <= self.slack_tolerance:
                     y[category] += [[1]]
                 else:
                     y[category] += [[0]]
