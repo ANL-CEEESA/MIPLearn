@@ -83,6 +83,11 @@ class LearningSolver:
         option should be activated if the LP relaxation is not very
         expensive to solve and if it provides good hints for the integer
         solution.
+    simulate_perfect: bool
+        If true, each call to solve actually performs three actions: solve
+        the original problem, train the ML models on the data that was just
+        collected, and solve the problem again. This is useful for evaluating
+        the theoretical performance of perfect ML models.
     """
 
     def __init__(
@@ -96,6 +101,7 @@ class LearningSolver:
         node_limit=None,
         solve_lp_first=True,
         use_lazy_cb=False,
+        simulate_perfect=False,
     ):
         self.components = {}
         self.mode = mode
@@ -108,6 +114,7 @@ class LearningSolver:
         self.node_limit = node_limit
         self.solve_lp_first = solve_lp_first
         self.use_lazy_cb = use_lazy_cb
+        self.simulate_perfect = simulate_perfect
 
         if components is not None:
             for comp in components:
@@ -203,7 +210,28 @@ class LearningSolver:
             "Predicted UB". See the documentation of each component for more
             details.
         """
+        if self.simulate_perfect:
+            self._solve(
+                instance=instance,
+                model=model,
+                output=output,
+                tee=tee,
+            )
+            self.fit([instance])
+        return self._solve(
+            instance=instance,
+            model=model,
+            output=output,
+            tee=tee,
+        )
 
+    def _solve(
+        self,
+        instance,
+        model=None,
+        output="",
+        tee=False,
+    ):
         filename = None
         fileformat = None
         if isinstance(instance, str):
@@ -220,7 +248,7 @@ class LearningSolver:
 
         if model is None:
             with RedirectOutput([]):
-            model = instance.to_model()
+                model = instance.to_model()
 
         self.tee = tee
         self.internal_solver = self._create_internal_solver()
