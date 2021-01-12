@@ -39,8 +39,8 @@ TODO.md
 /site
 ENV/
 MANIFEST
-__pycache__/
-__pypackages__/
+**/__pycache__/
+**/__pypackages__/
 build/
 celerybeat-schedule
 celerybeat.pid
@@ -75,3 +75,5 @@ venv.bak/
 venv/
 wheels/
 notebooks/
+.vscode
+tmp
