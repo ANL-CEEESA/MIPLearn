@@ -12,6 +12,7 @@ from copy import deepcopy
 from typing import Optional, List
 from p_tqdm import p_map
 
+from . import RedirectOutput
 from .. import (
     ObjectiveValueComponent,
     PrimalSolutionComponent,
@@ -38,7 +39,6 @@ def _parallel_solve(idx):
     else:
         output = OUTPUTS[0][idx]
     instance = INSTANCES[0][idx]
-    print(instance)
     stats = solver.solve(instance, output=output)
     return (stats, instance)
 
@@ -219,6 +219,7 @@ class LearningSolver:
                     instance = pickle.load(file)
 
         if model is None:
+            with RedirectOutput([]):
             model = instance.to_model()
 
         self.tee = tee

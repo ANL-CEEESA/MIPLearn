@@ -84,16 +84,17 @@ class GurobiSolver(InternalSolver):
                     self._bin_vars[name] = {}
                 self._bin_vars[name][idx] = var
 
-    def _apply_params(self):
-        for (name, value) in self.params.items():
-            self.model.setParam(name, value)
+    def _apply_params(self, streams):
+        with RedirectOutput(streams):
+            for (name, value) in self.params.items():
+                self.model.setParam(name, value)
 
     def solve_lp(self, tee=False):
         self._raise_if_callback()
-        self._apply_params()
         streams = [StringIO()]
         if tee:
             streams += [sys.stdout]
+        self._apply_params(streams)
         for (varname, vardict) in self._bin_vars.items():
             for (idx, var) in vardict.items():
                 var.vtype = self.GRB.CONTINUOUS
@@ -122,12 +123,12 @@ class GurobiSolver(InternalSolver):
 
         if lazy_cb:
             self.params["LazyConstraints"] = 1
-        self._apply_params()
         total_wallclock_time = 0
         total_nodes = 0
         streams = [StringIO()]
         if tee:
             streams += [sys.stdout]
+        self._apply_params(streams)
         if iteration_cb is None:
             iteration_cb = lambda: False
         while True:

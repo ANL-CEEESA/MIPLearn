@@ -28,7 +28,7 @@ class InstanceIterator:
         result = self.instances[self.current]
         self.current += 1
         if isinstance(result, str):
-            logger.info("Read: %s" % result)
+            logger.debug("Read: %s" % result)
             if result.endswith(".gz"):
                 with gzip.GzipFile(result, "rb") as file:
                     result = pickle.load(file)
