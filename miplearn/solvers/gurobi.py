@@ -162,6 +162,12 @@ class GurobiSolver(InternalSolver):
             "Warm start value": self._extract_warm_start_value(log),
         }
 
+    def get_sense(self):
+        if self.model.modelSense == 1:
+            return "min"
+        else:
+            return "max"
+
     def get_solution(self):
         self._raise_if_callback()
 
@@ -179,9 +185,12 @@ class GurobiSolver(InternalSolver):
     def is_infeasible(self):
         return self.model.status in [self.GRB.INFEASIBLE, self.GRB.INF_OR_UNBD]
 
-    def get_farkas_dual(self, cid):
+    def get_dual(self, cid):
         c = self.model.getConstrByName(cid)
-        return c.farkasDual
+        if self.is_infeasible():
+            return c.farkasDual
+        else:
+            return c.pi
 
     def _get_value(self, var):
         if self.cb_where == self.GRB.Callback.MIPSOL:

@@ -200,11 +200,20 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def get_farkas_dual(self, cid):
+    def get_dual(self, cid):
         """
-        If the model is infeasible, returns a portion of the infeasibility certificate
-        corresponding to the given constraint. If the model is feasible, calling this
-        function raises an error.
+        If the model is feasible and has been solved to optimality, returns the optimal
+        value of the dual variable associated with this constraint. If the model is infeasible,
+        returns a portion of the infeasibility certificate corresponding to the given constraint.
+
+        Solve must be called prior to this method.
+        """
+        pass
+
+    @abstractmethod
+    def get_sense(self):
+        """
+        Returns the sense of the problem (either "min" or "max").
         """
         pass
 

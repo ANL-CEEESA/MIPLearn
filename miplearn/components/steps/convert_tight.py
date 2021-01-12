@@ -52,10 +52,11 @@ class ConvertTightIneqsIntoEqsStep(Component):
         )
         y = self.predict(x)
 
-        self.total_converted = 0
-        self.total_restored = 0
-        self.total_kept = 0
-        self.total_iterations = 0
+        self.n_converted = 0
+        self.n_restored = 0
+        self.n_kept = 0
+        self.n_infeasible_iterations = 0
+        self.n_suboptimal_iterations = 0
         for category in y.keys():
             for i in range(len(y[category])):
                 if y[category][i][0] == 1:
@@ -64,17 +65,18 @@ class ConvertTightIneqsIntoEqsStep(Component):
                     self.original_sense[cid] = s
                     solver.internal_solver.set_constraint_sense(cid, "=")
                     self.converted += [cid]
-                    self.total_converted += 1
+                    self.n_converted += 1
                 else:
-                    self.total_kept += 1
-        logger.info(f"Converted {self.total_converted} inequalities")
+                    self.n_kept += 1
+        logger.info(f"Converted {self.n_converted} inequalities")
 
     def after_solve(self, solver, instance, model, results):
         instance.slacks = solver.internal_solver.get_inequality_slacks()
-        results["ConvertTight: Kept"] = self.total_kept
-        results["ConvertTight: Converted"] = self.total_converted
-        results["ConvertTight: Restored"] = self.total_restored
-        results["ConvertTight: Iterations"] = self.total_iterations
+        results["ConvertTight: Kept"] = self.n_kept
+        results["ConvertTight: Converted"] = self.n_converted
+        results["ConvertTight: Restored"] = self.n_restored
+        results["ConvertTight: Inf iterations"] = self.n_infeasible_iterations
+        results["ConvertTight: Subopt iterations"] = self.n_suboptimal_iterations
 
     def fit(self, training_instances):
         logger.debug("Extracting x and y...")
@@ -173,21 +175,56 @@ class ConvertTightIneqsIntoEqsStep(Component):
     def iteration_cb(self, solver, instance, model):
         if not self.check_converted:
             return False
+
         logger.debug("Checking converted inequalities...")
+        is_infeasible, is_suboptimal = False, False
         restored = []
+
+        def check_pi(msense, csense, pi):
+            if csense == "=":
+                return True
+            if msense == "max":
+                if csense == "<":
+                    return pi >= 0
+                else:
+                    return pi <= 0
+            else:
+                if csense == ">":
+                    return pi >= 0
+                else:
+                    return pi <= 0
+
+        def restore(cid):
+            nonlocal restored
+            csense = self.original_sense[cid]
+            solver.internal_solver.set_constraint_sense(cid, csense)
+            restored += [cid]
+
         if solver.internal_solver.is_infeasible():
             for cid in self.converted:
-                f = solver.internal_solver.get_farkas_dual(cid)
-                if abs(f) > 0:
-                    s = self.original_sense[cid]
-                    solver.internal_solver.set_constraint_sense(cid, s)
-                    restored += [cid]
-            for cid in restored:
-                self.converted.remove(cid)
+                pi = solver.internal_solver.get_dual(cid)
+                if abs(pi) > 0:
+                    is_infeasible = True
+                    restore(cid)
+        else:
+            for cid in self.converted:
+                pi = solver.internal_solver.get_dual(cid)
+                csense = self.original_sense[cid]
+                msense = solver.internal_solver.get_sense()
+                if not check_pi(msense, csense, pi):
+                    is_suboptimal = True
+                    restore(cid)
+
+        for cid in restored:
+            self.converted.remove(cid)
+
         if len(restored) > 0:
-            self.total_restored += len(restored)
+            self.n_restored += len(restored)
+            if is_infeasible:
+                self.n_infeasible_iterations += 1
+            if is_suboptimal:
+                self.n_suboptimal_iterations += 1
             logger.info(f"Restored {len(restored)} inequalities")
-            self.total_iterations += 1
             return True
         else:
             return False

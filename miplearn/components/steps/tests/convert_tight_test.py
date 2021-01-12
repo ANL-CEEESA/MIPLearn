@@ -72,3 +72,26 @@ def test_convert_tight_infeasibility():
     instance = TestInstance()
     solver.solve(instance)
     assert instance.lower_bound == 5.0
+
+
+def test_convert_tight_suboptimality():
+    comp = ConvertTightIneqsIntoEqsStep(
+        check_converted=True,
+    )
+    comp.classifiers = {
+        "c1": Mock(spec=Classifier),
+        "c2": Mock(spec=Classifier),
+        "c3": Mock(spec=Classifier),
+    }
+    comp.classifiers["c1"].predict_proba = Mock(return_value=[[0, 1]])
+    comp.classifiers["c2"].predict_proba = Mock(return_value=[[1, 0]])
+    comp.classifiers["c3"].predict_proba = Mock(return_value=[[0, 1]])
+
+    solver = LearningSolver(
+        solver=GurobiSolver(params={}),
+        components=[comp],
+        solve_lp_first=False,
+    )
+    instance = TestInstance()
+    solver.solve(instance)
+    assert instance.lower_bound == 5.0

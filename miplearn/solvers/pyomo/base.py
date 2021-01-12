@@ -267,5 +267,8 @@ class BasePyomoSolver(InternalSolver):
     def is_infeasible(self):
         raise Exception("Not implemented")
 
-    def get_farkas_dual(self, cid):
+    def get_dual(self, cid):
+        raise Exception("Not implemented")
+
+    def get_sense(self):
         raise Exception("Not implemented")
