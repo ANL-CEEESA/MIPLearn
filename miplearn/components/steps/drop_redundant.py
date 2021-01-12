@@ -57,6 +57,11 @@ class DropRedundantInequalitiesStep(Component):
             return_constraints=True,
         )
         y = self.predict(x)
+
+        self.total_dropped = 0
+        self.total_restored = 0
+        self.total_kept = 0
+        self.total_iterations = 0
         for category in y.keys():
             for i in range(len(y[category])):
                 if y[category][i][0] == 1:
@@ -66,10 +71,17 @@ class DropRedundantInequalitiesStep(Component):
                         obj=solver.internal_solver.extract_constraint(cid),
                     )
                     self.pool += [c]
-        logger.info("Extracted %d predicted constraints" % len(self.pool))
+                    self.total_dropped += 1
+                else:
+                    self.total_kept += 1
+        logger.info(f"Extracted {self.total_dropped} predicted constraints")
 
     def after_solve(self, solver, instance, model, results):
         instance.slacks = solver.internal_solver.get_inequality_slacks()
+        results["DropRedundant: Kept"] = self.total_kept
+        results["DropRedundant: Dropped"] = self.total_dropped
+        results["DropRedundant: Restored"] = self.total_restored
+        results["DropRedundant: Iterations"] = self.total_iterations
 
     def fit(self, training_instances):
         logger.debug("Extracting x and y...")
@@ -180,10 +192,12 @@ class DropRedundantInequalitiesStep(Component):
             self.pool.remove(c)
             solver.internal_solver.add_constraint(c.obj)
         if len(constraints_to_add) > 0:
+            self.total_restored += len(constraints_to_add)
             logger.info(
                 "%8d constraints %8d in the pool"
                 % (len(constraints_to_add), len(self.pool))
             )
+            self.total_iterations += 1
             return True
         else:
             return False

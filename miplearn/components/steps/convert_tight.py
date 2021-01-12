@@ -51,6 +51,11 @@ class ConvertTightIneqsIntoEqsStep(Component):
             return_constraints=True,
         )
         y = self.predict(x)
+
+        self.total_converted = 0
+        self.total_restored = 0
+        self.total_kept = 0
+        self.total_iterations = 0
         for category in y.keys():
             for i in range(len(y[category])):
                 if y[category][i][0] == 1:
@@ -59,10 +64,17 @@ class ConvertTightIneqsIntoEqsStep(Component):
                     self.original_sense[cid] = s
                     solver.internal_solver.set_constraint_sense(cid, "=")
                     self.converted += [cid]
-        logger.info(f"Converted {len(self.converted)} inequalities")
+                    self.total_converted += 1
+                else:
+                    self.total_kept += 1
+        logger.info(f"Converted {self.total_converted} inequalities")
 
     def after_solve(self, solver, instance, model, results):
         instance.slacks = solver.internal_solver.get_inequality_slacks()
+        results["ConvertTight: Kept"] = self.total_kept
+        results["ConvertTight: Converted"] = self.total_converted
+        results["ConvertTight: Restored"] = self.total_restored
+        results["ConvertTight: Iterations"] = self.total_iterations
 
     def fit(self, training_instances):
         logger.debug("Extracting x and y...")
@@ -173,7 +185,9 @@ class ConvertTightIneqsIntoEqsStep(Component):
             for cid in restored:
                 self.converted.remove(cid)
         if len(restored) > 0:
+            self.total_restored += len(restored)
             logger.info(f"Restored {len(restored)} inequalities")
+            self.total_iterations += 1
             return True
         else:
             return False
