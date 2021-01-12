@@ -258,5 +258,14 @@ class BasePyomoSolver(InternalSolver):
     def set_constraint_sense(self, cid, sense):
         raise Exception("Not implemented")
 
+    def get_constraint_sense(self, cid):
+        raise Exception("Not implemented")
+
     def set_constraint_rhs(self, cid, rhs):
+        raise Exception("Not implemented")
+
+    def is_infeasible(self):
+        raise Exception("Not implemented")
+
+    def get_farkas_dual(self, cid):
         raise Exception("Not implemented")

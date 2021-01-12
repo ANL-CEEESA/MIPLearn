@@ -33,6 +33,7 @@ class GurobiSolver(InternalSolver):
         """
         if params is None:
             params = {}
+        params["InfUnbdInfo"] = True
         from gurobipy import GRB
 
         self.GRB = GRB
@@ -132,7 +133,6 @@ class GurobiSolver(InternalSolver):
         if iteration_cb is None:
             iteration_cb = lambda: False
         while True:
-            logger.debug("Solving MIP...")
             with RedirectOutput(streams):
                 if lazy_cb is None:
                     self.model.optimize()
@@ -175,6 +175,13 @@ class GurobiSolver(InternalSolver):
     def get_value(self, var_name, index):
         var = self._all_vars[var_name][index]
         return self._get_value(var)
+
+    def is_infeasible(self):
+        return self.model.status in [self.GRB.INFEASIBLE, self.GRB.INF_OR_UNBD]
+
+    def get_farkas_dual(self, cid):
+        c = self.model.getConstrByName(cid)
+        return c.farkasDual
 
     def _get_value(self, var):
         if self.cb_where == self.GRB.Callback.MIPSOL:
@@ -279,6 +286,10 @@ class GurobiSolver(InternalSolver):
     def set_constraint_sense(self, cid, sense):
         c = self.model.getConstrByName(cid)
         c.Sense = sense
+
+    def get_constraint_sense(self, cid):
+        c = self.model.getConstrByName(cid)
+        return c.Sense
 
     def set_constraint_rhs(self, cid, rhs):
         c = self.model.getConstrByName(cid)

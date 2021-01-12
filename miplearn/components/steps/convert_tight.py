@@ -32,11 +32,15 @@ class ConvertTightIneqsIntoEqsStep(Component):
         classifier=CountingClassifier(),
         threshold=0.95,
         slack_tolerance=0.0,
+        check_converted=False,
     ):
         self.classifiers = {}
         self.classifier_prototype = classifier
         self.threshold = threshold
         self.slack_tolerance = slack_tolerance
+        self.check_converted = check_converted
+        self.converted = []
+        self.original_sense = {}
 
     def before_solve(self, solver, instance, _):
         logger.info("Predicting tight LP constraints...")
@@ -47,14 +51,15 @@ class ConvertTightIneqsIntoEqsStep(Component):
             return_constraints=True,
         )
         y = self.predict(x)
-        n_converted = 0
         for category in y.keys():
             for i in range(len(y[category])):
                 if y[category][i][0] == 1:
                     cid = constraints[category][i]
+                    s = solver.internal_solver.get_constraint_sense(cid)
+                    self.original_sense[cid] = s
                     solver.internal_solver.set_constraint_sense(cid, "=")
-                    n_converted += 1
-        logger.info(f"Converted {n_converted} inequalities into equalities")
+                    self.converted += [cid]
+        logger.info(f"Converted {len(self.converted)} inequalities")
 
     def after_solve(self, solver, instance, model, results):
         instance.slacks = solver.internal_solver.get_inequality_slacks()
@@ -152,3 +157,23 @@ class ConvertTightIneqsIntoEqsStep(Component):
                     else:
                         tn += 1
         return classifier_evaluation_dict(tp, tn, fp, fn)
+
+    def iteration_cb(self, solver, instance, model):
+        if not self.check_converted:
+            return False
+        logger.debug("Checking converted inequalities...")
+        restored = []
+        if solver.internal_solver.is_infeasible():
+            for cid in self.converted:
+                f = solver.internal_solver.get_farkas_dual(cid)
+                if abs(f) > 0:
+                    s = self.original_sense[cid]
+                    solver.internal_solver.set_constraint_sense(cid, s)
+                    restored += [cid]
+            for cid in restored:
+                self.converted.remove(cid)
+        if len(restored) > 0:
+            logger.info(f"Restored {len(restored)} inequalities")
+            return True
+        else:
+            return False

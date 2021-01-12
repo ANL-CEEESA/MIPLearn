@@ -192,11 +192,32 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
+    def is_infeasible(self):
+        """
+        Returns True if the model has been proved to be infeasible.
+        Must be called after solve.
+        """
+        pass
+
+    @abstractmethod
+    def get_farkas_dual(self, cid):
+        """
+        If the model is infeasible, returns a portion of the infeasibility certificate
+        corresponding to the given constraint. If the model is feasible, calling this
+        function raises an error.
+        """
+        pass
+
+    @abstractmethod
     def is_constraint_satisfied(self, cobj):
         pass
 
     @abstractmethod
     def set_constraint_sense(self, cid, sense):
+        pass
+
+    @abstractmethod
+    def get_constraint_sense(self, cid):
         pass
 
     @abstractmethod
