@@ -32,7 +32,7 @@ class DropRedundantInequalitiesStep(Component):
         classifier=CountingClassifier(),
         threshold=0.95,
         slack_tolerance=1e-5,
-        check_dropped=False,
+        check_feasibility=False,
         violation_tolerance=1e-5,
         max_iterations=3,
     ):
@@ -41,7 +41,7 @@ class DropRedundantInequalitiesStep(Component):
         self.threshold = threshold
         self.slack_tolerance = slack_tolerance
         self.pool = []
-        self.check_dropped = check_dropped
+        self.check_feasibility = check_feasibility
         self.violation_tolerance = violation_tolerance
         self.max_iterations = max_iterations
         self.current_iteration = 0
@@ -175,7 +175,7 @@ class DropRedundantInequalitiesStep(Component):
         return classifier_evaluation_dict(tp, tn, fp, fn)
 
     def iteration_cb(self, solver, instance, model):
-        if not self.check_dropped:
+        if not self.check_feasibility:
             return False
         if self.current_iteration >= self.max_iterations:
             return False

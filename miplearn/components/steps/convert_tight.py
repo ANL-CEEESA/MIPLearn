@@ -20,8 +20,10 @@ class ConvertTightIneqsIntoEqsStep(Component):
     """
     Component that predicts which inequality constraints are likely to be binding in
     the LP relaxation of the problem and converts them into equality constraints.
-    Optionally double checks that the conversion process did not affect feasibility
-    or optimality of the problem.
+
+    This component always makes sure that the conversion process does not affect the
+    feasibility of the problem. It can also, optionally, make sure that it does not affect
+    the optimality, but this may be expensive.
 
     This component does not work on MIPs. All integrality constraints must be relaxed
     before this component is used.
@@ -32,13 +34,13 @@ class ConvertTightIneqsIntoEqsStep(Component):
         classifier=CountingClassifier(),
         threshold=0.95,
         slack_tolerance=0.0,
-        check_converted=False,
+        check_optimality=False,
     ):
         self.classifiers = {}
         self.classifier_prototype = classifier
         self.threshold = threshold
         self.slack_tolerance = slack_tolerance
-        self.check_converted = check_converted
+        self.check_optimality = check_optimality
         self.converted = []
         self.original_sense = {}
 
@@ -66,8 +68,10 @@ class ConvertTightIneqsIntoEqsStep(Component):
                     solver.internal_solver.set_constraint_sense(cid, "=")
                     self.converted += [cid]
                     self.n_converted += 1
+                    print(cid)
                 else:
                     self.n_kept += 1
+
         logger.info(f"Converted {self.n_converted} inequalities")
 
     def after_solve(self, solver, instance, model, results):
@@ -173,10 +177,6 @@ class ConvertTightIneqsIntoEqsStep(Component):
         return classifier_evaluation_dict(tp, tn, fp, fn)
 
     def iteration_cb(self, solver, instance, model):
-        if not self.check_converted:
-            return False
-
-        logger.debug("Checking converted inequalities...")
         is_infeasible, is_suboptimal = False, False
         restored = []
 
@@ -206,7 +206,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
                 if abs(pi) > 0:
                     is_infeasible = True
                     restore(cid)
-        else:
+        elif self.check_optimality:
             for cid in self.converted:
                 pi = solver.internal_solver.get_dual(cid)
                 csense = self.original_sense[cid]

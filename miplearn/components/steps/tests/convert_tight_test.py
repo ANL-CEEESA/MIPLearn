@@ -30,13 +30,30 @@ def test_convert_tight_usage():
 
     # Fit and resolve
     solver.fit([instance])
-    solver.solve(instance)
+    stats = solver.solve(instance)
 
     # Objective value should be the same
     assert instance.upper_bound == original_upper_bound
+    assert stats["ConvertTight: Inf iterations"] == 0
+    assert stats["ConvertTight: Subopt iterations"] == 0
 
 
 class TestInstance(Instance):
+    def to_model(self):
+        import gurobipy as grb
+        from gurobipy import GRB
+
+        m = grb.Model("model")
+        x1 = m.addVar(name="x1")
+        x2 = m.addVar(name="x2")
+        m.setObjective(x1 + 2 * x2, grb.GRB.MAXIMIZE)
+        m.addConstr(x1 <= 2, name="c1")
+        m.addConstr(x2 <= 2, name="c2")
+        m.addConstr(x1 + x2 <= 3, name="c2")
+        return m
+
+
+class TestInstanceMin(Instance):
     def to_model(self):
         import gurobipy as grb
         from gurobipy import GRB
@@ -70,8 +87,10 @@ def test_convert_tight_infeasibility():
         solve_lp_first=False,
     )
     instance = TestInstance()
-    solver.solve(instance)
+    stats = solver.solve(instance)
     assert instance.lower_bound == 5.0
+    assert stats["ConvertTight: Inf iterations"] == 1
+    assert stats["ConvertTight: Subopt iterations"] == 0
 
 
 def test_convert_tight_suboptimality():
@@ -93,5 +112,32 @@ def test_convert_tight_suboptimality():
         solve_lp_first=False,
     )
     instance = TestInstance()
-    solver.solve(instance)
+    stats = solver.solve(instance)
     assert instance.lower_bound == 5.0
+    assert stats["ConvertTight: Inf iterations"] == 0
+    assert stats["ConvertTight: Subopt iterations"] == 1
+
+
+def test_convert_tight_optimal():
+    comp = ConvertTightIneqsIntoEqsStep(
+        check_converted=True,
+    )
+    comp.classifiers = {
+        "c1": Mock(spec=Classifier),
+        "c2": Mock(spec=Classifier),
+        "c3": Mock(spec=Classifier),
+    }
+    comp.classifiers["c1"].predict_proba = Mock(return_value=[[1, 0]])
+    comp.classifiers["c2"].predict_proba = Mock(return_value=[[0, 1]])
+    comp.classifiers["c3"].predict_proba = Mock(return_value=[[0, 1]])
+
+    solver = LearningSolver(
+        solver=GurobiSolver(params={}),
+        components=[comp],
+        solve_lp_first=False,
+    )
+    instance = TestInstance()
+    stats = solver.solve(instance)
+    assert instance.lower_bound == 5.0
+    assert stats["ConvertTight: Inf iterations"] == 0
+    assert stats["ConvertTight: Subopt iterations"] == 0
