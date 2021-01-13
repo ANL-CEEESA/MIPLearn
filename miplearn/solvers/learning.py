@@ -11,6 +11,7 @@ import gzip
 from copy import deepcopy
 from typing import Optional, List
 from p_tqdm import p_map
+from tempfile import NamedTemporaryFile
 
 from . import RedirectOutput
 from .. import (
@@ -211,13 +212,16 @@ class LearningSolver:
             details.
         """
         if self.simulate_perfect:
-            self._solve(
-                instance=instance,
-                model=model,
-                output=output,
-                tee=tee,
-            )
-            self.fit([instance])
+            if not isinstance(instance, str):
+                raise Exception("Not implemented")
+            with tempfile.NamedTemporaryFile(suffix=os.path.basename(instance)) as tmp:
+                self._solve(
+                    instance=instance,
+                    model=model,
+                    output=tmp.name,
+                    tee=tee,
+                )
+                self.fit([tmp.name])
         return self._solve(
             instance=instance,
             model=model,

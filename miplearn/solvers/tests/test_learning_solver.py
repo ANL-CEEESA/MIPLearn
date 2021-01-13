@@ -7,8 +7,11 @@ import pickle
 import tempfile
 import os
 
-from miplearn import DynamicLazyConstraintsComponent
-from miplearn import LearningSolver
+from miplearn import (
+    LearningSolver,
+    GurobiSolver,
+    DynamicLazyConstraintsComponent,
+)
 
 from . import _get_instance, _get_internal_solvers
 
@@ -109,3 +112,18 @@ def test_solve_fit_from_disk():
             os.remove(filename)
         for filename in output:
             os.remove(filename)
+
+
+def test_simulate_perfect():
+    internal_solver = GurobiSolver()
+    instance = _get_instance(internal_solver)
+    with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as tmp:
+        pickle.dump(instance, tmp)
+        tmp.flush()
+        solver = LearningSolver(
+            solver=internal_solver,
+            simulate_perfect=True,
+        )
+
+        stats = solver.solve(tmp.name)
+        assert stats["Lower bound"] == stats["Predicted LB"]

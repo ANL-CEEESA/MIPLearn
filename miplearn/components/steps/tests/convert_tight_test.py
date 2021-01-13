@@ -69,9 +69,7 @@ class TestInstanceMin(Instance):
 
 
 def test_convert_tight_infeasibility():
-    comp = ConvertTightIneqsIntoEqsStep(
-        check_converted=True,
-    )
+    comp = ConvertTightIneqsIntoEqsStep()
     comp.classifiers = {
         "c1": Mock(spec=Classifier),
         "c2": Mock(spec=Classifier),
@@ -94,9 +92,7 @@ def test_convert_tight_infeasibility():
 
 
 def test_convert_tight_suboptimality():
-    comp = ConvertTightIneqsIntoEqsStep(
-        check_converted=True,
-    )
+    comp = ConvertTightIneqsIntoEqsStep(check_optimality=True)
     comp.classifiers = {
         "c1": Mock(spec=Classifier),
         "c2": Mock(spec=Classifier),
@@ -119,9 +115,7 @@ def test_convert_tight_suboptimality():
 
 
 def test_convert_tight_optimal():
-    comp = ConvertTightIneqsIntoEqsStep(
-        check_converted=True,
-    )
+    comp = ConvertTightIneqsIntoEqsStep()
     comp.classifiers = {
         "c1": Mock(spec=Classifier),
         "c2": Mock(spec=Classifier),

@@ -61,7 +61,7 @@ class DynamicLazyConstraintsComponent(Component):
 
         self.classifiers = {}
         violation_to_instance_idx = {}
-        for (idx, instance) in enumerate(training_instances):
+        for (idx, instance) in enumerate(InstanceIterator(training_instances)):
             for v in instance.found_violated_lazy_constraints:
                 if isinstance(v, list):
                     v = tuple(v)

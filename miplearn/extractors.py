@@ -29,12 +29,15 @@ class InstanceIterator:
         self.current += 1
         if isinstance(result, str):
             logger.debug("Read: %s" % result)
-            if result.endswith(".gz"):
-                with gzip.GzipFile(result, "rb") as file:
-                    result = pickle.load(file)
-            else:
-                with open(result, "rb") as file:
-                    result = pickle.load(file)
+            try:
+                if result.endswith(".gz"):
+                    with gzip.GzipFile(result, "rb") as file:
+                        result = pickle.load(file)
+                else:
+                    with open(result, "rb") as file:
+                        result = pickle.load(file)
+            except pickle.UnpicklingError:
+                raise Exception(f"Invalid instance file: {result}")
         return result
 
 

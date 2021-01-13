@@ -134,7 +134,8 @@ def test_drop_redundant_with_check_dropped():
     solver, internal, instance, classifiers = _setup()
 
     component = DropRedundantInequalitiesStep(
-        check_dropped=True, violation_tolerance=1e-3
+        check_feasibility=True,
+        violation_tolerance=1e-3,
     )
     component.classifiers = classifiers
 
