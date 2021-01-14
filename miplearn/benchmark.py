@@ -90,7 +90,6 @@ class BenchmarkRunner:
         result["Instance"] = instance
         result["Gap"] = (ub - lb) / lb
         result["Mode"] = solver.mode
-        del result["Log"]
         self.results = self.results.append(pd.DataFrame([result]))
 
         # Compute relative statistics
