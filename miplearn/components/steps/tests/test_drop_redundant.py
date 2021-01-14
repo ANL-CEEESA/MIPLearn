@@ -5,9 +5,18 @@
 import numpy as np
 from unittest.mock import Mock, call
 
-from miplearn import LearningSolver, Instance, InternalSolver
+from miplearn import (
+    LearningSolver,
+    Instance,
+    InternalSolver,
+    GurobiSolver,
+)
 from miplearn.classifiers import Classifier
-from miplearn.components.relaxation import DropRedundantInequalitiesStep
+from miplearn.components.relaxation import (
+    DropRedundantInequalitiesStep,
+    RelaxIntegralityStep,
+)
+from miplearn.problems.knapsack import GurobiKnapsackInstance
 
 
 def _setup():
@@ -115,14 +124,14 @@ def test_drop_redundant():
     )
 
     # LearningSolver calls after_solve
-    component.after_solve(solver, instance, None, {}, {})
+    training_data = {}
+    component.after_solve(solver, instance, None, {}, training_data)
 
     # Should query slack for all inequalities
     internal.get_inequality_slacks.assert_called_once()
 
     # Should store constraint slacks in instance object
-    assert hasattr(instance, "slacks")
-    assert instance.slacks == {
+    assert training_data["slacks"] == {
         "c1": 0.5,
         "c2": 0.0,
         "c3": 0.0,
@@ -130,7 +139,7 @@ def test_drop_redundant():
     }
 
 
-def test_drop_redundant_with_check_dropped():
+def test_drop_redundant_with_check_feasibility():
     solver, internal, instance, classifiers = _setup()
 
     component = DropRedundantInequalitiesStep(
@@ -195,12 +204,16 @@ def test_x_y_fit_predict_evaluate():
     )
 
     # First mock instance
-    instances[0].slacks = {
-        "c1": 0.00,
-        "c2": 0.05,
-        "c3": 0.00,
-        "c4": 30.0,
-    }
+    instances[0].training_data = [
+        {
+            "slacks": {
+                "c1": 0.00,
+                "c2": 0.05,
+                "c3": 0.00,
+                "c4": 30.0,
+            }
+        }
+    ]
     instances[0].get_constraint_category = Mock(
         side_effect=lambda cid: {
             "c1": None,
@@ -218,12 +231,16 @@ def test_x_y_fit_predict_evaluate():
     )
 
     # Second mock instance
-    instances[1].slacks = {
-        "c1": 0.00,
-        "c3": 0.30,
-        "c4": 0.00,
-        "c5": 0.00,
-    }
+    instances[1].training_data = [
+        {
+            "slacks": {
+                "c1": 0.00,
+                "c3": 0.30,
+                "c4": 0.00,
+                "c5": 0.00,
+            }
+        }
+    ]
     instances[1].get_constraint_category = Mock(
         side_effect=lambda cid: {
             "c1": None,
@@ -283,3 +300,71 @@ def test_x_y_fit_predict_evaluate():
     assert ev["True negative"] == 1
     assert ev["False positive"] == 1
     assert ev["False negative"] == 0
+
+
+def test_x_multiple_solves():
+    instance = Mock(spec=Instance)
+    instance.training_data = [
+        {
+            "slacks": {
+                "c1": 0.00,
+                "c2": 0.05,
+                "c3": 0.00,
+                "c4": 30.0,
+            }
+        },
+        {
+            "slacks": {
+                "c1": 0.00,
+                "c2": 0.00,
+                "c3": 1.00,
+                "c4": 0.0,
+            }
+        },
+    ]
+    instance.get_constraint_category = Mock(
+        side_effect=lambda cid: {
+            "c1": None,
+            "c2": "type-a",
+            "c3": "type-a",
+            "c4": "type-b",
+        }[cid]
+    )
+    instance.get_constraint_features = Mock(
+        side_effect=lambda cid: {
+            "c2": np.array([1.0, 0.0]),
+            "c3": np.array([0.5, 0.5]),
+            "c4": np.array([1.0]),
+        }[cid]
+    )
+
+    expected_x = {
+        "type-a": np.array(
+            [
+                [1.0, 0.0],
+                [0.5, 0.5],
+                [1.0, 0.0],
+                [0.5, 0.5],
+            ]
+        ),
+        "type-b": np.array(
+            [
+                [1.0],
+                [1.0],
+            ]
+        ),
+    }
+
+    expected_y = {
+        "type-a": np.array([[1], [0], [0], [1]]),
+        "type-b": np.array([[1], [0]]),
+    }
+
+    # Should build X and Y matrices correctly
+    component = DropRedundantInequalitiesStep()
+    actual_x = component.x([instance])
+    actual_y = component.y([instance])
+    print(actual_x)
+    for category in ["type-a", "type-b"]:
+        np.testing.assert_array_equal(actual_x[category], expected_x[category])
+        np.testing.assert_array_equal(actual_y[category], expected_y[category])

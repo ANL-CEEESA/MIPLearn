@@ -50,11 +50,9 @@ class DropRedundantInequalitiesStep(Component):
         self.current_iteration = 0
 
         logger.info("Predicting redundant LP constraints...")
-        cids = solver.internal_solver.get_constraint_ids()
-        x, constraints = self.x(
-            [instance],
-            constraint_ids=cids,
-            return_constraints=True,
+        x, constraints = self._x_test(
+            instance,
+            constraint_ids=solver.internal_solver.get_constraint_ids(),
         )
         y = self.predict(x)
 
@@ -84,11 +82,16 @@ class DropRedundantInequalitiesStep(Component):
         stats,
         training_data,
     ):
-        instance.slacks = solver.internal_solver.get_inequality_slacks()
-        stats["DropRedundant: Kept"] = self.total_kept
-        stats["DropRedundant: Dropped"] = self.total_dropped
-        stats["DropRedundant: Restored"] = self.total_restored
-        stats["DropRedundant: Iterations"] = self.total_iterations
+        if "slacks" not in training_data.keys():
+            training_data["slacks"] = solver.internal_solver.get_inequality_slacks()
+        stats.update(
+            {
+                "DropRedundant: Kept": self.total_kept,
+                "DropRedundant: Dropped": self.total_dropped,
+                "DropRedundant: Restored": self.total_restored,
+                "DropRedundant: Iterations": self.total_iterations,
+            }
+        )
 
     def fit(self, training_instances):
         logger.debug("Extracting x and y...")
@@ -100,33 +103,45 @@ class DropRedundantInequalitiesStep(Component):
                 self.classifiers[category] = deepcopy(self.classifier_prototype)
             self.classifiers[category].fit(x[category], y[category])
 
-    def x(self, instances, constraint_ids=None, return_constraints=False):
+    def _x_test(self, instance, constraint_ids):
         x = {}
         constraints = {}
+        cids = constraint_ids
+        for cid in cids:
+            category = instance.get_constraint_category(cid)
+            if category is None:
+                continue
+            if category not in x:
+                x[category] = []
+                constraints[category] = []
+            x[category] += [instance.get_constraint_features(cid)]
+            constraints[category] += [cid]
+        for category in x.keys():
+            x[category] = np.array(x[category])
+        return x, constraints
+
+    def _x_train(self, instances):
+        x = {}
         for instance in tqdm(
             InstanceIterator(instances),
             desc="Extract (rlx:drop_ineq:x)",
             disable=len(instances) < 5,
         ):
-            if constraint_ids is not None:
-                cids = constraint_ids
-            else:
-                cids = instance.slacks.keys()
-            for cid in cids:
-                category = instance.get_constraint_category(cid)
-                if category is None:
-                    continue
-                if category not in x:
-                    x[category] = []
-                    constraints[category] = []
-                x[category] += [instance.get_constraint_features(cid)]
-                constraints[category] += [cid]
+            for training_data in instance.training_data:
+                cids = training_data["slacks"].keys()
+                for cid in cids:
+                    category = instance.get_constraint_category(cid)
+                    if category is None:
+                        continue
+                    if category not in x:
+                        x[category] = []
+                    x[category] += [instance.get_constraint_features(cid)]
         for category in x.keys():
             x[category] = np.array(x[category])
-        if return_constraints:
-            return x, constraints
-        else:
-            return x
+        return x
+
+    def x(self, instances):
+        return self._x_train(instances)
 
     def y(self, instances):
         y = {}
@@ -135,16 +150,17 @@ class DropRedundantInequalitiesStep(Component):
             desc="Extract (rlx:drop_ineq:y)",
             disable=len(instances) < 5,
         ):
-            for (cid, slack) in instance.slacks.items():
-                category = instance.get_constraint_category(cid)
-                if category is None:
-                    continue
-                if category not in y:
-                    y[category] = []
-                if slack > self.slack_tolerance:
-                    y[category] += [[1]]
-                else:
-                    y[category] += [[0]]
+            for training_data in instance.training_data:
+                for (cid, slack) in training_data["slacks"].items():
+                    category = instance.get_constraint_category(cid)
+                    if category is None:
+                        continue
+                    if category not in y:
+                        y[category] = []
+                    if slack > self.slack_tolerance:
+                        y[category] += [[1]]
+                    else:
+                        y[category] += [[0]]
         return y
 
     def predict(self, x):
