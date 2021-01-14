@@ -5,6 +5,7 @@ import re
 import sys
 import logging
 from io import StringIO
+from random import randint
 
 from . import RedirectOutput
 from .internal import InternalSolver
@@ -89,6 +90,8 @@ class GurobiSolver(InternalSolver):
         with RedirectOutput(streams):
             for (name, value) in self.params.items():
                 self.model.setParam(name, value)
+            if "seed" not in [k.lower() for k in self.params.keys()]:
+                self.model.setParam("Seed", randint(0, 1_000_000))
 
     def solve_lp(self, tee=False):
         self._raise_if_callback()
