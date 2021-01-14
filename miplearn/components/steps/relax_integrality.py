@@ -17,3 +17,13 @@ class RelaxIntegralityStep(Component):
     def before_solve(self, solver, instance, _):
         logger.info("Relaxing integrality...")
         solver.internal_solver.relax()
+
+    def after_solve(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        training_data,
+    ):
+        return

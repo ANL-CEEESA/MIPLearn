@@ -74,13 +74,21 @@ class ConvertTightIneqsIntoEqsStep(Component):
 
         logger.info(f"Converted {self.n_converted} inequalities")
 
-    def after_solve(self, solver, instance, model, results):
-        instance.slacks = solver.internal_solver.get_inequality_slacks()
-        results["ConvertTight: Kept"] = self.n_kept
-        results["ConvertTight: Converted"] = self.n_converted
-        results["ConvertTight: Restored"] = self.n_restored
-        results["ConvertTight: Inf iterations"] = self.n_infeasible_iterations
-        results["ConvertTight: Subopt iterations"] = self.n_suboptimal_iterations
+    def after_solve(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        training_data,
+    ):
+        if "slacks" not in training_data.keys():
+            training_data["slacks"] = solver.internal_solver.get_inequality_slacks()
+        stats["ConvertTight: Kept"] = self.n_kept
+        stats["ConvertTight: Converted"] = self.n_converted
+        stats["ConvertTight: Restored"] = self.n_restored
+        stats["ConvertTight: Inf iterations"] = self.n_infeasible_iterations
+        stats["ConvertTight: Subopt iterations"] = self.n_suboptimal_iterations
 
     def fit(self, training_instances):
         logger.debug("Extracting x and y...")
@@ -108,7 +116,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
             if constraint_ids is not None:
                 cids = constraint_ids
             else:
-                cids = instance.slacks.keys()
+                cids = instance.training_data[0]["slacks"].keys()
             for cid in cids:
                 category = instance.get_constraint_category(cid)
                 if category is None:
@@ -130,7 +138,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
             desc="Extract (rlx:conv_ineqs:y)",
             disable=len(instances) < 5,
         ):
-            for (cid, slack) in instance.slacks.items():
+            for (cid, slack) in instance.training_data[0]["slacks"].items():
                 category = instance.get_constraint_category(cid)
                 if category is None:
                     continue

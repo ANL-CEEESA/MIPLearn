@@ -25,8 +25,7 @@ def test_convert_tight_usage():
     original_upper_bound = instance.upper_bound
 
     # Should collect training data
-    assert hasattr(instance, "slacks")
-    assert instance.slacks["eq_capacity"] == 0.0
+    assert instance.training_data[0]["slacks"]["eq_capacity"] == 0.0
 
     # Fit and resolve
     solver.fit([instance])
@@ -39,21 +38,6 @@ def test_convert_tight_usage():
 
 
 class TestInstance(Instance):
-    def to_model(self):
-        import gurobipy as grb
-        from gurobipy import GRB
-
-        m = grb.Model("model")
-        x1 = m.addVar(name="x1")
-        x2 = m.addVar(name="x2")
-        m.setObjective(x1 + 2 * x2, grb.GRB.MAXIMIZE)
-        m.addConstr(x1 <= 2, name="c1")
-        m.addConstr(x2 <= 2, name="c2")
-        m.addConstr(x1 + x2 <= 3, name="c2")
-        return m
-
-
-class TestInstanceMin(Instance):
     def to_model(self):
         import gurobipy as grb
         from gurobipy import GRB

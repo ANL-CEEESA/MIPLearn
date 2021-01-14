@@ -25,9 +25,16 @@ class CompositeComponent(Component):
         for child in self.children:
             child.before_solve(solver, instance, model)
 
-    def after_solve(self, solver, instance, model, results):
+    def after_solve(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        training_data,
+    ):
         for child in self.children:
-            child.after_solve(solver, instance, model, results)
+            child.after_solve(solver, instance, model, stats, training_data)
 
     def fit(self, training_instances):
         for child in self.children:

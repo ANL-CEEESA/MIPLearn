@@ -52,7 +52,14 @@ class DynamicLazyConstraintsComponent(Component):
             solver.internal_solver.add_constraint(cut)
         return True
 
-    def after_solve(self, solver, instance, model, results):
+    def after_solve(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        training_data,
+    ):
         pass
 
     def fit(self, training_instances):

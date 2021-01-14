@@ -76,12 +76,19 @@ class DropRedundantInequalitiesStep(Component):
                     self.total_kept += 1
         logger.info(f"Extracted {self.total_dropped} predicted constraints")
 
-    def after_solve(self, solver, instance, model, results):
+    def after_solve(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        training_data,
+    ):
         instance.slacks = solver.internal_solver.get_inequality_slacks()
-        results["DropRedundant: Kept"] = self.total_kept
-        results["DropRedundant: Dropped"] = self.total_dropped
-        results["DropRedundant: Restored"] = self.total_restored
-        results["DropRedundant: Iterations"] = self.total_iterations
+        stats["DropRedundant: Kept"] = self.total_kept
+        stats["DropRedundant: Dropped"] = self.total_dropped
+        stats["DropRedundant: Restored"] = self.total_restored
+        stats["DropRedundant: Iterations"] = self.total_iterations
 
     def fit(self, training_instances):
         logger.debug("Extracting x and y...")

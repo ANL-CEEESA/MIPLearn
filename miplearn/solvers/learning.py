@@ -287,22 +287,27 @@ class LearningSolver:
             lazy_cb = lazy_cb_wrapper
 
         logger.info("Solving MILP...")
-        results = self.internal_solver.solve(
+        stats = self.internal_solver.solve(
             tee=tee,
             iteration_cb=iteration_cb,
             lazy_cb=lazy_cb,
         )
-        results["LP value"] = instance.lp_value
+        stats["LP value"] = instance.lp_value
 
         # Read MIP solution and bounds
-        instance.lower_bound = results["Lower bound"]
-        instance.upper_bound = results["Upper bound"]
-        instance.solver_log = results["Log"]
+        instance.lower_bound = stats["Lower bound"]
+        instance.upper_bound = stats["Upper bound"]
+        instance.solver_log = stats["Log"]
         instance.solution = self.internal_solver.get_solution()
 
         logger.debug("Calling after_solve callbacks...")
+        training_data = {}
         for component in self.components.values():
-            component.after_solve(self, instance, model, results)
+            component.after_solve(self, instance, model, stats, training_data)
+
+        if not hasattr(instance, "training_data"):
+            instance.training_data = []
+        instance.training_data += [training_data]
 
         if filename is not None and output is not None:
             output_filename = output
@@ -316,7 +321,7 @@ class LearningSolver:
                 with gzip.GzipFile(output_filename, "wb") as file:
                     pickle.dump(instance, file)
 
-        return results
+        return stats
 
     def parallel_solve(self, instances, n_jobs=4, label="Solve", output=[]):
         """

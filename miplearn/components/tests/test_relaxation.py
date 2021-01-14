@@ -115,7 +115,7 @@ def test_drop_redundant():
     )
 
     # LearningSolver calls after_solve
-    component.after_solve(solver, instance, None, {})
+    component.after_solve(solver, instance, None, {}, {})
 
     # Should query slack for all inequalities
     internal.get_inequality_slacks.assert_called_once()
