@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import logging
 from tqdm.auto import tqdm
+import os
 
 from .solvers.learning import LearningSolver
 
@@ -61,6 +62,7 @@ class BenchmarkRunner:
         return self.results
 
     def save_results(self, filename):
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         self.results.to_csv(filename)
 
     def load_results(self, filename):
