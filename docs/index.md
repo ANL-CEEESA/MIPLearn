@@ -1,11 +1,9 @@
 # MIPLearn
 
-**MIPLearn** is an extensible framework for solving discrete optimization problems using a combination of Mixed-Integer Linear Programming (MIP) and Machine Learning (ML).
+**MIPLearn** is an extensible framework for solving discrete optimization problems using a combination of Mixed-Integer Linear Programming (MIP) and Machine Learning (ML). The framework uses ML methods to automatically identify patterns in previously solved instances of the problem, then uses these patterns to accelerate the performance of conventional state-of-the-art MIP solvers (such as CPLEX, Gurobi or XPRESS).
 
-The framework uses ML methods to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, then uses these patterns to accelerate the performance of conventional state-of-the-art MIP solvers (such as CPLEX, Gurobi or XPRESS).
-
-* Unlike pure ML methods, **MIPLearn** is able not only find high-quality solutions to discrete optimization problems, but it can also prove that the solutions are optimal and feasible.
-* Unlike conventional MIP solvers, **MIPLearn** can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value). 
+Unlike pure ML methods, MIPLearn is not only able to find high-quality solutions to discrete optimization problems, but it can also prove the optimality and feasibility of these solutions.
+Unlike conventional MIP solvers, MIPLearn can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value). 
 
 For certain classes of problems, this approach has been shown to provide significant performance benefits (see [benchmarks](problems.md) and [references](about.md)).
 
