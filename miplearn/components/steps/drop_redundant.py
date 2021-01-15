@@ -103,7 +103,8 @@ class DropRedundantInequalitiesStep(Component):
                 self.classifiers[category] = deepcopy(self.classifier_prototype)
             self.classifiers[category].fit(x[category], y[category])
 
-    def _x_test(self, instance, constraint_ids):
+    @staticmethod
+    def _x_test(instance, constraint_ids):
         x = {}
         constraints = {}
         cids = constraint_ids
@@ -120,7 +121,8 @@ class DropRedundantInequalitiesStep(Component):
             x[category] = np.array(x[category])
         return x, constraints
 
-    def _x_train(self, instances):
+    @staticmethod
+    def _x_train(instances):
         x = {}
         for instance in tqdm(
             InstanceIterator(instances),

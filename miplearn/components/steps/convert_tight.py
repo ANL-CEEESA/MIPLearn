@@ -7,11 +7,13 @@ from copy import deepcopy
 
 import numpy as np
 from tqdm import tqdm
+import random
 
-from miplearn import Component
-from miplearn.classifiers.counting import CountingClassifier
-from miplearn.components import classifier_evaluation_dict
-from miplearn.extractors import InstanceIterator
+from ... import Component
+from ...classifiers.counting import CountingClassifier
+from ...components import classifier_evaluation_dict
+from ...extractors import InstanceIterator
+from .drop_redundant import DropRedundantInequalitiesStep
 
 logger = logging.getLogger(__name__)
 
@@ -46,11 +48,9 @@ class ConvertTightIneqsIntoEqsStep(Component):
 
     def before_solve(self, solver, instance, _):
         logger.info("Predicting tight LP constraints...")
-        cids = solver.internal_solver.get_constraint_ids()
-        x, constraints = self.x(
-            [instance],
-            constraint_ids=cids,
-            return_constraints=True,
+        x, constraints = DropRedundantInequalitiesStep._x_test(
+            instance,
+            constraint_ids=solver.internal_solver.get_constraint_ids(),
         )
         y = self.predict(x)
 
@@ -68,7 +68,6 @@ class ConvertTightIneqsIntoEqsStep(Component):
                     solver.internal_solver.set_constraint_sense(cid, "=")
                     self.converted += [cid]
                     self.n_converted += 1
-                    print(cid)
                 else:
                     self.n_kept += 1
 
@@ -100,36 +99,8 @@ class ConvertTightIneqsIntoEqsStep(Component):
                 self.classifiers[category] = deepcopy(self.classifier_prototype)
             self.classifiers[category].fit(x[category], y[category])
 
-    def x(
-        self,
-        instances,
-        constraint_ids=None,
-        return_constraints=False,
-    ):
-        x = {}
-        constraints = {}
-        for instance in tqdm(
-            InstanceIterator(instances),
-            desc="Extract (rlx:conv_ineqs:x)",
-            disable=len(instances) < 5,
-        ):
-            if constraint_ids is not None:
-                cids = constraint_ids
-            else:
-                cids = instance.training_data[0]["slacks"].keys()
-            for cid in cids:
-                category = instance.get_constraint_category(cid)
-                if category is None:
-                    continue
-                if category not in x:
-                    x[category] = []
-                    constraints[category] = []
-                x[category] += [instance.get_constraint_features(cid)]
-                constraints[category] += [cid]
-        if return_constraints:
-            return x, constraints
-        else:
-            return x
+    def x(self, instances):
+        return DropRedundantInequalitiesStep._x_train(instances)
 
     def y(self, instances):
         y = {}
@@ -215,13 +186,18 @@ class ConvertTightIneqsIntoEqsStep(Component):
                     is_infeasible = True
                     restore(cid)
         elif self.check_optimality:
+            random.shuffle(self.converted)
+            n_restored = 0
             for cid in self.converted:
+                if n_restored >= 100:
+                    break
                 pi = solver.internal_solver.get_dual(cid)
                 csense = self.original_sense[cid]
                 msense = solver.internal_solver.get_sense()
                 if not check_pi(msense, csense, pi):
                     is_suboptimal = True
                     restore(cid)
+                    n_restored += 1
 
         for cid in restored:
             self.converted.remove(cid)
