@@ -11,9 +11,14 @@
   </a>
 </p>
 
-**MIPLearn** is an extensible framework for **Learning-Enhanced Mixed-Integer Optimization**, an approach targeted at discrete optimization problems that need to be repeatedly solved with only minor changes to input data.
+**MIPLearn** is an extensible framework for solving discrete optimization problems using a combination of Mixed-Integer Linear Programming (MIP) and Machine Learning (ML).
 
-The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a conventional MIP solver towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see [benchmarks](https://anl-ceeesa.github.io/MIPLearn/0.1/problems/) and [references](https://anl-ceeesa.github.io/MIPLearn/0.1/about/)).
+The framework uses ML methods to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, then uses these patterns to accelerate the performance of conventional state-of-the-art MIP solvers (such as CPLEX, Gurobi or XPRESS).
+
+* Unlike pure ML methods, **MIPLearn** is able not only find high-quality solutions to discrete optimization problems, but it can also prove that the solutions are optimal and feasible.
+* Unlike conventional MIP solvers, **MIPLearn** can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value). 
+
+For certain classes of problems, this approach has been shown to provide significant performance benefits (see [benchmarks](https://anl-ceeesa.github.io/MIPLearn/0.1/problems/) and [references](https://anl-ceeesa.github.io/MIPLearn/0.1/about/)).
 
 Features
 --------
@@ -32,7 +37,8 @@ For installation instructions, basic usage and benchmarks results, see the [offi
 
 Acknowledgments
 ---------------
-* Based upon work supported by **Laboratory Directed Research and Development** (LDRD) funding from Argonne National Laboratory, provided by the Director, Office of Science, of the U.S. Department of Energy under Contract No. DE-AC02-06CH11357, and the **U.S. Department of Energy Advanced Grid Modeling Program** under Grant DE-OE0000875.
+* Based upon work supported by **Laboratory Directed Research and Development** (LDRD) funding from Argonne National Laboratory, provided by the Director, Office of Science, of the U.S. Department of Energy under Contract No. DE-AC02-06CH11357.
+* Based upon work supported by the **U.S. Department of Energy Advanced Grid Modeling Program** under Grant DE-OE0000875.
 
 Citing MIPLearn
 ---------------
