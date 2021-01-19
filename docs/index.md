@@ -1,8 +1,11 @@
 # MIPLearn
 
-**MIPLearn** is an extensible framework for **Learning-Enhanced Mixed-Integer Optimization**, an approach targeted at discrete optimization problems that need to be repeatedly solved with only minor changes to input data.
+**MIPLearn** is an extensible framework for solving discrete optimization problems using a combination of Mixed-Integer Linear Programming (MIP) and Machine Learning (ML). The framework uses ML methods to automatically identify patterns in previously solved instances of the problem, then uses these patterns to accelerate the performance of conventional state-of-the-art MIP solvers (such as CPLEX, Gurobi or XPRESS).
 
-The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a conventional MIP solver towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see [benchmark results](problems.md) and [references](about.md#references) for more details).
+Unlike pure ML methods, MIPLearn is not only able to find high-quality solutions to discrete optimization problems, but it can also prove the optimality and feasibility of these solutions.
+Unlike conventional MIP solvers, MIPLearn can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value). 
+
+For certain classes of problems, this approach has been shown to provide significant performance benefits (see [benchmarks](problems.md) and [references](about.md)).
 
 ### Features
 

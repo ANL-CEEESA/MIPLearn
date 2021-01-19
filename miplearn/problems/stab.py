@@ -2,13 +2,13 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import networkx as nx
 import numpy as np
 import pyomo.environ as pe
-import networkx as nx
-from miplearn import Instance
-import random
-from scipy.stats import uniform, randint, bernoulli
+from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
+
+from miplearn import Instance
 
 
 class ChallengeA:

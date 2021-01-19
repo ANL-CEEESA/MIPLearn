@@ -40,7 +40,14 @@ class UserCutsComponent(Component):
             cut = instance.build_user_cut(model, v)
             solver.internal_solver.add_constraint(cut)
 
-    def after_solve(self, solver, instance, model, results):
+    def after_solve(
+        self,
+        solver,
+        instance,
+        model,
+        results,
+        training_data,
+    ):
         pass
 
     def fit(self, training_instances):

@@ -27,9 +27,9 @@ def test_composite():
     c2.before_solve.assert_has_calls([call(solver, instance, model)])
 
     # Should broadcast after_solve
-    cc.after_solve(solver, instance, model, {})
-    c1.after_solve.assert_has_calls([call(solver, instance, model, {})])
-    c2.after_solve.assert_has_calls([call(solver, instance, model, {})])
+    cc.after_solve(solver, instance, model, {}, {})
+    c1.after_solve.assert_has_calls([call(solver, instance, model, {}, {})])
+    c2.after_solve.assert_has_calls([call(solver, instance, model, {}, {})])
 
     # Should broadcast fit
     cc.fit([1, 2, 3])

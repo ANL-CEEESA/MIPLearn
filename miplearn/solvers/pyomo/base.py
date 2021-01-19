@@ -256,11 +256,23 @@ class BasePyomoSolver(InternalSolver):
     def relax(self):
         raise Exception("not implemented")
 
-    def get_constraint_slacks(self):
+    def get_inequality_slacks(self):
         raise Exception("not implemented")
 
     def set_constraint_sense(self, cid, sense):
         raise Exception("Not implemented")
 
+    def get_constraint_sense(self, cid):
+        raise Exception("Not implemented")
+
     def set_constraint_rhs(self, cid, rhs):
+        raise Exception("Not implemented")
+
+    def is_infeasible(self):
+        raise Exception("Not implemented")
+
+    def get_dual(self, cid):
+        raise Exception("Not implemented")
+
+    def get_sense(self):
         raise Exception("Not implemented")

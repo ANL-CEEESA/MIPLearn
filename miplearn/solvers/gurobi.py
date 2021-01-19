@@ -5,6 +5,7 @@ import re
 import sys
 import logging
 from io import StringIO
+from random import randint
 
 from . import RedirectOutput
 from .internal import InternalSolver
@@ -33,6 +34,7 @@ class GurobiSolver(InternalSolver):
         """
         if params is None:
             params = {}
+        params["InfUnbdInfo"] = True
         from gurobipy import GRB
 
         self.GRB = GRB
@@ -84,16 +86,19 @@ class GurobiSolver(InternalSolver):
                     self._bin_vars[name] = {}
                 self._bin_vars[name][idx] = var
 
-    def _apply_params(self):
-        for (name, value) in self.params.items():
-            self.model.setParam(name, value)
+    def _apply_params(self, streams):
+        with RedirectOutput(streams):
+            for (name, value) in self.params.items():
+                self.model.setParam(name, value)
+            if "seed" not in [k.lower() for k in self.params.keys()]:
+                self.model.setParam("Seed", randint(0, 1_000_000))
 
     def solve_lp(self, tee=False):
         self._raise_if_callback()
-        self._apply_params()
         streams = [StringIO()]
         if tee:
             streams += [sys.stdout]
+        self._apply_params(streams)
         for (varname, vardict) in self._bin_vars.items():
             for (idx, var) in vardict.items():
                 var.vtype = self.GRB.CONTINUOUS
@@ -122,16 +127,15 @@ class GurobiSolver(InternalSolver):
 
         if lazy_cb:
             self.params["LazyConstraints"] = 1
-        self._apply_params()
         total_wallclock_time = 0
         total_nodes = 0
         streams = [StringIO()]
         if tee:
             streams += [sys.stdout]
+        self._apply_params(streams)
         if iteration_cb is None:
             iteration_cb = lambda: False
         while True:
-            logger.debug("Solving MIP...")
             with RedirectOutput(streams):
                 if lazy_cb is None:
                     self.model.optimize()
@@ -161,6 +165,12 @@ class GurobiSolver(InternalSolver):
             "Warm start value": self._extract_warm_start_value(log),
         }
 
+    def get_sense(self):
+        if self.model.modelSense == 1:
+            return "min"
+        else:
+            return "max"
+
     def get_solution(self):
         self._raise_if_callback()
 
@@ -174,6 +184,16 @@ class GurobiSolver(InternalSolver):
     def get_value(self, var_name, index):
         var = self._all_vars[var_name][index]
         return self._get_value(var)
+
+    def is_infeasible(self):
+        return self.model.status in [self.GRB.INFEASIBLE, self.GRB.INF_OR_UNBD]
+
+    def get_dual(self, cid):
+        c = self.model.getConstrByName(cid)
+        if self.is_infeasible():
+            return c.farkasDual
+        else:
+            return c.pi
 
     def _get_value(self, var):
         if self.cb_where == self.GRB.Callback.MIPSOL:
@@ -271,12 +291,17 @@ class GurobiSolver(InternalSolver):
         else:
             raise Exception("Unknown sense: %s" % sense)
 
-    def get_constraint_slacks(self):
-        return {c.ConstrName: c.Slack for c in self.model.getConstrs()}
+    def get_inequality_slacks(self):
+        ineqs = [c for c in self.model.getConstrs() if c.sense != "="]
+        return {c.ConstrName: c.Slack for c in ineqs}
 
     def set_constraint_sense(self, cid, sense):
         c = self.model.getConstrByName(cid)
         c.Sense = sense
+
+    def get_constraint_sense(self, cid):
+        c = self.model.getConstrByName(cid)
+        return c.Sense
 
     def set_constraint_rhs(self, cid, rhs):
         c = self.model.getConstrByName(cid)

@@ -11,7 +11,9 @@ import gzip
 from copy import deepcopy
 from typing import Optional, List
 from p_tqdm import p_map
+from tempfile import NamedTemporaryFile
 
+from . import RedirectOutput
 from .. import (
     ObjectiveValueComponent,
     PrimalSolutionComponent,
@@ -22,7 +24,6 @@ from .pyomo.cplex import CplexPyomoSolver
 from .pyomo.gurobi import GurobiPyomoSolver
 
 logger = logging.getLogger(__name__)
-
 
 # Global memory for multiprocessing
 SOLVER = [None]  # type: List[Optional[LearningSolver]]
@@ -44,6 +45,52 @@ def _parallel_solve(idx):
 
 
 class LearningSolver:
+    """
+    Mixed-Integer Linear Programming (MIP) solver that extracts information
+    from previous runs and uses Machine Learning methods to accelerate the
+    solution of new (yet unseen) instances.
+
+    Parameters
+    ----------
+    components
+        Set of components in the solver. By default, includes:
+            - ObjectiveValueComponent
+            - PrimalSolutionComponent
+            - DynamicLazyConstraintsComponent
+            - UserCutsComponent
+    gap_tolerance
+        Relative MIP gap tolerance. By default, 1e-4.
+    mode
+        If "exact", solves problem to optimality, keeping all optimality
+        guarantees provided by the MIP solver. If "heuristic", uses machine
+        learning more aggressively, and may return suboptimal solutions.
+    solver
+        The internal MIP solver to use. Can be either "cplex", "gurobi", a
+        solver class such as GurobiSolver, or a solver instance such as
+        GurobiSolver().
+    threads
+        Maximum number of threads to use. If None, uses solver default.
+    time_limit
+        Maximum running time in seconds. If None, uses solver default.
+    node_limit
+        Maximum number of branch-and-bound nodes to explore. If None, uses
+        solver default.
+    use_lazy_cb
+        If True, uses lazy callbacks to enforce lazy constraints, instead of
+        a simple solver loop. This functionality may not supported by
+        all internal MIP solvers.
+    solve_lp_first: bool
+        If true, solve LP relaxation first, then solve original MILP. This
+        option should be activated if the LP relaxation is not very
+        expensive to solve and if it provides good hints for the integer
+        solution.
+    simulate_perfect: bool
+        If true, each call to solve actually performs three actions: solve
+        the original problem, train the ML models on the data that was just
+        collected, and solve the problem again. This is useful for evaluating
+        the theoretical performance of perfect ML models.
+    """
+
     def __init__(
         self,
         components=None,
@@ -55,47 +102,8 @@ class LearningSolver:
         node_limit=None,
         solve_lp_first=True,
         use_lazy_cb=False,
+        simulate_perfect=False,
     ):
-        """
-        Mixed-Integer Linear Programming (MIP) solver that extracts information
-        from previous runs and uses Machine Learning methods to accelerate the
-        solution of new (yet unseen) instances.
-
-        Parameters
-        ----------
-        components
-            Set of components in the solver. By default, includes:
-                - ObjectiveValueComponent
-                - PrimalSolutionComponent
-                - DynamicLazyConstraintsComponent
-                - UserCutsComponent
-        gap_tolerance
-            Relative MIP gap tolerance. By default, 1e-4.
-        mode
-            If "exact", solves problem to optimality, keeping all optimality
-            guarantees provided by the MIP solver. If "heuristic", uses machine
-            learning more agressively, and may return suboptimal solutions.
-        solver
-            The internal MIP solver to use. Can be either "cplex", "gurobi", a
-            solver class such as GurobiSolver, or a solver instance such as
-            GurobiSolver().
-        threads
-            Maximum number of threads to use. If None, uses solver default.
-        time_limit
-            Maximum running time in seconds. If None, uses solver default.
-        node_limit
-            Maximum number of branch-and-bound nodes to explore. If None, uses
-            solver default.
-        use_lazy_cb
-            If True, uses lazy callbacks to enforce lazy constraints, instead of
-            a simple solver loop. This functionality may not supported by
-            all internal MIP solvers.
-        solve_lp_first: bool
-            If true, solve LP relaxation first, then solve original MILP. This
-            option should be activated if the LP relaxation is not very
-            expensive to solve and if it provides good hints for the integer
-            solution.
-        """
         self.components = {}
         self.mode = mode
         self.internal_solver = None
@@ -107,6 +115,7 @@ class LearningSolver:
         self.node_limit = node_limit
         self.solve_lp_first = solve_lp_first
         self.use_lazy_cb = use_lazy_cb
+        self.simulate_perfect = simulate_perfect
 
         if components is not None:
             for comp in components:
@@ -202,7 +211,31 @@ class LearningSolver:
             "Predicted UB". See the documentation of each component for more
             details.
         """
+        if self.simulate_perfect:
+            if not isinstance(instance, str):
+                raise Exception("Not implemented")
+            with tempfile.NamedTemporaryFile(suffix=os.path.basename(instance)) as tmp:
+                self._solve(
+                    instance=instance,
+                    model=model,
+                    output=tmp.name,
+                    tee=tee,
+                )
+                self.fit([tmp.name])
+        return self._solve(
+            instance=instance,
+            model=model,
+            output=output,
+            tee=tee,
+        )
 
+    def _solve(
+        self,
+        instance,
+        model=None,
+        output="",
+        tee=False,
+    ):
         filename = None
         fileformat = None
         if isinstance(instance, str):
@@ -218,7 +251,8 @@ class LearningSolver:
                     instance = pickle.load(file)
 
         if model is None:
-            model = instance.to_model()
+            with RedirectOutput([]):
+                model = instance.to_model()
 
         self.tee = tee
         self.internal_solver = self._create_internal_solver()
@@ -253,22 +287,27 @@ class LearningSolver:
             lazy_cb = lazy_cb_wrapper
 
         logger.info("Solving MILP...")
-        results = self.internal_solver.solve(
+        stats = self.internal_solver.solve(
             tee=tee,
             iteration_cb=iteration_cb,
             lazy_cb=lazy_cb,
         )
-        results["LP value"] = instance.lp_value
+        stats["LP value"] = instance.lp_value
 
         # Read MIP solution and bounds
-        instance.lower_bound = results["Lower bound"]
-        instance.upper_bound = results["Upper bound"]
-        instance.solver_log = results["Log"]
+        instance.lower_bound = stats["Lower bound"]
+        instance.upper_bound = stats["Upper bound"]
+        instance.solver_log = stats["Log"]
         instance.solution = self.internal_solver.get_solution()
 
         logger.debug("Calling after_solve callbacks...")
+        training_data = {}
         for component in self.components.values():
-            component.after_solve(self, instance, model, results)
+            component.after_solve(self, instance, model, stats, training_data)
+
+        if not hasattr(instance, "training_data"):
+            instance.training_data = []
+        instance.training_data += [training_data]
 
         if filename is not None and output is not None:
             output_filename = output
@@ -282,7 +321,7 @@ class LearningSolver:
                 with gzip.GzipFile(output_filename, "wb") as file:
                     pickle.dump(instance, file)
 
-        return results
+        return stats
 
     def parallel_solve(self, instances, n_jobs=4, label="Solve", output=[]):
         """

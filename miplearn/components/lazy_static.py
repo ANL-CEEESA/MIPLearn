@@ -49,7 +49,14 @@ class StaticLazyConstraintsComponent(Component):
         if instance.has_static_lazy_constraints():
             self._extract_and_predict_static(solver, instance)
 
-    def after_solve(self, solver, instance, model, results):
+    def after_solve(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        training_data,
+    ):
         pass
 
     def iteration_cb(self, solver, instance, model):

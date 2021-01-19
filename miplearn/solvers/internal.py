@@ -184,10 +184,36 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def get_constraint_slacks(self):
+    def get_inequality_slacks(self):
         """
         Returns a dictionary mapping constraint name to the constraint slack
         in the current solution.
+        """
+        pass
+
+    @abstractmethod
+    def is_infeasible(self):
+        """
+        Returns True if the model has been proved to be infeasible.
+        Must be called after solve.
+        """
+        pass
+
+    @abstractmethod
+    def get_dual(self, cid):
+        """
+        If the model is feasible and has been solved to optimality, returns the optimal
+        value of the dual variable associated with this constraint. If the model is infeasible,
+        returns a portion of the infeasibility certificate corresponding to the given constraint.
+
+        Solve must be called prior to this method.
+        """
+        pass
+
+    @abstractmethod
+    def get_sense(self):
+        """
+        Returns the sense of the problem (either "min" or "max").
         """
         pass
 
@@ -197,6 +223,10 @@ class InternalSolver(ABC):
 
     @abstractmethod
     def set_constraint_sense(self, cid, sense):
+        pass
+
+    @abstractmethod
+    def get_constraint_sense(self, cid):
         pass
 
     @abstractmethod

@@ -52,7 +52,14 @@ class DynamicLazyConstraintsComponent(Component):
             solver.internal_solver.add_constraint(cut)
         return True
 
-    def after_solve(self, solver, instance, model, results):
+    def after_solve(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        training_data,
+    ):
         pass
 
     def fit(self, training_instances):
@@ -61,7 +68,7 @@ class DynamicLazyConstraintsComponent(Component):
 
         self.classifiers = {}
         violation_to_instance_idx = {}
-        for (idx, instance) in enumerate(training_instances):
+        for (idx, instance) in enumerate(InstanceIterator(training_instances)):
             for v in instance.found_violated_lazy_constraints:
                 if isinstance(v, list):
                     v = tuple(v)

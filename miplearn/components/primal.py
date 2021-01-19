@@ -39,7 +39,14 @@ class PrimalSolutionComponent(Component):
         else:
             solver.internal_solver.set_warm_start(solution)
 
-    def after_solve(self, solver, instance, model, results):
+    def after_solve(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        training_data,
+    ):
         pass
 
     def x(self, training_instances):
