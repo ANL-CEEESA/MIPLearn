@@ -76,6 +76,14 @@ class BenchmarkRunner:
         for (solver_name, solver) in self.solvers.items():
             solver.fit(training_instances)
 
+    def _compute_gap(self, ub, lb):
+        # solver did not find a solution and/or bound, use maximum gap possible
+        if lb is None or ub is None or lb * ub < 0:
+            return 1.0
+        else:
+            # divide by max(abs(ub),abs(lb)) to ensure gap <= 1
+            return (ub - lb) / max(abs(ub), abs(lb))
+
     def _push_result(self, result, solver, solver_name, instance):
         if self.results is None:
             self.results = pd.DataFrame(
@@ -85,12 +93,12 @@ class BenchmarkRunner:
                     "Instance",
                 ]
             )
-
-        lb = result["Lower bound"]
-        ub = result["Upper bound"]
         result["Solver"] = solver_name
         result["Instance"] = instance
-        result["Gap"] = (ub - lb) / lb
+        result["Gap"] = self._compute_gap(
+            ub=result["Lower bound"],
+            lb=result["Upper bound"],
+        )
         result["Mode"] = solver.mode
         self.results = self.results.append(pd.DataFrame([result]))
 
