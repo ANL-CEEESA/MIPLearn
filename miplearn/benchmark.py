@@ -66,7 +66,7 @@ class BenchmarkRunner:
         self.results.to_csv(filename)
 
     def load_results(self, filename):
-        self.results = pd.read_csv(filename, index_col=0)
+        self.results = pd.concat([self.results, pd.read_csv(filename, index_col=0)])
 
     def load_state(self, filename):
         for (solver_name, solver) in self.solvers.items():
@@ -112,91 +112,6 @@ class BenchmarkRunner:
         )
         self.results["Relative Gap"] = self.results["Gap"] / best_gap
         self.results["Relative Nodes"] = self.results["Nodes"] / best_nodes
-
-    def save_chart(self, filename):
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-        from numpy import median
-
-        sns.set_style("whitegrid")
-        sns.set_palette("Blues_r")
-        results = self.raw_results()
-        results["Gap (%)"] = results["Gap"] * 100.0
-
-        sense = results.loc[0, "Sense"]
-        if sense == "min":
-            primal_column = "Relative upper bound"
-            obj_column = "Upper bound"
-            predicted_obj_column = "Predicted UB"
-        else:
-            primal_column = "Relative lower bound"
-            obj_column = "Lower bound"
-            predicted_obj_column = "Predicted LB"
-
-        fig, (ax1, ax2, ax3, ax4) = plt.subplots(
-            nrows=1,
-            ncols=4,
-            figsize=(12, 4),
-            gridspec_kw={"width_ratios": [2, 1, 1, 2]},
-        )
-
-        # Figure 1: Solver x Wallclock time
-        sns.stripplot(
-            x="Solver",
-            y="Wallclock time",
-            data=results,
-            ax=ax1,
-            jitter=0.25,
-            size=4.0,
-        )
-        sns.barplot(
-            x="Solver",
-            y="Wallclock time",
-            data=results,
-            ax=ax1,
-            errwidth=0.0,
-            alpha=0.4,
-            estimator=median,
-        )
-        ax1.set(ylabel="Wallclock time (s)")
-
-        # Figure 2: Solver x Gap (%)
-        ax2.set_ylim(-0.5, 5.5)
-        sns.stripplot(
-            x="Solver",
-            y="Gap (%)",
-            jitter=0.25,
-            data=results[results["Mode"] != "heuristic"],
-            ax=ax2,
-            size=4.0,
-        )
-
-        # Figure 3: Solver x Primal Value
-        ax3.set_ylim(0.95, 1.05)
-        sns.stripplot(
-            x="Solver",
-            y=primal_column,
-            jitter=0.25,
-            data=results[results["Mode"] == "heuristic"],
-            ax=ax3,
-        )
-
-        # Figure 4: Predicted vs Actual Objective Value
-        sns.scatterplot(
-            x=obj_column,
-            y=predicted_obj_column,
-            hue="Solver",
-            data=results[results["Mode"] != "heuristic"],
-            ax=ax4,
-        )
-        xlim, ylim = ax4.get_xlim(), ax4.get_ylim()
-        ax4.plot([-1e10, 1e10], [-1e10, 1e10], ls="-", color="#cccccc")
-        ax4.set_xlim(xlim)
-        ax4.set_ylim(ylim)
-        ax4.get_legend().remove()
-
-        fig.tight_layout()
-        plt.savefig(filename, bbox_inches="tight", dpi=150)
 
     def _silence_miplearn_logger(self):
         miplearn_logger = logging.getLogger("miplearn")
