@@ -31,6 +31,9 @@ import glob
 from docopt import docopt
 from numpy import median
 from pathlib import Path
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from miplearn import (
     LearningSolver,
@@ -132,16 +135,19 @@ def test_ml():
 
 
 def charts():
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-
     sns.set_style("whitegrid")
     sns.set_palette("Blues_r")
-    benchmark = BenchmarkRunner({})
-    benchmark.load_results(f"{basepath}/benchmark_baseline.csv")
-    benchmark.load_results(f"{basepath}/benchmark_ml.csv")
-    results = benchmark.raw_results()
-    results["Gap (%)"] = results["Gap"] * 100.0
+
+    csv_files = [
+        f"{basepath}/benchmark_baseline.csv",
+        f"{basepath}/benchmark_ml.csv",
+    ]
+    results = pd.concat(map(pd.read_csv, csv_files))
+    groups = results.groupby("Instance")
+    best_lower_bound = groups["Lower bound"].transform("max")
+    best_upper_bound = groups["Upper bound"].transform("min")
+    results["Relative lower bound"] = results["Lower bound"] / best_lower_bound
+    results["Relative upper bound"] = results["Upper bound"] / best_upper_bound
 
     sense = results.loc[0, "Sense"]
     if (sense == "min").any():
@@ -187,7 +193,7 @@ def charts():
     ax2.set_ylim(-0.5, 5.5)
     sns.stripplot(
         x="Solver",
-        y="Gap (%)",
+        y="Gap",
         jitter=0.25,
         data=results[results["Solver"] != "ml-heuristic"],
         ax=ax2,

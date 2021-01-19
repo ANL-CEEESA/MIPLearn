@@ -94,25 +94,6 @@ class BenchmarkRunner:
         result["Mode"] = solver.mode
         self.results = self.results.append(pd.DataFrame([result]))
 
-        # Compute relative statistics
-        groups = self.results.groupby("Instance")
-        best_lower_bound = groups["Lower bound"].transform("max")
-        best_upper_bound = groups["Upper bound"].transform("min")
-        best_gap = groups["Gap"].transform("min")
-        best_nodes = np.maximum(1, groups["Nodes"].transform("min"))
-        best_wallclock_time = groups["Wallclock time"].transform("min")
-        self.results["Relative lower bound"] = (
-            self.results["Lower bound"] / best_lower_bound
-        )
-        self.results["Relative upper bound"] = (
-            self.results["Upper bound"] / best_upper_bound
-        )
-        self.results["Relative wallclock time"] = (
-            self.results["Wallclock time"] / best_wallclock_time
-        )
-        self.results["Relative Gap"] = self.results["Gap"] / best_gap
-        self.results["Relative Nodes"] = self.results["Nodes"] / best_nodes
-
     def _silence_miplearn_logger(self):
         miplearn_logger = logging.getLogger("miplearn")
         self.prev_log_level = miplearn_logger.getEffectiveLevel()
