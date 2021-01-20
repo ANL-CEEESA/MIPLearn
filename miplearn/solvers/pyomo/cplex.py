@@ -33,17 +33,5 @@ class CplexPyomoSolver(BasePyomoSolver):
     def _get_node_count_regexp(self):
         return "^[ *] *([0-9]+)"
 
-    def _get_threads_option_name(self):
-        return "threads"
-
-    def _get_time_limit_option_name(self):
-        return "timelimit"
-
-    def _get_node_limit_option_name(self):
-        return "mip_limits_nodes"
-
-    def _get_gap_tolerance_option_name(self):
-        return "mip_tolerances_mipgap"
-
     def set_branching_priorities(self, priorities):
         raise NotImplementedError

@@ -41,18 +41,6 @@ class GurobiPyomoSolver(BasePyomoSolver):
     def _get_node_count_regexp(self):
         return None
 
-    def _get_threads_option_name(self):
-        return "Threads"
-
-    def _get_time_limit_option_name(self):
-        return "TimeLimit"
-
-    def _get_node_limit_option_name(self):
-        return "NodeLimit"
-
-    def _get_gap_tolerance_option_name(self):
-        return "MIPGap"
-
     def set_branching_priorities(self, priorities):
         from gurobipy import GRB
 

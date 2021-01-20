@@ -315,22 +315,6 @@ class GurobiSolver(InternalSolver):
         self._raise_if_callback()
         logger.warning("set_branching_priorities not implemented")
 
-    def set_threads(self, threads):
-        self._raise_if_callback()
-        self.params["Threads"] = threads
-
-    def set_time_limit(self, time_limit):
-        self._raise_if_callback()
-        self.params["TimeLimit"] = time_limit
-
-    def set_node_limit(self, node_limit):
-        self._raise_if_callback()
-        self.params["NodeLimit"] = node_limit
-
-    def set_gap_tolerance(self, gap_tolerance):
-        self._raise_if_callback()
-        self.params["MIPGap"] = gap_tolerance
-
     def _extract_warm_start_value(self, log):
         ws = self.__extract(log, "MIP start with objective ([0-9.e+-]*)")
         if ws is not None:

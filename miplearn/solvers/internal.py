@@ -37,13 +37,47 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
+    def solve(self, tee=False, iteration_cb=None, lazy_cb=None):
+        """
+        Solves the currently loaded instance. After this method finishes,
+        the best solution found can be retrieved by calling `get_solution`.
+
+        Parameters
+        ----------
+        iteration_cb: () -> Bool
+            By default, InternalSolver makes a single call to the native `solve`
+            method and returns the result. If an iteration callback is provided
+            instead, InternalSolver enters a loop, where `solve` and `iteration_cb`
+            are called alternatively. To stop the loop, `iteration_cb` should
+            return False. Any other result causes the solver to loop again.
+        lazy_cb: (internal_solver, model) -> None
+            This function is called whenever the solver finds a new candidate
+            solution and can be used to add lazy constraints to the model. Only
+            the following operations within the callback are allowed:
+                - Querying the value of a variable, through `get_value(var, idx)`
+                - Querying if a constraint is satisfied, through `is_constraint_satisfied(cobj)`
+                - Adding a new constraint to the problem, through `add_constraint`
+            Additional operations may be allowed by specific subclasses.
+        tee: Bool
+            If true, prints the solver log to the screen.
+
+        Returns
+        -------
+        dict
+            A dictionary of solver statistics containing the following keys:
+            "Lower bound", "Upper bound", "Wallclock time", "Nodes", "Sense",
+             "Log" and "Warm start value".
+        """
+        pass
+
+    @abstractmethod
     def get_solution(self):
         """
         Returns current solution found by the solver.
 
         If called after `solve`, returns the best primal solution found during
         the search. If called after `solve_lp`, returns the optimal solution
-        to the LP relaxation.
+        to the LP relaxation. If no primal solution is available, return None.
 
         The solution is a dictionary `sol`, where the optimal value of `var[idx]`
         is given by `sol[var][idx]`.
@@ -63,20 +97,13 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def clear_warm_start(self):
-        """
-        Removes any existing warm start from the solver.
-        """
-        pass
-
-    @abstractmethod
     def set_instance(self, instance, model=None):
         """
         Loads the given instance into the solver.
 
         Parameters
         ----------
-        instance: miplearn.Instance
+        instance: Instance
             The instance to be loaded.
         model:
             The concrete optimization model corresponding to this instance
@@ -115,40 +142,6 @@ class InternalSolver(ABC):
     def add_constraint(self, constraint):
         """
         Adds a single constraint to the model.
-        """
-        pass
-
-    @abstractmethod
-    def solve(self, tee=False, iteration_cb=None, lazy_cb=None):
-        """
-        Solves the currently loaded instance. After this method finishes,
-        the best solution found can be retrieved by calling `get_solution`.
-
-        Parameters
-        ----------
-        iteration_cb: () -> Bool
-            By default, InternalSolver makes a single call to the native `solve`
-            method and returns the result. If an iteration callback is provided
-            instead, InternalSolver enters a loop, where `solve` and `iteration_cb`
-            are called alternatively. To stop the loop, `iteration_cb` should
-            return False. Any other result causes the solver to loop again.
-        lazy_cb: (internal_solver, model) -> None
-            This function is called whenever the solver finds a new candidate
-            solution and can be used to add lazy constraints to the model. Only
-            the following operations within the callback are allowed:
-                - Querying the value of a variable, through `get_value(var, idx)`
-                - Querying if a constraint is satisfied, through `is_constraint_satisfied(cobj)`
-                - Adding a new constraint to the problem, through `add_constraint`
-            Additional operations may be allowed by specific subclasses.
-        tee: Bool
-            If true, prints the solver log to the screen.
-
-        Returns
-        -------
-        dict
-            A dictionary of solver statistics containing the following keys:
-            "Lower bound", "Upper bound", "Wallclock time", "Nodes", "Sense",
-             "Log" and "Warm start value".
         """
         pass
 
@@ -206,7 +199,7 @@ class InternalSolver(ABC):
         value of the dual variable associated with this constraint. If the model is infeasible,
         returns a portion of the infeasibility certificate corresponding to the given constraint.
 
-        Solve must be called prior to this method.
+        Must be called after solve.
         """
         pass
 
@@ -219,6 +212,7 @@ class InternalSolver(ABC):
 
     @abstractmethod
     def is_constraint_satisfied(self, cobj):
+        """Returns True if the current solution satisfies the given constraint."""
         pass
 
     @abstractmethod
@@ -231,22 +225,6 @@ class InternalSolver(ABC):
 
     @abstractmethod
     def set_constraint_rhs(self, cid, rhs):
-        pass
-
-    @abstractmethod
-    def set_threads(self, threads):
-        pass
-
-    @abstractmethod
-    def set_time_limit(self, time_limit):
-        pass
-
-    @abstractmethod
-    def set_node_limit(self, node_limit):
-        pass
-
-    @abstractmethod
-    def set_gap_tolerance(self, gap_tolerance):
         pass
 
     @abstractmethod

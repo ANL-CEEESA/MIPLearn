@@ -204,22 +204,6 @@ class BasePyomoSolver(InternalSolver):
     def _extract_node_count(self, log):
         return int(self.__extract(log, self._get_node_count_regexp(), default=1))
 
-    def set_threads(self, threads):
-        key = self._get_threads_option_name()
-        self._pyomo_solver.options[key] = threads
-
-    def set_time_limit(self, time_limit):
-        key = self._get_time_limit_option_name()
-        self._pyomo_solver.options[key] = time_limit
-
-    def set_node_limit(self, node_limit):
-        key = self._get_node_limit_option_name()
-        self._pyomo_solver.options[key] = node_limit
-
-    def set_gap_tolerance(self, gap_tolerance):
-        key = self._get_gap_tolerance_option_name()
-        self._pyomo_solver.options[key] = gap_tolerance
-
     def get_constraint_ids(self):
         return list(self._cname_to_constr.keys())
 
@@ -229,22 +213,6 @@ class BasePyomoSolver(InternalSolver):
 
     @abstractmethod
     def _get_node_count_regexp(self):
-        pass
-
-    @abstractmethod
-    def _get_threads_option_name(self):
-        pass
-
-    @abstractmethod
-    def _get_time_limit_option_name(self):
-        pass
-
-    @abstractmethod
-    def _get_node_limit_option_name(self):
-        pass
-
-    @abstractmethod
-    def _get_gap_tolerance_option_name(self):
         pass
 
     def extract_constraint(self, cid):
