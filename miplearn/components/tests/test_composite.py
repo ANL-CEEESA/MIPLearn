@@ -4,8 +4,6 @@
 
 from unittest.mock import Mock, call
 
-from nltk import Model
-
 from miplearn import Component, LearningSolver, Instance
 from miplearn.components.composite import CompositeComponent
 
@@ -14,7 +12,7 @@ def test_composite():
     solver, instance, model = (
         Mock(spec=LearningSolver),
         Mock(spec=Instance),
-        Mock(spec=Model),
+        Mock(),
     )
 
     c1 = Mock(spec=Component)
