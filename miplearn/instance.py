@@ -5,6 +5,7 @@
 import gzip
 import json
 from abc import ABC, abstractmethod
+from typing import Any
 
 import numpy as np
 
@@ -20,7 +21,7 @@ class Instance(ABC):
     """
 
     @abstractmethod
-    def to_model(self):
+    def to_model(self) -> Any:
         """
         Returns a concrete Pyomo model corresponding to this instance.
         """

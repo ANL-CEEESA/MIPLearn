@@ -4,19 +4,20 @@
 
 import logging
 import sys
+from typing import Any, List
 
 logger = logging.getLogger(__name__)
 
 
 class RedirectOutput:
-    def __init__(self, streams):
+    def __init__(self, streams: List[Any]):
         self.streams = streams
 
-    def write(self, data):
+    def write(self, data: Any) -> None:
         for stream in self.streams:
             stream.write(data)
 
-    def flush(self):
+    def flush(self) -> None:
         for stream in self.streams:
             stream.flush()
 

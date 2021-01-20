@@ -6,7 +6,7 @@ import logging
 import re
 import sys
 from io import StringIO
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Optional
 
 import pyomo
 from pyomo import environ as pe
@@ -169,18 +169,18 @@ class BasePyomoSolver(InternalSolver):
                 variables[str(var)] += [index]
         return variables
 
-    def _clear_warm_start(self):
+    def _clear_warm_start(self) -> None:
         for var in self._all_vars:
             if not var.fixed:
                 var.value = None
         self._is_warm_start_available = False
 
-    def _update_obj(self):
+    def _update_obj(self) -> None:
         self._obj_sense = "max"
         if self._pyomo_solver._objective.sense == pyomo.core.kernel.objective.minimize:
             self._obj_sense = "min"
 
-    def _update_vars(self):
+    def _update_vars(self) -> None:
         self._all_vars = []
         self._bin_vars = []
         self._varname_to_var = {}
@@ -191,7 +191,7 @@ class BasePyomoSolver(InternalSolver):
                 if var[idx].domain == pyomo.core.base.set_types.Binary:
                     self._bin_vars += [var[idx]]
 
-    def _update_constrs(self):
+    def _update_constrs(self) -> None:
         self._cname_to_constr = {}
         for constr in self.model.component_objects(Constraint):
             self._cname_to_constr[constr.name] = constr
@@ -220,7 +220,11 @@ class BasePyomoSolver(InternalSolver):
         self._update_constrs()
 
     @staticmethod
-    def __extract(log, regexp, default=None):
+    def __extract(
+        log: str,
+        regexp: Optional[str],
+        default: Optional[str] = None,
+    ) -> Optional[str]:
         if regexp is None:
             return default
         value = default
@@ -231,22 +235,25 @@ class BasePyomoSolver(InternalSolver):
             value = matches[0]
         return value
 
-    def _extract_warm_start_value(self, log):
+    def _extract_warm_start_value(self, log: str) -> Optional[float]:
         value = self.__extract(log, self._get_warm_start_regexp())
-        if value is not None:
-            value = float(value)
-        return value
+        if value is None:
+            return None
+        return float(value)
 
-    def _extract_node_count(self, log):
-        return self.__extract(log, self._get_node_count_regexp())
+    def _extract_node_count(self, log: str) -> Optional[int]:
+        value = self.__extract(log, self._get_node_count_regexp())
+        if value is None:
+            return None
+        return int(value)
 
     def get_constraint_ids(self):
         return list(self._cname_to_constr.keys())
 
-    def _get_warm_start_regexp(self):
+    def _get_warm_start_regexp(self) -> Optional[str]:
         return None
 
-    def _get_node_count_regexp(self):
+    def _get_node_count_regexp(self) -> Optional[str]:
         return None
 
     def extract_constraint(self, cid):

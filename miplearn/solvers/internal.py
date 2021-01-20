@@ -192,7 +192,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def add_constraint(self, cobj: Constraint):
+    def add_constraint(self, cobj: Constraint) -> None:
         """
         Adds a single constraint to the model.
         """
@@ -209,7 +209,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def is_constraint_satisfied(self, cobj: Constraint):
+    def is_constraint_satisfied(self, cobj: Constraint) -> bool:
         """
         Returns True if the current solution satisfies the given constraint.
         """
