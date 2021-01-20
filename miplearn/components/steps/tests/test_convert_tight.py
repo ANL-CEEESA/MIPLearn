@@ -13,7 +13,7 @@ def test_convert_tight_usage():
         capacity=16.0,
     )
     solver = LearningSolver(
-        solver=GurobiSolver(),
+        solver=GurobiSolver,
         components=[
             RelaxIntegralityStep(),
             ConvertTightIneqsIntoEqsStep(),
@@ -64,7 +64,7 @@ def test_convert_tight_infeasibility():
     comp.classifiers["c3"].predict_proba = Mock(return_value=[[1, 0]])
 
     solver = LearningSolver(
-        solver=GurobiSolver(params={}),
+        solver=GurobiSolver,
         components=[comp],
         solve_lp_first=False,
     )
@@ -87,7 +87,7 @@ def test_convert_tight_suboptimality():
     comp.classifiers["c3"].predict_proba = Mock(return_value=[[0, 1]])
 
     solver = LearningSolver(
-        solver=GurobiSolver(params={}),
+        solver=GurobiSolver,
         components=[comp],
         solve_lp_first=False,
     )
@@ -110,7 +110,7 @@ def test_convert_tight_optimal():
     comp.classifiers["c3"].predict_proba = Mock(return_value=[[0, 1]])
 
     solver = LearningSolver(
-        solver=GurobiSolver(params={}),
+        solver=GurobiSolver,
         components=[comp],
         solve_lp_first=False,
     )

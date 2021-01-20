@@ -24,9 +24,6 @@ def test_learning_solver():
             logger.info("Solver: %s" % internal_solver)
             instance = _get_instance(internal_solver)
             solver = LearningSolver(
-                time_limit=300,
-                gap_tolerance=1e-3,
-                threads=1,
                 solver=internal_solver,
                 mode=mode,
             )
@@ -115,7 +112,7 @@ def test_solve_fit_from_disk():
 
 
 def test_simulate_perfect():
-    internal_solver = GurobiSolver()
+    internal_solver = GurobiSolver
     instance = _get_instance(internal_solver)
     with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as tmp:
         pickle.dump(instance, tmp)
@@ -124,6 +121,5 @@ def test_simulate_perfect():
             solver=internal_solver,
             simulate_perfect=True,
         )
-
         stats = solver.solve(tmp.name)
         assert stats["Lower bound"] == stats["Predicted LB"]

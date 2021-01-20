@@ -20,8 +20,8 @@ from .. import (
     DynamicLazyConstraintsComponent,
     UserCutsComponent,
 )
-from .pyomo.cplex import CplexPyomoSolver
-from .pyomo.gurobi import GurobiPyomoSolver
+from ..solvers.internal import InternalSolver
+from ..solvers.pyomo.gurobi import GurobiPyomoSolver
 
 logger = logging.getLogger(__name__)
 
@@ -52,33 +52,22 @@ class LearningSolver:
 
     Parameters
     ----------
-    components
+    components: [Component]
         Set of components in the solver. By default, includes:
             - ObjectiveValueComponent
             - PrimalSolutionComponent
             - DynamicLazyConstraintsComponent
             - UserCutsComponent
-    gap_tolerance
-        Relative MIP gap tolerance. By default, 1e-4.
-    mode
+    mode: str
         If "exact", solves problem to optimality, keeping all optimality
         guarantees provided by the MIP solver. If "heuristic", uses machine
         learning more aggressively, and may return suboptimal solutions.
-    solver
-        The internal MIP solver to use. Can be either "cplex", "gurobi", a
-        solver class such as GurobiSolver, or a solver instance such as
-        GurobiSolver().
-    threads
-        Maximum number of threads to use. If None, uses solver default.
-    time_limit
-        Maximum running time in seconds. If None, uses solver default.
-    node_limit
-        Maximum number of branch-and-bound nodes to explore. If None, uses
-        solver default.
-    use_lazy_cb
-        If True, uses lazy callbacks to enforce lazy constraints, instead of
-        a simple solver loop. This functionality may not supported by
-        all internal MIP solvers.
+    solver: Callable[[], InternalSolver]
+        A callable that constructs the internal solver. If None is provided,
+        use GurobiPyomoSolver.
+    use_lazy_cb: bool
+        If true, use native solver callbacks for enforcing lazy constraints,
+        instead of a simple loop. May not be supported by all solvers.
     solve_lp_first: bool
         If true, solve LP relaxation first, then solve original MILP. This
         option should be activated if the LP relaxation is not very
@@ -94,27 +83,23 @@ class LearningSolver:
     def __init__(
         self,
         components=None,
-        gap_tolerance=1e-4,
         mode="exact",
-        solver="gurobi",
-        threads=None,
-        time_limit=None,
-        node_limit=None,
-        solve_lp_first=True,
+        solver=None,
         use_lazy_cb=False,
+        solve_lp_first=True,
         simulate_perfect=False,
     ):
+        if solver is None:
+            solver = GurobiPyomoSolver
+        assert callable(solver), f"Callable expected. Found {solver.__class__} instead."
+
         self.components = {}
         self.mode = mode
         self.internal_solver = None
-        self.internal_solver_factory = solver
-        self.threads = threads
-        self.time_limit = time_limit
-        self.gap_tolerance = gap_tolerance
-        self.tee = False
-        self.node_limit = node_limit
-        self.solve_lp_first = solve_lp_first
+        self.solver_factory = solver
         self.use_lazy_cb = use_lazy_cb
+        self.tee = False
+        self.solve_lp_first = solve_lp_first
         self.simulate_perfect = simulate_perfect
 
         if components is not None:
@@ -129,30 +114,6 @@ class LearningSolver:
         assert self.mode in ["exact", "heuristic"]
         for component in self.components.values():
             component.mode = self.mode
-
-    def _create_internal_solver(self):
-        logger.debug("Initializing %s" % self.internal_solver_factory)
-        if self.internal_solver_factory == "cplex":
-            solver = CplexPyomoSolver()
-        elif self.internal_solver_factory == "gurobi":
-            solver = GurobiPyomoSolver()
-        elif callable(self.internal_solver_factory):
-            solver = self.internal_solver_factory()
-        else:
-            solver = self.internal_solver_factory
-        if self.threads is not None:
-            logger.info("Setting threads to %d" % self.threads)
-            solver.set_threads(self.threads)
-        if self.time_limit is not None:
-            logger.info("Setting time limit to %f" % self.time_limit)
-            solver.set_time_limit(self.time_limit)
-        if self.gap_tolerance is not None:
-            logger.info("Setting gap tolerance to %f" % self.gap_tolerance)
-            solver.set_gap_tolerance(self.gap_tolerance)
-        if self.node_limit is not None:
-            logger.info("Setting node limit to %d" % self.node_limit)
-            solver.set_node_limit(self.node_limit)
-        return solver
 
     def solve(
         self,
@@ -255,7 +216,7 @@ class LearningSolver:
                 model = instance.to_model()
 
         self.tee = tee
-        self.internal_solver = self._create_internal_solver()
+        self.internal_solver = self.solver_factory()
         self.internal_solver.set_instance(instance, model)
 
         if self.solve_lp_first:
