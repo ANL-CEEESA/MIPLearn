@@ -76,7 +76,8 @@ class BenchmarkRunner:
         for (solver_name, solver) in self.solvers.items():
             solver.fit(training_instances)
 
-    def _compute_gap(self, ub, lb):
+    @staticmethod
+    def _compute_gap(ub, lb):
         # solver did not find a solution and/or bound, use maximum gap possible
         if lb is None or ub is None or lb * ub < 0:
             return 1.0
