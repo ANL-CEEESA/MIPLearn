@@ -61,15 +61,6 @@ solver2 = LearningSolver(components=[
 ])
 ```
 
-It is also possible to add components to an existing solver using the `solver.add` method, as shown below. If the solver already holds another component of that type, the new component will replace the previous one.
-```python
-# Create solver with default components
-solver = LearningSolver()
-
-# Replace the default LazyConstraintComponent by one with custom parameters 
-solver.add(LazyConstraintComponent(...))
-```
-
 ### Adjusting component aggressiveness
 
 The aggressiveness of classification components (such as `PrimalSolutionComponent` and `LazyConstraintComponent`) can

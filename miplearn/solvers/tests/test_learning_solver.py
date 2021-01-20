@@ -62,14 +62,6 @@ def test_parallel_solve():
             assert len(instance.solution["x"].keys()) == 4
 
 
-def test_add_components():
-    solver = LearningSolver(components=[])
-    solver.add(DynamicLazyConstraintsComponent())
-    solver.add(DynamicLazyConstraintsComponent())
-    assert len(solver.components) == 1
-    assert "DynamicLazyConstraintsComponent" in solver.components
-
-
 def test_solve_fit_from_disk():
     for internal_solver in _get_internal_solvers():
         # Create instances and pickle them

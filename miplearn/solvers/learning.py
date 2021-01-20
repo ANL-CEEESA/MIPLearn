@@ -104,12 +104,12 @@ class LearningSolver:
 
         if components is not None:
             for comp in components:
-                self.add(comp)
+                self._add_component(comp)
         else:
-            self.add(ObjectiveValueComponent())
-            self.add(PrimalSolutionComponent())
-            self.add(DynamicLazyConstraintsComponent())
-            self.add(UserCutsComponent())
+            self._add_component(ObjectiveValueComponent())
+            self._add_component(PrimalSolutionComponent())
+            self._add_component(DynamicLazyConstraintsComponent())
+            self._add_component(UserCutsComponent())
 
         assert self.mode in ["exact", "heuristic"]
         for component in self.components.values():
@@ -332,7 +332,7 @@ class LearningSolver:
         for component in self.components.values():
             component.fit(training_instances)
 
-    def add(self, component):
+    def _add_component(self, component):
         name = component.__class__.__name__
         self.components[name] = component
 
