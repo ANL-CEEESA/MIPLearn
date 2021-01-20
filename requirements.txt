@@ -14,4 +14,3 @@ scikit-learn~=0.23
 tqdm~=4.54
 black==20.8b1
 pre-commit~=2.9
-scipy~=1.6.0
