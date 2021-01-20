@@ -15,22 +15,23 @@ logger = logging.getLogger(__name__)
 
 
 class GurobiPyomoSolver(BasePyomoSolver):
-    def __init__(self, options=None):
-        """
-        Creates a new Gurobi solver, accessed through Pyomo.
+    """
+    An InternalSolver that uses Gurobi and the Pyomo modeling language.
 
-        Parameters
-        ----------
-        options: dict
-            Dictionary of options to pass to the Pyomo solver. For example,
-            {"Threads": 4} to set the number of threads.
-        """
-        super().__init__()
-        self._pyomo_solver = pe.SolverFactory("gurobi_persistent")
-        self._pyomo_solver.options["Seed"] = randint(low=0, high=1000).rvs()
-        if options is not None:
-            for (key, value) in options.items():
-                self._pyomo_solver.options[key] = value
+    Parameters
+    ----------
+    params: dict
+        Dictionary of options to pass to the Pyomo solver. For example,
+        {"Threads": 4} to set the number of threads.
+    """
+
+    def __init__(self, params=None):
+        super().__init__(
+            solver_factory=pe.SolverFactory("gurobi_persistent"),
+            params={
+                "Seed": randint(low=0, high=1000).rvs(),
+            },
+        )
 
     def _extract_node_count(self, log):
         return max(1, int(self._pyomo_solver._solver_model.getAttr("NodeCount")))

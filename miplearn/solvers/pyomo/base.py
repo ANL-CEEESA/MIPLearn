@@ -23,16 +23,22 @@ class BasePyomoSolver(InternalSolver):
     Base class for all Pyomo solvers.
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        solver_factory,
+        params,
+    ):
         self.instance = None
         self.model = None
         self._all_vars = None
         self._bin_vars = None
         self._is_warm_start_available = False
-        self._pyomo_solver = None
+        self._pyomo_solver = solver_factory
         self._obj_sense = None
         self._varname_to_var = {}
         self._cname_to_constr = {}
+        for (key, value) in params.items():
+            self._pyomo_solver.options[key] = value
 
     def solve_lp(self, tee=False):
         for var in self._bin_vars:
@@ -244,3 +250,6 @@ class BasePyomoSolver(InternalSolver):
 
     def get_sense(self):
         raise Exception("Not implemented")
+
+    def set_branching_priorities(self, priorities):
+        raise Exception("Not supported")

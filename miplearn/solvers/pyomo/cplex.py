@@ -9,29 +9,27 @@ from .base import BasePyomoSolver
 
 
 class CplexPyomoSolver(BasePyomoSolver):
-    def __init__(self, options=None):
-        """
-        Creates a new CPLEX solver, accessed through Pyomo.
+    """
+    An InternalSolver that uses CPLEX and the Pyomo modeling language.
 
-        Parameters
-        ----------
-        options: dict
-            Dictionary of options to pass to the Pyomo solver. For example,
-            {"mip_display": 5} to increase the log verbosity.
-        """
-        super().__init__()
-        self._pyomo_solver = pe.SolverFactory("cplex_persistent")
-        self._pyomo_solver.options["randomseed"] = randint(low=0, high=1000).rvs()
-        self._pyomo_solver.options["mip_display"] = 4
-        if options is not None:
-            for (key, value) in options.items():
-                self._pyomo_solver.options[key] = value
+    Parameters
+    ----------
+    params: dict
+        Dictionary of options to pass to the Pyomo solver. For example,
+        {"mip_display": 5} to increase the log verbosity.
+    """
+
+    def __init__(self, params=None):
+        super().__init__(
+            solver_factory=pe.SolverFactory("cplex_persistent"),
+            params={
+                "randomseed": randint(low=0, high=1000).rvs(),
+                "mip_display": 4,
+            },
+        )
 
     def _get_warm_start_regexp(self):
         return "MIP start .* with objective ([0-9.e+-]*)\\."
 
     def _get_node_count_regexp(self):
         return "^[ *] *([0-9]+)"
-
-    def set_branching_priorities(self, priorities):
-        raise NotImplementedError
