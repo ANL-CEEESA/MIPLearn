@@ -78,9 +78,12 @@ class BenchmarkRunner:
 
     @staticmethod
     def _compute_gap(ub, lb):
-        # solver did not find a solution and/or bound, use maximum gap possible
         if lb is None or ub is None or lb * ub < 0:
+            # solver did not find a solution and/or bound, use maximum gap possible
             return 1.0
+        elif abs(ub - lb) < 1e-6:
+            # avoid division by zero when ub = lb = 0
+            return 0.0
         else:
             # divide by max(abs(ub),abs(lb)) to ensure gap <= 1
             return (ub - lb) / max(abs(ub), abs(lb))
@@ -97,8 +100,8 @@ class BenchmarkRunner:
         result["Solver"] = solver_name
         result["Instance"] = instance
         result["Gap"] = self._compute_gap(
-            ub=result["Lower bound"],
-            lb=result["Upper bound"],
+            ub=result["Upper bound"],
+            lb=result["Lower bound"],
         )
         result["Mode"] = solver.mode
         self.results = self.results.append(pd.DataFrame([result]))
