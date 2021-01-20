@@ -181,18 +181,27 @@ class BasePyomoSolver(InternalSolver):
             if not should_repeat:
                 break
         log = streams[0].getvalue()
-        return {
+        stats = {
             "Lower bound": results["Problem"][0]["Lower bound"],
             "Upper bound": results["Problem"][0]["Upper bound"],
             "Wallclock time": total_wallclock_time,
-            "Nodes": self._extract_node_count(log),
             "Sense": self._obj_sense,
             "Log": log,
-            "Warm start value": self._extract_warm_start_value(log),
         }
+        node_count = self._extract_node_count(log)
+        if node_count is not None:
+            stats["Nodes"] = node_count
+
+        ws_value = self._extract_warm_start_value(log)
+        if ws_value is not None:
+            stats["Warm start value"] = ws_value
+
+        return stats
 
     @staticmethod
     def __extract(log, regexp, default=None):
+        if regexp is None:
+            return default
         value = default
         for line in log.splitlines():
             matches = re.findall(regexp, line)
@@ -208,18 +217,16 @@ class BasePyomoSolver(InternalSolver):
         return value
 
     def _extract_node_count(self, log):
-        return int(self.__extract(log, self._get_node_count_regexp(), default=1))
+        return self.__extract(log, self._get_node_count_regexp())
 
     def get_constraint_ids(self):
         return list(self._cname_to_constr.keys())
 
-    @abstractmethod
     def _get_warm_start_regexp(self):
-        pass
+        return None
 
-    @abstractmethod
     def _get_node_count_regexp(self):
-        pass
+        return None
 
     def extract_constraint(self, cid):
         raise Exception("Not implemented")

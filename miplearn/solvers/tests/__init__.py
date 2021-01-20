@@ -5,6 +5,7 @@
 from inspect import isclass
 from miplearn import BasePyomoSolver, GurobiSolver, GurobiPyomoSolver
 from miplearn.problems.knapsack import KnapsackInstance, GurobiKnapsackInstance
+from miplearn.solvers.pyomo.xpress import XpressPyomoSolver
 
 
 def _get_instance(solver):
@@ -31,4 +32,4 @@ def _get_instance(solver):
 
 
 def _get_internal_solvers():
-    return [GurobiPyomoSolver, GurobiSolver]
+    return [GurobiPyomoSolver, GurobiSolver, XpressPyomoSolver]
