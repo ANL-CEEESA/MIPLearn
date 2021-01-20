@@ -2,14 +2,12 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-import sys
 import logging
-from io import StringIO
+
 from pyomo import environ as pe
 from scipy.stats import randint
 
 from .base import BasePyomoSolver
-from .. import RedirectOutput
 
 logger = logging.getLogger(__name__)
 

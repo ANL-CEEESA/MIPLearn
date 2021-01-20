@@ -4,6 +4,9 @@
 
 import logging
 from abc import ABC, abstractmethod
+from typing import TypedDict, Callable, Any, Dict, List
+
+from ..instance import Instance
 
 logger = logging.getLogger(__name__)
 
@@ -12,13 +15,47 @@ class ExtractedConstraint(ABC):
     pass
 
 
+class Constraint:
+    pass
+
+
+LPSolveStats = TypedDict(
+    "LPSolveStats",
+    {
+        "Optimal value": float,
+        "Log": str,
+    },
+)
+
+MIPSolveStats = TypedDict(
+    "MIPSolveStats",
+    {
+        "Lower bound": float,
+        "Upper bound": float,
+        "Wallclock time": float,
+        "Nodes": float,
+        "Sense": str,
+        "Log": str,
+        "Warm start value": float,
+    },
+    total=False,
+)
+
+IterationCallback = Callable[[], bool]
+
+LazyCallback = Callable[[Any, Any], None]
+
+
 class InternalSolver(ABC):
     """
     Abstract class representing the MIP solver used internally by LearningSolver.
     """
 
     @abstractmethod
-    def solve_lp(self, tee=False):
+    def solve_lp(
+        self,
+        tee: bool = False,
+    ) -> LPSolveStats:
         """
         Solves the LP relaxation of the currently loaded instance. After this
         method finishes, the solution can be retrieved by calling `get_solution`.
@@ -31,13 +68,17 @@ class InternalSolver(ABC):
         Returns
         -------
         dict
-            A dictionary of solver statistics containing the following keys:
-            "Optimal value".
+            A dictionary of solver statistics.
         """
         pass
 
     @abstractmethod
-    def solve(self, tee=False, iteration_cb=None, lazy_cb=None):
+    def solve(
+        self,
+        tee: bool = False,
+        iteration_cb: IterationCallback = None,
+        lazy_cb: LazyCallback = None,
+    ) -> MIPSolveStats:
         """
         Solves the currently loaded instance. After this method finishes,
         the best solution found can be retrieved by calling `get_solution`.
@@ -71,7 +112,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def get_solution(self):
+    def get_solution(self) -> Dict:
         """
         Returns current solution found by the solver.
 
@@ -85,7 +126,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def set_warm_start(self, solution):
+    def set_warm_start(self, solution: Dict) -> None:
         """
         Sets the warm start to be used by the solver.
 
@@ -97,7 +138,11 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def set_instance(self, instance, model=None):
+    def set_instance(
+        self,
+        instance: Instance,
+        model: Any = None,
+    ) -> None:
         """
         Loads the given instance into the solver.
 
@@ -113,7 +158,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def fix(self, solution):
+    def fix(self, solution: Dict) -> None:
         """
         Fixes the values of a subset of decision variables.
 
@@ -123,8 +168,7 @@ class InternalSolver(ABC):
         """
         pass
 
-    @abstractmethod
-    def set_branching_priorities(self, priorities):
+    def set_branching_priorities(self, priorities: Dict) -> None:
         """
         Sets the branching priorities for the given decision variables.
 
@@ -136,36 +180,55 @@ class InternalSolver(ABC):
         `get_solution`. Missing values indicate variables whose priorities
         should not be modified.
         """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_constraint_ids(self) -> List[str]:
+        """
+        Returns a list of ids which uniquely identify each constraint in the model.
+        """
         pass
 
     @abstractmethod
-    def add_constraint(self, constraint):
+    def add_constraint(self, cobj: Constraint):
         """
         Adds a single constraint to the model.
         """
         pass
 
     @abstractmethod
-    def get_value(self, var_name, index):
-        """
-        Returns the current value of a decision variable.
-        """
-        pass
-
-    @abstractmethod
-    def get_constraint_ids(self):
-        """
-        Returns a list of ids, which uniquely identify each constraint in the model.
-        """
-        pass
-
-    @abstractmethod
-    def extract_constraint(self, cid):
+    def extract_constraint(self, cid: str) -> Constraint:
         """
         Removes a given constraint from the model and returns an object `cobj` which
         can be used to verify if the removed constraint is still satisfied by
         the current solution, using `is_constraint_satisfied(cobj)`, and can potentially
         be re-added to the model using `add_constraint(cobj)`.
+        """
+        pass
+
+    @abstractmethod
+    def is_constraint_satisfied(self, cobj: Constraint):
+        """
+        Returns True if the current solution satisfies the given constraint.
+        """
+        pass
+
+    @abstractmethod
+    def set_constraint_sense(self, cid: str, sense: str) -> None:
+        pass
+
+    @abstractmethod
+    def get_constraint_sense(self, cid: str) -> str:
+        pass
+
+    @abstractmethod
+    def set_constraint_rhs(self, cid: str, rhs: str) -> None:
+        pass
+
+    @abstractmethod
+    def get_value(self, var_name, index):
+        """
+        Returns the current value of a decision variable.
         """
         pass
 
@@ -208,23 +271,6 @@ class InternalSolver(ABC):
         """
         Returns the sense of the problem (either "min" or "max").
         """
-        pass
-
-    @abstractmethod
-    def is_constraint_satisfied(self, cobj):
-        """Returns True if the current solution satisfies the given constraint."""
-        pass
-
-    @abstractmethod
-    def set_constraint_sense(self, cid, sense):
-        pass
-
-    @abstractmethod
-    def get_constraint_sense(self, cid):
-        pass
-
-    @abstractmethod
-    def set_constraint_rhs(self, cid, rhs):
         pass
 
     @abstractmethod

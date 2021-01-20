@@ -1,6 +1,7 @@
 PYTHON      := python3
 PYTEST      := pytest
 PIP         := $(PYTHON) -m pip
+MYPY        := $(PYTHON) -m mypy
 PYTEST_ARGS := -W ignore::DeprecationWarning -vv -x --log-level=DEBUG
 VERSION     := 0.2
 
@@ -38,6 +39,7 @@ reformat:
 	$(PYTHON) -m black .
 
 test:
+	$(MYPY) -p miplearn
 	$(PYTEST) $(PYTEST_ARGS)
 
 .PHONY: test test-watch docs install

@@ -4,6 +4,7 @@
 
 import logging
 from io import StringIO
+from warnings import warn
 
 import pyomo.environ as pe
 
@@ -45,6 +46,8 @@ def test_internal_solver_warm_starts():
         stats = solver.solve(tee=True)
         if "Warm start value" in stats:
             assert stats["Warm start value"] == 725.0
+        else:
+            warn(f"{solver_class.__name__} should set warm start value")
 
         solver.set_warm_start(
             {
@@ -57,8 +60,7 @@ def test_internal_solver_warm_starts():
             }
         )
         stats = solver.solve(tee=True)
-        if "Warm start value" in stats:
-            assert stats["Warm start value"] is None
+        assert "Warm start value" not in stats
 
         solver.fix(
             {
@@ -86,6 +88,7 @@ def test_internal_solver():
 
         stats = solver.solve_lp()
         assert round(stats["Optimal value"], 3) == 1287.923
+        assert len(stats["Log"]) > 100
 
         solution = solver.get_solution()
         assert round(solution["x"][0], 3) == 1.000

@@ -23,6 +23,6 @@ jobs:
         python -m pip install -i https://pypi.gurobi.com gurobipy
         pip install -r requirements.txt
 
-    - name: Test with pytest
+    - name: Test
       run: |
-        pytest
+        make test

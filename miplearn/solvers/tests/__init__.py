@@ -3,7 +3,9 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from inspect import isclass
-from miplearn import BasePyomoSolver, GurobiSolver, GurobiPyomoSolver
+from typing import List, Callable
+
+from miplearn import BasePyomoSolver, GurobiSolver, GurobiPyomoSolver, InternalSolver
 from miplearn.problems.knapsack import KnapsackInstance, GurobiKnapsackInstance
 from miplearn.solvers.pyomo.xpress import XpressPyomoSolver
 
@@ -31,5 +33,5 @@ def _get_instance(solver):
     assert False
 
 
-def _get_internal_solvers():
+def _get_internal_solvers() -> List[Callable[[], InternalSolver]]:
     return [GurobiPyomoSolver, GurobiSolver, XpressPyomoSolver]
