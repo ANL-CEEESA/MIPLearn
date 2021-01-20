@@ -4,7 +4,9 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import TypedDict, Callable, Any, Dict, List
+from typing import Callable, Any, Dict, List
+
+from typing_extensions import TypedDict
 
 from ..instance import Instance
 
