@@ -41,11 +41,11 @@ class RelaxationComponent(Component):
         If a constraint has slack greater than this threshold, then the constraint is
         considered loose. By default, this threshold equals a small positive number to
         compensate for numerical issues.
-    check_dropped : bool, optional
-        If `check_dropped` is true, then, after the problem is solved, the component
-        verifies that all dropped constraints are still satisfied, re-adds the violated
-        ones and resolves the problem. This loop continues until either no violations
-        are found, or a maximum number of iterations is reached.
+    check_feasibility : bool, optional
+        If true, after the problem is solved, the component verifies that all dropped
+        constraints are still satisfied, re-adds the violated ones and resolves the
+        problem. This loop continues until either no violations are found, or a maximum
+        number of iterations is reached.
     violation_tolerance : float, optional
         If `check_dropped` is true, a constraint is considered satisfied during the
         check if its violation is smaller than this tolerance.
@@ -61,7 +61,7 @@ class RelaxationComponent(Component):
         tight_classifier=CountingClassifier(),
         tight_threshold=0.95,
         slack_tolerance=1e-5,
-        check_dropped=False,
+        check_feasibility=False,
         violation_tolerance=1e-5,
         max_check_iterations=3,
     ):
@@ -73,7 +73,7 @@ class RelaxationComponent(Component):
                 slack_tolerance=slack_tolerance,
                 violation_tolerance=violation_tolerance,
                 max_iterations=max_check_iterations,
-                check_dropped=check_dropped,
+                check_feasibility=check_feasibility,
             ),
             ConvertTightIneqsIntoEqsStep(
                 classifier=tight_classifier,
@@ -86,8 +86,8 @@ class RelaxationComponent(Component):
     def before_solve(self, solver, instance, model):
         self.composite.before_solve(solver, instance, model)
 
-    def after_solve(self, solver, instance, model, results):
-        self.composite.after_solve(solver, instance, model, results)
+    def after_solve(self, solver, instance, model, stats, training_data):
+        self.composite.after_solve(solver, instance, model, stats, training_data)
 
     def fit(self, training_instances):
         self.composite.fit(training_instances)

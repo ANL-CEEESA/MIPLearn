@@ -8,8 +8,9 @@ import time
 import sys
 
 
-class TimeFormatter:
+class TimeFormatter(logging.Formatter):
     def __init__(self, start_time, log_colors):
+        super().__init__()
         self.start_time = start_time
         self.log_colors = log_colors
 

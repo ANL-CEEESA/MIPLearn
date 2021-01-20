@@ -284,7 +284,13 @@ class LearningSolver:
 
         return stats
 
-    def parallel_solve(self, instances, n_jobs=4, label="Solve", output=[]):
+    def parallel_solve(
+        self,
+        instances,
+        n_jobs=4,
+        label="Solve",
+        output=None,
+    ):
         """
         Solves multiple instances in parallel.
 
@@ -295,6 +301,12 @@ class LearningSolver:
 
         Parameters
         ----------
+        output: [str] or None
+            If instances are file names and output is provided, write the modified
+            instances to these files, instead of replacing the original files. If
+            output is None, discard modified instance.
+        label: str
+            Label to show in the progress bar.
         instances: [miplearn.Instance] or [str]
             The instances to be solved
         n_jobs: int
@@ -308,6 +320,8 @@ class LearningSolver:
             [solver.solve(p) for p in instances]
 
         """
+        if output is None:
+            output = []
         self.internal_solver = None
         self._silence_miplearn_logger()
         SOLVER[0] = self

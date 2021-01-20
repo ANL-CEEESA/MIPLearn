@@ -2,12 +2,12 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import logging
 import re
 import sys
-import logging
-import pyomo
-from abc import abstractmethod
 from io import StringIO
+
+import pyomo
 from pyomo import environ as pe
 from pyomo.core import Var, Constraint
 
