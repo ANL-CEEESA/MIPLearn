@@ -49,4 +49,3 @@ def setup_logger(start_time=None, force_color=False):
     handler.setFormatter(TimeFormatter(start_time, log_colors))
     logging.getLogger().addHandler(handler)
     logging.getLogger("miplearn").setLevel(logging.INFO)
-    lg = logging.getLogger("miplearn")
