@@ -2,15 +2,15 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import logging
 from copy import deepcopy
 
 import numpy as np
-from miplearn.classifiers import Classifier
 from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
 
-import logging
+from miplearn.classifiers import Classifier
 
 logger = logging.getLogger(__name__)
 

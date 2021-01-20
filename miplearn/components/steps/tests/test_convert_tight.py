@@ -1,9 +1,12 @@
-from miplearn import LearningSolver, GurobiSolver, Instance, Classifier
+from unittest.mock import Mock
+
+from miplearn.classifiers import Classifier
 from miplearn.components.steps.convert_tight import ConvertTightIneqsIntoEqsStep
 from miplearn.components.steps.relax_integrality import RelaxIntegralityStep
+from miplearn.instance import Instance
 from miplearn.problems.knapsack import GurobiKnapsackInstance
-
-from unittest.mock import Mock
+from miplearn.solvers.gurobi import GurobiSolver
+from miplearn.solvers.learning import LearningSolver
 
 
 def test_convert_tight_usage():
@@ -40,7 +43,6 @@ def test_convert_tight_usage():
 class TestInstance(Instance):
     def to_model(self):
         import gurobipy as grb
-        from gurobipy import GRB
 
         m = grb.Model("model")
         x1 = m.addVar(name="x1")

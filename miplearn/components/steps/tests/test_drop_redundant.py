@@ -2,21 +2,15 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-import numpy as np
 from unittest.mock import Mock, call
 
-from miplearn import (
-    LearningSolver,
-    Instance,
-    InternalSolver,
-    GurobiSolver,
-)
+import numpy as np
+
 from miplearn.classifiers import Classifier
-from miplearn.components.relaxation import (
-    DropRedundantInequalitiesStep,
-    RelaxIntegralityStep,
-)
-from miplearn.problems.knapsack import GurobiKnapsackInstance
+from miplearn.components.relaxation import DropRedundantInequalitiesStep
+from miplearn.instance import Instance
+from miplearn.solvers.internal import InternalSolver
+from miplearn.solvers.learning import LearningSolver
 
 
 def _setup():

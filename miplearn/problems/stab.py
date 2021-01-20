@@ -8,7 +8,7 @@ import pyomo.environ as pe
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
-from miplearn import Instance
+from miplearn.instance import Instance
 
 
 class ChallengeA:
@@ -101,6 +101,7 @@ class MaxWeightStableSetInstance(Instance):
     """
 
     def __init__(self, graph, weights):
+        super().__init__()
         self.graph = graph
         self.weights = weights
 

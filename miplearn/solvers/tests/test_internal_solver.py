@@ -8,9 +8,10 @@ from warnings import warn
 
 import pyomo.environ as pe
 
-from miplearn import BasePyomoSolver, GurobiSolver
 from miplearn.solvers import RedirectOutput
-from . import _get_instance, _get_internal_solvers
+from miplearn.solvers.gurobi import GurobiSolver
+from miplearn.solvers.pyomo.base import BasePyomoSolver
+from miplearn.solvers.tests import _get_instance, _get_internal_solvers
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ def test_internal_solver_warm_starts():
             }
         )
         stats = solver.solve(tee=True)
-        if "Warm start value" in stats:
+        if stats["Warm start value"] is not None:
             assert stats["Warm start value"] == 725.0
         else:
             warn(f"{solver_class.__name__} should set warm start value")
@@ -60,7 +61,7 @@ def test_internal_solver_warm_starts():
             }
         )
         stats = solver.solve(tee=True)
-        assert "Warm start value" not in stats
+        assert stats["Warm start value"] is None
 
         solver.fix(
             {

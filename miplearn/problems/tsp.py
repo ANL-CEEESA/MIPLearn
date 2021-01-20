@@ -2,14 +2,14 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import networkx as nx
 import numpy as np
 import pyomo.environ as pe
-from miplearn import Instance
-from scipy.stats import uniform, randint
 from scipy.spatial.distance import pdist, squareform
+from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
-import networkx as nx
-import random
+
+from miplearn.instance import Instance
 
 
 class ChallengeA:

@@ -2,26 +2,24 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-import logging
-import pickle
-import os
-import tempfile
 import gzip
-
+import logging
+import os
+import pickle
+import tempfile
 from copy import deepcopy
-from typing import Optional, List
-from p_tqdm import p_map
-from tempfile import NamedTemporaryFile
+from typing import Optional, List, Any, IO, cast, BinaryIO, Union
 
-from . import RedirectOutput
-from .. import (
-    ObjectiveValueComponent,
-    PrimalSolutionComponent,
-    DynamicLazyConstraintsComponent,
-    UserCutsComponent,
-)
-from ..solvers.internal import InternalSolver
-from ..solvers.pyomo.gurobi import GurobiPyomoSolver
+from p_tqdm import p_map
+
+from miplearn.components.cuts import UserCutsComponent
+from miplearn.components.lazy_dynamic import DynamicLazyConstraintsComponent
+from miplearn.components.objective import ObjectiveValueComponent
+from miplearn.components.primal import PrimalSolutionComponent
+from miplearn.instance import Instance
+from miplearn.solvers import RedirectOutput
+from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
+from miplearn.types import MIPSolveStats, TrainingSample
 
 logger = logging.getLogger(__name__)
 
@@ -192,46 +190,55 @@ class LearningSolver:
 
     def _solve(
         self,
-        instance,
-        model=None,
-        output="",
-        tee=False,
-    ):
+        instance: Instance,
+        model: Any = None,
+        output: str = "",
+        tee: bool = False,
+    ) -> MIPSolveStats:
+
+        # Load instance from file, if necessary
         filename = None
         fileformat = None
+        file: Union[BinaryIO, gzip.GzipFile]
         if isinstance(instance, str):
             filename = instance
             logger.info("Reading: %s" % filename)
             if filename.endswith(".gz"):
                 fileformat = "pickle-gz"
                 with gzip.GzipFile(filename, "rb") as file:
-                    instance = pickle.load(file)
+                    instance = pickle.load(cast(IO[bytes], file))
             else:
                 fileformat = "pickle"
                 with open(filename, "rb") as file:
-                    instance = pickle.load(file)
+                    instance = pickle.load(cast(IO[bytes], file))
 
+        # Generate model
         if model is None:
             with RedirectOutput([]):
                 model = instance.to_model()
 
+        # Initialize training data
+        training_sample: TrainingSample = {}
+
+        # Initialize internal solver
         self.tee = tee
         self.internal_solver = self.solver_factory()
         self.internal_solver.set_instance(instance, model)
 
+        # Solve linear relaxation
         if self.solve_lp_first:
             logger.info("Solving LP relaxation...")
-            results = self.internal_solver.solve_lp(tee=tee)
-            instance.lp_solution = self.internal_solver.get_solution()
-            instance.lp_value = results["Optimal value"]
-        else:
-            instance.lp_solution = self.internal_solver.get_empty_solution()
-            instance.lp_value = 0.0
+            stats = self.internal_solver.solve_lp(tee=tee)
+            training_sample["LP solution"] = self.internal_solver.get_solution()
+            training_sample["LP value"] = stats["Optimal value"]
+            training_sample["LP log"] = stats["Log"]
 
+        # Before-solve callbacks
         logger.debug("Running before_solve callbacks...")
         for component in self.components.values():
             component.before_solve(self, instance, model)
 
+        # Define wrappers
         def iteration_cb():
             should_repeat = False
             for comp in self.components.values():
@@ -247,29 +254,33 @@ class LearningSolver:
         if self.use_lazy_cb:
             lazy_cb = lazy_cb_wrapper
 
+        # Solve MILP
         logger.info("Solving MILP...")
         stats = self.internal_solver.solve(
             tee=tee,
             iteration_cb=iteration_cb,
             lazy_cb=lazy_cb,
         )
-        stats["LP value"] = instance.lp_value
+        if "LP value" in training_sample.keys():
+            stats["LP value"] = training_sample["LP value"]
 
         # Read MIP solution and bounds
-        instance.lower_bound = stats["Lower bound"]
-        instance.upper_bound = stats["Upper bound"]
-        instance.solver_log = stats["Log"]
-        instance.solution = self.internal_solver.get_solution()
+        training_sample["Lower bound"] = stats["Lower bound"]
+        training_sample["Upper bound"] = stats["Upper bound"]
+        training_sample["MIP log"] = stats["Log"]
+        training_sample["Solution"] = self.internal_solver.get_solution()
 
+        # After-solve callbacks
         logger.debug("Calling after_solve callbacks...")
-        training_data = {}
         for component in self.components.values():
-            component.after_solve(self, instance, model, stats, training_data)
+            component.after_solve(self, instance, model, stats, training_sample)
 
+        # Append training data
         if not hasattr(instance, "training_data"):
             instance.training_data = []
-        instance.training_data += [training_data]
+        instance.training_data += [training_sample]
 
+        # Write to file, if necessary
         if filename is not None and output is not None:
             output_filename = output
             if len(output) == 0:
@@ -277,11 +288,10 @@ class LearningSolver:
             logger.info("Writing: %s" % output_filename)
             if fileformat == "pickle":
                 with open(output_filename, "wb") as file:
-                    pickle.dump(instance, file)
+                    pickle.dump(instance, cast(IO[bytes], file))
             else:
                 with gzip.GzipFile(output_filename, "wb") as file:
-                    pickle.dump(instance, file)
-
+                    pickle.dump(instance, cast(IO[bytes], file))
         return stats
 
     def parallel_solve(

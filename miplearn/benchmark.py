@@ -2,15 +2,14 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import logging
+import os
 from copy import deepcopy
 
 import pandas as pd
-import numpy as np
-import logging
 from tqdm.auto import tqdm
-import os
 
-from .solvers.learning import LearningSolver
+from miplearn.solvers.learning import LearningSolver
 
 
 class BenchmarkRunner:

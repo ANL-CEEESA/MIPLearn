@@ -8,15 +8,15 @@ from io import StringIO
 from random import randint
 from typing import List, Any, Dict, Union, Tuple, Optional
 
-from . import RedirectOutput
-from .internal import (
+from miplearn.instance import Instance
+from miplearn.solvers import RedirectOutput
+from miplearn.solvers.internal import (
     InternalSolver,
     LPSolveStats,
     IterationCallback,
     LazyCallback,
     MIPSolveStats,
 )
-from .. import Instance
 
 logger = logging.getLogger(__name__)
 
@@ -181,6 +181,7 @@ class GurobiSolver(InternalSolver):
             sense = "max"
             lb = self.model.objVal
             ub = self.model.objBound
+        ws_value = self._extract_warm_start_value(log)
         stats: MIPSolveStats = {
             "Lower bound": lb,
             "Upper bound": ub,
@@ -188,10 +189,9 @@ class GurobiSolver(InternalSolver):
             "Nodes": total_nodes,
             "Sense": sense,
             "Log": log,
+            "Warm start value": ws_value,
+            "LP value": None,
         }
-        ws_value = self._extract_warm_start_value(log)
-        if ws_value is not None:
-            stats["Warm start value"] = ws_value
         return stats
 
     def get_solution(self) -> Dict:

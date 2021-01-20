@@ -4,7 +4,7 @@
 
 import logging
 
-from miplearn import Component
+from miplearn.components.component import Component
 
 logger = logging.getLogger(__name__)
 

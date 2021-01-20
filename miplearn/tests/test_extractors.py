@@ -1,16 +1,15 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+import numpy as np
 
-from miplearn.problems.knapsack import KnapsackInstance
-from miplearn import (
-    LearningSolver,
+from miplearn.extractors import (
     SolutionExtractor,
     InstanceFeaturesExtractor,
     VariableFeaturesExtractor,
 )
-import numpy as np
-import pyomo.environ as pe
+from miplearn.problems.knapsack import KnapsackInstance
+from miplearn.solvers.learning import LearningSolver
 
 
 def _get_instances():

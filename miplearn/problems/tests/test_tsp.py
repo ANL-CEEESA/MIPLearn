@@ -2,12 +2,13 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from miplearn import LearningSolver
-from miplearn.problems.tsp import TravelingSalesmanGenerator, TravelingSalesmanInstance
 import numpy as np
 from numpy.linalg import norm
 from scipy.spatial.distance import pdist, squareform
 from scipy.stats import uniform, randint
+
+from miplearn.problems.tsp import TravelingSalesmanGenerator, TravelingSalesmanInstance
+from miplearn.solvers.learning import LearningSolver
 
 
 def test_generator():

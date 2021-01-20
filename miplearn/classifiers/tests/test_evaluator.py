@@ -3,8 +3,9 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import numpy as np
-from miplearn.classifiers.evaluator import ClassifierEvaluator
 from sklearn.neighbors import KNeighborsClassifier
+
+from miplearn.classifiers.evaluator import ClassifierEvaluator
 
 
 def test_evaluator():

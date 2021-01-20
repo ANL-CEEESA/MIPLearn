@@ -2,7 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from miplearn import Component
+from miplearn.components.component import Component
 
 
 class CompositeComponent(Component):

@@ -1,6 +1,12 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+
+import logging
+from copy import deepcopy
+
+import numpy as np
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import (
     mean_squared_error,
     explained_variance_score,
@@ -9,11 +15,8 @@ from sklearn.metrics import (
     r2_score,
 )
 
-from .. import Component, InstanceFeaturesExtractor, ObjectiveValueExtractor
-from sklearn.linear_model import LinearRegression
-from copy import deepcopy
-import numpy as np
-import logging
+from miplearn.components.component import Component
+from miplearn.extractors import InstanceFeaturesExtractor, ObjectiveValueExtractor
 
 logger = logging.getLogger(__name__)
 

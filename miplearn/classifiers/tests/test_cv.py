@@ -3,10 +3,11 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import numpy as np
-from miplearn.classifiers.cv import CrossValidatedClassifier
 from numpy.linalg import norm
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+
+from miplearn.classifiers.cv import CrossValidatedClassifier
 
 E = 0.1
 

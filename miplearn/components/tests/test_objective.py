@@ -5,8 +5,9 @@
 from unittest.mock import Mock
 
 import numpy as np
-from miplearn import ObjectiveValueComponent
+
 from miplearn.classifiers import Regressor
+from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.tests import get_test_pyomo_instances
 
 

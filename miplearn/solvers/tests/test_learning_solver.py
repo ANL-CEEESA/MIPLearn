@@ -7,13 +7,9 @@ import pickle
 import tempfile
 import os
 
-from miplearn import (
-    LearningSolver,
-    GurobiSolver,
-    DynamicLazyConstraintsComponent,
-)
-
-from . import _get_instance, _get_internal_solvers
+from miplearn.solvers.gurobi import GurobiSolver
+from miplearn.solvers.learning import LearningSolver
+from miplearn.solvers.tests import _get_instance, _get_internal_solvers
 
 logger = logging.getLogger(__name__)
 

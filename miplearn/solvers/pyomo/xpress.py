@@ -7,7 +7,7 @@ import logging
 from pyomo import environ as pe
 from scipy.stats import randint
 
-from .base import BasePyomoSolver
+from miplearn.solvers.pyomo.base import BasePyomoSolver
 
 logger = logging.getLogger(__name__)
 

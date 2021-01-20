@@ -3,17 +3,17 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
+import random
 from copy import deepcopy
 
 import numpy as np
 from tqdm import tqdm
-import random
 
-from ... import Component
-from ...classifiers.counting import CountingClassifier
-from ...components import classifier_evaluation_dict
-from ...extractors import InstanceIterator
-from .drop_redundant import DropRedundantInequalitiesStep
+from miplearn.classifiers.counting import CountingClassifier
+from miplearn.components import classifier_evaluation_dict
+from miplearn.components.component import Component
+from miplearn.components.steps.drop_redundant import DropRedundantInequalitiesStep
+from miplearn.extractors import InstanceIterator
 
 logger = logging.getLogger(__name__)
 

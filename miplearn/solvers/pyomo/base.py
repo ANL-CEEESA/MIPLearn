@@ -12,15 +12,15 @@ import pyomo
 from pyomo import environ as pe
 from pyomo.core import Var, Constraint
 
-from .. import RedirectOutput
-from ..internal import (
+from miplearn.instance import Instance
+from miplearn.solvers import RedirectOutput
+from miplearn.solvers.internal import (
     InternalSolver,
     LPSolveStats,
     IterationCallback,
     LazyCallback,
     MIPSolveStats,
 )
-from ...instance import Instance
 
 logger = logging.getLogger(__name__)
 
@@ -98,19 +98,18 @@ class BasePyomoSolver(InternalSolver):
             if not should_repeat:
                 break
         log = streams[0].getvalue()
+        node_count = self._extract_node_count(log)
+        ws_value = self._extract_warm_start_value(log)
         stats: MIPSolveStats = {
             "Lower bound": results["Problem"][0]["Lower bound"],
             "Upper bound": results["Problem"][0]["Upper bound"],
             "Wallclock time": total_wallclock_time,
             "Sense": self._obj_sense,
             "Log": log,
+            "Nodes": node_count,
+            "Warm start value": ws_value,
+            "LP value": None,
         }
-        node_count = self._extract_node_count(log)
-        ws_value = self._extract_warm_start_value(log)
-        if node_count is not None:
-            stats["Nodes"] = node_count
-        if ws_value is not None:
-            stats["Warm start value"] = ws_value
         return stats
 
     def get_solution(self) -> Dict:

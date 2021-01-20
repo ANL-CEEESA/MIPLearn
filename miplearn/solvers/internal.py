@@ -4,11 +4,15 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Callable, Any, Dict, List
+from typing import Any, Dict, List
 
-from typing_extensions import TypedDict
-
-from ..instance import Instance
+from miplearn.instance import Instance
+from miplearn.types import (
+    LPSolveStats,
+    IterationCallback,
+    LazyCallback,
+    MIPSolveStats,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -19,33 +23,6 @@ class ExtractedConstraint(ABC):
 
 class Constraint:
     pass
-
-
-LPSolveStats = TypedDict(
-    "LPSolveStats",
-    {
-        "Optimal value": float,
-        "Log": str,
-    },
-)
-
-MIPSolveStats = TypedDict(
-    "MIPSolveStats",
-    {
-        "Lower bound": float,
-        "Upper bound": float,
-        "Wallclock time": float,
-        "Nodes": float,
-        "Sense": str,
-        "Log": str,
-        "Warm start value": float,
-    },
-    total=False,
-)
-
-IterationCallback = Callable[[], bool]
-
-LazyCallback = Callable[[Any, Any], None]
 
 
 class InternalSolver(ABC):

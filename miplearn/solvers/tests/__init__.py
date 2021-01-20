@@ -5,15 +5,18 @@
 from inspect import isclass
 from typing import List, Callable
 
-from miplearn import BasePyomoSolver, GurobiSolver, GurobiPyomoSolver, InternalSolver
 from miplearn.problems.knapsack import KnapsackInstance, GurobiKnapsackInstance
+from miplearn.solvers.gurobi import GurobiSolver
+from miplearn.solvers.internal import InternalSolver
+from miplearn.solvers.pyomo.base import BasePyomoSolver
+from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
 from miplearn.solvers.pyomo.xpress import XpressPyomoSolver
 
 
 def _get_instance(solver):
-    def _is_subclass_or_instance(solver, parentClass):
-        return isinstance(solver, parentClass) or (
-            isclass(solver) and issubclass(solver, parentClass)
+    def _is_subclass_or_instance(obj, parent_class):
+        return isinstance(obj, parent_class) or (
+            isclass(obj) and issubclass(obj, parent_class)
         )
 
     if _is_subclass_or_instance(solver, BasePyomoSolver):

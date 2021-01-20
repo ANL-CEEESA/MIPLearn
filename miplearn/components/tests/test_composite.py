@@ -4,8 +4,10 @@
 
 from unittest.mock import Mock, call
 
-from miplearn import Component, LearningSolver, Instance
+from miplearn.components.component import Component
 from miplearn.components.composite import CompositeComponent
+from miplearn.instance import Instance
+from miplearn.solvers.learning import LearningSolver
 
 
 def test_composite():

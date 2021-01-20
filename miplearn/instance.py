@@ -5,9 +5,11 @@
 import gzip
 import json
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, List
 
 import numpy as np
+
+from miplearn.types import TrainingSample
 
 
 class Instance(ABC):
@@ -19,6 +21,9 @@ class Instance(ABC):
     convert themselves into a concrete optimization model, which can be optimized by a solver, or
     into arrays of features, which can be provided as inputs to machine learning models.
     """
+
+    def __init__(self):
+        self.training_data: List[TrainingSample] = []
 
     @abstractmethod
     def to_model(self) -> Any:

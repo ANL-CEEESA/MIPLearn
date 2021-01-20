@@ -4,13 +4,11 @@
 
 from unittest.mock import Mock, call
 
-from miplearn import (
-    StaticLazyConstraintsComponent,
-    LearningSolver,
-    Instance,
-    InternalSolver,
-)
 from miplearn.classifiers import Classifier
+from miplearn.components.lazy_static import StaticLazyConstraintsComponent
+from miplearn.instance import Instance
+from miplearn.solvers.internal import InternalSolver
+from miplearn.solvers.learning import LearningSolver
 
 
 def test_usage_with_solver():
@@ -49,7 +47,9 @@ def test_usage_with_solver():
     )
 
     component = StaticLazyConstraintsComponent(
-        threshold=0.90, use_two_phase_gap=False, violation_tolerance=1.0
+        threshold=0.90,
+        use_two_phase_gap=False,
+        violation_tolerance=1.0,
     )
     component.classifiers = {
         "type-a": Mock(spec=Classifier),

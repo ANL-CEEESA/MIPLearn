@@ -4,9 +4,11 @@
 
 import os.path
 
-from miplearn import LearningSolver, BenchmarkRunner
+from miplearn.benchmark import BenchmarkRunner
 from miplearn.problems.stab import MaxWeightStableSetGenerator
 from scipy.stats import randint
+
+from miplearn.solvers.learning import LearningSolver
 
 
 def test_benchmark():
