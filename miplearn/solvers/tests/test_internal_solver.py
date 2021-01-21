@@ -169,11 +169,10 @@ def test_internal_solver():
 
             # Relax problem and make cut into an equality constraint
             solver.relax()
-            solver.set_constraint_rhs("cut", 0.5)
             solver.set_constraint_sense("cut", "=")
             stats = solver.solve()
-            assert round(stats["Lower bound"]) == 1179.0
-            assert round(solver.get_dual("eq_capacity")) == 12.0
+            assert round(stats["Lower bound"]) == 1030.0
+            assert round(solver.get_dual("eq_capacity")) == 0.0
 
 
 def test_relax():
