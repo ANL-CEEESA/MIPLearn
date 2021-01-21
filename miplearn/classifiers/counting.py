@@ -15,7 +15,7 @@ class CountingClassifier(Classifier):
     counts how many times each label appeared, hence the name.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.mean = None
 
     def fit(self, x_train, y_train):

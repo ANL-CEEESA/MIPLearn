@@ -6,7 +6,7 @@ from sklearn.metrics import roc_auc_score
 
 
 class ClassifierEvaluator:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def evaluate(self, clf, x_train, y_train):

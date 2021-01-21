@@ -8,10 +8,12 @@ import os
 import pickle
 import tempfile
 from copy import deepcopy
-from typing import Optional, List, Any, IO, cast, BinaryIO, Union
+from typing import Optional, List, Any, IO, cast, BinaryIO, Union, Callable, Dict
 
 from p_tqdm import p_map
 
+from miplearn.solvers.internal import InternalSolver
+from miplearn.components.component import Component
 from miplearn.components.cuts import UserCutsComponent
 from miplearn.components.lazy_dynamic import DynamicLazyConstraintsComponent
 from miplearn.components.objective import ObjectiveValueComponent
@@ -80,21 +82,21 @@ class LearningSolver:
 
     def __init__(
         self,
-        components=None,
-        mode="exact",
-        solver=None,
-        use_lazy_cb=False,
-        solve_lp_first=True,
-        simulate_perfect=False,
+        components: List[Component] = None,
+        mode: str = "exact",
+        solver: Callable[[], InternalSolver] = None,
+        use_lazy_cb: bool = False,
+        solve_lp_first: bool = True,
+        simulate_perfect: bool = False,
     ):
         if solver is None:
             solver = GurobiPyomoSolver
         assert callable(solver), f"Callable expected. Found {solver.__class__} instead."
 
-        self.components = {}
+        self.components: Dict[str, Component] = {}
         self.mode = mode
-        self.internal_solver = None
-        self.solver_factory = solver
+        self.internal_solver: Optional[InternalSolver] = None
+        self.solver_factory: Callable[[], InternalSolver] = solver
         self.use_lazy_cb = use_lazy_cb
         self.tee = False
         self.solve_lp_first = solve_lp_first
@@ -105,13 +107,11 @@ class LearningSolver:
                 self._add_component(comp)
         else:
             self._add_component(ObjectiveValueComponent())
-            self._add_component(PrimalSolutionComponent())
+            self._add_component(PrimalSolutionComponent(mode=mode))
             self._add_component(DynamicLazyConstraintsComponent())
             self._add_component(UserCutsComponent())
 
         assert self.mode in ["exact", "heuristic"]
-        for component in self.components.values():
-            component.mode = self.mode
 
     def solve(
         self,
@@ -216,18 +216,20 @@ class LearningSolver:
         # Initialize internal solver
         self.tee = tee
         self.internal_solver = self.solver_factory()
+        assert self.internal_solver is not None
+        assert isinstance(self.internal_solver, InternalSolver)
         self.internal_solver.set_instance(instance, model)
 
         # Solve linear relaxation
         if self.solve_lp_first:
             logger.info("Solving LP relaxation...")
-            stats = self.internal_solver.solve_lp(tee=tee)
+            lp_stats = self.internal_solver.solve_lp(tee=tee)
             training_sample["LP solution"] = self.internal_solver.get_solution()
-            training_sample["LP value"] = stats["Optimal value"]
-            training_sample["LP log"] = stats["Log"]
+            training_sample["LP value"] = lp_stats["Optimal value"]
+            training_sample["LP log"] = lp_stats["Log"]
         else:
             training_sample["LP solution"] = self.internal_solver.get_empty_solution()
-            training_sample["LP value"] = 0
+            training_sample["LP value"] = 0.0
 
         # Before-solve callbacks
         logger.debug("Running before_solve callbacks...")
@@ -347,7 +349,7 @@ class LearningSolver:
         for component in self.components.values():
             component.fit(training_instances)
 
-    def _add_component(self, component):
+    def _add_component(self, component: Component) -> None:
         name = component.__class__.__name__
         self.components[name] = component
 

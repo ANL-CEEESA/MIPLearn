@@ -7,10 +7,17 @@ from abc import abstractmethod, ABC
 import numpy as np
 from sklearn.metrics._ranking import _binary_clf_curve
 
+from miplearn.classifiers import Classifier
+
 
 class DynamicThreshold(ABC):
     @abstractmethod
-    def find(self, clf, x_train, y_train):
+    def find(
+        self,
+        clf: Classifier,
+        x_train: np.ndarray,
+        y_train: np.ndarray,
+    ) -> float:
         """
         Given a trained binary classifier `clf` and a training data set,
         returns the numerical threshold (float) satisfying some criterea.
@@ -24,7 +31,7 @@ class MinPrecisionThreshold(DynamicThreshold):
     positive rate (also known as precision).
     """
 
-    def __init__(self, min_precision):
+    def __init__(self, min_precision: float) -> None:
         self.min_precision = min_precision
 
     def find(self, clf, x_train, y_train):

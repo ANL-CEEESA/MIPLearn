@@ -2,14 +2,19 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import logging
 from copy import deepcopy
-import sys
+from typing import Union, Dict, Any
 
-from .component import Component
-from ..classifiers.adaptive import AdaptiveClassifier
-from ..classifiers.threshold import MinPrecisionThreshold, DynamicThreshold
-from ..components import classifier_evaluation_dict
-from ..extractors import *
+import numpy as np
+from tqdm.auto import tqdm
+
+from miplearn.classifiers import Classifier
+from miplearn.classifiers.adaptive import AdaptiveClassifier
+from miplearn.classifiers.threshold import MinPrecisionThreshold, DynamicThreshold
+from miplearn.components import classifier_evaluation_dict
+from miplearn.components.component import Component
+from miplearn.extractors import VariableFeaturesExtractor, SolutionExtractor, Extractor
 
 logger = logging.getLogger(__name__)
 
@@ -21,13 +26,13 @@ class PrimalSolutionComponent(Component):
 
     def __init__(
         self,
-        classifier=AdaptiveClassifier(),
-        mode="exact",
-        threshold=MinPrecisionThreshold(0.98),
-    ):
+        classifier: Classifier = AdaptiveClassifier(),
+        mode: str = "exact",
+        threshold: Union[float, DynamicThreshold] = MinPrecisionThreshold(0.98),
+    ) -> None:
         self.mode = mode
-        self.classifiers = {}
-        self.thresholds = {}
+        self.classifiers: Dict[Any, Classifier] = {}
+        self.thresholds: Dict[Any, Union[float, DynamicThreshold]] = {}
         self.threshold_prototype = threshold
         self.classifier_prototype = classifier
 

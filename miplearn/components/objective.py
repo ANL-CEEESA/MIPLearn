@@ -15,6 +15,7 @@ from sklearn.metrics import (
     r2_score,
 )
 
+from miplearn.classifiers import Regressor
 from miplearn.components.component import Component
 from miplearn.extractors import InstanceFeaturesExtractor, ObjectiveValueExtractor
 
@@ -26,7 +27,10 @@ class ObjectiveValueComponent(Component):
     A Component which predicts the optimal objective value of the problem.
     """
 
-    def __init__(self, regressor=LinearRegression()):
+    def __init__(
+        self,
+        regressor: Regressor = LinearRegression(),
+    ) -> None:
         self.ub_regressor = None
         self.lb_regressor = None
         self.regressor_prototype = regressor

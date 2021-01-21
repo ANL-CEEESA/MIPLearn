@@ -4,6 +4,7 @@
 
 import logging
 from copy import deepcopy
+from typing import Any, Dict
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
@@ -25,9 +26,9 @@ class AdaptiveClassifier(Classifier):
 
     def __init__(
         self,
-        candidates=None,
-        evaluator=ClassifierEvaluator(),
-    ):
+        candidates: Dict[str, Any] = None,
+        evaluator: ClassifierEvaluator = ClassifierEvaluator(),
+    ) -> None:
         """
         Initializes the meta-classifier.
         """
