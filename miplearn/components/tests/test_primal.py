@@ -50,7 +50,7 @@ def test_evaluate():
     comp = PrimalSolutionComponent(classifier=[clf_zero, clf_one], threshold=0.50)
     comp.fit(instances[:1])
     assert comp.predict(instances[0]) == {"x": {0: 0, 1: 0, 2: 1, 3: None}}
-    assert instances[0].solution == {"x": {0: 1, 1: 0, 2: 1, 3: 1}}
+    assert instances[0].training_data[0]["Solution"] == {"x": {0: 1, 1: 0, 2: 1, 3: 1}}
     ev = comp.evaluate(instances[:1])
     assert ev == {
         "Fix one": {

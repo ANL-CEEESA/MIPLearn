@@ -7,13 +7,14 @@ from typing import TypedDict, Optional, Dict, Callable, Any
 TrainingSample = TypedDict(
     "TrainingSample",
     {
-        "LP log": Optional[str],
-        "LP solution": Optional[Dict],
-        "LP value": Optional[float],
-        "Lower bound": Optional[float],
-        "MIP log": Optional[str],
-        "Solution": Optional[Dict],
-        "Upper bound": Optional[float],
+        "LP log": str,
+        "LP solution": Dict,
+        "LP value": float,
+        "Lower bound": float,
+        "MIP log": str,
+        "Solution": Dict,
+        "Upper bound": float,
+        "slacks": Dict,
     },
     total=False,
 )

@@ -25,20 +25,19 @@ def test_learning_solver():
             )
 
             solver.solve(instance)
-            assert instance.solution["x"][0] == 1.0
-            assert instance.solution["x"][1] == 0.0
-            assert instance.solution["x"][2] == 1.0
-            assert instance.solution["x"][3] == 1.0
-            assert instance.lower_bound == 1183.0
-            assert instance.upper_bound == 1183.0
-            assert round(instance.lp_solution["x"][0], 3) == 1.000
-            assert round(instance.lp_solution["x"][1], 3) == 0.923
-            assert round(instance.lp_solution["x"][2], 3) == 1.000
-            assert round(instance.lp_solution["x"][3], 3) == 0.000
-            assert round(instance.lp_value, 3) == 1287.923
-            assert instance.found_violated_lazy_constraints == []
-            assert instance.found_violated_user_cuts == []
-            assert len(instance.solver_log) > 100
+            data = instance.training_data[0]
+            assert data["Solution"]["x"][0] == 1.0
+            assert data["Solution"]["x"][1] == 0.0
+            assert data["Solution"]["x"][2] == 1.0
+            assert data["Solution"]["x"][3] == 1.0
+            assert data["Lower bound"] == 1183.0
+            assert data["Upper bound"] == 1183.0
+            assert round(data["LP solution"]["x"][0], 3) == 1.000
+            assert round(data["LP solution"]["x"][1], 3) == 0.923
+            assert round(data["LP solution"]["x"][2], 3) == 1.000
+            assert round(data["LP solution"]["x"][3], 3) == 0.000
+            assert round(data["LP value"], 3) == 1287.923
+            assert len(data["MIP log"]) > 100
 
             solver.fit([instance])
             solver.solve(instance)
@@ -55,7 +54,8 @@ def test_parallel_solve():
         results = solver.parallel_solve(instances, n_jobs=3)
         assert len(results) == 10
         for instance in instances:
-            assert len(instance.solution["x"].keys()) == 4
+            data = instance.training_data[0]
+            assert len(data["Solution"]["x"].keys()) == 4
 
 
 def test_solve_fit_from_disk():
@@ -73,14 +73,14 @@ def test_solve_fit_from_disk():
         solver.solve(filenames[0])
         with open(filenames[0], "rb") as file:
             instance = pickle.load(file)
-            assert hasattr(instance, "solution")
+            assert len(instance.training_data) > 0
 
         # Test: parallel_solve
         solver.parallel_solve(filenames)
         for filename in filenames:
             with open(filename, "rb") as file:
                 instance = pickle.load(file)
-                assert hasattr(instance, "solution")
+                assert len(instance.training_data) > 0
 
         # Test: solve (with specified output)
         output = [f + ".out" for f in filenames]

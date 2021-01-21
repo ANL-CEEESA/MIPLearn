@@ -78,7 +78,15 @@ class ObjectiveValueComponent(Component):
 
     def evaluate(self, instances):
         y_pred = self.predict(instances)
-        y_true = np.array([[inst.lower_bound, inst.upper_bound] for inst in instances])
+        y_true = np.array(
+            [
+                [
+                    inst.training_data[0]["Lower bound"],
+                    inst.training_data[0]["Upper bound"],
+                ]
+                for inst in instances
+            ]
+        )
         y_true_lb, y_true_ub = y_true[:, 0], y_true[:, 1]
         y_pred_lb, y_pred_ub = y_pred[:, 1], y_pred[:, 1]
         ev = {

@@ -15,8 +15,8 @@ def test_usage():
     instances, models = get_test_pyomo_instances()
     comp = ObjectiveValueComponent()
     comp.fit(instances)
-    assert instances[0].lower_bound == 1183.0
-    assert instances[0].upper_bound == 1183.0
+    assert instances[0].training_data[0]["Lower bound"] == 1183.0
+    assert instances[0].training_data[0]["Upper bound"] == 1183.0
     assert np.round(comp.predict(instances), 2).tolist() == [
         [1183.0, 1183.0],
         [1070.0, 1070.0],

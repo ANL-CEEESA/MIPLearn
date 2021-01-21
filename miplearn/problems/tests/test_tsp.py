@@ -38,16 +38,16 @@ def test_instance():
     )
     instance = TravelingSalesmanInstance(n_cities, distances)
     solver = LearningSolver()
-    solver.solve(instance)
-    x = instance.solution["x"]
+    stats = solver.solve(instance)
+    x = instance.training_data[0]["Solution"]["x"]
     assert x[0, 1] == 1.0
     assert x[0, 2] == 0.0
     assert x[0, 3] == 1.0
     assert x[1, 2] == 1.0
     assert x[1, 3] == 0.0
     assert x[2, 3] == 1.0
-    assert instance.lower_bound == 4.0
-    assert instance.upper_bound == 4.0
+    assert stats["Lower bound"] == 4.0
+    assert stats["Upper bound"] == 4.0
 
 
 def test_subtour():
@@ -68,7 +68,7 @@ def test_subtour():
     solver.solve(instance)
     assert hasattr(instance, "found_violated_lazy_constraints")
     assert hasattr(instance, "found_violated_user_cuts")
-    x = instance.solution["x"]
+    x = instance.training_data[0]["Solution"]["x"]
     assert x[0, 1] == 1.0
     assert x[0, 4] == 1.0
     assert x[1, 2] == 1.0
