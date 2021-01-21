@@ -97,11 +97,17 @@ def test_solve_fit_from_disk():
 
         # Test: solve (with specified output)
         output = [f + ".out" for f in filenames]
-        solver.solve(filenames[0], output=output[0])
+        solver.solve(
+            filenames[0],
+            output_filename=output[0],
+        )
         assert os.path.isfile(output[0])
 
         # Test: parallel_solve (with specified output)
-        solver.parallel_solve(filenames, output=output)
+        solver.parallel_solve(
+            filenames,
+            output_filenames=output,
+        )
         for filename in output:
             assert os.path.isfile(filename)
 

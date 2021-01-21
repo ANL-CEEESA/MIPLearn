@@ -84,8 +84,38 @@ class Component(ABC):
     ) -> None:
         return
 
-    def iteration_cb(self, solver, instance, model):
+    def iteration_cb(
+        self,
+        solver: LearningSolver,
+        instance: Instance,
+        model: Any,
+    ) -> bool:
+        """
+        Method called by LearningSolver at the end of each iteration.
+
+        After solving the MIP, LearningSolver calls `iteration_cb` of each component,
+        giving them a chance to modify the problem and resolve it before the solution
+        process ends. For example, the lazy constraint component uses `iteration_cb`
+        to check that all lazy constraints are satisfied.
+
+        If `iteration_cb` returns False for all components, the solution process
+        ends. If it retunrs True for any component, the MIP is solved again.
+
+        Parameters
+        ----------
+        solver: LearningSolver
+            The solver calling this method.
+        instance: Instance
+            The instance being solved.
+        model:
+            The concrete optimization model being solved.
+        """
         return False
 
-    def lazy_cb(self, solver, instance, model):
+    def lazy_cb(
+        self,
+        solver: LearningSolver,
+        instance: Instance,
+        model: Any,
+    ) -> None:
         return

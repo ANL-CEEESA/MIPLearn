@@ -12,7 +12,6 @@ from typing import Optional, List, Any, IO, cast, BinaryIO, Union, Callable, Dic
 
 from p_tqdm import p_map
 
-from miplearn.solvers.internal import InternalSolver
 from miplearn.components.component import Component
 from miplearn.components.cuts import UserCutsComponent
 from miplearn.components.lazy_dynamic import DynamicLazyConstraintsComponent
@@ -20,28 +19,42 @@ from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.instance import Instance
 from miplearn.solvers import RedirectOutput
+from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
 from miplearn.types import MIPSolveStats, TrainingSample
 
 logger = logging.getLogger(__name__)
 
-# Global memory for multiprocessing
-SOLVER = [None]  # type: List[Optional[LearningSolver]]
-INSTANCES = [None]  # type: List[Optional[dict]]
-OUTPUTS = [None]
+
+class GlobalVariables:
+    def __init__(self) -> None:
+        self.solver: Optional[LearningSolver] = None
+        self.instances: Optional[Union[List[str], List[Instance]]] = None
+        self.output_filenames: Optional[List[str]] = None
+        self.discard_outputs: bool = False
+
+
+# Global variables used for multiprocessing. Global variables are copied by the
+# operating system when the process forks. Local variables are copied through
+# serialization, which is a much slower process.
+GLOBAL = [GlobalVariables()]
 
 
 def _parallel_solve(idx):
-    solver = deepcopy(SOLVER[0])
-    if OUTPUTS[0] is None:
-        output = None
-    elif len(OUTPUTS[0]) == 0:
-        output = ""
+    solver = GLOBAL[0].solver
+    instances = GLOBAL[0].instances
+    output_filenames = GLOBAL[0].output_filenames
+    discard_outputs = GLOBAL[0].discard_outputs
+    if output_filenames is None:
+        output_filename = None
     else:
-        output = OUTPUTS[0][idx]
-    instance = INSTANCES[0][idx]
-    stats = solver.solve(instance, output=output)
-    return (stats, instance)
+        output_filename = output_filenames[idx]
+    stats = solver.solve(
+        instances[idx],
+        output_filename=output_filename,
+        discard_output=discard_outputs,
+    )
+    return stats, instances[idx]
 
 
 class LearningSolver:
@@ -58,22 +71,22 @@ class LearningSolver:
             - PrimalSolutionComponent
             - DynamicLazyConstraintsComponent
             - UserCutsComponent
-    mode: str
+    mode:
         If "exact", solves problem to optimality, keeping all optimality
         guarantees provided by the MIP solver. If "heuristic", uses machine
         learning more aggressively, and may return suboptimal solutions.
-    solver: Callable[[], InternalSolver]
+    solver:
         A callable that constructs the internal solver. If None is provided,
         use GurobiPyomoSolver.
-    use_lazy_cb: bool
+    use_lazy_cb:
         If true, use native solver callbacks for enforcing lazy constraints,
         instead of a simple loop. May not be supported by all solvers.
-    solve_lp_first: bool
+    solve_lp_first:
         If true, solve LP relaxation first, then solve original MILP. This
         option should be activated if the LP relaxation is not very
         expensive to solve and if it provides good hints for the integer
         solution.
-    simulate_perfect: bool
+    simulate_perfect:
         If true, each call to solve actually performs three actions: solve
         the original problem, train the ML models on the data that was just
         collected, and solve the problem again. This is useful for evaluating
@@ -92,16 +105,14 @@ class LearningSolver:
         if solver is None:
             solver = GurobiPyomoSolver
         assert callable(solver), f"Callable expected. Found {solver.__class__} instead."
-
         self.components: Dict[str, Component] = {}
-        self.mode = mode
         self.internal_solver: Optional[InternalSolver] = None
+        self.mode: str = mode
+        self.simulate_perfect: bool = simulate_perfect
+        self.solve_lp_first: bool = solve_lp_first
         self.solver_factory: Callable[[], InternalSolver] = solver
-        self.use_lazy_cb = use_lazy_cb
         self.tee = False
-        self.solve_lp_first = solve_lp_first
-        self.simulate_perfect = simulate_perfect
-
+        self.use_lazy_cb: bool = use_lazy_cb
         if components is not None:
             for comp in components:
                 self._add_component(comp)
@@ -110,78 +121,14 @@ class LearningSolver:
             self._add_component(PrimalSolutionComponent(mode=mode))
             self._add_component(DynamicLazyConstraintsComponent())
             self._add_component(UserCutsComponent())
-
         assert self.mode in ["exact", "heuristic"]
-
-    def solve(
-        self,
-        instance: Union[Instance, str],
-        model: Any = None,
-        output: str = "",
-        tee: bool = False,
-    ) -> MIPSolveStats:
-        """
-        Solves the given instance. If trained machine-learning models are
-        available, they will be used to accelerate the solution process.
-
-        The argument `instance` may be either an Instance object or a
-        filename pointing to a pickled Instance object.
-
-        This method adds a new training sample to `instance.training_sample`.
-        If a filename is provided, then the file is modified in-place. That is,
-        the original file is overwritten.
-
-        If `solver.solve_lp_first` is False, the properties lp_solution and
-        lp_value will be set to dummy values.
-
-        Parameters
-        ----------
-        instance: miplearn.Instance or str
-            The instance to be solved, or a filename.
-        model: pyomo.core.ConcreteModel
-            The corresponding Pyomo model. If not provided, it will be created.
-        output: str or None
-            If instance is a filename and output is provided, write the modified
-            instance to this file, instead of replacing the original file. If
-            output is None, discard modified instance.
-        tee: bool
-            If true, prints solver log to screen.
-
-        Returns
-        -------
-        dict
-            A dictionary of solver statistics containing at least the following
-            keys: "Lower bound", "Upper bound", "Wallclock time", "Nodes",
-            "Sense", "Log", "Warm start value" and "LP value".
-
-            Additional components may generate additional keys. For example,
-            ObjectiveValueComponent adds the keys "Predicted LB" and
-            "Predicted UB". See the documentation of each component for more
-            details.
-        """
-        if self.simulate_perfect:
-            if not isinstance(instance, str):
-                raise Exception("Not implemented")
-            with tempfile.NamedTemporaryFile(suffix=os.path.basename(instance)) as tmp:
-                self._solve(
-                    instance=instance,
-                    model=model,
-                    output=tmp.name,
-                    tee=tee,
-                )
-                self.fit([tmp.name])
-        return self._solve(
-            instance=instance,
-            model=model,
-            output=output,
-            tee=tee,
-        )
 
     def _solve(
         self,
         instance: Union[Instance, str],
         model: Any = None,
-        output: str = "",
+        output_filename: Optional[str] = None,
+        discard_output: bool = False,
         tee: bool = False,
     ) -> MIPSolveStats:
 
@@ -237,14 +184,19 @@ class LearningSolver:
             component.before_solve(self, instance, model)
 
         # Define wrappers
-        def iteration_cb():
+        def iteration_cb_wrapper() -> bool:
             should_repeat = False
+            assert isinstance(instance, Instance)
             for comp in self.components.values():
                 if comp.iteration_cb(self, instance, model):
                     should_repeat = True
             return should_repeat
 
-        def lazy_cb_wrapper(cb_solver, cb_model):
+        def lazy_cb_wrapper(
+            cb_solver: LearningSolver,
+            cb_model: Any,
+        ) -> None:
+            assert isinstance(instance, Instance)
             for comp in self.components.values():
                 comp.lazy_cb(self, instance, model)
 
@@ -256,7 +208,7 @@ class LearningSolver:
         logger.info("Solving MILP...")
         stats = self.internal_solver.solve(
             tee=tee,
-            iteration_cb=iteration_cb,
+            iteration_cb=iteration_cb_wrapper,
             lazy_cb=lazy_cb,
         )
         if "LP value" in training_sample.keys():
@@ -274,9 +226,8 @@ class LearningSolver:
             component.after_solve(self, instance, model, stats, training_sample)
 
         # Write to file, if necessary
-        if filename is not None and output is not None:
-            output_filename = output
-            if len(output) == 0:
+        if not discard_output and filename is not None:
+            if output_filename is None:
                 output_filename = filename
             logger.info("Writing: %s" % output_filename)
             if fileformat == "pickle":
@@ -287,13 +238,83 @@ class LearningSolver:
                     pickle.dump(instance, cast(IO[bytes], file))
         return stats
 
+    def solve(
+        self,
+        instance: Union[Instance, str],
+        model: Any = None,
+        output_filename: Optional[str] = None,
+        discard_output: bool = False,
+        tee: bool = False,
+    ) -> MIPSolveStats:
+        """
+        Solves the given instance. If trained machine-learning models are
+        available, they will be used to accelerate the solution process.
+
+        The argument `instance` may be either an Instance object or a
+        filename pointing to a pickled Instance object.
+
+        This method adds a new training sample to `instance.training_sample`.
+        If a filename is provided, then the file is modified in-place. That is,
+        the original file is overwritten.
+
+        If `solver.solve_lp_first` is False, the properties lp_solution and
+        lp_value will be set to dummy values.
+
+        Parameters
+        ----------
+        instance:
+            The instance to be solved, or a filename.
+        model:
+            The corresponding Pyomo model. If not provided, it will be created.
+        output_filename:
+            If instance is a filename and output_filename is provided, write the
+            modified instance to this file, instead of replacing the original one. If
+            output_filename is None (the default), modified the original file in-place.
+        discard_output:
+            If True, do not write the modified instances anywhere; simply discard
+            them. Useful during benchmarking.
+        tee:
+            If true, prints solver log to screen.
+
+        Returns
+        -------
+        dict
+            A dictionary of solver statistics containing at least the following
+            keys: "Lower bound", "Upper bound", "Wallclock time", "Nodes",
+            "Sense", "Log", "Warm start value" and "LP value".
+
+            Additional components may generate additional keys. For example,
+            ObjectiveValueComponent adds the keys "Predicted LB" and
+            "Predicted UB". See the documentation of each component for more
+            details.
+        """
+        if self.simulate_perfect:
+            if not isinstance(instance, str):
+                raise Exception("Not implemented")
+            with tempfile.NamedTemporaryFile(suffix=os.path.basename(instance)) as tmp:
+                self._solve(
+                    instance=instance,
+                    model=model,
+                    output_filename=tmp.name,
+                    tee=tee,
+                )
+                self.fit([tmp.name])
+        return self._solve(
+            instance=instance,
+            model=model,
+            output_filename=output_filename,
+            discard_output=discard_output,
+            tee=tee,
+        )
+
     def parallel_solve(
         self,
-        instances,
-        n_jobs=4,
-        label="Solve",
-        output=None,
-    ):
+        instances: Union[List[str], List[Instance]],
+        n_jobs: int = 4,
+        label: str = "Solve",
+        output_filenames: Optional[List[str]] = None,
+        discard_outputs: bool = False,
+    ) -> List[MIPSolveStats]:
         """
         Solves multiple instances in parallel.
 
@@ -304,15 +325,18 @@ class LearningSolver:
 
         Parameters
         ----------
-        output: [str] or None
-            If instances are file names and output is provided, write the modified
-            instances to these files, instead of replacing the original files. If
-            output is None, discard modified instance.
-        label: str
+        output_filenames:
+            If instances are file names and output_filenames is provided, write the
+            modified instances to these files, instead of replacing the original
+            files. If output_filenames is None, modifies the instances in-place.
+        discard_outputs:
+            If True, do not write the modified instances anywhere; simply discard
+            them instead. Useful during benchmarking.
+        label:
             Label to show in the progress bar.
-        instances: [miplearn.Instance] or [str]
+        instances:
             The instances to be solved
-        n_jobs: int
+        n_jobs:
             Number of instances to solve in parallel at a time.
 
         Returns
@@ -323,13 +347,12 @@ class LearningSolver:
             [solver.solve(p) for p in instances]
 
         """
-        if output is None:
-            output = []
         self.internal_solver = None
         self._silence_miplearn_logger()
-        SOLVER[0] = self
-        OUTPUTS[0] = output
-        INSTANCES[0] = instances
+        GLOBAL[0].solver = self
+        GLOBAL[0].output_filenames = output_filenames
+        GLOBAL[0].instances = instances
+        GLOBAL[0].discard_outputs = discard_outputs
         results = p_map(
             _parallel_solve,
             list(range(len(instances))),
@@ -353,15 +376,15 @@ class LearningSolver:
         name = component.__class__.__name__
         self.components[name] = component
 
-    def _silence_miplearn_logger(self):
+    def _silence_miplearn_logger(self) -> None:
         miplearn_logger = logging.getLogger("miplearn")
         self.prev_log_level = miplearn_logger.getEffectiveLevel()
         miplearn_logger.setLevel(logging.WARNING)
 
-    def _restore_miplearn_logger(self):
+    def _restore_miplearn_logger(self) -> None:
         miplearn_logger = logging.getLogger("miplearn")
         miplearn_logger.setLevel(self.prev_log_level)
 
-    def __getstate__(self):
+    def __getstate__(self) -> Dict:
         self.internal_solver = None
         return self.__dict__

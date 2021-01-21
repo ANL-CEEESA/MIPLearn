@@ -45,7 +45,7 @@ class BenchmarkRunner:
                 trials,
                 n_jobs=n_jobs,
                 label="Solve (%s)" % solver_name,
-                output=None,
+                discard_outputs=True,
             )
             for i in range(len(trials)):
                 idx = (i % len(instances)) + index_offset
