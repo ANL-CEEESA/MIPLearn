@@ -2,12 +2,12 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-import miplearn
-from miplearn import Instance
 import numpy as np
 import pyomo.environ as pe
-from scipy.stats import uniform, randint, bernoulli
+from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
+
+from miplearn.instance import Instance
 
 
 class ChallengeA:
@@ -56,6 +56,7 @@ class MultiKnapsackInstance(Instance):
     """
 
     def __init__(self, prices, capacities, weights):
+        super().__init__()
         assert isinstance(prices, np.ndarray)
         assert isinstance(capacities, np.ndarray)
         assert isinstance(weights, np.ndarray)
@@ -241,6 +242,7 @@ class KnapsackInstance(Instance):
     """
 
     def __init__(self, weights, prices, capacity):
+        super().__init__()
         self.weights = weights
         self.prices = prices
         self.capacity = capacity

@@ -8,9 +8,9 @@ from copy import deepcopy
 import numpy as np
 from tqdm import tqdm
 
-from miplearn import Component
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.components import classifier_evaluation_dict
+from miplearn.components.component import Component
 from miplearn.components.lazy_static import LazyConstraint
 from miplearn.extractors import InstanceIterator
 

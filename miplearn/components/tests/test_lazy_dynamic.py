@@ -5,10 +5,13 @@
 from unittest.mock import Mock
 
 import numpy as np
-from miplearn import DynamicLazyConstraintsComponent, LearningSolver, InternalSolver
-from miplearn.classifiers import Classifier
-from miplearn.tests import get_test_pyomo_instances
 from numpy.linalg import norm
+
+from miplearn.classifiers import Classifier
+from miplearn.components.lazy_dynamic import DynamicLazyConstraintsComponent
+from miplearn.solvers.internal import InternalSolver
+from miplearn.solvers.learning import LearningSolver
+from miplearn.tests import get_test_pyomo_instances
 
 E = 0.1
 

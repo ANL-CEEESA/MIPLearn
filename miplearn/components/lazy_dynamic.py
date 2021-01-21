@@ -2,14 +2,17 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import logging
 import sys
 from copy import deepcopy
 
+import numpy as np
+from tqdm.auto import tqdm
+
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.components import classifier_evaluation_dict
-
-from .component import Component
-from ..extractors import *
+from miplearn.components.component import Component
+from miplearn.extractors import InstanceFeaturesExtractor, InstanceIterator
 
 logger = logging.getLogger(__name__)
 

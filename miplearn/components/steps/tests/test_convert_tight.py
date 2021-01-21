@@ -1,9 +1,12 @@
-from miplearn import LearningSolver, GurobiSolver, Instance, Classifier
+from unittest.mock import Mock
+
+from miplearn.classifiers import Classifier
 from miplearn.components.steps.convert_tight import ConvertTightIneqsIntoEqsStep
 from miplearn.components.steps.relax_integrality import RelaxIntegralityStep
+from miplearn.instance import Instance
 from miplearn.problems.knapsack import GurobiKnapsackInstance
-
-from unittest.mock import Mock
+from miplearn.solvers.gurobi import GurobiSolver
+from miplearn.solvers.learning import LearningSolver
 
 
 def test_convert_tight_usage():
@@ -21,8 +24,8 @@ def test_convert_tight_usage():
     )
 
     # Solve original problem
-    solver.solve(instance)
-    original_upper_bound = instance.upper_bound
+    stats = solver.solve(instance)
+    original_upper_bound = stats["Upper bound"]
 
     # Should collect training data
     assert instance.training_data[0]["slacks"]["eq_capacity"] == 0.0
@@ -32,15 +35,14 @@ def test_convert_tight_usage():
     stats = solver.solve(instance)
 
     # Objective value should be the same
-    assert instance.upper_bound == original_upper_bound
+    assert stats["Upper bound"] == original_upper_bound
     assert stats["ConvertTight: Inf iterations"] == 0
     assert stats["ConvertTight: Subopt iterations"] == 0
 
 
-class TestInstance(Instance):
+class SampleInstance(Instance):
     def to_model(self):
         import gurobipy as grb
-        from gurobipy import GRB
 
         m = grb.Model("model")
         x1 = m.addVar(name="x1")
@@ -68,9 +70,9 @@ def test_convert_tight_infeasibility():
         components=[comp],
         solve_lp_first=False,
     )
-    instance = TestInstance()
+    instance = SampleInstance()
     stats = solver.solve(instance)
-    assert instance.lower_bound == 5.0
+    assert stats["Upper bound"] == 5.0
     assert stats["ConvertTight: Inf iterations"] == 1
     assert stats["ConvertTight: Subopt iterations"] == 0
 
@@ -91,9 +93,9 @@ def test_convert_tight_suboptimality():
         components=[comp],
         solve_lp_first=False,
     )
-    instance = TestInstance()
+    instance = SampleInstance()
     stats = solver.solve(instance)
-    assert instance.lower_bound == 5.0
+    assert stats["Upper bound"] == 5.0
     assert stats["ConvertTight: Inf iterations"] == 0
     assert stats["ConvertTight: Subopt iterations"] == 1
 
@@ -114,8 +116,8 @@ def test_convert_tight_optimal():
         components=[comp],
         solve_lp_first=False,
     )
-    instance = TestInstance()
+    instance = SampleInstance()
     stats = solver.solve(instance)
-    assert instance.lower_bound == 5.0
+    assert stats["Upper bound"] == 5.0
     assert stats["ConvertTight: Inf iterations"] == 0
     assert stats["ConvertTight: Subopt iterations"] == 0

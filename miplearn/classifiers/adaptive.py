@@ -5,13 +5,14 @@
 import logging
 from copy import deepcopy
 
-from miplearn.classifiers import Classifier
-from miplearn.classifiers.counting import CountingClassifier
-from miplearn.classifiers.evaluator import ClassifierEvaluator
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
+
+from miplearn.classifiers import Classifier
+from miplearn.classifiers.counting import CountingClassifier
+from miplearn.classifiers.evaluator import ClassifierEvaluator
 
 logger = logging.getLogger(__name__)
 

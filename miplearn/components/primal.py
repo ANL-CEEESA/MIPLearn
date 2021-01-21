@@ -68,7 +68,8 @@ class PrimalSolutionComponent(Component):
             for label in [0, 1]:
                 y_train = solutions[category][:, label].astype(int)
 
-                # If all samples are either positive or negative, make constant predictions
+                # If all samples are either positive or negative, make constant
+                # predictions
                 y_avg = np.average(y_train)
                 if y_avg < 0.001 or y_avg >= 0.999:
                     self.classifiers[category, label] = round(y_avg)
@@ -130,7 +131,7 @@ class PrimalSolutionComponent(Component):
             desc="Evaluate (primal)",
         ):
             instance = instances[instance_idx]
-            solution_actual = instance.solution
+            solution_actual = instance.training_data[0]["Solution"]
             solution_pred = self.predict(instance)
 
             vars_all, vars_one, vars_zero = set(), set(), set()

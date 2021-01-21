@@ -5,6 +5,7 @@
 from unittest.mock import Mock
 
 import numpy as np
+
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import MinPrecisionThreshold
 

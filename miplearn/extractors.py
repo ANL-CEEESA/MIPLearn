@@ -2,14 +2,13 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import gzip
 import logging
 import pickle
-import gzip
+from abc import ABC, abstractmethod
 
 import numpy as np
-
 from tqdm.auto import tqdm
-from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
 
@@ -48,10 +47,10 @@ class Extractor(ABC):
 
     @staticmethod
     def split_variables(instance):
-        assert hasattr(instance, "lp_solution")
         result = {}
-        for var_name in instance.lp_solution:
-            for index in instance.lp_solution[var_name]:
+        lp_solution = instance.training_data[0]["LP solution"]
+        for var_name in lp_solution:
+            for index in lp_solution[var_name]:
                 category = instance.get_variable_category(var_name, index)
                 if category is None:
                     continue
@@ -71,6 +70,7 @@ class VariableFeaturesExtractor(Extractor):
         ):
             instance_features = instance.get_instance_features()
             var_split = self.split_variables(instance)
+            lp_solution = instance.training_data[0]["LP solution"]
             for (category, var_index_pairs) in var_split.items():
                 if category not in result:
                     result[category] = []
@@ -78,7 +78,7 @@ class VariableFeaturesExtractor(Extractor):
                     result[category] += [
                         instance_features.tolist()
                         + instance.get_variable_features(var_name, index).tolist()
-                        + [instance.lp_solution[var_name][index]]
+                        + [lp_solution[var_name][index]]
                     ]
         for category in result:
             result[category] = np.array(result[category])
@@ -97,14 +97,15 @@ class SolutionExtractor(Extractor):
             disable=len(instances) < 5,
         ):
             var_split = self.split_variables(instance)
+            if self.relaxation:
+                solution = instance.training_data[0]["LP solution"]
+            else:
+                solution = instance.training_data[0]["Solution"]
             for (category, var_index_pairs) in var_split.items():
                 if category not in result:
                     result[category] = []
                 for (var_name, index) in var_index_pairs:
-                    if self.relaxation:
-                        v = instance.lp_solution[var_name][index]
-                    else:
-                        v = instance.solution[var_name][index]
+                    v = solution[var_name][index]
                     if v is None:
                         result[category] += [[0, 0]]
                     else:
@@ -121,7 +122,7 @@ class InstanceFeaturesExtractor(Extractor):
                 np.hstack(
                     [
                         instance.get_instance_features(),
-                        instance.lp_value,
+                        instance.training_data[0]["LP value"],
                     ]
                 )
                 for instance in InstanceIterator(instances)
@@ -137,13 +138,22 @@ class ObjectiveValueExtractor(Extractor):
     def extract(self, instances):
         if self.kind == "lower bound":
             return np.array(
-                [[instance.lower_bound] for instance in InstanceIterator(instances)]
+                [
+                    [instance.training_data[0]["Lower bound"]]
+                    for instance in InstanceIterator(instances)
+                ]
             )
         if self.kind == "upper bound":
             return np.array(
-                [[instance.upper_bound] for instance in InstanceIterator(instances)]
+                [
+                    [instance.training_data[0]["Upper bound"]]
+                    for instance in InstanceIterator(instances)
+                ]
             )
         if self.kind == "lp":
             return np.array(
-                [[instance.lp_value] for instance in InstanceIterator(instances)]
+                [
+                    [instance.training_data[0]["LP value"]]
+                    for instance in InstanceIterator(instances)
+                ]
             )

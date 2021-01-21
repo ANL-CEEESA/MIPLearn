@@ -4,8 +4,8 @@
 
 import logging
 
-from . import _get_instance
-from ... import GurobiSolver
+from miplearn.solvers.gurobi import GurobiSolver
+from miplearn.solvers.tests import _get_instance
 
 logger = logging.getLogger(__name__)
 

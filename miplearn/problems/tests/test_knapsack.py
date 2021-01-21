@@ -2,10 +2,10 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from miplearn import LearningSolver
-from miplearn.problems.knapsack import MultiKnapsackGenerator, MultiKnapsackInstance
-from scipy.stats import uniform, randint
 import numpy as np
+from scipy.stats import uniform, randint
+
+from miplearn.problems.knapsack import MultiKnapsackGenerator
 
 
 def test_knapsack_generator():

@@ -4,9 +4,10 @@
 
 import networkx as nx
 import numpy as np
-from miplearn import LearningSolver
-from miplearn.problems.stab import MaxWeightStableSetInstance
 from scipy.stats import uniform, randint
+
+from miplearn.problems.stab import MaxWeightStableSetInstance
+from miplearn.solvers.learning import LearningSolver
 
 
 def test_stab():
@@ -14,8 +15,8 @@ def test_stab():
     weights = [1.0, 1.0, 1.0, 1.0, 1.0]
     instance = MaxWeightStableSetInstance(graph, weights)
     solver = LearningSolver()
-    solver.solve(instance)
-    assert instance.lower_bound == 2.0
+    stats = solver.solve(instance)
+    assert stats["Lower bound"] == 2.0
 
 
 def test_stab_generator_fixed_graph():

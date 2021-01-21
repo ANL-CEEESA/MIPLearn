@@ -4,8 +4,8 @@
 
 import logging
 
-from miplearn import Component
 from miplearn.classifiers.counting import CountingClassifier
+from miplearn.components.component import Component
 from miplearn.components.composite import CompositeComponent
 from miplearn.components.steps.convert_tight import ConvertTightIneqsIntoEqsStep
 from miplearn.components.steps.drop_redundant import DropRedundantInequalitiesStep
