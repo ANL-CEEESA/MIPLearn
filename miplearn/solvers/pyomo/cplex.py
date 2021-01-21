@@ -1,11 +1,13 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+from typing import Optional
 
 from pyomo import environ as pe
 from scipy.stats import randint
 
 from miplearn.solvers.pyomo.base import BasePyomoSolver
+from miplearn.types import SolverParams
 
 
 class CplexPyomoSolver(BasePyomoSolver):
@@ -19,13 +21,19 @@ class CplexPyomoSolver(BasePyomoSolver):
         {"mip_display": 5} to increase the log verbosity.
     """
 
-    def __init__(self, params=None):
+    def __init__(
+        self,
+        params: Optional[SolverParams] = None,
+    ) -> None:
+        if params is None:
+            params = {}
+        if "randomseed" not in params.keys():
+            params["randomseed"] = randint(low=0, high=1000).rvs()
+        if "mip_display" not in params.keys():
+            params["mip_display"] = 4
         super().__init__(
             solver_factory=pe.SolverFactory("cplex_persistent"),
-            params={
-                "randomseed": randint(low=0, high=1000).rvs(),
-                "mip_display": 4,
-            },
+            params=params,
         )
 
     def _get_warm_start_regexp(self):

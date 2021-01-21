@@ -13,6 +13,8 @@ from miplearn.types import (
     LazyCallback,
     MIPSolveStats,
     VarIndex,
+    Solution,
+    BranchPriorities,
 )
 
 logger = logging.getLogger(__name__)
@@ -79,7 +81,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def get_solution(self) -> Optional[Dict]:
+    def get_solution(self) -> Optional[Solution]:
         """
         Returns current solution found by the solver.
 
@@ -93,7 +95,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def set_warm_start(self, solution: Dict) -> None:
+    def set_warm_start(self, solution: Solution) -> None:
         """
         Sets the warm start to be used by the solver.
 
@@ -125,7 +127,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def fix(self, solution: Dict) -> None:
+    def fix(self, solution: Solution) -> None:
         """
         Fixes the values of a subset of decision variables.
 
@@ -135,7 +137,7 @@ class InternalSolver(ABC):
         """
         pass
 
-    def set_branching_priorities(self, priorities: Dict) -> None:
+    def set_branching_priorities(self, priorities: BranchPriorities) -> None:
         """
         Sets the branching priorities for the given decision variables.
 
@@ -147,7 +149,7 @@ class InternalSolver(ABC):
         `get_solution`. Missing values indicate variables whose priorities
         should not be modified.
         """
-        raise NotImplementedError()
+        raise Exception("Not implemented")
 
     @abstractmethod
     def get_constraint_ids(self) -> List[str]:

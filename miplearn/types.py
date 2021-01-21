@@ -6,15 +6,19 @@ from typing import Optional, Dict, Callable, Any, Union, List
 
 from mypy_extensions import TypedDict
 
+VarIndex = Union[str, int, List[Union[str, int]]]
+
+Solution = Dict[str, Dict[VarIndex, Optional[float]]]
+
 TrainingSample = TypedDict(
     "TrainingSample",
     {
         "LP log": str,
-        "LP solution": Optional[Dict],
+        "LP solution": Optional[Solution],
         "LP value": Optional[float],
         "Lower bound": Optional[float],
         "MIP log": str,
-        "Solution": Optional[Dict],
+        "Solution": Optional[Solution],
         "Upper bound": Optional[float],
         "slacks": Dict,
     },
@@ -47,4 +51,6 @@ IterationCallback = Callable[[], bool]
 
 LazyCallback = Callable[[Any, Any], None]
 
-VarIndex = Union[str, int, List[Union[str, int]]]
+SolverParams = Dict[str, Any]
+
+BranchPriorities = Solution

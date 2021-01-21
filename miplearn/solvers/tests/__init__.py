@@ -7,7 +7,7 @@ from typing import List, Callable, Any
 
 from pyomo import environ as pe
 
-from miplearn.instance import Instance, PyomoInstance
+from miplearn.instance import Instance
 from miplearn.problems.knapsack import KnapsackInstance, GurobiKnapsackInstance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.internal import InternalSolver
@@ -16,7 +16,7 @@ from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
 from miplearn.solvers.pyomo.xpress import XpressPyomoSolver
 
 
-class InfeasiblePyomoInstance(PyomoInstance):
+class InfeasiblePyomoInstance(Instance):
     def to_model(self) -> pe.ConcreteModel:
         model = pe.ConcreteModel()
         model.x = pe.Var([0], domain=pe.Binary)

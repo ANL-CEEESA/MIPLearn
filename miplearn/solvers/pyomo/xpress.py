@@ -8,6 +8,7 @@ from pyomo import environ as pe
 from scipy.stats import randint
 
 from miplearn.solvers.pyomo.base import BasePyomoSolver
+from miplearn.types import SolverParams
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +24,12 @@ class XpressPyomoSolver(BasePyomoSolver):
         {"Threads": 4} to set the number of threads.
     """
 
-    def __init__(self, params=None):
+    def __init__(self, params: SolverParams = None) -> None:
+        if params is None:
+            params = {}
+        if "randomseed" not in params.keys():
+            params["randomseed"] = randint(low=0, high=1000).rvs()
         super().__init__(
             solver_factory=pe.SolverFactory("xpress_persistent"),
-            params={
-                "randomseed": randint(low=0, high=1000).rvs(),
-            },
+            params=params,
         )
