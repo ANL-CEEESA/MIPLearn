@@ -18,10 +18,6 @@ from miplearn.types import (
 logger = logging.getLogger(__name__)
 
 
-class ExtractedConstraint(ABC):
-    pass
-
-
 class Constraint:
     pass
 

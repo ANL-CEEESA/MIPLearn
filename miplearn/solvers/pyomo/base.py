@@ -270,12 +270,6 @@ class BasePyomoSolver(InternalSolver):
     def _get_node_count_regexp(self) -> Optional[str]:
         return None
 
-    def extract_constraint(self, cid):
-        raise Exception("Not implemented")
-
-    def is_constraint_satisfied(self, cobj):
-        raise Exception("Not implemented")
-
     def relax(self) -> None:
         for var in self._bin_vars:
             lb, ub = var.bounds
@@ -285,15 +279,35 @@ class BasePyomoSolver(InternalSolver):
             self._pyomo_solver.update_var(var)
 
     def get_inequality_slacks(self) -> Dict[str, float]:
-        raise Exception("not implemented")
+        result: Dict[str, float] = {}
+        for (cname, cobj) in self._cname_to_constr.items():
+            if cobj.equality:
+                continue
+            result[cname] = cobj.slack()
+        return result
 
-    def set_constraint_sense(self, cid, sense):
+    def get_constraint_sense(self, cid: str) -> str:
+        cobj = self._cname_to_constr[cid]
+        has_ub = cobj.has_ub()
+        has_lb = cobj.has_lb()
+        assert (not has_lb) or (not has_ub), "range constraints not supported"
+        if has_lb:
+            return ">"
+        elif has_ub:
+            return "<"
+        else:
+            return "="
+
+    def set_constraint_sense(self, cid: str, sense: str) -> None:
         raise Exception("Not implemented")
 
-    def get_constraint_sense(self, cid):
+    def extract_constraint(self, cid: str) -> Constraint:
         raise Exception("Not implemented")
 
-    def set_constraint_rhs(self, cid, rhs):
+    def is_constraint_satisfied(self, cobj: Constraint) -> bool:
+        raise Exception("Not implemented")
+
+    def set_constraint_rhs(self, cid: str, rhs: float) -> None:
         raise Exception("Not implemented")
 
     def is_infeasible(self) -> bool:
@@ -302,5 +316,5 @@ class BasePyomoSolver(InternalSolver):
     def get_dual(self, cid):
         raise Exception("Not implemented")
 
-    def get_sense(self):
-        raise Exception("Not implemented")
+    def get_sense(self) -> str:
+        return self._obj_sense

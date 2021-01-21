@@ -133,18 +133,17 @@ def test_internal_solver():
         stats = solver.solve()
         assert stats["Lower bound"] == 1030.0
 
+        assert solver.get_sense() == "max"
+        assert solver.get_constraint_sense("cut") == "<"
+        assert solver.get_constraint_sense("eq_capacity") == "<"
+
+        # Verify slacks
+        assert solver.get_inequality_slacks() == {
+            "cut": 0.0,
+            "eq_capacity": 3.0,
+        }
+
         if isinstance(solver, GurobiSolver):
-
-            assert solver.get_sense() == "max"
-            assert solver.get_constraint_sense("cut") == "<"
-            assert solver.get_constraint_sense("eq_capacity") == "<"
-
-            # Verify slacks
-            assert solver.get_inequality_slacks() == {
-                "cut": 0.0,
-                "eq_capacity": 3.0,
-            }
-
             # Extract the new constraint
             cobj = solver.extract_constraint("cut")
 
