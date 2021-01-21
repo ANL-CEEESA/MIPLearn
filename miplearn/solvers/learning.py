@@ -225,6 +225,9 @@ class LearningSolver:
             training_sample["LP solution"] = self.internal_solver.get_solution()
             training_sample["LP value"] = stats["Optimal value"]
             training_sample["LP log"] = stats["Log"]
+        else:
+            training_sample["LP solution"] = self.internal_solver.get_empty_solution()
+            training_sample["LP value"] = 0
 
         # Before-solve callbacks
         logger.debug("Running before_solve callbacks...")

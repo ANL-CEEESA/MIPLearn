@@ -47,6 +47,19 @@ def test_learning_solver():
                 pickle.dump(solver, file)
 
 
+def test_solve_without_lp():
+    for internal_solver in _get_internal_solvers():
+        logger.info("Solver: %s" % internal_solver)
+        instance = _get_instance(internal_solver)
+        solver = LearningSolver(
+            solver=internal_solver,
+            solve_lp_first=False,
+        )
+        solver.solve(instance)
+        solver.fit([instance])
+        solver.solve(instance)
+
+
 def test_parallel_solve():
     for internal_solver in _get_internal_solvers():
         instances = [_get_instance(internal_solver) for _ in range(10)]
