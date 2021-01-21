@@ -7,6 +7,7 @@ from io import StringIO
 from warnings import warn
 
 import pyomo.environ as pe
+from pytest import raises
 
 from miplearn.solvers import RedirectOutput
 from miplearn.solvers.gurobi import GurobiSolver
@@ -92,6 +93,7 @@ def test_internal_solver():
         solver.set_instance(instance, model)
 
         stats = solver.solve_lp()
+        assert not solver.is_infeasible()
         assert round(stats["Optimal value"], 3) == 1287.923
         assert len(stats["Log"]) > 100
 
@@ -102,6 +104,7 @@ def test_internal_solver():
         assert round(solution["x"][3], 3) == 0.000
 
         stats = solver.solve(tee=True)
+        assert not solver.is_infeasible()
         assert len(stats["Log"]) > 100
         assert stats["Lower bound"] == 1183.0
         assert stats["Upper bound"] == 1183.0
@@ -131,6 +134,17 @@ def test_internal_solver():
         assert stats["Lower bound"] == 1030.0
 
         if isinstance(solver, GurobiSolver):
+
+            assert solver.get_sense() == "max"
+            assert solver.get_constraint_sense("cut") == "<"
+            assert solver.get_constraint_sense("eq_capacity") == "<"
+
+            # Verify slacks
+            assert solver.get_inequality_slacks() == {
+                "cut": 0.0,
+                "eq_capacity": 3.0,
+            }
+
             # Extract the new constraint
             cobj = solver.extract_constraint("cut")
 
@@ -160,6 +174,17 @@ def test_internal_solver():
             solver.set_constraint_sense("cut", "=")
             stats = solver.solve()
             assert round(stats["Lower bound"]) == 1179.0
+            assert round(solver.get_dual("eq_capacity")) == 12.0
+
+
+def test_relax():
+    for solver_class in _get_internal_solvers():
+        instance = _get_knapsack_instance(solver_class)
+        solver = solver_class()
+        solver.set_instance(instance)
+        solver.relax()
+        stats = solver.solve()
+        assert round(stats["Lower bound"]) == 1288.0
 
 
 def test_infeasible_instance():
@@ -169,6 +194,7 @@ def test_infeasible_instance():
         solver.set_instance(instance)
         stats = solver.solve()
 
+        assert solver.is_infeasible()
         assert solver.get_solution() is None
         assert stats["Upper bound"] is None
         assert stats["Lower bound"] is None
@@ -176,6 +202,7 @@ def test_infeasible_instance():
         stats = solver.solve_lp()
         assert solver.get_solution() is None
         assert stats["Optimal value"] is None
+        assert solver.get_value("x", 0) is None
 
 
 def test_iteration_cb():

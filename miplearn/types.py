@@ -2,7 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Optional, Dict, Callable, Any
+from typing import Optional, Dict, Callable, Any, Union, List
 
 from mypy_extensions import TypedDict
 
@@ -46,3 +46,5 @@ MIPSolveStats = TypedDict(
 IterationCallback = Callable[[], bool]
 
 LazyCallback = Callable[[Any, Any], None]
+
+VarIndex = Union[str, int, List[Union[str, int]]]

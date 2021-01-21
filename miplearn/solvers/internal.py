@@ -12,6 +12,7 @@ from miplearn.types import (
     IterationCallback,
     LazyCallback,
     MIPSolveStats,
+    VarIndex,
 )
 
 logger = logging.getLogger(__name__)
@@ -196,21 +197,22 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def get_value(self, var_name, index):
+    def get_value(self, var_name: str, index: VarIndex) -> Optional[float]:
         """
-        Returns the current value of a decision variable.
+        Returns the value of a given variable in the current solution. If no
+        solution is available, returns None.
         """
         pass
 
     @abstractmethod
-    def relax(self):
+    def relax(self) -> None:
         """
         Drops all integrality constraints from the model.
         """
         pass
 
     @abstractmethod
-    def get_inequality_slacks(self):
+    def get_inequality_slacks(self) -> Dict[str, float]:
         """
         Returns a dictionary mapping constraint name to the constraint slack
         in the current solution.
@@ -218,7 +220,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def is_infeasible(self):
+    def is_infeasible(self) -> bool:
         """
         Returns True if the model has been proved to be infeasible.
         Must be called after solve.
@@ -226,31 +228,30 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def get_dual(self, cid):
+    def get_dual(self, cid: str) -> float:
         """
-        If the model is feasible and has been solved to optimality, returns the optimal
-        value of the dual variable associated with this constraint. If the model is infeasible,
-        returns a portion of the infeasibility certificate corresponding to the given constraint.
+        If the model is feasible and has been solved to optimality, returns the
+        optimal value of the dual variable associated with this constraint. If the
+        model is infeasible, returns a portion of the infeasibility certificate
+        corresponding to the given constraint.
 
-        Must be called after solve.
+        Only available for relaxed problems. Must be called after solve.
         """
         pass
 
     @abstractmethod
-    def get_sense(self):
+    def get_sense(self) -> str:
         """
         Returns the sense of the problem (either "min" or "max").
         """
         pass
 
     @abstractmethod
-    def get_variables(self):
+    def get_empty_solution(self) -> Dict:
+        """
+        Returns a dictionary with the same shape as the one produced by
+        `get_solution`, but with all values set to None. This method is
+        used by the ML components to query what variables are there in
+        the model before a solution is available.
+        """
         pass
-
-    def get_empty_solution(self):
-        solution = {}
-        for (var, indices) in self.get_variables().items():
-            solution[var] = {}
-            for idx in indices:
-                solution[var][idx] = 0.0
-        return solution

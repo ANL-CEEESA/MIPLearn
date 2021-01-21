@@ -19,9 +19,9 @@ from miplearn.solvers.pyomo.xpress import XpressPyomoSolver
 class InfeasiblePyomoInstance(PyomoInstance):
     def to_model(self) -> pe.ConcreteModel:
         model = pe.ConcreteModel()
-        model.x = pe.Var(domain=pe.Binary)
-        model.OBJ = pe.Objective(expr=model.x, sense=pe.maximize)
-        model.eq = pe.Constraint(expr=model.x >= 2)
+        model.x = pe.Var([0], domain=pe.Binary)
+        model.OBJ = pe.Objective(expr=model.x[0], sense=pe.maximize)
+        model.eq = pe.Constraint(expr=model.x[0] >= 2)
         return model
 
 

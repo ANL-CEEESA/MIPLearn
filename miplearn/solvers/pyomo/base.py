@@ -22,6 +22,7 @@ from miplearn.solvers.internal import (
     LazyCallback,
     MIPSolveStats,
 )
+from miplearn.types import VarIndex
 
 logger = logging.getLogger(__name__)
 
@@ -53,20 +54,13 @@ class BasePyomoSolver(InternalSolver):
         self,
         tee: bool = False,
     ) -> LPSolveStats:
-        for var in self._bin_vars:
-            lb, ub = var.bounds
-            var.setlb(lb)
-            var.setub(ub)
-            var.domain = pyomo.core.base.set_types.Reals
-            self._pyomo_solver.update_var(var)
+        self.relax()
         streams: List[Any] = [StringIO()]
         if tee:
             streams += [sys.stdout]
         with RedirectOutput(streams):
             results = self._pyomo_solver.solve(tee=True)
-        for var in self._bin_vars:
-            var.domain = pyomo.core.base.set_types.Binary
-            self._pyomo_solver.update_var(var)
+        self._restore_integrality()
         opt_value = None
         if not self.is_infeasible():
             opt_value = results["Problem"][0]["Lower bound"]
@@ -74,6 +68,11 @@ class BasePyomoSolver(InternalSolver):
             "Optimal value": opt_value,
             "Log": streams[0].getvalue(),
         }
+
+    def _restore_integrality(self) -> None:
+        for var in self._bin_vars:
+            var.domain = pyomo.core.base.set_types.Binary
+            self._pyomo_solver.update_var(var)
 
     def solve(
         self,
@@ -166,19 +165,23 @@ class BasePyomoSolver(InternalSolver):
         self._update_vars()
         self._update_constrs()
 
-    def get_value(self, var_name, index):
-        var = self._varname_to_var[var_name]
-        return var[index].value
+    def get_value(self, var_name: str, index: VarIndex) -> Optional[float]:
+        if self.is_infeasible():
+            return None
+        else:
+            var = self._varname_to_var[var_name]
+            return var[index].value
 
-    def get_variables(self):
-        variables = {}
+    def get_empty_solution(self) -> Dict:
+        solution: Dict = {}
         for var in self.model.component_objects(Var):
-            variables[str(var)] = []
+            svar = str(var)
+            solution[svar] = {}
             for index in var:
                 if var[index].fixed:
                     continue
-                variables[str(var)] += [index]
-        return variables
+                solution[svar][index] = None
+        return solution
 
     def _clear_warm_start(self) -> None:
         for var in self._all_vars:
@@ -273,10 +276,15 @@ class BasePyomoSolver(InternalSolver):
     def is_constraint_satisfied(self, cobj):
         raise Exception("Not implemented")
 
-    def relax(self):
-        raise Exception("not implemented")
+    def relax(self) -> None:
+        for var in self._bin_vars:
+            lb, ub = var.bounds
+            var.setlb(lb)
+            var.setub(ub)
+            var.domain = pyomo.core.base.set_types.Reals
+            self._pyomo_solver.update_var(var)
 
-    def get_inequality_slacks(self):
+    def get_inequality_slacks(self) -> Dict[str, float]:
         raise Exception("not implemented")
 
     def set_constraint_sense(self, cid, sense):
