@@ -11,6 +11,7 @@ from typing import Any, List, Dict, Optional
 import pyomo
 from pyomo import environ as pe
 from pyomo.core import Var, Constraint
+from pyomo.opt import TerminationCondition
 
 from miplearn.instance import Instance
 from miplearn.solvers import RedirectOutput
@@ -44,6 +45,7 @@ class BasePyomoSolver(InternalSolver):
         self._obj_sense = None
         self._varname_to_var = {}
         self._cname_to_constr = {}
+        self._termination_condition = None
         for (key, value) in params.items():
             self._pyomo_solver.options[key] = value
 
@@ -65,8 +67,11 @@ class BasePyomoSolver(InternalSolver):
         for var in self._bin_vars:
             var.domain = pyomo.core.base.set_types.Binary
             self._pyomo_solver.update_var(var)
+        opt_value = None
+        if not self.is_infeasible():
+            opt_value = results["Problem"][0]["Lower bound"]
         return {
-            "Optimal value": results["Problem"][0]["Lower bound"],
+            "Optimal value": opt_value,
             "Log": streams[0].getvalue(),
         }
 
@@ -100,9 +105,14 @@ class BasePyomoSolver(InternalSolver):
         log = streams[0].getvalue()
         node_count = self._extract_node_count(log)
         ws_value = self._extract_warm_start_value(log)
+        self._termination_condition = results["Solver"][0]["Termination condition"]
+        lb, ub = None, None
+        if not self.is_infeasible():
+            lb = results["Problem"][0]["Lower bound"]
+            ub = results["Problem"][0]["Upper bound"]
         stats: MIPSolveStats = {
-            "Lower bound": results["Problem"][0]["Lower bound"],
-            "Upper bound": results["Problem"][0]["Upper bound"],
+            "Lower bound": lb,
+            "Upper bound": ub,
             "Wallclock time": total_wallclock_time,
             "Sense": self._obj_sense,
             "Log": log,
@@ -112,7 +122,9 @@ class BasePyomoSolver(InternalSolver):
         }
         return stats
 
-    def get_solution(self) -> Dict:
+    def get_solution(self) -> Optional[Dict]:
+        if self.is_infeasible():
+            return None
         solution: Dict = {}
         for var in self.model.component_objects(Var):
             solution[str(var)] = {}
@@ -276,8 +288,8 @@ class BasePyomoSolver(InternalSolver):
     def set_constraint_rhs(self, cid, rhs):
         raise Exception("Not implemented")
 
-    def is_infeasible(self):
-        raise Exception("Not implemented")
+    def is_infeasible(self) -> bool:
+        return self._termination_condition == TerminationCondition.infeasible
 
     def get_dual(self, cid):
         raise Exception("Not implemented")

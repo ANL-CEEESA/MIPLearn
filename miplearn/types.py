@@ -22,7 +22,7 @@ TrainingSample = TypedDict(
 LPSolveStats = TypedDict(
     "LPSolveStats",
     {
-        "Optimal value": float,
+        "Optimal value": Optional[float],
         "Log": str,
     },
 )

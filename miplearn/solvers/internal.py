@@ -4,7 +4,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from miplearn.instance import Instance
 from miplearn.types import (
@@ -39,15 +39,13 @@ class InternalSolver(ABC):
         Solves the LP relaxation of the currently loaded instance. After this
         method finishes, the solution can be retrieved by calling `get_solution`.
 
+        This method should not permanently modify the problem. That is, subsequent
+        calls to `solve` should solve the original MIP, not the LP relaxation.
+
         Parameters
         ----------
-        tee: bool
+        tee
             If true, prints the solver log to the screen.
-
-        Returns
-        -------
-        dict
-            A dictionary of solver statistics.
         """
         pass
 
@@ -64,34 +62,27 @@ class InternalSolver(ABC):
 
         Parameters
         ----------
-        iteration_cb: () -> Bool
+        iteration_cb:
             By default, InternalSolver makes a single call to the native `solve`
             method and returns the result. If an iteration callback is provided
             instead, InternalSolver enters a loop, where `solve` and `iteration_cb`
-            are called alternatively. To stop the loop, `iteration_cb` should
-            return False. Any other result causes the solver to loop again.
-        lazy_cb: (internal_solver, model) -> None
+            are called alternatively. To stop the loop, `iteration_cb` should return
+            False. Any other result causes the solver to loop again.
+        lazy_cb:
             This function is called whenever the solver finds a new candidate
-            solution and can be used to add lazy constraints to the model. Only
-            the following operations within the callback are allowed:
-                - Querying the value of a variable, through `get_value(var, idx)`
-                - Querying if a constraint is satisfied, through `is_constraint_satisfied(cobj)`
-                - Adding a new constraint to the problem, through `add_constraint`
+            solution and can be used to add lazy constraints to the model. Only the
+            following operations within the callback are allowed:
+                - Querying the value of a variable
+                - Querying if a constraint is satisfied
+                - Adding a new constraint to the problem
             Additional operations may be allowed by specific subclasses.
-        tee: Bool
+        tee
             If true, prints the solver log to the screen.
-
-        Returns
-        -------
-        dict
-            A dictionary of solver statistics containing the following keys:
-            "Lower bound", "Upper bound", "Wallclock time", "Nodes", "Sense",
-             "Log" and "Warm start value".
         """
         pass
 
     @abstractmethod
-    def get_solution(self) -> Dict:
+    def get_solution(self) -> Optional[Dict]:
         """
         Returns current solution found by the solver.
 
@@ -201,7 +192,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def set_constraint_rhs(self, cid: str, rhs: str) -> None:
+    def set_constraint_rhs(self, cid: str, rhs: float) -> None:
         pass
 
     @abstractmethod

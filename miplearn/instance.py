@@ -10,6 +10,7 @@ from typing import Any, List
 import numpy as np
 
 from miplearn.types import TrainingSample
+import pyomo.environ as pe
 
 
 class Instance(ABC):
@@ -30,7 +31,7 @@ class Instance(ABC):
     @abstractmethod
     def to_model(self) -> Any:
         """
-        Returns a concrete Pyomo model corresponding to this instance.
+        Returns the optimization model corresponding to this instance.
         """
         pass
 
@@ -163,3 +164,12 @@ class Instance(ABC):
         data = json.dumps(self.__dict__, indent=2).encode("utf-8")
         with gzip.GzipFile(filename, "w") as f:
             f.write(data)
+
+
+class PyomoInstance(Instance, ABC):
+    @abstractmethod
+    def to_model(self) -> pe.ConcreteModel:
+        """
+        Returns the concrete Pyomo model corresponding to this instance.
+        """
+        pass

@@ -9,7 +9,7 @@ import os
 
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.learning import LearningSolver
-from miplearn.solvers.tests import _get_instance, _get_internal_solvers
+from miplearn.solvers.tests import _get_knapsack_instance, _get_internal_solvers
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ def test_learning_solver():
     for mode in ["exact", "heuristic"]:
         for internal_solver in _get_internal_solvers():
             logger.info("Solver: %s" % internal_solver)
-            instance = _get_instance(internal_solver)
+            instance = _get_knapsack_instance(internal_solver)
             solver = LearningSolver(
                 solver=internal_solver,
                 mode=mode,
@@ -50,7 +50,7 @@ def test_learning_solver():
 def test_solve_without_lp():
     for internal_solver in _get_internal_solvers():
         logger.info("Solver: %s" % internal_solver)
-        instance = _get_instance(internal_solver)
+        instance = _get_knapsack_instance(internal_solver)
         solver = LearningSolver(
             solver=internal_solver,
             solve_lp_first=False,
@@ -62,7 +62,7 @@ def test_solve_without_lp():
 
 def test_parallel_solve():
     for internal_solver in _get_internal_solvers():
-        instances = [_get_instance(internal_solver) for _ in range(10)]
+        instances = [_get_knapsack_instance(internal_solver) for _ in range(10)]
         solver = LearningSolver(solver=internal_solver)
         results = solver.parallel_solve(instances, n_jobs=3)
         assert len(results) == 10
@@ -76,7 +76,7 @@ def test_solve_fit_from_disk():
         # Create instances and pickle them
         filenames = []
         for k in range(3):
-            instance = _get_instance(internal_solver)
+            instance = _get_knapsack_instance(internal_solver)
             with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as file:
                 filenames += [file.name]
                 pickle.dump(instance, file)
@@ -114,7 +114,7 @@ def test_solve_fit_from_disk():
 
 def test_simulate_perfect():
     internal_solver = GurobiSolver
-    instance = _get_instance(internal_solver)
+    instance = _get_knapsack_instance(internal_solver)
     with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as tmp:
         pickle.dump(instance, tmp)
         tmp.flush()

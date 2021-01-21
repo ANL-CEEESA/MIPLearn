@@ -128,8 +128,11 @@ class GurobiSolver(InternalSolver):
             for (idx, var) in vardict.items():
                 var.vtype = self.GRB.BINARY
         log = streams[0].getvalue()
+        opt_value = None
+        if not self.is_infeasible():
+            opt_value = self.model.objVal
         return {
-            "Optimal value": self.model.objVal,
+            "Optimal value": opt_value,
             "Log": log,
         }
 
@@ -173,14 +176,15 @@ class GurobiSolver(InternalSolver):
             if not should_repeat:
                 break
         log = streams[0].getvalue()
-        if self.model.modelSense == 1:
-            sense = "min"
-            lb = self.model.objBound
-            ub = self.model.objVal
-        else:
-            sense = "max"
-            lb = self.model.objVal
-            ub = self.model.objBound
+        ub, lb = None, None
+        sense = "min" if self.model.modelSense == 1 else "max"
+        if self.model.solCount > 0:
+            if self.model.modelSense == 1:
+                lb = self.model.objBound
+                ub = self.model.objVal
+            else:
+                lb = self.model.objVal
+                ub = self.model.objBound
         ws_value = self._extract_warm_start_value(log)
         stats: MIPSolveStats = {
             "Lower bound": lb,
@@ -194,8 +198,10 @@ class GurobiSolver(InternalSolver):
         }
         return stats
 
-    def get_solution(self) -> Dict:
+    def get_solution(self) -> Optional[Dict]:
         self._raise_if_callback()
+        if self.model.solCount == 0:
+            return None
         solution: Dict = {}
         for (varname, vardict) in self._all_vars.items():
             solution[varname] = {}
@@ -228,7 +234,7 @@ class GurobiSolver(InternalSolver):
         var = self._all_vars[var_name][index]
         return self._get_value(var)
 
-    def is_infeasible(self):
+    def is_infeasible(self) -> bool:
         return self.model.status in [self.GRB.INFEASIBLE, self.GRB.INF_OR_UNBD]
 
     def get_dual(self, cid):

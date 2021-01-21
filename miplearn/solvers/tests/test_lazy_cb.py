@@ -5,14 +5,14 @@
 import logging
 
 from miplearn.solvers.gurobi import GurobiSolver
-from miplearn.solvers.tests import _get_instance
+from miplearn.solvers.tests import _get_knapsack_instance
 
 logger = logging.getLogger(__name__)
 
 
 def test_lazy_cb():
     solver = GurobiSolver()
-    instance = _get_instance(solver)
+    instance = _get_knapsack_instance(solver)
     model = instance.to_model()
 
     def lazy_cb(cb_solver, cb_model):

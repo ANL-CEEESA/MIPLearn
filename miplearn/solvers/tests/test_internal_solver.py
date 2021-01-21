@@ -11,7 +11,11 @@ import pyomo.environ as pe
 from miplearn.solvers import RedirectOutput
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
-from miplearn.solvers.tests import _get_instance, _get_internal_solvers
+from miplearn.solvers.tests import (
+    _get_knapsack_instance,
+    _get_internal_solvers,
+    _get_infeasible_instance,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +34,7 @@ def test_redirect_output():
 def test_internal_solver_warm_starts():
     for solver_class in _get_internal_solvers():
         logger.info("Solver: %s" % solver_class)
-        instance = _get_instance(solver_class)
+        instance = _get_knapsack_instance(solver_class)
         model = instance.to_model()
         solver = solver_class()
         solver.set_instance(instance, model)
@@ -82,7 +86,7 @@ def test_internal_solver():
     for solver_class in _get_internal_solvers():
         logger.info("Solver: %s" % solver_class)
 
-        instance = _get_instance(solver_class)
+        instance = _get_knapsack_instance(solver_class)
         model = instance.to_model()
         solver = solver_class()
         solver.set_instance(instance, model)
@@ -158,10 +162,26 @@ def test_internal_solver():
             assert round(stats["Lower bound"]) == 1179.0
 
 
+def test_infeasible_instance():
+    for solver_class in _get_internal_solvers():
+        instance = _get_infeasible_instance(solver_class)
+        solver = solver_class()
+        solver.set_instance(instance)
+        stats = solver.solve()
+
+        assert solver.get_solution() is None
+        assert stats["Upper bound"] is None
+        assert stats["Lower bound"] is None
+
+        stats = solver.solve_lp()
+        assert solver.get_solution() is None
+        assert stats["Optimal value"] is None
+
+
 def test_iteration_cb():
     for solver_class in _get_internal_solvers():
         logger.info("Solver: %s" % solver_class)
-        instance = _get_instance(solver_class)
+        instance = _get_knapsack_instance(solver_class)
         solver = solver_class()
         solver.set_instance(instance)
         count = 0
