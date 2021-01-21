@@ -189,10 +189,6 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def set_constraint_rhs(self, cid: str, rhs: float) -> None:
-        pass
-
-    @abstractmethod
     def get_value(self, var_name: str, index: VarIndex) -> Optional[float]:
         """
         Returns the value of a given variable in the current solution. If no

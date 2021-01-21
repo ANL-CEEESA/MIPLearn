@@ -307,9 +307,6 @@ class BasePyomoSolver(InternalSolver):
     def is_constraint_satisfied(self, cobj: Constraint) -> bool:
         raise Exception("Not implemented")
 
-    def set_constraint_rhs(self, cid: str, rhs: float) -> None:
-        raise Exception("Not implemented")
-
     def is_infeasible(self) -> bool:
         return self._termination_condition == TerminationCondition.infeasible
 

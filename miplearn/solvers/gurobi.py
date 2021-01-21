@@ -341,10 +341,6 @@ class GurobiSolver(InternalSolver):
         c = self.model.getConstrByName(cid)
         return c.Sense
 
-    def set_constraint_rhs(self, cid, rhs):
-        c = self.model.getConstrByName(cid)
-        c.RHS = rhs
-
     def relax(self) -> None:
         self.model = self.model.relax()
         self._update_vars()
