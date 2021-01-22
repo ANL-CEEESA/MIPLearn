@@ -20,8 +20,7 @@ For certain classes of problems, this approach has been shown to provide signifi
 ### Documentation
 
 * [Installation and typical usage](usage.md)
-* [Benchmark utilities](benchmark.md)
-* [Benchmark problems, challenges and results](problems.md)
+* [Benchmark problems and results](problems.md)
 * [Customizing the solver](customization.md)
 * [License, authors, references and acknowledgments](about.md)
 
