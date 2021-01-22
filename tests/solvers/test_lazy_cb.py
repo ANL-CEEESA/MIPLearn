@@ -5,7 +5,7 @@
 import logging
 
 from miplearn.solvers.gurobi import GurobiSolver
-from miplearn.solvers.tests import _get_knapsack_instance
+from . import _get_knapsack_instance
 
 logger = logging.getLogger(__name__)
 

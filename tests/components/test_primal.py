@@ -8,7 +8,7 @@ import numpy as np
 
 from miplearn.classifiers import Classifier
 from miplearn.components.primal import PrimalSolutionComponent
-from miplearn.tests import get_test_pyomo_instances
+from .. import get_test_pyomo_instances
 
 
 def test_predict():

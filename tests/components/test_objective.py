@@ -8,7 +8,7 @@ import numpy as np
 
 from miplearn.classifiers import Regressor
 from miplearn.components.objective import ObjectiveValueComponent
-from miplearn.tests import get_test_pyomo_instances
+from .. import get_test_pyomo_instances
 
 
 def test_usage():

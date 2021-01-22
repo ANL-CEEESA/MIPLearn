@@ -11,7 +11,7 @@ import pyomo.environ as pe
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
-from miplearn.solvers.tests import (
+from . import (
     _get_knapsack_instance,
     _get_internal_solvers,
     _get_infeasible_instance,
