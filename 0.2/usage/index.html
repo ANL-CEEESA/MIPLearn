@@ -105,6 +105,12 @@
                     </li>
                 
                 
+                
+                    <li >
+                        <a href="../api/miplearn/index.html">API</a>
+                    </li>
+                
+                
                 </ul>
 
             <ul class="nav navbar-nav navbar-right">
@@ -149,11 +155,12 @@
                 <li class="third-level"><a href="#42-adding-lazy-constraints-through-callbacks">4.2 Adding lazy constraints through callbacks</a></li>
             <li class="second-level"><a href="#5-obtaining-heuristic-solutions">5. Obtaining heuristic solutions</a></li>
                 
-            <li class="second-level"><a href="#6-saving-and-loading-solver-state">6. Saving and loading solver state</a></li>
+            <li class="second-level"><a href="#6-scaling-up">6. Scaling Up</a></li>
                 
-            <li class="second-level"><a href="#7-solving-training-instances-in-parallel">7. Solving training instances in parallel</a></li>
-                
-            <li class="second-level"><a href="#8-current-limitations">8. Current Limitations</a></li>
+                <li class="third-level"><a href="#61-saving-and-loading-solver-state">6.1 Saving and loading solver state</a></li>
+                <li class="third-level"><a href="#62-solving-instances-in-parallel">6.2 Solving instances in parallel</a></li>
+                <li class="third-level"><a href="#63-solving-instances-from-the-disk">6.3 Solving instances from the disk</a></li>
+            <li class="second-level"><a href="#7-current-limitations">7. Current Limitations</a></li>
                 
     </ul>
 </div></div>
@@ -242,7 +249,8 @@ for instance in test_instances:
 <p class="admonition-title">Danger</p>
 <p>The <code>heuristic</code> mode provides no optimality guarantees, and therefore should only be used if the solver is first trained on a large and representative set of training instances. Training on a small or non-representative set of instances may produce low-quality solutions, or make the solver incorrectly classify new instances as infeasible.</p>
 </div>
-<h2 id="6-saving-and-loading-solver-state">6. Saving and loading solver state</h2>
+<h2 id="6-scaling-up">6. Scaling Up</h2>
+<h3 id="61-saving-and-loading-solver-state">6.1 Saving and loading solver state</h3>
 <p>After solving a large number of training instances, it may be desirable to save the current state of <code>LearningSolver</code> to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the standard <code>pickle</code> module, as the following example illustrates:</p>
 <pre><code class="language-python">from miplearn import LearningSolver
 import pickle
@@ -257,20 +265,22 @@ for instance in training_instances:
 solver.fit(training_instances)
 
 # Save trained solver to disk
-pickle.dump(solver, open(&quot;solver.pickle&quot;, &quot;wb&quot;))
+with open(&quot;solver.pickle&quot;, &quot;wb&quot;) as file:
+    pickle.dump(solver, file)
 
 # Application restarts...
 
 # Load trained solver from disk
-solver = pickle.load(open(&quot;solver.pickle&quot;, &quot;rb&quot;))
+with open(&quot;solver.pickle&quot;, &quot;rb&quot;) as file:
+    solver = pickle.load(file)
 
 # Solve additional instances
 test_instances = [...]
 for instance in test_instances:
     solver.solve(instance)
 </code></pre>
-<h2 id="7-solving-training-instances-in-parallel">7. Solving training instances in parallel</h2>
-<p>In many situations, training and test instances can be solved in parallel to accelerate the training process. <code>LearningSolver</code> provides the method <code>parallel_solve(instances)</code> to easily achieve this:</p>
+<h3 id="62-solving-instances-in-parallel">6.2 Solving instances in parallel</h3>
+<p>In many situations, instances can be solved in parallel to accelerate the training process. <code>LearningSolver</code> provides the method <code>parallel_solve(instances)</code> to easily achieve this:</p>
 <pre><code class="language-python">from miplearn import LearningSolver
 
 training_instances = [...]
@@ -282,9 +292,48 @@ solver.fit(training_instances)
 test_instances = [...]
 solver.parallel_solve(test_instances)
 </code></pre>
-<h2 id="8-current-limitations">8. Current Limitations</h2>
+<h3 id="63-solving-instances-from-the-disk">6.3 Solving instances from the disk</h3>
+<p>In all examples above, we have assumed that instances are available as Python objects, stored in memory. When problem instances are very large, or when there is a large number of problem instances, this approach may require an excessive amount of memory. To reduce memory requirements, MIPLearn can also operate on instances that are stored on disk. More precisely, the methods <code>fit</code>, <code>solve</code> and <code>parallel_solve</code> in <code>LearningSolver</code> can operate on filenames (or lists of filenames) instead of instance objects, as the next example illustrates.
+Instance files must be pickled instance objects. The method <code>solve</code> loads at most one instance to memory at a time, while <code>parallel_solve</code> loads at most <code>n_jobs</code> instances.</p>
+<pre><code class="language-python">from miplearn import LearningSolver
+
+# Construct and pickle 600 problem instances
+for i in range(600):
+    instance = CustomInstance([...])
+    with open(&quot;instance_%03d.pkl&quot; % i, &quot;w&quot;) as file:
+        pickle.dump(instance, obj)
+
+# Split instances into training and test
+test_instances  = [&quot;instance_%03d.pkl&quot; % i for i in range(500)]
+train_instances = [&quot;instance_%03d.pkl&quot; % i for i in range(500, 600)]
+
+# Create solver
+solver = LearningSolver([...])
+
+# Solve training instances 
+solver.parallel_solve(train_instances, n_jobs=4)
+
+# Train ML models
+solver.fit(train_instances)
+
+# Solve test instances 
+solver.parallel_solve(test_instances, n_jobs=4)
+</code></pre>
+<p>By default, <code>solve</code> and <code>parallel_solve</code> modify files in place. That is, after the instances are loaded from disk and solved, MIPLearn writes them back to the disk, overwriting the original files. To write to an alternative file instead, the argument <code>output</code> may be used. In <code>solve</code>, this argument should be a single filename. In <code>parallel_solve</code>, it should be a list, containing exactly as many filenames as instances. If <code>output</code> is <code>None</code>, the modifications are simply discarded. This can be useful, for example, during benchmarks.</p>
+<pre><code class="language-python"># Solve a single instance file and store the output to another file
+solver.solve(&quot;knapsack_1.orig.pkl&quot;, output=&quot;knapsack_1.solved.pkl&quot;)
+
+# Solve a list of instance files
+instances = [&quot;knapsack_%03d.orig.pkl&quot; % i for i in range(100)]
+output = [&quot;knapsack_%03d.solved.pkl&quot; % i for i in range(100)]
+solver.parallel_solve(instances, output=output)
+
+# Solve instances and discard solutions and training data
+solver.parallel_solve(instances, output=None)
+</code></pre>
+<h2 id="7-current-limitations">7. Current Limitations</h2>
 <ul>
-<li>Only binary and continuous decision variables are currently supported.</li>
+<li>Only binary and continuous decision variables are currently supported. General integer variables are not currently supported by all solver components.</li>
 </ul></div>
         
         

@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.0" />
+<title>miplearn.solvers.gurobi API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>miplearn.solvers.gurobi</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
+#  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
+#  Released under the modified BSD license. See COPYING.md for more details.
+import logging
+import re
+import sys
+from io import StringIO
+from random import randint
+from typing import List, Any, Dict, Optional
+
+from miplearn.instance import Instance
+from miplearn.solvers import _RedirectOutput
+from miplearn.solvers.internal import (
+    InternalSolver,
+    LPSolveStats,
+    IterationCallback,
+    LazyCallback,
+    MIPSolveStats,
+)
+from miplearn.types import VarIndex, SolverParams, Solution
+
+logger = logging.getLogger(__name__)
+
+
+class GurobiSolver(InternalSolver):
+    &#34;&#34;&#34;
+    An InternalSolver backed by Gurobi&#39;s Python API (without Pyomo).
+
+    Parameters
+    ----------
+    params: Optional[SolverParams]
+        Parameters to pass to Gurobi. For example, `params={&#34;MIPGap&#34;: 1e-3}`
+        sets the gap tolerance to 1e-3.
+    lazy_cb_frequency: int
+        If 1, calls lazy constraint callbacks whenever an integer solution
+        is found. If 2, calls it also at every node, after solving the
+        LP relaxation of that node.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        params: Optional[SolverParams] = None,
+        lazy_cb_frequency: int = 1,
+    ) -&gt; None:
+        import gurobipy
+
+        if params is None:
+            params = {}
+        params[&#34;InfUnbdInfo&#34;] = True
+
+        self.gp = gurobipy
+        self.instance: Optional[Instance] = None
+        self.model: Optional[&#34;gurobipy.Model&#34;] = None
+        self.params: SolverParams = params
+        self._all_vars: Dict = {}
+        self._bin_vars: Optional[Dict[str, Dict[VarIndex, &#34;gurobipy.Var&#34;]]] = None
+        self.cb_where: Optional[int] = None
+
+        assert lazy_cb_frequency in [1, 2]
+        if lazy_cb_frequency == 1:
+            self.lazy_cb_where = [self.gp.GRB.Callback.MIPSOL]
+        else:
+            self.lazy_cb_where = [
+                self.gp.GRB.Callback.MIPSOL,
+                self.gp.GRB.Callback.MIPNODE,
+            ]
+
+    def set_instance(
+        self,
+        instance: Instance,
+        model: Any = None,
+    ) -&gt; None:
+        self._raise_if_callback()
+        if model is None:
+            model = instance.to_model()
+        assert isinstance(model, self.gp.Model)
+        self.instance = instance
+        self.model = model
+        self.model.update()
+        self._update_vars()
+
+    def _raise_if_callback(self) -&gt; None:
+        if self.cb_where is not None:
+            raise Exception(&#34;method cannot be called from a callback&#34;)
+
+    def _update_vars(self) -&gt; None:
+        assert self.model is not None
+        self._all_vars = {}
+        self._bin_vars = {}
+        idx: VarIndex
+        for var in self.model.getVars():
+            m = re.search(r&#34;([^[]*)\[(.*)]&#34;, var.varName)
+            if m is None:
+                name = var.varName
+                idx = [0]
+            else:
+                name = m.group(1)
+                parts = m.group(2).split(&#34;,&#34;)
+                idx = [int(k) if k.isdecimal else k for k in parts]
+            if len(idx) == 1:
+                idx = idx[0]
+            if name not in self._all_vars:
+                self._all_vars[name] = {}
+            self._all_vars[name][idx] = var
+            if var.vtype != &#34;C&#34;:
+                if name not in self._bin_vars:
+                    self._bin_vars[name] = {}
+                self._bin_vars[name][idx] = var
+
+    def _apply_params(self, streams: List[Any]) -&gt; None:
+        assert self.model is not None
+        with _RedirectOutput(streams):
+            for (name, value) in self.params.items():
+                self.model.setParam(name, value)
+            if &#34;seed&#34; not in [k.lower() for k in self.params.keys()]:
+                self.model.setParam(&#34;Seed&#34;, randint(0, 1_000_000))
+
+    def solve_lp(
+        self,
+        tee: bool = False,
+    ) -&gt; LPSolveStats:
+        self._raise_if_callback()
+        streams: List[Any] = [StringIO()]
+        if tee:
+            streams += [sys.stdout]
+        self._apply_params(streams)
+        assert self.model is not None
+        assert self._bin_vars is not None
+        for (varname, vardict) in self._bin_vars.items():
+            for (idx, var) in vardict.items():
+                var.vtype = self.gp.GRB.CONTINUOUS
+                var.lb = 0.0
+                var.ub = 1.0
+        with _RedirectOutput(streams):
+            self.model.optimize()
+        for (varname, vardict) in self._bin_vars.items():
+            for (idx, var) in vardict.items():
+                var.vtype = self.gp.GRB.BINARY
+        log = streams[0].getvalue()
+        opt_value = None
+        if not self.is_infeasible():
+            opt_value = self.model.objVal
+        return {
+            &#34;Optimal value&#34;: opt_value,
+            &#34;Log&#34;: log,
+        }
+
+    def solve(
+        self,
+        tee: bool = False,
+        iteration_cb: IterationCallback = None,
+        lazy_cb: LazyCallback = None,
+    ) -&gt; MIPSolveStats:
+        self._raise_if_callback()
+        assert self.model is not None
+
+        def cb_wrapper(cb_model, cb_where):
+            try:
+                self.cb_where = cb_where
+                if cb_where in self.lazy_cb_where:
+                    lazy_cb(self, self.model)
+            except:
+                logger.exception(&#34;callback error&#34;)
+            finally:
+                self.cb_where = None
+
+        if lazy_cb:
+            self.params[&#34;LazyConstraints&#34;] = 1
+        total_wallclock_time = 0
+        total_nodes = 0
+        streams: List[Any] = [StringIO()]
+        if tee:
+            streams += [sys.stdout]
+        self._apply_params(streams)
+        if iteration_cb is None:
+            iteration_cb = lambda: False
+        while True:
+            with _RedirectOutput(streams):
+                if lazy_cb is None:
+                    self.model.optimize()
+                else:
+                    self.model.optimize(cb_wrapper)
+            total_wallclock_time += self.model.runtime
+            total_nodes += int(self.model.nodeCount)
+            should_repeat = iteration_cb()
+            if not should_repeat:
+                break
+        log = streams[0].getvalue()
+        ub, lb = None, None
+        sense = &#34;min&#34; if self.model.modelSense == 1 else &#34;max&#34;
+        if self.model.solCount &gt; 0:
+            if self.model.modelSense == 1:
+                lb = self.model.objBound
+                ub = self.model.objVal
+            else:
+                lb = self.model.objVal
+                ub = self.model.objBound
+        ws_value = self._extract_warm_start_value(log)
+        stats: MIPSolveStats = {
+            &#34;Lower bound&#34;: lb,
+            &#34;Upper bound&#34;: ub,
+            &#34;Wallclock time&#34;: total_wallclock_time,
+            &#34;Nodes&#34;: total_nodes,
+            &#34;Sense&#34;: sense,
+            &#34;Log&#34;: log,
+            &#34;Warm start value&#34;: ws_value,
+            &#34;LP value&#34;: None,
+        }
+        return stats
+
+    def get_solution(self) -&gt; Optional[Solution]:
+        self._raise_if_callback()
+        assert self.model is not None
+        if self.model.solCount == 0:
+            return None
+        solution: Solution = {}
+        for (varname, vardict) in self._all_vars.items():
+            solution[varname] = {}
+            for (idx, var) in vardict.items():
+                solution[varname][idx] = var.x
+        return solution
+
+    def set_warm_start(self, solution: Solution) -&gt; None:
+        self._raise_if_callback()
+        self._clear_warm_start()
+        count_fixed, count_total = 0, 0
+        for (varname, vardict) in solution.items():
+            for (idx, value) in vardict.items():
+                count_total += 1
+                if value is not None:
+                    count_fixed += 1
+                    self._all_vars[varname][idx].start = value
+        logger.info(
+            &#34;Setting start values for %d variables (out of %d)&#34;
+            % (count_fixed, count_total)
+        )
+
+    def get_sense(self) -&gt; str:
+        assert self.model is not None
+        if self.model.modelSense == 1:
+            return &#34;min&#34;
+        else:
+            return &#34;max&#34;
+
+    def get_value(
+        self,
+        var_name: str,
+        index: VarIndex,
+    ) -&gt; Optional[float]:
+        var = self._all_vars[var_name][index]
+        return self._get_value(var)
+
+    def is_infeasible(self) -&gt; bool:
+        assert self.model is not None
+        return self.model.status in [self.gp.GRB.INFEASIBLE, self.gp.GRB.INF_OR_UNBD]
+
+    def get_dual(self, cid: str) -&gt; float:
+        assert self.model is not None
+        c = self.model.getConstrByName(cid)
+        if self.is_infeasible():
+            return c.farkasDual
+        else:
+            return c.pi
+
+    def _get_value(self, var: Any) -&gt; Optional[float]:
+        assert self.model is not None
+        if self.cb_where == self.gp.GRB.Callback.MIPSOL:
+            return self.model.cbGetSolution(var)
+        elif self.cb_where == self.gp.GRB.Callback.MIPNODE:
+            return self.model.cbGetNodeRel(var)
+        elif self.cb_where is None:
+            if self.is_infeasible():
+                return None
+            else:
+                return var.x
+        else:
+            raise Exception(
+                &#34;get_value cannot be called from cb_where=%s&#34; % self.cb_where
+            )
+
+    def get_empty_solution(self) -&gt; Solution:
+        self._raise_if_callback()
+        solution: Solution = {}
+        for (varname, vardict) in self._all_vars.items():
+            solution[varname] = {}
+            for (idx, var) in vardict.items():
+                solution[varname][idx] = None
+        return solution
+
+    def add_constraint(
+        self,
+        constraint: Any,
+        name: str = &#34;&#34;,
+    ) -&gt; None:
+        assert self.model is not None
+        if type(constraint) is tuple:
+            lhs, sense, rhs, name = constraint
+            if self.cb_where in [
+                self.gp.GRB.Callback.MIPSOL,
+                self.gp.GRB.Callback.MIPNODE,
+            ]:
+                self.model.cbLazy(lhs, sense, rhs)
+            else:
+                self.model.addConstr(lhs, sense, rhs, name)
+        else:
+            if self.cb_where in [
+                self.gp.GRB.Callback.MIPSOL,
+                self.gp.GRB.Callback.MIPNODE,
+            ]:
+                self.model.cbLazy(constraint)
+            else:
+                self.model.addConstr(constraint, name=name)
+
+    def _clear_warm_start(self) -&gt; None:
+        for (varname, vardict) in self._all_vars.items():
+            for (idx, var) in vardict.items():
+                var.start = self.gp.GRB.UNDEFINED
+
+    def fix(self, solution: Solution) -&gt; None:
+        self._raise_if_callback()
+        for (varname, vardict) in solution.items():
+            for (idx, value) in vardict.items():
+                if value is None:
+                    continue
+                var = self._all_vars[varname][idx]
+                var.vtype = self.gp.GRB.CONTINUOUS
+                var.lb = value
+                var.ub = value
+
+    def get_constraint_ids(self):
+        self._raise_if_callback()
+        self.model.update()
+        return [c.ConstrName for c in self.model.getConstrs()]
+
+    def extract_constraint(self, cid):
+        self._raise_if_callback()
+        constr = self.model.getConstrByName(cid)
+        cobj = (self.model.getRow(constr), constr.sense, constr.RHS, constr.ConstrName)
+        self.model.remove(constr)
+        return cobj
+
+    def is_constraint_satisfied(self, cobj, tol=1e-5):
+        lhs, sense, rhs, name = cobj
+        if self.cb_where is not None:
+            lhs_value = lhs.getConstant()
+            for i in range(lhs.size()):
+                var = lhs.getVar(i)
+                coeff = lhs.getCoeff(i)
+                lhs_value += self._get_value(var) * coeff
+        else:
+            lhs_value = lhs.getValue()
+        if sense == &#34;&lt;&#34;:
+            return lhs_value &lt;= rhs + tol
+        elif sense == &#34;&gt;&#34;:
+            return lhs_value &gt;= rhs - tol
+        elif sense == &#34;=&#34;:
+            return abs(rhs - lhs_value) &lt; abs(tol)
+        else:
+            raise Exception(&#34;Unknown sense: %s&#34; % sense)
+
+    def get_inequality_slacks(self) -&gt; Dict[str, float]:
+        assert self.model is not None
+        ineqs = [c for c in self.model.getConstrs() if c.sense != &#34;=&#34;]
+        return {c.ConstrName: c.Slack for c in ineqs}
+
+    def set_constraint_sense(self, cid: str, sense: str) -&gt; None:
+        assert self.model is not None
+        c = self.model.getConstrByName(cid)
+        c.Sense = sense
+
+    def get_constraint_sense(self, cid: str) -&gt; str:
+        assert self.model is not None
+        c = self.model.getConstrByName(cid)
+        return c.Sense
+
+    def relax(self) -&gt; None:
+        assert self.model is not None
+        self.model = self.model.relax()
+        self._update_vars()
+
+    def _extract_warm_start_value(self, log: str) -&gt; Optional[float]:
+        ws = self.__extract(log, &#34;MIP start with objective ([0-9.e+-]*)&#34;)
+        if ws is None:
+            return None
+        return float(ws)
+
+    @staticmethod
+    def __extract(
+        log: str,
+        regexp: str,
+        default: Optional[str] = None,
+    ) -&gt; Optional[str]:
+        value = default
+        for line in log.splitlines():
+            matches = re.findall(regexp, line)
+            if len(matches) == 0:
+                continue
+            value = matches[0]
+        return value
+
+    def __getstate__(self):
+        return {
+            &#34;params&#34;: self.params,
+            &#34;lazy_cb_where&#34;: self.lazy_cb_where,
+        }
+
+    def __setstate__(self, state):
+
+        self.params = state[&#34;params&#34;]
+        self.lazy_cb_where = state[&#34;lazy_cb_where&#34;]
+        self.instance = None
+        self.model = None
+        self._all_vars = None
+        self._bin_vars = None
+        self.cb_where = None</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="miplearn.solvers.gurobi.GurobiSolver"><code class="flex name class">
+<span>class <span class="ident">GurobiSolver</span></span>
+<span>(</span><span>params=None, lazy_cb_frequency=1)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An InternalSolver backed by Gurobi's Python API (without Pyomo).</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>params</code></strong> :&ensp;<code>Optional</code>[<code>SolverParams</code>]</dt>
+<dd>Parameters to pass to Gurobi. For example, <code>params={"MIPGap": 1e-3}</code>
+sets the gap tolerance to 1e-3.</dd>
+<dt><strong><code>lazy_cb_frequency</code></strong> :&ensp;<code>int</code></dt>
+<dd>If 1, calls lazy constraint callbacks whenever an integer solution
+is found. If 2, calls it also at every node, after solving the
+LP relaxation of that node.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GurobiSolver(InternalSolver):
+    &#34;&#34;&#34;
+    An InternalSolver backed by Gurobi&#39;s Python API (without Pyomo).
+
+    Parameters
+    ----------
+    params: Optional[SolverParams]
+        Parameters to pass to Gurobi. For example, `params={&#34;MIPGap&#34;: 1e-3}`
+        sets the gap tolerance to 1e-3.
+    lazy_cb_frequency: int
+        If 1, calls lazy constraint callbacks whenever an integer solution
+        is found. If 2, calls it also at every node, after solving the
+        LP relaxation of that node.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        params: Optional[SolverParams] = None,
+        lazy_cb_frequency: int = 1,
+    ) -&gt; None:
+        import gurobipy
+
+        if params is None:
+            params = {}
+        params[&#34;InfUnbdInfo&#34;] = True
+
+        self.gp = gurobipy
+        self.instance: Optional[Instance] = None
+        self.model: Optional[&#34;gurobipy.Model&#34;] = None
+        self.params: SolverParams = params
+        self._all_vars: Dict = {}
+        self._bin_vars: Optional[Dict[str, Dict[VarIndex, &#34;gurobipy.Var&#34;]]] = None
+        self.cb_where: Optional[int] = None
+
+        assert lazy_cb_frequency in [1, 2]
+        if lazy_cb_frequency == 1:
+            self.lazy_cb_where = [self.gp.GRB.Callback.MIPSOL]
+        else:
+            self.lazy_cb_where = [
+                self.gp.GRB.Callback.MIPSOL,
+                self.gp.GRB.Callback.MIPNODE,
+            ]
+
+    def set_instance(
+        self,
+        instance: Instance,
+        model: Any = None,
+    ) -&gt; None:
+        self._raise_if_callback()
+        if model is None:
+            model = instance.to_model()
+        assert isinstance(model, self.gp.Model)
+        self.instance = instance
+        self.model = model
+        self.model.update()
+        self._update_vars()
+
+    def _raise_if_callback(self) -&gt; None:
+        if self.cb_where is not None:
+            raise Exception(&#34;method cannot be called from a callback&#34;)
+
+    def _update_vars(self) -&gt; None:
+        assert self.model is not None
+        self._all_vars = {}
+        self._bin_vars = {}
+        idx: VarIndex
+        for var in self.model.getVars():
+            m = re.search(r&#34;([^[]*)\[(.*)]&#34;, var.varName)
+            if m is None:
+                name = var.varName
+                idx = [0]
+            else:
+                name = m.group(1)
+                parts = m.group(2).split(&#34;,&#34;)
+                idx = [int(k) if k.isdecimal else k for k in parts]
+            if len(idx) == 1:
+                idx = idx[0]
+            if name not in self._all_vars:
+                self._all_vars[name] = {}
+            self._all_vars[name][idx] = var
+            if var.vtype != &#34;C&#34;:
+                if name not in self._bin_vars:
+                    self._bin_vars[name] = {}
+                self._bin_vars[name][idx] = var
+
+    def _apply_params(self, streams: List[Any]) -&gt; None:
+        assert self.model is not None
+        with _RedirectOutput(streams):
+            for (name, value) in self.params.items():
+                self.model.setParam(name, value)
+            if &#34;seed&#34; not in [k.lower() for k in self.params.keys()]:
+                self.model.setParam(&#34;Seed&#34;, randint(0, 1_000_000))
+
+    def solve_lp(
+        self,
+        tee: bool = False,
+    ) -&gt; LPSolveStats:
+        self._raise_if_callback()
+        streams: List[Any] = [StringIO()]
+        if tee:
+            streams += [sys.stdout]
+        self._apply_params(streams)
+        assert self.model is not None
+        assert self._bin_vars is not None
+        for (varname, vardict) in self._bin_vars.items():
+            for (idx, var) in vardict.items():
+                var.vtype = self.gp.GRB.CONTINUOUS
+                var.lb = 0.0
+                var.ub = 1.0
+        with _RedirectOutput(streams):
+            self.model.optimize()
+        for (varname, vardict) in self._bin_vars.items():
+            for (idx, var) in vardict.items():
+                var.vtype = self.gp.GRB.BINARY
+        log = streams[0].getvalue()
+        opt_value = None
+        if not self.is_infeasible():
+            opt_value = self.model.objVal
+        return {
+            &#34;Optimal value&#34;: opt_value,
+            &#34;Log&#34;: log,
+        }
+
+    def solve(
+        self,
+        tee: bool = False,
+        iteration_cb: IterationCallback = None,
+        lazy_cb: LazyCallback = None,
+    ) -&gt; MIPSolveStats:
+        self._raise_if_callback()
+        assert self.model is not None
+
+        def cb_wrapper(cb_model, cb_where):
+            try:
+                self.cb_where = cb_where
+                if cb_where in self.lazy_cb_where:
+                    lazy_cb(self, self.model)
+            except:
+                logger.exception(&#34;callback error&#34;)
+            finally:
+                self.cb_where = None
+
+        if lazy_cb:
+            self.params[&#34;LazyConstraints&#34;] = 1
+        total_wallclock_time = 0
+        total_nodes = 0
+        streams: List[Any] = [StringIO()]
+        if tee:
+            streams += [sys.stdout]
+        self._apply_params(streams)
+        if iteration_cb is None:
+            iteration_cb = lambda: False
+        while True:
+            with _RedirectOutput(streams):
+                if lazy_cb is None:
+                    self.model.optimize()
+                else:
+                    self.model.optimize(cb_wrapper)
+            total_wallclock_time += self.model.runtime
+            total_nodes += int(self.model.nodeCount)
+            should_repeat = iteration_cb()
+            if not should_repeat:
+                break
+        log = streams[0].getvalue()
+        ub, lb = None, None
+        sense = &#34;min&#34; if self.model.modelSense == 1 else &#34;max&#34;
+        if self.model.solCount &gt; 0:
+            if self.model.modelSense == 1:
+                lb = self.model.objBound
+                ub = self.model.objVal
+            else:
+                lb = self.model.objVal
+                ub = self.model.objBound
+        ws_value = self._extract_warm_start_value(log)
+        stats: MIPSolveStats = {
+            &#34;Lower bound&#34;: lb,
+            &#34;Upper bound&#34;: ub,
+            &#34;Wallclock time&#34;: total_wallclock_time,
+            &#34;Nodes&#34;: total_nodes,
+            &#34;Sense&#34;: sense,
+            &#34;Log&#34;: log,
+            &#34;Warm start value&#34;: ws_value,
+            &#34;LP value&#34;: None,
+        }
+        return stats
+
+    def get_solution(self) -&gt; Optional[Solution]:
+        self._raise_if_callback()
+        assert self.model is not None
+        if self.model.solCount == 0:
+            return None
+        solution: Solution = {}
+        for (varname, vardict) in self._all_vars.items():
+            solution[varname] = {}
+            for (idx, var) in vardict.items():
+                solution[varname][idx] = var.x
+        return solution
+
+    def set_warm_start(self, solution: Solution) -&gt; None:
+        self._raise_if_callback()
+        self._clear_warm_start()
+        count_fixed, count_total = 0, 0
+        for (varname, vardict) in solution.items():
+            for (idx, value) in vardict.items():
+                count_total += 1
+                if value is not None:
+                    count_fixed += 1
+                    self._all_vars[varname][idx].start = value
+        logger.info(
+            &#34;Setting start values for %d variables (out of %d)&#34;
+            % (count_fixed, count_total)
+        )
+
+    def get_sense(self) -&gt; str:
+        assert self.model is not None
+        if self.model.modelSense == 1:
+            return &#34;min&#34;
+        else:
+            return &#34;max&#34;
+
+    def get_value(
+        self,
+        var_name: str,
+        index: VarIndex,
+    ) -&gt; Optional[float]:
+        var = self._all_vars[var_name][index]
+        return self._get_value(var)
+
+    def is_infeasible(self) -&gt; bool:
+        assert self.model is not None
+        return self.model.status in [self.gp.GRB.INFEASIBLE, self.gp.GRB.INF_OR_UNBD]
+
+    def get_dual(self, cid: str) -&gt; float:
+        assert self.model is not None
+        c = self.model.getConstrByName(cid)
+        if self.is_infeasible():
+            return c.farkasDual
+        else:
+            return c.pi
+
+    def _get_value(self, var: Any) -&gt; Optional[float]:
+        assert self.model is not None
+        if self.cb_where == self.gp.GRB.Callback.MIPSOL:
+            return self.model.cbGetSolution(var)
+        elif self.cb_where == self.gp.GRB.Callback.MIPNODE:
+            return self.model.cbGetNodeRel(var)
+        elif self.cb_where is None:
+            if self.is_infeasible():
+                return None
+            else:
+                return var.x
+        else:
+            raise Exception(
+                &#34;get_value cannot be called from cb_where=%s&#34; % self.cb_where
+            )
+
+    def get_empty_solution(self) -&gt; Solution:
+        self._raise_if_callback()
+        solution: Solution = {}
+        for (varname, vardict) in self._all_vars.items():
+            solution[varname] = {}
+            for (idx, var) in vardict.items():
+                solution[varname][idx] = None
+        return solution
+
+    def add_constraint(
+        self,
+        constraint: Any,
+        name: str = &#34;&#34;,
+    ) -&gt; None:
+        assert self.model is not None
+        if type(constraint) is tuple:
+            lhs, sense, rhs, name = constraint
+            if self.cb_where in [
+                self.gp.GRB.Callback.MIPSOL,
+                self.gp.GRB.Callback.MIPNODE,
+            ]:
+                self.model.cbLazy(lhs, sense, rhs)
+            else:
+                self.model.addConstr(lhs, sense, rhs, name)
+        else:
+            if self.cb_where in [
+                self.gp.GRB.Callback.MIPSOL,
+                self.gp.GRB.Callback.MIPNODE,
+            ]:
+                self.model.cbLazy(constraint)
+            else:
+                self.model.addConstr(constraint, name=name)
+
+    def _clear_warm_start(self) -&gt; None:
+        for (varname, vardict) in self._all_vars.items():
+            for (idx, var) in vardict.items():
+                var.start = self.gp.GRB.UNDEFINED
+
+    def fix(self, solution: Solution) -&gt; None:
+        self._raise_if_callback()
+        for (varname, vardict) in solution.items():
+            for (idx, value) in vardict.items():
+                if value is None:
+                    continue
+                var = self._all_vars[varname][idx]
+                var.vtype = self.gp.GRB.CONTINUOUS
+                var.lb = value
+                var.ub = value
+
+    def get_constraint_ids(self):
+        self._raise_if_callback()
+        self.model.update()
+        return [c.ConstrName for c in self.model.getConstrs()]
+
+    def extract_constraint(self, cid):
+        self._raise_if_callback()
+        constr = self.model.getConstrByName(cid)
+        cobj = (self.model.getRow(constr), constr.sense, constr.RHS, constr.ConstrName)
+        self.model.remove(constr)
+        return cobj
+
+    def is_constraint_satisfied(self, cobj, tol=1e-5):
+        lhs, sense, rhs, name = cobj
+        if self.cb_where is not None:
+            lhs_value = lhs.getConstant()
+            for i in range(lhs.size()):
+                var = lhs.getVar(i)
+                coeff = lhs.getCoeff(i)
+                lhs_value += self._get_value(var) * coeff
+        else:
+            lhs_value = lhs.getValue()
+        if sense == &#34;&lt;&#34;:
+            return lhs_value &lt;= rhs + tol
+        elif sense == &#34;&gt;&#34;:
+            return lhs_value &gt;= rhs - tol
+        elif sense == &#34;=&#34;:
+            return abs(rhs - lhs_value) &lt; abs(tol)
+        else:
+            raise Exception(&#34;Unknown sense: %s&#34; % sense)
+
+    def get_inequality_slacks(self) -&gt; Dict[str, float]:
+        assert self.model is not None
+        ineqs = [c for c in self.model.getConstrs() if c.sense != &#34;=&#34;]
+        return {c.ConstrName: c.Slack for c in ineqs}
+
+    def set_constraint_sense(self, cid: str, sense: str) -&gt; None:
+        assert self.model is not None
+        c = self.model.getConstrByName(cid)
+        c.Sense = sense
+
+    def get_constraint_sense(self, cid: str) -&gt; str:
+        assert self.model is not None
+        c = self.model.getConstrByName(cid)
+        return c.Sense
+
+    def relax(self) -&gt; None:
+        assert self.model is not None
+        self.model = self.model.relax()
+        self._update_vars()
+
+    def _extract_warm_start_value(self, log: str) -&gt; Optional[float]:
+        ws = self.__extract(log, &#34;MIP start with objective ([0-9.e+-]*)&#34;)
+        if ws is None:
+            return None
+        return float(ws)
+
+    @staticmethod
+    def __extract(
+        log: str,
+        regexp: str,
+        default: Optional[str] = None,
+    ) -&gt; Optional[str]:
+        value = default
+        for line in log.splitlines():
+            matches = re.findall(regexp, line)
+            if len(matches) == 0:
+                continue
+            value = matches[0]
+        return value
+
+    def __getstate__(self):
+        return {
+            &#34;params&#34;: self.params,
+            &#34;lazy_cb_where&#34;: self.lazy_cb_where,
+        }
+
+    def __setstate__(self, state):
+
+        self.params = state[&#34;params&#34;]
+        self.lazy_cb_where = state[&#34;lazy_cb_where&#34;]
+        self.instance = None
+        self.model = None
+        self._all_vars = None
+        self._bin_vars = None
+        self.cb_where = None</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="miplearn.solvers.internal.InternalSolver" href="internal.html#miplearn.solvers.internal.InternalSolver">InternalSolver</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="miplearn.solvers.internal.InternalSolver" href="internal.html#miplearn.solvers.internal.InternalSolver">InternalSolver</a></b></code>:
+<ul class="hlist">
+<li><code><a title="miplearn.solvers.internal.InternalSolver.add_constraint" href="internal.html#miplearn.solvers.internal.InternalSolver.add_constraint">add_constraint</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.extract_constraint" href="internal.html#miplearn.solvers.internal.InternalSolver.extract_constraint">extract_constraint</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.fix" href="internal.html#miplearn.solvers.internal.InternalSolver.fix">fix</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.get_constraint_ids" href="internal.html#miplearn.solvers.internal.InternalSolver.get_constraint_ids">get_constraint_ids</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.get_constraint_sense" href="internal.html#miplearn.solvers.internal.InternalSolver.get_constraint_sense">get_constraint_sense</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.get_dual" href="internal.html#miplearn.solvers.internal.InternalSolver.get_dual">get_dual</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.get_empty_solution" href="internal.html#miplearn.solvers.internal.InternalSolver.get_empty_solution">get_empty_solution</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.get_inequality_slacks" href="internal.html#miplearn.solvers.internal.InternalSolver.get_inequality_slacks">get_inequality_slacks</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.get_sense" href="internal.html#miplearn.solvers.internal.InternalSolver.get_sense">get_sense</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.get_solution" href="internal.html#miplearn.solvers.internal.InternalSolver.get_solution">get_solution</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.get_value" href="internal.html#miplearn.solvers.internal.InternalSolver.get_value">get_value</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.is_constraint_satisfied" href="internal.html#miplearn.solvers.internal.InternalSolver.is_constraint_satisfied">is_constraint_satisfied</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.is_infeasible" href="internal.html#miplearn.solvers.internal.InternalSolver.is_infeasible">is_infeasible</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.relax" href="internal.html#miplearn.solvers.internal.InternalSolver.relax">relax</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.set_branching_priorities" href="internal.html#miplearn.solvers.internal.InternalSolver.set_branching_priorities">set_branching_priorities</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.set_constraint_sense" href="internal.html#miplearn.solvers.internal.InternalSolver.set_constraint_sense">set_constraint_sense</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.set_instance" href="internal.html#miplearn.solvers.internal.InternalSolver.set_instance">set_instance</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.set_warm_start" href="internal.html#miplearn.solvers.internal.InternalSolver.set_warm_start">set_warm_start</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.solve" href="internal.html#miplearn.solvers.internal.InternalSolver.solve">solve</a></code></li>
+<li><code><a title="miplearn.solvers.internal.InternalSolver.solve_lp" href="internal.html#miplearn.solvers.internal.InternalSolver.solve_lp">solve_lp</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="miplearn.solvers" href="index.html">miplearn.solvers</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="miplearn.solvers.gurobi.GurobiSolver" href="#miplearn.solvers.gurobi.GurobiSolver">GurobiSolver</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.0</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

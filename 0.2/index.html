@@ -105,6 +105,12 @@
                     </li>
                 
                 
+                
+                    <li >
+                        <a href="api/miplearn/index.html">API</a>
+                    </li>
+                
+                
                 </ul>
 
             <ul class="nav navbar-nav navbar-right">
@@ -148,8 +154,10 @@
         <div class="col-md-9" role="main">
 
 <h1 id="miplearn">MIPLearn</h1>
-<p><strong>MIPLearn</strong> is an extensible framework for <strong>Learning-Enhanced Mixed-Integer Optimization</strong>, an approach targeted at discrete optimization problems that need to be repeatedly solved with only minor changes to input data.</p>
-<p>The package uses Machine Learning (ML) to automatically identify patterns in previously solved instances of the problem, or in the solution process itself, and produces hints that can guide a conventional MIP solver towards the optimal solution faster. For particular classes of problems, this approach has been shown to provide significant performance benefits (see <a href="problems/">benchmark results</a> and <a href="about/#references">references</a> for more details).</p>
+<p><strong>MIPLearn</strong> is an extensible framework for solving discrete optimization problems using a combination of Mixed-Integer Linear Programming (MIP) and Machine Learning (ML). The framework uses ML methods to automatically identify patterns in previously solved instances of the problem, then uses these patterns to accelerate the performance of conventional state-of-the-art MIP solvers (such as CPLEX, Gurobi or XPRESS).</p>
+<p>Unlike pure ML methods, MIPLearn is not only able to find high-quality solutions to discrete optimization problems, but it can also prove the optimality and feasibility of these solutions.
+Unlike conventional MIP solvers, MIPLearn can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value). </p>
+<p>For certain classes of problems, this approach has been shown to provide significant performance benefits (see <a href="problems/">benchmarks</a> and <a href="about/">references</a>).</p>
 <h3 id="features">Features</h3>
 <ul>
 <li>
@@ -285,5 +293,5 @@
 
 <!--
 MkDocs version : 1.1.2
-Build Date UTC : 2020-12-03 18:22:04.344984+00:00
+Build Date UTC : 2021-01-22 02:31:46.190084+00:00
 -->

@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.0" />
+<title>miplearn.benchmark API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>miplearn.benchmark</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
+#  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
+#  Released under the modified BSD license. See COPYING.md for more details.
+
+import logging
+import os
+from copy import deepcopy
+
+import pandas as pd
+from tqdm.auto import tqdm
+
+from miplearn.solvers.learning import LearningSolver
+
+
+class BenchmarkRunner:
+    def __init__(self, solvers):
+        assert isinstance(solvers, dict)
+        for solver in solvers.values():
+            assert isinstance(solver, LearningSolver)
+        self.solvers = solvers
+        self.results = None
+
+    def solve(self, instances, tee=False):
+        for (solver_name, solver) in self.solvers.items():
+            for i in tqdm(range(len((instances)))):
+                results = solver.solve(deepcopy(instances[i]), tee=tee)
+                self._push_result(
+                    results,
+                    solver=solver,
+                    solver_name=solver_name,
+                    instance=i,
+                )
+
+    def parallel_solve(
+        self,
+        instances,
+        n_jobs=1,
+        n_trials=1,
+        index_offset=0,
+    ):
+        self._silence_miplearn_logger()
+        trials = instances * n_trials
+        for (solver_name, solver) in self.solvers.items():
+            results = solver.parallel_solve(
+                trials,
+                n_jobs=n_jobs,
+                label=&#34;Solve (%s)&#34; % solver_name,
+                discard_outputs=True,
+            )
+            for i in range(len(trials)):
+                idx = (i % len(instances)) + index_offset
+                self._push_result(
+                    results[i],
+                    solver=solver,
+                    solver_name=solver_name,
+                    instance=idx,
+                )
+        self._restore_miplearn_logger()
+
+    def raw_results(self):
+        return self.results
+
+    def save_results(self, filename):
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        self.results.to_csv(filename)
+
+    def load_results(self, filename):
+        self.results = pd.concat([self.results, pd.read_csv(filename, index_col=0)])
+
+    def load_state(self, filename):
+        for (solver_name, solver) in self.solvers.items():
+            solver.load_state(filename)
+
+    def fit(self, training_instances):
+        for (solver_name, solver) in self.solvers.items():
+            solver.fit(training_instances)
+
+    @staticmethod
+    def _compute_gap(ub, lb):
+        if lb is None or ub is None or lb * ub &lt; 0:
+            # solver did not find a solution and/or bound, use maximum gap possible
+            return 1.0
+        elif abs(ub - lb) &lt; 1e-6:
+            # avoid division by zero when ub = lb = 0
+            return 0.0
+        else:
+            # divide by max(abs(ub),abs(lb)) to ensure gap &lt;= 1
+            return (ub - lb) / max(abs(ub), abs(lb))
+
+    def _push_result(self, result, solver, solver_name, instance):
+        if self.results is None:
+            self.results = pd.DataFrame(
+                # Show the following columns first in the CSV file
+                columns=[
+                    &#34;Solver&#34;,
+                    &#34;Instance&#34;,
+                ]
+            )
+        result[&#34;Solver&#34;] = solver_name
+        result[&#34;Instance&#34;] = instance
+        result[&#34;Gap&#34;] = self._compute_gap(
+            ub=result[&#34;Upper bound&#34;],
+            lb=result[&#34;Lower bound&#34;],
+        )
+        result[&#34;Mode&#34;] = solver.mode
+        self.results = self.results.append(pd.DataFrame([result]))
+
+    def _silence_miplearn_logger(self):
+        miplearn_logger = logging.getLogger(&#34;miplearn&#34;)
+        self.prev_log_level = miplearn_logger.getEffectiveLevel()
+        miplearn_logger.setLevel(logging.WARNING)
+
+    def _restore_miplearn_logger(self):
+        miplearn_logger = logging.getLogger(&#34;miplearn&#34;)
+        miplearn_logger.setLevel(self.prev_log_level)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="miplearn.benchmark.BenchmarkRunner"><code class="flex name class">
+<span>class <span class="ident">BenchmarkRunner</span></span>
+<span>(</span><span>solvers)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BenchmarkRunner:
+    def __init__(self, solvers):
+        assert isinstance(solvers, dict)
+        for solver in solvers.values():
+            assert isinstance(solver, LearningSolver)
+        self.solvers = solvers
+        self.results = None
+
+    def solve(self, instances, tee=False):
+        for (solver_name, solver) in self.solvers.items():
+            for i in tqdm(range(len((instances)))):
+                results = solver.solve(deepcopy(instances[i]), tee=tee)
+                self._push_result(
+                    results,
+                    solver=solver,
+                    solver_name=solver_name,
+                    instance=i,
+                )
+
+    def parallel_solve(
+        self,
+        instances,
+        n_jobs=1,
+        n_trials=1,
+        index_offset=0,
+    ):
+        self._silence_miplearn_logger()
+        trials = instances * n_trials
+        for (solver_name, solver) in self.solvers.items():
+            results = solver.parallel_solve(
+                trials,
+                n_jobs=n_jobs,
+                label=&#34;Solve (%s)&#34; % solver_name,
+                discard_outputs=True,
+            )
+            for i in range(len(trials)):
+                idx = (i % len(instances)) + index_offset
+                self._push_result(
+                    results[i],
+                    solver=solver,
+                    solver_name=solver_name,
+                    instance=idx,
+                )
+        self._restore_miplearn_logger()
+
+    def raw_results(self):
+        return self.results
+
+    def save_results(self, filename):
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        self.results.to_csv(filename)
+
+    def load_results(self, filename):
+        self.results = pd.concat([self.results, pd.read_csv(filename, index_col=0)])
+
+    def load_state(self, filename):
+        for (solver_name, solver) in self.solvers.items():
+            solver.load_state(filename)
+
+    def fit(self, training_instances):
+        for (solver_name, solver) in self.solvers.items():
+            solver.fit(training_instances)
+
+    @staticmethod
+    def _compute_gap(ub, lb):
+        if lb is None or ub is None or lb * ub &lt; 0:
+            # solver did not find a solution and/or bound, use maximum gap possible
+            return 1.0
+        elif abs(ub - lb) &lt; 1e-6:
+            # avoid division by zero when ub = lb = 0
+            return 0.0
+        else:
+            # divide by max(abs(ub),abs(lb)) to ensure gap &lt;= 1
+            return (ub - lb) / max(abs(ub), abs(lb))
+
+    def _push_result(self, result, solver, solver_name, instance):
+        if self.results is None:
+            self.results = pd.DataFrame(
+                # Show the following columns first in the CSV file
+                columns=[
+                    &#34;Solver&#34;,
+                    &#34;Instance&#34;,
+                ]
+            )
+        result[&#34;Solver&#34;] = solver_name
+        result[&#34;Instance&#34;] = instance
+        result[&#34;Gap&#34;] = self._compute_gap(
+            ub=result[&#34;Upper bound&#34;],
+            lb=result[&#34;Lower bound&#34;],
+        )
+        result[&#34;Mode&#34;] = solver.mode
+        self.results = self.results.append(pd.DataFrame([result]))
+
+    def _silence_miplearn_logger(self):
+        miplearn_logger = logging.getLogger(&#34;miplearn&#34;)
+        self.prev_log_level = miplearn_logger.getEffectiveLevel()
+        miplearn_logger.setLevel(logging.WARNING)
+
+    def _restore_miplearn_logger(self):
+        miplearn_logger = logging.getLogger(&#34;miplearn&#34;)
+        miplearn_logger.setLevel(self.prev_log_level)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="miplearn.benchmark.BenchmarkRunner.fit"><code class="name flex">
+<span>def <span class="ident">fit</span></span>(<span>self, training_instances)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit(self, training_instances):
+    for (solver_name, solver) in self.solvers.items():
+        solver.fit(training_instances)</code></pre>
+</details>
+</dd>
+<dt id="miplearn.benchmark.BenchmarkRunner.load_results"><code class="name flex">
+<span>def <span class="ident">load_results</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_results(self, filename):
+    self.results = pd.concat([self.results, pd.read_csv(filename, index_col=0)])</code></pre>
+</details>
+</dd>
+<dt id="miplearn.benchmark.BenchmarkRunner.load_state"><code class="name flex">
+<span>def <span class="ident">load_state</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_state(self, filename):
+    for (solver_name, solver) in self.solvers.items():
+        solver.load_state(filename)</code></pre>
+</details>
+</dd>
+<dt id="miplearn.benchmark.BenchmarkRunner.parallel_solve"><code class="name flex">
+<span>def <span class="ident">parallel_solve</span></span>(<span>self, instances, n_jobs=1, n_trials=1, index_offset=0)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parallel_solve(
+    self,
+    instances,
+    n_jobs=1,
+    n_trials=1,
+    index_offset=0,
+):
+    self._silence_miplearn_logger()
+    trials = instances * n_trials
+    for (solver_name, solver) in self.solvers.items():
+        results = solver.parallel_solve(
+            trials,
+            n_jobs=n_jobs,
+            label=&#34;Solve (%s)&#34; % solver_name,
+            discard_outputs=True,
+        )
+        for i in range(len(trials)):
+            idx = (i % len(instances)) + index_offset
+            self._push_result(
+                results[i],
+                solver=solver,
+                solver_name=solver_name,
+                instance=idx,
+            )
+    self._restore_miplearn_logger()</code></pre>
+</details>
+</dd>
+<dt id="miplearn.benchmark.BenchmarkRunner.raw_results"><code class="name flex">
+<span>def <span class="ident">raw_results</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def raw_results(self):
+    return self.results</code></pre>
+</details>
+</dd>
+<dt id="miplearn.benchmark.BenchmarkRunner.save_results"><code class="name flex">
+<span>def <span class="ident">save_results</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_results(self, filename):
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    self.results.to_csv(filename)</code></pre>
+</details>
+</dd>
+<dt id="miplearn.benchmark.BenchmarkRunner.solve"><code class="name flex">
+<span>def <span class="ident">solve</span></span>(<span>self, instances, tee=False)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def solve(self, instances, tee=False):
+    for (solver_name, solver) in self.solvers.items():
+        for i in tqdm(range(len((instances)))):
+            results = solver.solve(deepcopy(instances[i]), tee=tee)
+            self._push_result(
+                results,
+                solver=solver,
+                solver_name=solver_name,
+                instance=i,
+            )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="miplearn" href="index.html">miplearn</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="miplearn.benchmark.BenchmarkRunner" href="#miplearn.benchmark.BenchmarkRunner">BenchmarkRunner</a></code></h4>
+<ul class="two-column">
+<li><code><a title="miplearn.benchmark.BenchmarkRunner.fit" href="#miplearn.benchmark.BenchmarkRunner.fit">fit</a></code></li>
+<li><code><a title="miplearn.benchmark.BenchmarkRunner.load_results" href="#miplearn.benchmark.BenchmarkRunner.load_results">load_results</a></code></li>
+<li><code><a title="miplearn.benchmark.BenchmarkRunner.load_state" href="#miplearn.benchmark.BenchmarkRunner.load_state">load_state</a></code></li>
+<li><code><a title="miplearn.benchmark.BenchmarkRunner.parallel_solve" href="#miplearn.benchmark.BenchmarkRunner.parallel_solve">parallel_solve</a></code></li>
+<li><code><a title="miplearn.benchmark.BenchmarkRunner.raw_results" href="#miplearn.benchmark.BenchmarkRunner.raw_results">raw_results</a></code></li>
+<li><code><a title="miplearn.benchmark.BenchmarkRunner.save_results" href="#miplearn.benchmark.BenchmarkRunner.save_results">save_results</a></code></li>
+<li><code><a title="miplearn.benchmark.BenchmarkRunner.solve" href="#miplearn.benchmark.BenchmarkRunner.solve">solve</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.0</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

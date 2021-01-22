@@ -1,0 +1,1058 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.0" />
+<title>miplearn.solvers.learning API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>miplearn.solvers.learning</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
+#  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
+#  Released under the modified BSD license. See COPYING.md for more details.
+
+import gzip
+import logging
+import os
+import pickle
+import tempfile
+from typing import Optional, List, Any, IO, cast, BinaryIO, Union, Callable, Dict
+
+from p_tqdm import p_map
+
+from miplearn.components.component import Component
+from miplearn.components.cuts import UserCutsComponent
+from miplearn.components.lazy_dynamic import DynamicLazyConstraintsComponent
+from miplearn.components.objective import ObjectiveValueComponent
+from miplearn.components.primal import PrimalSolutionComponent
+from miplearn.instance import Instance
+from miplearn.solvers import _RedirectOutput
+from miplearn.solvers.internal import InternalSolver
+from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
+from miplearn.types import MIPSolveStats, TrainingSample
+
+logger = logging.getLogger(__name__)
+
+
+class _GlobalVariables:
+    def __init__(self) -&gt; None:
+        self.solver: Optional[LearningSolver] = None
+        self.instances: Optional[Union[List[str], List[Instance]]] = None
+        self.output_filenames: Optional[List[str]] = None
+        self.discard_outputs: bool = False
+
+
+# Global variables used for multiprocessing. Global variables are copied by the
+# operating system when the process forks. Local variables are copied through
+# serialization, which is a much slower process.
+_GLOBAL = [_GlobalVariables()]
+
+
+def _parallel_solve(idx):
+    solver = _GLOBAL[0].solver
+    instances = _GLOBAL[0].instances
+    output_filenames = _GLOBAL[0].output_filenames
+    discard_outputs = _GLOBAL[0].discard_outputs
+    if output_filenames is None:
+        output_filename = None
+    else:
+        output_filename = output_filenames[idx]
+    stats = solver.solve(
+        instances[idx],
+        output_filename=output_filename,
+        discard_output=discard_outputs,
+    )
+    return stats, instances[idx]
+
+
+class LearningSolver:
+    &#34;&#34;&#34;
+    Mixed-Integer Linear Programming (MIP) solver that extracts information
+    from previous runs and uses Machine Learning methods to accelerate the
+    solution of new (yet unseen) instances.
+
+    Parameters
+    ----------
+    components: List[Component]
+        Set of components in the solver. By default, includes
+        `ObjectiveValueComponent`, `PrimalSolutionComponent`,
+        `DynamicLazyConstraintsComponent` and `UserCutsComponent`.
+    mode: str
+        If &#34;exact&#34;, solves problem to optimality, keeping all optimality
+        guarantees provided by the MIP solver. If &#34;heuristic&#34;, uses machine
+        learning more aggressively, and may return suboptimal solutions.
+    solver: Callable[[], InternalSolver]
+        A callable that constructs the internal solver. If None is provided,
+        use GurobiPyomoSolver.
+    use_lazy_cb: bool
+        If true, use native solver callbacks for enforcing lazy constraints,
+        instead of a simple loop. May not be supported by all solvers.
+    solve_lp_first: bool
+        If true, solve LP relaxation first, then solve original MILP. This
+        option should be activated if the LP relaxation is not very
+        expensive to solve and if it provides good hints for the integer
+        solution.
+    simulate_perfect: bool
+        If true, each call to solve actually performs three actions: solve
+        the original problem, train the ML models on the data that was just
+        collected, and solve the problem again. This is useful for evaluating
+        the theoretical performance of perfect ML models.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        components: List[Component] = None,
+        mode: str = &#34;exact&#34;,
+        solver: Callable[[], InternalSolver] = None,
+        use_lazy_cb: bool = False,
+        solve_lp_first: bool = True,
+        simulate_perfect: bool = False,
+    ):
+        if solver is None:
+            solver = GurobiPyomoSolver
+        assert callable(solver), f&#34;Callable expected. Found {solver.__class__} instead.&#34;
+        self.components: Dict[str, Component] = {}
+        self.internal_solver: Optional[InternalSolver] = None
+        self.mode: str = mode
+        self.simulate_perfect: bool = simulate_perfect
+        self.solve_lp_first: bool = solve_lp_first
+        self.solver_factory: Callable[[], InternalSolver] = solver
+        self.tee = False
+        self.use_lazy_cb: bool = use_lazy_cb
+        if components is not None:
+            for comp in components:
+                self._add_component(comp)
+        else:
+            self._add_component(ObjectiveValueComponent())
+            self._add_component(PrimalSolutionComponent(mode=mode))
+            self._add_component(DynamicLazyConstraintsComponent())
+            self._add_component(UserCutsComponent())
+        assert self.mode in [&#34;exact&#34;, &#34;heuristic&#34;]
+
+    def _solve(
+        self,
+        instance: Union[Instance, str],
+        model: Any = None,
+        output_filename: Optional[str] = None,
+        discard_output: bool = False,
+        tee: bool = False,
+    ) -&gt; MIPSolveStats:
+
+        # Load instance from file, if necessary
+        filename = None
+        fileformat = None
+        file: Union[BinaryIO, gzip.GzipFile]
+        if isinstance(instance, str):
+            filename = instance
+            logger.info(&#34;Reading: %s&#34; % filename)
+            if filename.endswith(&#34;.gz&#34;):
+                fileformat = &#34;pickle-gz&#34;
+                with gzip.GzipFile(filename, &#34;rb&#34;) as file:
+                    instance = pickle.load(cast(IO[bytes], file))
+            else:
+                fileformat = &#34;pickle&#34;
+                with open(filename, &#34;rb&#34;) as file:
+                    instance = pickle.load(cast(IO[bytes], file))
+        assert isinstance(instance, Instance)
+
+        # Generate model
+        if model is None:
+            with _RedirectOutput([]):
+                model = instance.to_model()
+
+        # Initialize training sample
+        training_sample: TrainingSample = {}
+        if not hasattr(instance, &#34;training_data&#34;):
+            instance.training_data = []
+        instance.training_data += [training_sample]
+
+        # Initialize internal solver
+        self.tee = tee
+        self.internal_solver = self.solver_factory()
+        assert self.internal_solver is not None
+        assert isinstance(self.internal_solver, InternalSolver)
+        self.internal_solver.set_instance(instance, model)
+
+        # Solve linear relaxation
+        if self.solve_lp_first:
+            logger.info(&#34;Solving LP relaxation...&#34;)
+            lp_stats = self.internal_solver.solve_lp(tee=tee)
+            training_sample[&#34;LP solution&#34;] = self.internal_solver.get_solution()
+            training_sample[&#34;LP value&#34;] = lp_stats[&#34;Optimal value&#34;]
+            training_sample[&#34;LP log&#34;] = lp_stats[&#34;Log&#34;]
+        else:
+            training_sample[&#34;LP solution&#34;] = self.internal_solver.get_empty_solution()
+            training_sample[&#34;LP value&#34;] = 0.0
+
+        # Before-solve callbacks
+        logger.debug(&#34;Running before_solve callbacks...&#34;)
+        for component in self.components.values():
+            component.before_solve(self, instance, model)
+
+        # Define wrappers
+        def iteration_cb_wrapper() -&gt; bool:
+            should_repeat = False
+            assert isinstance(instance, Instance)
+            for comp in self.components.values():
+                if comp.iteration_cb(self, instance, model):
+                    should_repeat = True
+            return should_repeat
+
+        def lazy_cb_wrapper(
+            cb_solver: LearningSolver,
+            cb_model: Any,
+        ) -&gt; None:
+            assert isinstance(instance, Instance)
+            for comp in self.components.values():
+                comp.lazy_cb(self, instance, model)
+
+        lazy_cb = None
+        if self.use_lazy_cb:
+            lazy_cb = lazy_cb_wrapper
+
+        # Solve MILP
+        logger.info(&#34;Solving MILP...&#34;)
+        stats = self.internal_solver.solve(
+            tee=tee,
+            iteration_cb=iteration_cb_wrapper,
+            lazy_cb=lazy_cb,
+        )
+        if &#34;LP value&#34; in training_sample.keys():
+            stats[&#34;LP value&#34;] = training_sample[&#34;LP value&#34;]
+
+        # Read MIP solution and bounds
+        training_sample[&#34;Lower bound&#34;] = stats[&#34;Lower bound&#34;]
+        training_sample[&#34;Upper bound&#34;] = stats[&#34;Upper bound&#34;]
+        training_sample[&#34;MIP log&#34;] = stats[&#34;Log&#34;]
+        training_sample[&#34;Solution&#34;] = self.internal_solver.get_solution()
+
+        # After-solve callbacks
+        logger.debug(&#34;Calling after_solve callbacks...&#34;)
+        for component in self.components.values():
+            component.after_solve(self, instance, model, stats, training_sample)
+
+        # Write to file, if necessary
+        if not discard_output and filename is not None:
+            if output_filename is None:
+                output_filename = filename
+            logger.info(&#34;Writing: %s&#34; % output_filename)
+            if fileformat == &#34;pickle&#34;:
+                with open(output_filename, &#34;wb&#34;) as file:
+                    pickle.dump(instance, cast(IO[bytes], file))
+            else:
+                with gzip.GzipFile(output_filename, &#34;wb&#34;) as file:
+                    pickle.dump(instance, cast(IO[bytes], file))
+        return stats
+
+    def solve(
+        self,
+        instance: Union[Instance, str],
+        model: Any = None,
+        output_filename: Optional[str] = None,
+        discard_output: bool = False,
+        tee: bool = False,
+    ) -&gt; MIPSolveStats:
+        &#34;&#34;&#34;
+        Solves the given instance. If trained machine-learning models are
+        available, they will be used to accelerate the solution process.
+
+        The argument `instance` may be either an Instance object or a
+        filename pointing to a pickled Instance object.
+
+        This method adds a new training sample to `instance.training_sample`.
+        If a filename is provided, then the file is modified in-place. That is,
+        the original file is overwritten.
+
+        If `solver.solve_lp_first` is False, the properties lp_solution and
+        lp_value will be set to dummy values.
+
+        Parameters
+        ----------
+        instance: Union[Instance, str]
+            The instance to be solved, or a filename.
+        model: Any
+            The corresponding Pyomo model. If not provided, it will be created.
+        output_filename: Optional[str]
+            If instance is a filename and output_filename is provided, write the
+            modified instance to this file, instead of replacing the original one. If
+            output_filename is None (the default), modified the original file in-place.
+        discard_output: bool
+            If True, do not write the modified instances anywhere; simply discard
+            them. Useful during benchmarking.
+        tee: bool
+            If true, prints solver log to screen.
+
+        Returns
+        -------
+        MIPSolveStats
+            A dictionary of solver statistics containing at least the following
+            keys: &#34;Lower bound&#34;, &#34;Upper bound&#34;, &#34;Wallclock time&#34;, &#34;Nodes&#34;,
+            &#34;Sense&#34;, &#34;Log&#34;, &#34;Warm start value&#34; and &#34;LP value&#34;.
+
+            Additional components may generate additional keys. For example,
+            ObjectiveValueComponent adds the keys &#34;Predicted LB&#34; and
+            &#34;Predicted UB&#34;. See the documentation of each component for more
+            details.
+        &#34;&#34;&#34;
+        if self.simulate_perfect:
+            if not isinstance(instance, str):
+                raise Exception(&#34;Not implemented&#34;)
+            with tempfile.NamedTemporaryFile(suffix=os.path.basename(instance)) as tmp:
+                self._solve(
+                    instance=instance,
+                    model=model,
+                    output_filename=tmp.name,
+                    tee=tee,
+                )
+                self.fit([tmp.name])
+        return self._solve(
+            instance=instance,
+            model=model,
+            output_filename=output_filename,
+            discard_output=discard_output,
+            tee=tee,
+        )
+
+    def parallel_solve(
+        self,
+        instances: Union[List[str], List[Instance]],
+        n_jobs: int = 4,
+        label: str = &#34;Solve&#34;,
+        output_filenames: Optional[List[str]] = None,
+        discard_outputs: bool = False,
+    ) -&gt; List[MIPSolveStats]:
+        &#34;&#34;&#34;
+        Solves multiple instances in parallel.
+
+        This method is equivalent to calling `solve` for each item on the list,
+        but it processes multiple instances at the same time. Like `solve`, this
+        method modifies each instance in place. Also like `solve`, a list of
+        filenames may be provided.
+
+        Parameters
+        ----------
+        output_filenames: Optional[List[str]]
+            If instances are file names and output_filenames is provided, write the
+            modified instances to these files, instead of replacing the original
+            files. If output_filenames is None, modifies the instances in-place.
+        discard_outputs: bool
+            If True, do not write the modified instances anywhere; simply discard
+            them instead. Useful during benchmarking.
+        label: str
+            Label to show in the progress bar.
+        instances: Union[List[str], List[Instance]]
+            The instances to be solved
+        n_jobs: int
+            Number of instances to solve in parallel at a time.
+
+        Returns
+        -------
+        List[MIPSolveStats]
+            List of solver statistics, with one entry for each provided instance.
+            The list is the same you would obtain by calling
+            `[solver.solve(p) for p in instances]`
+        &#34;&#34;&#34;
+        self.internal_solver = None
+        self._silence_miplearn_logger()
+        _GLOBAL[0].solver = self
+        _GLOBAL[0].output_filenames = output_filenames
+        _GLOBAL[0].instances = instances
+        _GLOBAL[0].discard_outputs = discard_outputs
+        results = p_map(
+            _parallel_solve,
+            list(range(len(instances))),
+            num_cpus=n_jobs,
+            desc=label,
+        )
+        stats = []
+        for (idx, (s, instance)) in enumerate(results):
+            stats.append(s)
+            instances[idx] = instance
+        self._restore_miplearn_logger()
+        return stats
+
+    def fit(self, training_instances: Union[List[str], List[Instance]]) -&gt; None:
+        if len(training_instances) == 0:
+            return
+        for component in self.components.values():
+            component.fit(training_instances)
+
+    def _add_component(self, component: Component) -&gt; None:
+        name = component.__class__.__name__
+        self.components[name] = component
+
+    def _silence_miplearn_logger(self) -&gt; None:
+        miplearn_logger = logging.getLogger(&#34;miplearn&#34;)
+        self.prev_log_level = miplearn_logger.getEffectiveLevel()
+        miplearn_logger.setLevel(logging.WARNING)
+
+    def _restore_miplearn_logger(self) -&gt; None:
+        miplearn_logger = logging.getLogger(&#34;miplearn&#34;)
+        miplearn_logger.setLevel(self.prev_log_level)
+
+    def __getstate__(self) -&gt; Dict:
+        self.internal_solver = None
+        return self.__dict__</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="miplearn.solvers.learning.LearningSolver"><code class="flex name class">
+<span>class <span class="ident">LearningSolver</span></span>
+<span>(</span><span>components=None, mode='exact', solver=None, use_lazy_cb=False, solve_lp_first=True, simulate_perfect=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Mixed-Integer Linear Programming (MIP) solver that extracts information
+from previous runs and uses Machine Learning methods to accelerate the
+solution of new (yet unseen) instances.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>components</code></strong> :&ensp;<code>List</code>[<code>Component</code>]</dt>
+<dd>Set of components in the solver. By default, includes
+<code>ObjectiveValueComponent</code>, <code>PrimalSolutionComponent</code>,
+<code>DynamicLazyConstraintsComponent</code> and <code>UserCutsComponent</code>.</dd>
+<dt><strong><code>mode</code></strong> :&ensp;<code>str</code></dt>
+<dd>If "exact", solves problem to optimality, keeping all optimality
+guarantees provided by the MIP solver. If "heuristic", uses machine
+learning more aggressively, and may return suboptimal solutions.</dd>
+<dt><strong><code>solver</code></strong> :&ensp;<code>Callable</code>[[], <code>InternalSolver</code>]</dt>
+<dd>A callable that constructs the internal solver. If None is provided,
+use GurobiPyomoSolver.</dd>
+<dt><strong><code>use_lazy_cb</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If true, use native solver callbacks for enforcing lazy constraints,
+instead of a simple loop. May not be supported by all solvers.</dd>
+<dt><strong><code>solve_lp_first</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If true, solve LP relaxation first, then solve original MILP. This
+option should be activated if the LP relaxation is not very
+expensive to solve and if it provides good hints for the integer
+solution.</dd>
+<dt><strong><code>simulate_perfect</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If true, each call to solve actually performs three actions: solve
+the original problem, train the ML models on the data that was just
+collected, and solve the problem again. This is useful for evaluating
+the theoretical performance of perfect ML models.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LearningSolver:
+    &#34;&#34;&#34;
+    Mixed-Integer Linear Programming (MIP) solver that extracts information
+    from previous runs and uses Machine Learning methods to accelerate the
+    solution of new (yet unseen) instances.
+
+    Parameters
+    ----------
+    components: List[Component]
+        Set of components in the solver. By default, includes
+        `ObjectiveValueComponent`, `PrimalSolutionComponent`,
+        `DynamicLazyConstraintsComponent` and `UserCutsComponent`.
+    mode: str
+        If &#34;exact&#34;, solves problem to optimality, keeping all optimality
+        guarantees provided by the MIP solver. If &#34;heuristic&#34;, uses machine
+        learning more aggressively, and may return suboptimal solutions.
+    solver: Callable[[], InternalSolver]
+        A callable that constructs the internal solver. If None is provided,
+        use GurobiPyomoSolver.
+    use_lazy_cb: bool
+        If true, use native solver callbacks for enforcing lazy constraints,
+        instead of a simple loop. May not be supported by all solvers.
+    solve_lp_first: bool
+        If true, solve LP relaxation first, then solve original MILP. This
+        option should be activated if the LP relaxation is not very
+        expensive to solve and if it provides good hints for the integer
+        solution.
+    simulate_perfect: bool
+        If true, each call to solve actually performs three actions: solve
+        the original problem, train the ML models on the data that was just
+        collected, and solve the problem again. This is useful for evaluating
+        the theoretical performance of perfect ML models.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        components: List[Component] = None,
+        mode: str = &#34;exact&#34;,
+        solver: Callable[[], InternalSolver] = None,
+        use_lazy_cb: bool = False,
+        solve_lp_first: bool = True,
+        simulate_perfect: bool = False,
+    ):
+        if solver is None:
+            solver = GurobiPyomoSolver
+        assert callable(solver), f&#34;Callable expected. Found {solver.__class__} instead.&#34;
+        self.components: Dict[str, Component] = {}
+        self.internal_solver: Optional[InternalSolver] = None
+        self.mode: str = mode
+        self.simulate_perfect: bool = simulate_perfect
+        self.solve_lp_first: bool = solve_lp_first
+        self.solver_factory: Callable[[], InternalSolver] = solver
+        self.tee = False
+        self.use_lazy_cb: bool = use_lazy_cb
+        if components is not None:
+            for comp in components:
+                self._add_component(comp)
+        else:
+            self._add_component(ObjectiveValueComponent())
+            self._add_component(PrimalSolutionComponent(mode=mode))
+            self._add_component(DynamicLazyConstraintsComponent())
+            self._add_component(UserCutsComponent())
+        assert self.mode in [&#34;exact&#34;, &#34;heuristic&#34;]
+
+    def _solve(
+        self,
+        instance: Union[Instance, str],
+        model: Any = None,
+        output_filename: Optional[str] = None,
+        discard_output: bool = False,
+        tee: bool = False,
+    ) -&gt; MIPSolveStats:
+
+        # Load instance from file, if necessary
+        filename = None
+        fileformat = None
+        file: Union[BinaryIO, gzip.GzipFile]
+        if isinstance(instance, str):
+            filename = instance
+            logger.info(&#34;Reading: %s&#34; % filename)
+            if filename.endswith(&#34;.gz&#34;):
+                fileformat = &#34;pickle-gz&#34;
+                with gzip.GzipFile(filename, &#34;rb&#34;) as file:
+                    instance = pickle.load(cast(IO[bytes], file))
+            else:
+                fileformat = &#34;pickle&#34;
+                with open(filename, &#34;rb&#34;) as file:
+                    instance = pickle.load(cast(IO[bytes], file))
+        assert isinstance(instance, Instance)
+
+        # Generate model
+        if model is None:
+            with _RedirectOutput([]):
+                model = instance.to_model()
+
+        # Initialize training sample
+        training_sample: TrainingSample = {}
+        if not hasattr(instance, &#34;training_data&#34;):
+            instance.training_data = []
+        instance.training_data += [training_sample]
+
+        # Initialize internal solver
+        self.tee = tee
+        self.internal_solver = self.solver_factory()
+        assert self.internal_solver is not None
+        assert isinstance(self.internal_solver, InternalSolver)
+        self.internal_solver.set_instance(instance, model)
+
+        # Solve linear relaxation
+        if self.solve_lp_first:
+            logger.info(&#34;Solving LP relaxation...&#34;)
+            lp_stats = self.internal_solver.solve_lp(tee=tee)
+            training_sample[&#34;LP solution&#34;] = self.internal_solver.get_solution()
+            training_sample[&#34;LP value&#34;] = lp_stats[&#34;Optimal value&#34;]
+            training_sample[&#34;LP log&#34;] = lp_stats[&#34;Log&#34;]
+        else:
+            training_sample[&#34;LP solution&#34;] = self.internal_solver.get_empty_solution()
+            training_sample[&#34;LP value&#34;] = 0.0
+
+        # Before-solve callbacks
+        logger.debug(&#34;Running before_solve callbacks...&#34;)
+        for component in self.components.values():
+            component.before_solve(self, instance, model)
+
+        # Define wrappers
+        def iteration_cb_wrapper() -&gt; bool:
+            should_repeat = False
+            assert isinstance(instance, Instance)
+            for comp in self.components.values():
+                if comp.iteration_cb(self, instance, model):
+                    should_repeat = True
+            return should_repeat
+
+        def lazy_cb_wrapper(
+            cb_solver: LearningSolver,
+            cb_model: Any,
+        ) -&gt; None:
+            assert isinstance(instance, Instance)
+            for comp in self.components.values():
+                comp.lazy_cb(self, instance, model)
+
+        lazy_cb = None
+        if self.use_lazy_cb:
+            lazy_cb = lazy_cb_wrapper
+
+        # Solve MILP
+        logger.info(&#34;Solving MILP...&#34;)
+        stats = self.internal_solver.solve(
+            tee=tee,
+            iteration_cb=iteration_cb_wrapper,
+            lazy_cb=lazy_cb,
+        )
+        if &#34;LP value&#34; in training_sample.keys():
+            stats[&#34;LP value&#34;] = training_sample[&#34;LP value&#34;]
+
+        # Read MIP solution and bounds
+        training_sample[&#34;Lower bound&#34;] = stats[&#34;Lower bound&#34;]
+        training_sample[&#34;Upper bound&#34;] = stats[&#34;Upper bound&#34;]
+        training_sample[&#34;MIP log&#34;] = stats[&#34;Log&#34;]
+        training_sample[&#34;Solution&#34;] = self.internal_solver.get_solution()
+
+        # After-solve callbacks
+        logger.debug(&#34;Calling after_solve callbacks...&#34;)
+        for component in self.components.values():
+            component.after_solve(self, instance, model, stats, training_sample)
+
+        # Write to file, if necessary
+        if not discard_output and filename is not None:
+            if output_filename is None:
+                output_filename = filename
+            logger.info(&#34;Writing: %s&#34; % output_filename)
+            if fileformat == &#34;pickle&#34;:
+                with open(output_filename, &#34;wb&#34;) as file:
+                    pickle.dump(instance, cast(IO[bytes], file))
+            else:
+                with gzip.GzipFile(output_filename, &#34;wb&#34;) as file:
+                    pickle.dump(instance, cast(IO[bytes], file))
+        return stats
+
+    def solve(
+        self,
+        instance: Union[Instance, str],
+        model: Any = None,
+        output_filename: Optional[str] = None,
+        discard_output: bool = False,
+        tee: bool = False,
+    ) -&gt; MIPSolveStats:
+        &#34;&#34;&#34;
+        Solves the given instance. If trained machine-learning models are
+        available, they will be used to accelerate the solution process.
+
+        The argument `instance` may be either an Instance object or a
+        filename pointing to a pickled Instance object.
+
+        This method adds a new training sample to `instance.training_sample`.
+        If a filename is provided, then the file is modified in-place. That is,
+        the original file is overwritten.
+
+        If `solver.solve_lp_first` is False, the properties lp_solution and
+        lp_value will be set to dummy values.
+
+        Parameters
+        ----------
+        instance: Union[Instance, str]
+            The instance to be solved, or a filename.
+        model: Any
+            The corresponding Pyomo model. If not provided, it will be created.
+        output_filename: Optional[str]
+            If instance is a filename and output_filename is provided, write the
+            modified instance to this file, instead of replacing the original one. If
+            output_filename is None (the default), modified the original file in-place.
+        discard_output: bool
+            If True, do not write the modified instances anywhere; simply discard
+            them. Useful during benchmarking.
+        tee: bool
+            If true, prints solver log to screen.
+
+        Returns
+        -------
+        MIPSolveStats
+            A dictionary of solver statistics containing at least the following
+            keys: &#34;Lower bound&#34;, &#34;Upper bound&#34;, &#34;Wallclock time&#34;, &#34;Nodes&#34;,
+            &#34;Sense&#34;, &#34;Log&#34;, &#34;Warm start value&#34; and &#34;LP value&#34;.
+
+            Additional components may generate additional keys. For example,
+            ObjectiveValueComponent adds the keys &#34;Predicted LB&#34; and
+            &#34;Predicted UB&#34;. See the documentation of each component for more
+            details.
+        &#34;&#34;&#34;
+        if self.simulate_perfect:
+            if not isinstance(instance, str):
+                raise Exception(&#34;Not implemented&#34;)
+            with tempfile.NamedTemporaryFile(suffix=os.path.basename(instance)) as tmp:
+                self._solve(
+                    instance=instance,
+                    model=model,
+                    output_filename=tmp.name,
+                    tee=tee,
+                )
+                self.fit([tmp.name])
+        return self._solve(
+            instance=instance,
+            model=model,
+            output_filename=output_filename,
+            discard_output=discard_output,
+            tee=tee,
+        )
+
+    def parallel_solve(
+        self,
+        instances: Union[List[str], List[Instance]],
+        n_jobs: int = 4,
+        label: str = &#34;Solve&#34;,
+        output_filenames: Optional[List[str]] = None,
+        discard_outputs: bool = False,
+    ) -&gt; List[MIPSolveStats]:
+        &#34;&#34;&#34;
+        Solves multiple instances in parallel.
+
+        This method is equivalent to calling `solve` for each item on the list,
+        but it processes multiple instances at the same time. Like `solve`, this
+        method modifies each instance in place. Also like `solve`, a list of
+        filenames may be provided.
+
+        Parameters
+        ----------
+        output_filenames: Optional[List[str]]
+            If instances are file names and output_filenames is provided, write the
+            modified instances to these files, instead of replacing the original
+            files. If output_filenames is None, modifies the instances in-place.
+        discard_outputs: bool
+            If True, do not write the modified instances anywhere; simply discard
+            them instead. Useful during benchmarking.
+        label: str
+            Label to show in the progress bar.
+        instances: Union[List[str], List[Instance]]
+            The instances to be solved
+        n_jobs: int
+            Number of instances to solve in parallel at a time.
+
+        Returns
+        -------
+        List[MIPSolveStats]
+            List of solver statistics, with one entry for each provided instance.
+            The list is the same you would obtain by calling
+            `[solver.solve(p) for p in instances]`
+        &#34;&#34;&#34;
+        self.internal_solver = None
+        self._silence_miplearn_logger()
+        _GLOBAL[0].solver = self
+        _GLOBAL[0].output_filenames = output_filenames
+        _GLOBAL[0].instances = instances
+        _GLOBAL[0].discard_outputs = discard_outputs
+        results = p_map(
+            _parallel_solve,
+            list(range(len(instances))),
+            num_cpus=n_jobs,
+            desc=label,
+        )
+        stats = []
+        for (idx, (s, instance)) in enumerate(results):
+            stats.append(s)
+            instances[idx] = instance
+        self._restore_miplearn_logger()
+        return stats
+
+    def fit(self, training_instances: Union[List[str], List[Instance]]) -&gt; None:
+        if len(training_instances) == 0:
+            return
+        for component in self.components.values():
+            component.fit(training_instances)
+
+    def _add_component(self, component: Component) -&gt; None:
+        name = component.__class__.__name__
+        self.components[name] = component
+
+    def _silence_miplearn_logger(self) -&gt; None:
+        miplearn_logger = logging.getLogger(&#34;miplearn&#34;)
+        self.prev_log_level = miplearn_logger.getEffectiveLevel()
+        miplearn_logger.setLevel(logging.WARNING)
+
+    def _restore_miplearn_logger(self) -&gt; None:
+        miplearn_logger = logging.getLogger(&#34;miplearn&#34;)
+        miplearn_logger.setLevel(self.prev_log_level)
+
+    def __getstate__(self) -&gt; Dict:
+        self.internal_solver = None
+        return self.__dict__</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="miplearn.solvers.learning.LearningSolver.fit"><code class="name flex">
+<span>def <span class="ident">fit</span></span>(<span>self, training_instances)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit(self, training_instances: Union[List[str], List[Instance]]) -&gt; None:
+    if len(training_instances) == 0:
+        return
+    for component in self.components.values():
+        component.fit(training_instances)</code></pre>
+</details>
+</dd>
+<dt id="miplearn.solvers.learning.LearningSolver.parallel_solve"><code class="name flex">
+<span>def <span class="ident">parallel_solve</span></span>(<span>self, instances, n_jobs=4, label=&#39;Solve&#39;, output_filenames=None, discard_outputs=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Solves multiple instances in parallel.</p>
+<p>This method is equivalent to calling <code>solve</code> for each item on the list,
+but it processes multiple instances at the same time. Like <code>solve</code>, this
+method modifies each instance in place. Also like <code>solve</code>, a list of
+filenames may be provided.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>output_filenames</code></strong> :&ensp;<code>Optional</code>[<code>List</code>[<code>str</code>]]</dt>
+<dd>If instances are file names and output_filenames is provided, write the
+modified instances to these files, instead of replacing the original
+files. If output_filenames is None, modifies the instances in-place.</dd>
+<dt><strong><code>discard_outputs</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True, do not write the modified instances anywhere; simply discard
+them instead. Useful during benchmarking.</dd>
+<dt><strong><code>label</code></strong> :&ensp;<code>str</code></dt>
+<dd>Label to show in the progress bar.</dd>
+<dt><strong><code>instances</code></strong> :&ensp;<code>Union</code>[<code>List</code>[<code>str</code>], <code>List</code>[<code>Instance</code>]]</dt>
+<dd>The instances to be solved</dd>
+<dt><strong><code>n_jobs</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of instances to solve in parallel at a time.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>List</code>[<code>MIPSolveStats</code>]</dt>
+<dd>List of solver statistics, with one entry for each provided instance.
+The list is the same you would obtain by calling
+<code>[solver.solve(p) for p in instances]</code></dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parallel_solve(
+    self,
+    instances: Union[List[str], List[Instance]],
+    n_jobs: int = 4,
+    label: str = &#34;Solve&#34;,
+    output_filenames: Optional[List[str]] = None,
+    discard_outputs: bool = False,
+) -&gt; List[MIPSolveStats]:
+    &#34;&#34;&#34;
+    Solves multiple instances in parallel.
+
+    This method is equivalent to calling `solve` for each item on the list,
+    but it processes multiple instances at the same time. Like `solve`, this
+    method modifies each instance in place. Also like `solve`, a list of
+    filenames may be provided.
+
+    Parameters
+    ----------
+    output_filenames: Optional[List[str]]
+        If instances are file names and output_filenames is provided, write the
+        modified instances to these files, instead of replacing the original
+        files. If output_filenames is None, modifies the instances in-place.
+    discard_outputs: bool
+        If True, do not write the modified instances anywhere; simply discard
+        them instead. Useful during benchmarking.
+    label: str
+        Label to show in the progress bar.
+    instances: Union[List[str], List[Instance]]
+        The instances to be solved
+    n_jobs: int
+        Number of instances to solve in parallel at a time.
+
+    Returns
+    -------
+    List[MIPSolveStats]
+        List of solver statistics, with one entry for each provided instance.
+        The list is the same you would obtain by calling
+        `[solver.solve(p) for p in instances]`
+    &#34;&#34;&#34;
+    self.internal_solver = None
+    self._silence_miplearn_logger()
+    _GLOBAL[0].solver = self
+    _GLOBAL[0].output_filenames = output_filenames
+    _GLOBAL[0].instances = instances
+    _GLOBAL[0].discard_outputs = discard_outputs
+    results = p_map(
+        _parallel_solve,
+        list(range(len(instances))),
+        num_cpus=n_jobs,
+        desc=label,
+    )
+    stats = []
+    for (idx, (s, instance)) in enumerate(results):
+        stats.append(s)
+        instances[idx] = instance
+    self._restore_miplearn_logger()
+    return stats</code></pre>
+</details>
+</dd>
+<dt id="miplearn.solvers.learning.LearningSolver.solve"><code class="name flex">
+<span>def <span class="ident">solve</span></span>(<span>self, instance, model=None, output_filename=None, discard_output=False, tee=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Solves the given instance. If trained machine-learning models are
+available, they will be used to accelerate the solution process.</p>
+<p>The argument <code>instance</code> may be either an Instance object or a
+filename pointing to a pickled Instance object.</p>
+<p>This method adds a new training sample to <code>instance.training_sample</code>.
+If a filename is provided, then the file is modified in-place. That is,
+the original file is overwritten.</p>
+<p>If <code>solver.solve_lp_first</code> is False, the properties lp_solution and
+lp_value will be set to dummy values.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>instance</code></strong> :&ensp;<code>Union</code>[<code>Instance</code>, <code>str</code>]</dt>
+<dd>The instance to be solved, or a filename.</dd>
+<dt><strong><code>model</code></strong> :&ensp;<code>Any</code></dt>
+<dd>The corresponding Pyomo model. If not provided, it will be created.</dd>
+<dt><strong><code>output_filename</code></strong> :&ensp;<code>Optional</code>[<code>str</code>]</dt>
+<dd>If instance is a filename and output_filename is provided, write the
+modified instance to this file, instead of replacing the original one. If
+output_filename is None (the default), modified the original file in-place.</dd>
+<dt><strong><code>discard_output</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True, do not write the modified instances anywhere; simply discard
+them. Useful during benchmarking.</dd>
+<dt><strong><code>tee</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If true, prints solver log to screen.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>MIPSolveStats</code></dt>
+<dd>
+<p>A dictionary of solver statistics containing at least the following
+keys: "Lower bound", "Upper bound", "Wallclock time", "Nodes",
+"Sense", "Log", "Warm start value" and "LP value".</p>
+<p>Additional components may generate additional keys. For example,
+ObjectiveValueComponent adds the keys "Predicted LB" and
+"Predicted UB". See the documentation of each component for more
+details.</p>
+</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def solve(
+    self,
+    instance: Union[Instance, str],
+    model: Any = None,
+    output_filename: Optional[str] = None,
+    discard_output: bool = False,
+    tee: bool = False,
+) -&gt; MIPSolveStats:
+    &#34;&#34;&#34;
+    Solves the given instance. If trained machine-learning models are
+    available, they will be used to accelerate the solution process.
+
+    The argument `instance` may be either an Instance object or a
+    filename pointing to a pickled Instance object.
+
+    This method adds a new training sample to `instance.training_sample`.
+    If a filename is provided, then the file is modified in-place. That is,
+    the original file is overwritten.
+
+    If `solver.solve_lp_first` is False, the properties lp_solution and
+    lp_value will be set to dummy values.
+
+    Parameters
+    ----------
+    instance: Union[Instance, str]
+        The instance to be solved, or a filename.
+    model: Any
+        The corresponding Pyomo model. If not provided, it will be created.
+    output_filename: Optional[str]
+        If instance is a filename and output_filename is provided, write the
+        modified instance to this file, instead of replacing the original one. If
+        output_filename is None (the default), modified the original file in-place.
+    discard_output: bool
+        If True, do not write the modified instances anywhere; simply discard
+        them. Useful during benchmarking.
+    tee: bool
+        If true, prints solver log to screen.
+
+    Returns
+    -------
+    MIPSolveStats
+        A dictionary of solver statistics containing at least the following
+        keys: &#34;Lower bound&#34;, &#34;Upper bound&#34;, &#34;Wallclock time&#34;, &#34;Nodes&#34;,
+        &#34;Sense&#34;, &#34;Log&#34;, &#34;Warm start value&#34; and &#34;LP value&#34;.
+
+        Additional components may generate additional keys. For example,
+        ObjectiveValueComponent adds the keys &#34;Predicted LB&#34; and
+        &#34;Predicted UB&#34;. See the documentation of each component for more
+        details.
+    &#34;&#34;&#34;
+    if self.simulate_perfect:
+        if not isinstance(instance, str):
+            raise Exception(&#34;Not implemented&#34;)
+        with tempfile.NamedTemporaryFile(suffix=os.path.basename(instance)) as tmp:
+            self._solve(
+                instance=instance,
+                model=model,
+                output_filename=tmp.name,
+                tee=tee,
+            )
+            self.fit([tmp.name])
+    return self._solve(
+        instance=instance,
+        model=model,
+        output_filename=output_filename,
+        discard_output=discard_output,
+        tee=tee,
+    )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="miplearn.solvers" href="index.html">miplearn.solvers</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="miplearn.solvers.learning.LearningSolver" href="#miplearn.solvers.learning.LearningSolver">LearningSolver</a></code></h4>
+<ul class="">
+<li><code><a title="miplearn.solvers.learning.LearningSolver.fit" href="#miplearn.solvers.learning.LearningSolver.fit">fit</a></code></li>
+<li><code><a title="miplearn.solvers.learning.LearningSolver.parallel_solve" href="#miplearn.solvers.learning.LearningSolver.parallel_solve">parallel_solve</a></code></li>
+<li><code><a title="miplearn.solvers.learning.LearningSolver.solve" href="#miplearn.solvers.learning.LearningSolver.solve">solve</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.0</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -105,6 +105,12 @@
                     </li>
                 
                 
+                
+                    <li >
+                        <a href="../api/miplearn/index.html">API</a>
+                    </li>
+                
+                
                 </ul>
 
             <ul class="nav navbar-nav navbar-right">
@@ -153,11 +159,28 @@
 <h1 id="customization">Customization</h1>
 <h2 id="customizing-solver-parameters">Customizing solver parameters</h2>
 <h3 id="selecting-the-internal-mip-solver">Selecting the internal MIP solver</h3>
-<p>By default, <code>LearningSolver</code> uses <a href="https://www.gurobi.com/">Gurobi</a> as its internal MIP solver. Another supported solver is <a href="https://www.ibm.com/products/ilog-cplex-optimization-studio">IBM ILOG CPLEX</a>. To switch between solvers, use the <code>solver</code> constructor argument, as shown below. It is also possible to specify a time limit (in seconds) and a relative MIP gap tolerance.</p>
-<pre><code class="language-python">from miplearn import LearningSolver
-solver = LearningSolver(solver=&quot;cplex&quot;,
-                        time_limit=300,
-                        gap_tolerance=1e-3)
+<p>By default, <code>LearningSolver</code> uses <a href="https://www.gurobi.com/">Gurobi</a> as its internal MIP solver, and expects models to be provided using the Pyomo modeling language. Supported solvers and modeling languages include:</p>
+<ul>
+<li><code>GurobiPyomoSolver</code>: Gurobi with Pyomo (default).</li>
+<li><code>CplexPyomoSolver</code>: <a href="https://www.ibm.com/products/ilog-cplex-optimization-studio">IBM ILOG CPLEX</a> with Pyomo.</li>
+<li><code>XpressPyomoSolver</code>: <a href="https://www.fico.com/en/products/fico-xpress-solver">FICO XPRESS Solver</a> with Pyomo.</li>
+<li><code>GurobiSolver</code>: Gurobi without any modeling language.</li>
+</ul>
+<p>To switch between solvers, provide the desired class using the <code>solver</code> argument:</p>
+<pre><code class="language-python">from miplearn import LearningSolver, CplexPyomoSolver
+solver = LearningSolver(solver=CplexPyomoSolver)
+</code></pre>
+<p>To configure a particular solver, use the <code>params</code> constructor argument, as shown below.</p>
+<pre><code class="language-python">from miplearn import LearningSolver, GurobiPyomoSolver
+solver = LearningSolver(
+    solver=lambda: GurobiPyomoSolver(
+        params={
+            &quot;TimeLimit&quot;: 900,
+            &quot;MIPGap&quot;: 1e-3,
+            &quot;NodeLimit&quot;: 1000,
+        }
+    ),
+)
 </code></pre>
 <h2 id="customizing-solver-components">Customizing solver components</h2>
 <p><code>LearningSolver</code> is composed by a number of individual machine-learning components, each targeting a different part of the solution process. Each component can be individually enabled, disabled or customized. The following components are enabled by default:</p>
@@ -180,13 +203,6 @@ solver2 = LearningSolver(components=[
     LazyConstraintComponent(...),
     PrimalSolutionComponent(...),
 ])
-</code></pre>
-<p>It is also possible to add components to an existing solver using the <code>solver.add</code> method, as shown below. If the solver already holds another component of that type, the new component will replace the previous one.</p>
-<pre><code class="language-python"># Create solver with default components
-solver = LearningSolver()
-
-# Replace the default LazyConstraintComponent by one with custom parameters 
-solver.add(LazyConstraintComponent(...))
 </code></pre>
 <h3 id="adjusting-component-aggressiveness">Adjusting component aggressiveness</h3>
 <p>The aggressiveness of classification components (such as <code>PrimalSolutionComponent</code> and <code>LazyConstraintComponent</code>) can

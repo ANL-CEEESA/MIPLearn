@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.0" />
+<title>miplearn.instance API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>miplearn.instance</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
+#  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
+#  Released under the modified BSD license. See COPYING.md for more details.
+
+import gzip
+import json
+from abc import ABC, abstractmethod
+from typing import Any, List
+
+import numpy as np
+
+from miplearn.types import TrainingSample
+
+
+class Instance(ABC):
+    &#34;&#34;&#34;
+    Abstract class holding all the data necessary to generate a concrete model of the
+    problem.
+
+    In the knapsack problem, for example, this class could hold the number of items,
+    their weights and costs, as well as the size of the knapsack. Objects
+    implementing this class are able to convert themselves into a concrete
+    optimization model, which can be optimized by a solver, or into arrays of
+    features, which can be provided as inputs to machine learning models.
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.training_data: List[TrainingSample] = []
+
+    @abstractmethod
+    def to_model(self) -&gt; Any:
+        &#34;&#34;&#34;
+        Returns the optimization model corresponding to this instance.
+        &#34;&#34;&#34;
+        pass
+
+    def get_instance_features(self):
+        &#34;&#34;&#34;
+        Returns a 1-dimensional Numpy array of (numerical) features describing the
+        entire instance.
+
+        The array is used by LearningSolver to determine how similar two instances
+        are. It may also be used to predict, in combination with variable-specific
+        features, the values of binary decision variables in the problem.
+
+        There is not necessarily a one-to-one correspondence between models and
+        instance features: the features may encode only part of the data necessary to
+        generate the complete model. Features may also be statistics computed from
+        the original data. For example, in the knapsack problem, an implementation
+        may decide to provide as instance features only the average weights, average
+        prices, number of items and the size of the knapsack.
+
+        The returned array MUST have the same length for all relevant instances of
+        the problem. If two instances map into arrays of different lengths,
+        they cannot be solved by the same LearningSolver object.
+
+        By default, returns [0].
+        &#34;&#34;&#34;
+        return np.zeros(1)
+
+    def get_variable_features(self, var, index):
+        &#34;&#34;&#34;
+        Returns a 1-dimensional array of (numerical) features describing a particular
+        decision variable.
+
+        The argument `var` is a pyomo.core.Var object, which represents a collection
+        of decision variables. The argument `index` specifies which variable in the
+        collection is the relevant one.
+
+        In combination with instance features, variable features are used by
+        LearningSolver to predict, among other things, the optimal value of each
+        decision variable before the optimization takes place. In the knapsack
+        problem, for example, an implementation could provide as variable features
+        the weight and the price of a specific item.
+
+        Like instance features, the arrays returned by this method MUST have the same
+        length for all variables within the same category, for all relevant instances
+        of the problem.
+
+        By default, returns [0].
+        &#34;&#34;&#34;
+        return np.zeros(1)
+
+    def get_variable_category(self, var, index):
+        &#34;&#34;&#34;
+        Returns the category (a string, an integer or any hashable type) for each
+        decision variable.
+
+        If two variables have the same category, LearningSolver will use the same
+        internal ML model to predict the values of both variables. If the returned
+        category is None, ML models will ignore the variable.
+
+        By default, returns &#34;default&#34;.
+        &#34;&#34;&#34;
+        return &#34;default&#34;
+
+    def get_constraint_features(self, cid):
+        return np.zeros(1)
+
+    def get_constraint_category(self, cid):
+        return cid
+
+    def has_static_lazy_constraints(self):
+        return False
+
+    def has_dynamic_lazy_constraints(self):
+        return False
+
+    def is_constraint_lazy(self, cid):
+        return False
+
+    def find_violated_lazy_constraints(self, model):
+        &#34;&#34;&#34;
+        Returns lazy constraint violations found for the current solution.
+
+        After solving a model, LearningSolver will ask the instance to identify which
+        lazy constraints are violated by the current solution. For each identified
+        violation, LearningSolver will then call the build_lazy_constraint, add the
+        generated Pyomo constraint to the model, then resolve the problem. The
+        process repeats until no further lazy constraint violations are found.
+
+        Each &#34;violation&#34; is simply a string, a tuple or any other hashable type which
+        allows the instance to identify unambiguously which lazy constraint should be
+        generated. In the Traveling Salesman Problem, for example, a subtour
+        violation could be a frozen set containing the cities in the subtour.
+
+        For a concrete example, see TravelingSalesmanInstance.
+        &#34;&#34;&#34;
+        return []
+
+    def build_lazy_constraint(self, model, violation):
+        &#34;&#34;&#34;
+        Returns a Pyomo constraint which fixes a given violation.
+
+        This method is typically called immediately after
+        find_violated_lazy_constraints. The violation object provided to this method
+        is exactly the same object returned earlier by
+        find_violated_lazy_constraints. After some training, LearningSolver may
+        decide to proactively build some lazy constraints at the beginning of the
+        optimization process, before a solution is even available. In this case,
+        build_lazy_constraints will be called without a corresponding call to
+        find_violated_lazy_constraints.
+
+        The implementation should not directly add the constraint to the model. The
+        constraint will be added by LearningSolver after the method returns.
+
+        For a concrete example, see TravelingSalesmanInstance.
+        &#34;&#34;&#34;
+        pass
+
+    def find_violated_user_cuts(self, model):
+        return []
+
+    def build_user_cut(self, model, violation):
+        pass
+
+    def load(self, filename):
+        with gzip.GzipFile(filename, &#34;r&#34;) as f:
+            data = json.loads(f.read().decode(&#34;utf-8&#34;))
+        self.__dict__ = data
+
+    def dump(self, filename):
+        data = json.dumps(self.__dict__, indent=2).encode(&#34;utf-8&#34;)
+        with gzip.GzipFile(filename, &#34;w&#34;) as f:
+            f.write(data)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="miplearn.instance.Instance"><code class="flex name class">
+<span>class <span class="ident">Instance</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>Abstract class holding all the data necessary to generate a concrete model of the
+problem.</p>
+<p>In the knapsack problem, for example, this class could hold the number of items,
+their weights and costs, as well as the size of the knapsack. Objects
+implementing this class are able to convert themselves into a concrete
+optimization model, which can be optimized by a solver, or into arrays of
+features, which can be provided as inputs to machine learning models.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Instance(ABC):
+    &#34;&#34;&#34;
+    Abstract class holding all the data necessary to generate a concrete model of the
+    problem.
+
+    In the knapsack problem, for example, this class could hold the number of items,
+    their weights and costs, as well as the size of the knapsack. Objects
+    implementing this class are able to convert themselves into a concrete
+    optimization model, which can be optimized by a solver, or into arrays of
+    features, which can be provided as inputs to machine learning models.
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.training_data: List[TrainingSample] = []
+
+    @abstractmethod
+    def to_model(self) -&gt; Any:
+        &#34;&#34;&#34;
+        Returns the optimization model corresponding to this instance.
+        &#34;&#34;&#34;
+        pass
+
+    def get_instance_features(self):
+        &#34;&#34;&#34;
+        Returns a 1-dimensional Numpy array of (numerical) features describing the
+        entire instance.
+
+        The array is used by LearningSolver to determine how similar two instances
+        are. It may also be used to predict, in combination with variable-specific
+        features, the values of binary decision variables in the problem.
+
+        There is not necessarily a one-to-one correspondence between models and
+        instance features: the features may encode only part of the data necessary to
+        generate the complete model. Features may also be statistics computed from
+        the original data. For example, in the knapsack problem, an implementation
+        may decide to provide as instance features only the average weights, average
+        prices, number of items and the size of the knapsack.
+
+        The returned array MUST have the same length for all relevant instances of
+        the problem. If two instances map into arrays of different lengths,
+        they cannot be solved by the same LearningSolver object.
+
+        By default, returns [0].
+        &#34;&#34;&#34;
+        return np.zeros(1)
+
+    def get_variable_features(self, var, index):
+        &#34;&#34;&#34;
+        Returns a 1-dimensional array of (numerical) features describing a particular
+        decision variable.
+
+        The argument `var` is a pyomo.core.Var object, which represents a collection
+        of decision variables. The argument `index` specifies which variable in the
+        collection is the relevant one.
+
+        In combination with instance features, variable features are used by
+        LearningSolver to predict, among other things, the optimal value of each
+        decision variable before the optimization takes place. In the knapsack
+        problem, for example, an implementation could provide as variable features
+        the weight and the price of a specific item.
+
+        Like instance features, the arrays returned by this method MUST have the same
+        length for all variables within the same category, for all relevant instances
+        of the problem.
+
+        By default, returns [0].
+        &#34;&#34;&#34;
+        return np.zeros(1)
+
+    def get_variable_category(self, var, index):
+        &#34;&#34;&#34;
+        Returns the category (a string, an integer or any hashable type) for each
+        decision variable.
+
+        If two variables have the same category, LearningSolver will use the same
+        internal ML model to predict the values of both variables. If the returned
+        category is None, ML models will ignore the variable.
+
+        By default, returns &#34;default&#34;.
+        &#34;&#34;&#34;
+        return &#34;default&#34;
+
+    def get_constraint_features(self, cid):
+        return np.zeros(1)
+
+    def get_constraint_category(self, cid):
+        return cid
+
+    def has_static_lazy_constraints(self):
+        return False
+
+    def has_dynamic_lazy_constraints(self):
+        return False
+
+    def is_constraint_lazy(self, cid):
+        return False
+
+    def find_violated_lazy_constraints(self, model):
+        &#34;&#34;&#34;
+        Returns lazy constraint violations found for the current solution.
+
+        After solving a model, LearningSolver will ask the instance to identify which
+        lazy constraints are violated by the current solution. For each identified
+        violation, LearningSolver will then call the build_lazy_constraint, add the
+        generated Pyomo constraint to the model, then resolve the problem. The
+        process repeats until no further lazy constraint violations are found.
+
+        Each &#34;violation&#34; is simply a string, a tuple or any other hashable type which
+        allows the instance to identify unambiguously which lazy constraint should be
+        generated. In the Traveling Salesman Problem, for example, a subtour
+        violation could be a frozen set containing the cities in the subtour.
+
+        For a concrete example, see TravelingSalesmanInstance.
+        &#34;&#34;&#34;
+        return []
+
+    def build_lazy_constraint(self, model, violation):
+        &#34;&#34;&#34;
+        Returns a Pyomo constraint which fixes a given violation.
+
+        This method is typically called immediately after
+        find_violated_lazy_constraints. The violation object provided to this method
+        is exactly the same object returned earlier by
+        find_violated_lazy_constraints. After some training, LearningSolver may
+        decide to proactively build some lazy constraints at the beginning of the
+        optimization process, before a solution is even available. In this case,
+        build_lazy_constraints will be called without a corresponding call to
+        find_violated_lazy_constraints.
+
+        The implementation should not directly add the constraint to the model. The
+        constraint will be added by LearningSolver after the method returns.
+
+        For a concrete example, see TravelingSalesmanInstance.
+        &#34;&#34;&#34;
+        pass
+
+    def find_violated_user_cuts(self, model):
+        return []
+
+    def build_user_cut(self, model, violation):
+        pass
+
+    def load(self, filename):
+        with gzip.GzipFile(filename, &#34;r&#34;) as f:
+            data = json.loads(f.read().decode(&#34;utf-8&#34;))
+        self.__dict__ = data
+
+    def dump(self, filename):
+        data = json.dumps(self.__dict__, indent=2).encode(&#34;utf-8&#34;)
+        with gzip.GzipFile(filename, &#34;w&#34;) as f:
+            f.write(data)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="miplearn.problems.knapsack.MultiKnapsackInstance" href="problems/knapsack.html#miplearn.problems.knapsack.MultiKnapsackInstance">MultiKnapsackInstance</a></li>
+<li><a title="miplearn.problems.knapsack.KnapsackInstance" href="problems/knapsack.html#miplearn.problems.knapsack.KnapsackInstance">KnapsackInstance</a></li>
+<li><a title="miplearn.solvers.tests.InfeasiblePyomoInstance" href="solvers/tests/index.html#miplearn.solvers.tests.InfeasiblePyomoInstance">InfeasiblePyomoInstance</a></li>
+<li><a title="miplearn.solvers.tests.InfeasibleGurobiInstance" href="solvers/tests/index.html#miplearn.solvers.tests.InfeasibleGurobiInstance">InfeasibleGurobiInstance</a></li>
+<li><a title="miplearn.problems.stab.MaxWeightStableSetInstance" href="problems/stab.html#miplearn.problems.stab.MaxWeightStableSetInstance">MaxWeightStableSetInstance</a></li>
+<li><a title="miplearn.problems.tsp.TravelingSalesmanInstance" href="problems/tsp.html#miplearn.problems.tsp.TravelingSalesmanInstance">TravelingSalesmanInstance</a></li>
+<li><a title="miplearn.components.steps.tests.test_convert_tight.SampleInstance" href="components/steps/tests/test_convert_tight.html#miplearn.components.steps.tests.test_convert_tight.SampleInstance">SampleInstance</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="miplearn.instance.Instance.build_lazy_constraint"><code class="name flex">
+<span>def <span class="ident">build_lazy_constraint</span></span>(<span>self, model, violation)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns a Pyomo constraint which fixes a given violation.</p>
+<p>This method is typically called immediately after
+find_violated_lazy_constraints. The violation object provided to this method
+is exactly the same object returned earlier by
+find_violated_lazy_constraints. After some training, LearningSolver may
+decide to proactively build some lazy constraints at the beginning of the
+optimization process, before a solution is even available. In this case,
+build_lazy_constraints will be called without a corresponding call to
+find_violated_lazy_constraints.</p>
+<p>The implementation should not directly add the constraint to the model. The
+constraint will be added by LearningSolver after the method returns.</p>
+<p>For a concrete example, see TravelingSalesmanInstance.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_lazy_constraint(self, model, violation):
+    &#34;&#34;&#34;
+    Returns a Pyomo constraint which fixes a given violation.
+
+    This method is typically called immediately after
+    find_violated_lazy_constraints. The violation object provided to this method
+    is exactly the same object returned earlier by
+    find_violated_lazy_constraints. After some training, LearningSolver may
+    decide to proactively build some lazy constraints at the beginning of the
+    optimization process, before a solution is even available. In this case,
+    build_lazy_constraints will be called without a corresponding call to
+    find_violated_lazy_constraints.
+
+    The implementation should not directly add the constraint to the model. The
+    constraint will be added by LearningSolver after the method returns.
+
+    For a concrete example, see TravelingSalesmanInstance.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.build_user_cut"><code class="name flex">
+<span>def <span class="ident">build_user_cut</span></span>(<span>self, model, violation)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_user_cut(self, model, violation):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.dump"><code class="name flex">
+<span>def <span class="ident">dump</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dump(self, filename):
+    data = json.dumps(self.__dict__, indent=2).encode(&#34;utf-8&#34;)
+    with gzip.GzipFile(filename, &#34;w&#34;) as f:
+        f.write(data)</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.find_violated_lazy_constraints"><code class="name flex">
+<span>def <span class="ident">find_violated_lazy_constraints</span></span>(<span>self, model)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns lazy constraint violations found for the current solution.</p>
+<p>After solving a model, LearningSolver will ask the instance to identify which
+lazy constraints are violated by the current solution. For each identified
+violation, LearningSolver will then call the build_lazy_constraint, add the
+generated Pyomo constraint to the model, then resolve the problem. The
+process repeats until no further lazy constraint violations are found.</p>
+<p>Each "violation" is simply a string, a tuple or any other hashable type which
+allows the instance to identify unambiguously which lazy constraint should be
+generated. In the Traveling Salesman Problem, for example, a subtour
+violation could be a frozen set containing the cities in the subtour.</p>
+<p>For a concrete example, see TravelingSalesmanInstance.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_violated_lazy_constraints(self, model):
+    &#34;&#34;&#34;
+    Returns lazy constraint violations found for the current solution.
+
+    After solving a model, LearningSolver will ask the instance to identify which
+    lazy constraints are violated by the current solution. For each identified
+    violation, LearningSolver will then call the build_lazy_constraint, add the
+    generated Pyomo constraint to the model, then resolve the problem. The
+    process repeats until no further lazy constraint violations are found.
+
+    Each &#34;violation&#34; is simply a string, a tuple or any other hashable type which
+    allows the instance to identify unambiguously which lazy constraint should be
+    generated. In the Traveling Salesman Problem, for example, a subtour
+    violation could be a frozen set containing the cities in the subtour.
+
+    For a concrete example, see TravelingSalesmanInstance.
+    &#34;&#34;&#34;
+    return []</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.find_violated_user_cuts"><code class="name flex">
+<span>def <span class="ident">find_violated_user_cuts</span></span>(<span>self, model)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_violated_user_cuts(self, model):
+    return []</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.get_constraint_category"><code class="name flex">
+<span>def <span class="ident">get_constraint_category</span></span>(<span>self, cid)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_constraint_category(self, cid):
+    return cid</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.get_constraint_features"><code class="name flex">
+<span>def <span class="ident">get_constraint_features</span></span>(<span>self, cid)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_constraint_features(self, cid):
+    return np.zeros(1)</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.get_instance_features"><code class="name flex">
+<span>def <span class="ident">get_instance_features</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns a 1-dimensional Numpy array of (numerical) features describing the
+entire instance.</p>
+<p>The array is used by LearningSolver to determine how similar two instances
+are. It may also be used to predict, in combination with variable-specific
+features, the values of binary decision variables in the problem.</p>
+<p>There is not necessarily a one-to-one correspondence between models and
+instance features: the features may encode only part of the data necessary to
+generate the complete model. Features may also be statistics computed from
+the original data. For example, in the knapsack problem, an implementation
+may decide to provide as instance features only the average weights, average
+prices, number of items and the size of the knapsack.</p>
+<p>The returned array MUST have the same length for all relevant instances of
+the problem. If two instances map into arrays of different lengths,
+they cannot be solved by the same LearningSolver object.</p>
+<p>By default, returns [0].</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_instance_features(self):
+    &#34;&#34;&#34;
+    Returns a 1-dimensional Numpy array of (numerical) features describing the
+    entire instance.
+
+    The array is used by LearningSolver to determine how similar two instances
+    are. It may also be used to predict, in combination with variable-specific
+    features, the values of binary decision variables in the problem.
+
+    There is not necessarily a one-to-one correspondence between models and
+    instance features: the features may encode only part of the data necessary to
+    generate the complete model. Features may also be statistics computed from
+    the original data. For example, in the knapsack problem, an implementation
+    may decide to provide as instance features only the average weights, average
+    prices, number of items and the size of the knapsack.
+
+    The returned array MUST have the same length for all relevant instances of
+    the problem. If two instances map into arrays of different lengths,
+    they cannot be solved by the same LearningSolver object.
+
+    By default, returns [0].
+    &#34;&#34;&#34;
+    return np.zeros(1)</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.get_variable_category"><code class="name flex">
+<span>def <span class="ident">get_variable_category</span></span>(<span>self, var, index)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns the category (a string, an integer or any hashable type) for each
+decision variable.</p>
+<p>If two variables have the same category, LearningSolver will use the same
+internal ML model to predict the values of both variables. If the returned
+category is None, ML models will ignore the variable.</p>
+<p>By default, returns "default".</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_variable_category(self, var, index):
+    &#34;&#34;&#34;
+    Returns the category (a string, an integer or any hashable type) for each
+    decision variable.
+
+    If two variables have the same category, LearningSolver will use the same
+    internal ML model to predict the values of both variables. If the returned
+    category is None, ML models will ignore the variable.
+
+    By default, returns &#34;default&#34;.
+    &#34;&#34;&#34;
+    return &#34;default&#34;</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.get_variable_features"><code class="name flex">
+<span>def <span class="ident">get_variable_features</span></span>(<span>self, var, index)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns a 1-dimensional array of (numerical) features describing a particular
+decision variable.</p>
+<p>The argument <code>var</code> is a pyomo.core.Var object, which represents a collection
+of decision variables. The argument <code>index</code> specifies which variable in the
+collection is the relevant one.</p>
+<p>In combination with instance features, variable features are used by
+LearningSolver to predict, among other things, the optimal value of each
+decision variable before the optimization takes place. In the knapsack
+problem, for example, an implementation could provide as variable features
+the weight and the price of a specific item.</p>
+<p>Like instance features, the arrays returned by this method MUST have the same
+length for all variables within the same category, for all relevant instances
+of the problem.</p>
+<p>By default, returns [0].</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_variable_features(self, var, index):
+    &#34;&#34;&#34;
+    Returns a 1-dimensional array of (numerical) features describing a particular
+    decision variable.
+
+    The argument `var` is a pyomo.core.Var object, which represents a collection
+    of decision variables. The argument `index` specifies which variable in the
+    collection is the relevant one.
+
+    In combination with instance features, variable features are used by
+    LearningSolver to predict, among other things, the optimal value of each
+    decision variable before the optimization takes place. In the knapsack
+    problem, for example, an implementation could provide as variable features
+    the weight and the price of a specific item.
+
+    Like instance features, the arrays returned by this method MUST have the same
+    length for all variables within the same category, for all relevant instances
+    of the problem.
+
+    By default, returns [0].
+    &#34;&#34;&#34;
+    return np.zeros(1)</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.has_dynamic_lazy_constraints"><code class="name flex">
+<span>def <span class="ident">has_dynamic_lazy_constraints</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def has_dynamic_lazy_constraints(self):
+    return False</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.has_static_lazy_constraints"><code class="name flex">
+<span>def <span class="ident">has_static_lazy_constraints</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def has_static_lazy_constraints(self):
+    return False</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.is_constraint_lazy"><code class="name flex">
+<span>def <span class="ident">is_constraint_lazy</span></span>(<span>self, cid)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_constraint_lazy(self, cid):
+    return False</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load(self, filename):
+    with gzip.GzipFile(filename, &#34;r&#34;) as f:
+        data = json.loads(f.read().decode(&#34;utf-8&#34;))
+    self.__dict__ = data</code></pre>
+</details>
+</dd>
+<dt id="miplearn.instance.Instance.to_model"><code class="name flex">
+<span>def <span class="ident">to_model</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns the optimization model corresponding to this instance.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def to_model(self) -&gt; Any:
+    &#34;&#34;&#34;
+    Returns the optimization model corresponding to this instance.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="miplearn" href="index.html">miplearn</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="miplearn.instance.Instance" href="#miplearn.instance.Instance">Instance</a></code></h4>
+<ul class="">
+<li><code><a title="miplearn.instance.Instance.build_lazy_constraint" href="#miplearn.instance.Instance.build_lazy_constraint">build_lazy_constraint</a></code></li>
+<li><code><a title="miplearn.instance.Instance.build_user_cut" href="#miplearn.instance.Instance.build_user_cut">build_user_cut</a></code></li>
+<li><code><a title="miplearn.instance.Instance.dump" href="#miplearn.instance.Instance.dump">dump</a></code></li>
+<li><code><a title="miplearn.instance.Instance.find_violated_lazy_constraints" href="#miplearn.instance.Instance.find_violated_lazy_constraints">find_violated_lazy_constraints</a></code></li>
+<li><code><a title="miplearn.instance.Instance.find_violated_user_cuts" href="#miplearn.instance.Instance.find_violated_user_cuts">find_violated_user_cuts</a></code></li>
+<li><code><a title="miplearn.instance.Instance.get_constraint_category" href="#miplearn.instance.Instance.get_constraint_category">get_constraint_category</a></code></li>
+<li><code><a title="miplearn.instance.Instance.get_constraint_features" href="#miplearn.instance.Instance.get_constraint_features">get_constraint_features</a></code></li>
+<li><code><a title="miplearn.instance.Instance.get_instance_features" href="#miplearn.instance.Instance.get_instance_features">get_instance_features</a></code></li>
+<li><code><a title="miplearn.instance.Instance.get_variable_category" href="#miplearn.instance.Instance.get_variable_category">get_variable_category</a></code></li>
+<li><code><a title="miplearn.instance.Instance.get_variable_features" href="#miplearn.instance.Instance.get_variable_features">get_variable_features</a></code></li>
+<li><code><a title="miplearn.instance.Instance.has_dynamic_lazy_constraints" href="#miplearn.instance.Instance.has_dynamic_lazy_constraints">has_dynamic_lazy_constraints</a></code></li>
+<li><code><a title="miplearn.instance.Instance.has_static_lazy_constraints" href="#miplearn.instance.Instance.has_static_lazy_constraints">has_static_lazy_constraints</a></code></li>
+<li><code><a title="miplearn.instance.Instance.is_constraint_lazy" href="#miplearn.instance.Instance.is_constraint_lazy">is_constraint_lazy</a></code></li>
+<li><code><a title="miplearn.instance.Instance.load" href="#miplearn.instance.Instance.load">load</a></code></li>
+<li><code><a title="miplearn.instance.Instance.to_model" href="#miplearn.instance.Instance.to_model">to_model</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.0</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

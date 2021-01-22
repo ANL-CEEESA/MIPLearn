@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.0" />
+<title>miplearn.components.steps.convert_tight API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>miplearn.components.steps.convert_tight</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
+#  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
+#  Released under the modified BSD license. See COPYING.md for more details.
+
+import logging
+import random
+from copy import deepcopy
+
+import numpy as np
+from tqdm import tqdm
+
+from miplearn.classifiers.counting import CountingClassifier
+from miplearn.components import classifier_evaluation_dict
+from miplearn.components.component import Component
+from miplearn.components.steps.drop_redundant import DropRedundantInequalitiesStep
+from miplearn.extractors import InstanceIterator
+
+logger = logging.getLogger(__name__)
+
+
+class ConvertTightIneqsIntoEqsStep(Component):
+    &#34;&#34;&#34;
+    Component that predicts which inequality constraints are likely to be binding in
+    the LP relaxation of the problem and converts them into equality constraints.
+
+    This component always makes sure that the conversion process does not affect the
+    feasibility of the problem. It can also, optionally, make sure that it does not affect
+    the optimality, but this may be expensive.
+
+    This component does not work on MIPs. All integrality constraints must be relaxed
+    before this component is used.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        classifier=CountingClassifier(),
+        threshold=0.95,
+        slack_tolerance=0.0,
+        check_optimality=False,
+    ):
+        self.classifiers = {}
+        self.classifier_prototype = classifier
+        self.threshold = threshold
+        self.slack_tolerance = slack_tolerance
+        self.check_optimality = check_optimality
+        self.converted = []
+        self.original_sense = {}
+
+    def before_solve(self, solver, instance, _):
+        logger.info(&#34;Predicting tight LP constraints...&#34;)
+        x, constraints = DropRedundantInequalitiesStep._x_test(
+            instance,
+            constraint_ids=solver.internal_solver.get_constraint_ids(),
+        )
+        y = self.predict(x)
+
+        self.n_converted = 0
+        self.n_restored = 0
+        self.n_kept = 0
+        self.n_infeasible_iterations = 0
+        self.n_suboptimal_iterations = 0
+        for category in y.keys():
+            for i in range(len(y[category])):
+                if y[category][i][0] == 1:
+                    cid = constraints[category][i]
+                    s = solver.internal_solver.get_constraint_sense(cid)
+                    self.original_sense[cid] = s
+                    solver.internal_solver.set_constraint_sense(cid, &#34;=&#34;)
+                    self.converted += [cid]
+                    self.n_converted += 1
+                else:
+                    self.n_kept += 1
+
+        logger.info(f&#34;Converted {self.n_converted} inequalities&#34;)
+
+    def after_solve(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        training_data,
+    ):
+        if &#34;slacks&#34; not in training_data.keys():
+            training_data[&#34;slacks&#34;] = solver.internal_solver.get_inequality_slacks()
+        stats[&#34;ConvertTight: Kept&#34;] = self.n_kept
+        stats[&#34;ConvertTight: Converted&#34;] = self.n_converted
+        stats[&#34;ConvertTight: Restored&#34;] = self.n_restored
+        stats[&#34;ConvertTight: Inf iterations&#34;] = self.n_infeasible_iterations
+        stats[&#34;ConvertTight: Subopt iterations&#34;] = self.n_suboptimal_iterations
+
+    def fit(self, training_instances):
+        logger.debug(&#34;Extracting x and y...&#34;)
+        x = self.x(training_instances)
+        y = self.y(training_instances)
+        logger.debug(&#34;Fitting...&#34;)
+        for category in tqdm(x.keys(), desc=&#34;Fit (rlx:conv_ineqs)&#34;):
+            if category not in self.classifiers:
+                self.classifiers[category] = deepcopy(self.classifier_prototype)
+            self.classifiers[category].fit(x[category], y[category])
+
+    def x(self, instances):
+        return DropRedundantInequalitiesStep._x_train(instances)
+
+    def y(self, instances):
+        y = {}
+        for instance in tqdm(
+            InstanceIterator(instances),
+            desc=&#34;Extract (rlx:conv_ineqs:y)&#34;,
+            disable=len(instances) &lt; 5,
+        ):
+            for (cid, slack) in instance.training_data[0][&#34;slacks&#34;].items():
+                category = instance.get_constraint_category(cid)
+                if category is None:
+                    continue
+                if category not in y:
+                    y[category] = []
+                if 0 &lt;= slack &lt;= self.slack_tolerance:
+                    y[category] += [[1]]
+                else:
+                    y[category] += [[0]]
+        return y
+
+    def predict(self, x):
+        y = {}
+        for (category, x_cat) in x.items():
+            if category not in self.classifiers:
+                continue
+            y[category] = []
+            x_cat = np.array(x_cat)
+            proba = self.classifiers[category].predict_proba(x_cat)
+            for i in range(len(proba)):
+                if proba[i][1] &gt;= self.threshold:
+                    y[category] += [[1]]
+                else:
+                    y[category] += [[0]]
+        return y
+
+    def evaluate(self, instance):
+        x = self.x([instance])
+        y_true = self.y([instance])
+        y_pred = self.predict(x)
+        tp, tn, fp, fn = 0, 0, 0, 0
+        for category in y_true.keys():
+            for i in range(len(y_true[category])):
+                if y_pred[category][i][0] == 1:
+                    if y_true[category][i][0] == 1:
+                        tp += 1
+                    else:
+                        fp += 1
+                else:
+                    if y_true[category][i][0] == 1:
+                        fn += 1
+                    else:
+                        tn += 1
+        return classifier_evaluation_dict(tp, tn, fp, fn)
+
+    def iteration_cb(self, solver, instance, model):
+        is_infeasible, is_suboptimal = False, False
+        restored = []
+
+        def check_pi(msense, csense, pi):
+            if csense == &#34;=&#34;:
+                return True
+            if msense == &#34;max&#34;:
+                if csense == &#34;&lt;&#34;:
+                    return pi &gt;= 0
+                else:
+                    return pi &lt;= 0
+            else:
+                if csense == &#34;&gt;&#34;:
+                    return pi &gt;= 0
+                else:
+                    return pi &lt;= 0
+
+        def restore(cid):
+            nonlocal restored
+            csense = self.original_sense[cid]
+            solver.internal_solver.set_constraint_sense(cid, csense)
+            restored += [cid]
+
+        if solver.internal_solver.is_infeasible():
+            for cid in self.converted:
+                pi = solver.internal_solver.get_dual(cid)
+                if abs(pi) &gt; 0:
+                    is_infeasible = True
+                    restore(cid)
+        elif self.check_optimality:
+            random.shuffle(self.converted)
+            n_restored = 0
+            for cid in self.converted:
+                if n_restored &gt;= 100:
+                    break
+                pi = solver.internal_solver.get_dual(cid)
+                csense = self.original_sense[cid]
+                msense = solver.internal_solver.get_sense()
+                if not check_pi(msense, csense, pi):
+                    is_suboptimal = True
+                    restore(cid)
+                    n_restored += 1
+
+        for cid in restored:
+            self.converted.remove(cid)
+
+        if len(restored) &gt; 0:
+            self.n_restored += len(restored)
+            if is_infeasible:
+                self.n_infeasible_iterations += 1
+            if is_suboptimal:
+                self.n_suboptimal_iterations += 1
+            logger.info(f&#34;Restored {len(restored)} inequalities&#34;)
+            return True
+        else:
+            return False</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep"><code class="flex name class">
+<span>class <span class="ident">ConvertTightIneqsIntoEqsStep</span></span>
+<span>(</span><span>classifier=CountingClassifier(mean=None), threshold=0.95, slack_tolerance=0.0, check_optimality=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Component that predicts which inequality constraints are likely to be binding in
+the LP relaxation of the problem and converts them into equality constraints.</p>
+<p>This component always makes sure that the conversion process does not affect the
+feasibility of the problem. It can also, optionally, make sure that it does not affect
+the optimality, but this may be expensive.</p>
+<p>This component does not work on MIPs. All integrality constraints must be relaxed
+before this component is used.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConvertTightIneqsIntoEqsStep(Component):
+    &#34;&#34;&#34;
+    Component that predicts which inequality constraints are likely to be binding in
+    the LP relaxation of the problem and converts them into equality constraints.
+
+    This component always makes sure that the conversion process does not affect the
+    feasibility of the problem. It can also, optionally, make sure that it does not affect
+    the optimality, but this may be expensive.
+
+    This component does not work on MIPs. All integrality constraints must be relaxed
+    before this component is used.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        classifier=CountingClassifier(),
+        threshold=0.95,
+        slack_tolerance=0.0,
+        check_optimality=False,
+    ):
+        self.classifiers = {}
+        self.classifier_prototype = classifier
+        self.threshold = threshold
+        self.slack_tolerance = slack_tolerance
+        self.check_optimality = check_optimality
+        self.converted = []
+        self.original_sense = {}
+
+    def before_solve(self, solver, instance, _):
+        logger.info(&#34;Predicting tight LP constraints...&#34;)
+        x, constraints = DropRedundantInequalitiesStep._x_test(
+            instance,
+            constraint_ids=solver.internal_solver.get_constraint_ids(),
+        )
+        y = self.predict(x)
+
+        self.n_converted = 0
+        self.n_restored = 0
+        self.n_kept = 0
+        self.n_infeasible_iterations = 0
+        self.n_suboptimal_iterations = 0
+        for category in y.keys():
+            for i in range(len(y[category])):
+                if y[category][i][0] == 1:
+                    cid = constraints[category][i]
+                    s = solver.internal_solver.get_constraint_sense(cid)
+                    self.original_sense[cid] = s
+                    solver.internal_solver.set_constraint_sense(cid, &#34;=&#34;)
+                    self.converted += [cid]
+                    self.n_converted += 1
+                else:
+                    self.n_kept += 1
+
+        logger.info(f&#34;Converted {self.n_converted} inequalities&#34;)
+
+    def after_solve(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        training_data,
+    ):
+        if &#34;slacks&#34; not in training_data.keys():
+            training_data[&#34;slacks&#34;] = solver.internal_solver.get_inequality_slacks()
+        stats[&#34;ConvertTight: Kept&#34;] = self.n_kept
+        stats[&#34;ConvertTight: Converted&#34;] = self.n_converted
+        stats[&#34;ConvertTight: Restored&#34;] = self.n_restored
+        stats[&#34;ConvertTight: Inf iterations&#34;] = self.n_infeasible_iterations
+        stats[&#34;ConvertTight: Subopt iterations&#34;] = self.n_suboptimal_iterations
+
+    def fit(self, training_instances):
+        logger.debug(&#34;Extracting x and y...&#34;)
+        x = self.x(training_instances)
+        y = self.y(training_instances)
+        logger.debug(&#34;Fitting...&#34;)
+        for category in tqdm(x.keys(), desc=&#34;Fit (rlx:conv_ineqs)&#34;):
+            if category not in self.classifiers:
+                self.classifiers[category] = deepcopy(self.classifier_prototype)
+            self.classifiers[category].fit(x[category], y[category])
+
+    def x(self, instances):
+        return DropRedundantInequalitiesStep._x_train(instances)
+
+    def y(self, instances):
+        y = {}
+        for instance in tqdm(
+            InstanceIterator(instances),
+            desc=&#34;Extract (rlx:conv_ineqs:y)&#34;,
+            disable=len(instances) &lt; 5,
+        ):
+            for (cid, slack) in instance.training_data[0][&#34;slacks&#34;].items():
+                category = instance.get_constraint_category(cid)
+                if category is None:
+                    continue
+                if category not in y:
+                    y[category] = []
+                if 0 &lt;= slack &lt;= self.slack_tolerance:
+                    y[category] += [[1]]
+                else:
+                    y[category] += [[0]]
+        return y
+
+    def predict(self, x):
+        y = {}
+        for (category, x_cat) in x.items():
+            if category not in self.classifiers:
+                continue
+            y[category] = []
+            x_cat = np.array(x_cat)
+            proba = self.classifiers[category].predict_proba(x_cat)
+            for i in range(len(proba)):
+                if proba[i][1] &gt;= self.threshold:
+                    y[category] += [[1]]
+                else:
+                    y[category] += [[0]]
+        return y
+
+    def evaluate(self, instance):
+        x = self.x([instance])
+        y_true = self.y([instance])
+        y_pred = self.predict(x)
+        tp, tn, fp, fn = 0, 0, 0, 0
+        for category in y_true.keys():
+            for i in range(len(y_true[category])):
+                if y_pred[category][i][0] == 1:
+                    if y_true[category][i][0] == 1:
+                        tp += 1
+                    else:
+                        fp += 1
+                else:
+                    if y_true[category][i][0] == 1:
+                        fn += 1
+                    else:
+                        tn += 1
+        return classifier_evaluation_dict(tp, tn, fp, fn)
+
+    def iteration_cb(self, solver, instance, model):
+        is_infeasible, is_suboptimal = False, False
+        restored = []
+
+        def check_pi(msense, csense, pi):
+            if csense == &#34;=&#34;:
+                return True
+            if msense == &#34;max&#34;:
+                if csense == &#34;&lt;&#34;:
+                    return pi &gt;= 0
+                else:
+                    return pi &lt;= 0
+            else:
+                if csense == &#34;&gt;&#34;:
+                    return pi &gt;= 0
+                else:
+                    return pi &lt;= 0
+
+        def restore(cid):
+            nonlocal restored
+            csense = self.original_sense[cid]
+            solver.internal_solver.set_constraint_sense(cid, csense)
+            restored += [cid]
+
+        if solver.internal_solver.is_infeasible():
+            for cid in self.converted:
+                pi = solver.internal_solver.get_dual(cid)
+                if abs(pi) &gt; 0:
+                    is_infeasible = True
+                    restore(cid)
+        elif self.check_optimality:
+            random.shuffle(self.converted)
+            n_restored = 0
+            for cid in self.converted:
+                if n_restored &gt;= 100:
+                    break
+                pi = solver.internal_solver.get_dual(cid)
+                csense = self.original_sense[cid]
+                msense = solver.internal_solver.get_sense()
+                if not check_pi(msense, csense, pi):
+                    is_suboptimal = True
+                    restore(cid)
+                    n_restored += 1
+
+        for cid in restored:
+            self.converted.remove(cid)
+
+        if len(restored) &gt; 0:
+            self.n_restored += len(restored)
+            if is_infeasible:
+                self.n_infeasible_iterations += 1
+            if is_suboptimal:
+                self.n_suboptimal_iterations += 1
+            logger.info(f&#34;Restored {len(restored)} inequalities&#34;)
+            return True
+        else:
+            return False</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="miplearn.components.component.Component" href="../component.html#miplearn.components.component.Component">Component</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.evaluate"><code class="name flex">
+<span>def <span class="ident">evaluate</span></span>(<span>self, instance)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def evaluate(self, instance):
+    x = self.x([instance])
+    y_true = self.y([instance])
+    y_pred = self.predict(x)
+    tp, tn, fp, fn = 0, 0, 0, 0
+    for category in y_true.keys():
+        for i in range(len(y_true[category])):
+            if y_pred[category][i][0] == 1:
+                if y_true[category][i][0] == 1:
+                    tp += 1
+                else:
+                    fp += 1
+            else:
+                if y_true[category][i][0] == 1:
+                    fn += 1
+                else:
+                    tn += 1
+    return classifier_evaluation_dict(tp, tn, fp, fn)</code></pre>
+</details>
+</dd>
+<dt id="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.fit"><code class="name flex">
+<span>def <span class="ident">fit</span></span>(<span>self, training_instances)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit(self, training_instances):
+    logger.debug(&#34;Extracting x and y...&#34;)
+    x = self.x(training_instances)
+    y = self.y(training_instances)
+    logger.debug(&#34;Fitting...&#34;)
+    for category in tqdm(x.keys(), desc=&#34;Fit (rlx:conv_ineqs)&#34;):
+        if category not in self.classifiers:
+            self.classifiers[category] = deepcopy(self.classifier_prototype)
+        self.classifiers[category].fit(x[category], y[category])</code></pre>
+</details>
+</dd>
+<dt id="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.predict"><code class="name flex">
+<span>def <span class="ident">predict</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def predict(self, x):
+    y = {}
+    for (category, x_cat) in x.items():
+        if category not in self.classifiers:
+            continue
+        y[category] = []
+        x_cat = np.array(x_cat)
+        proba = self.classifiers[category].predict_proba(x_cat)
+        for i in range(len(proba)):
+            if proba[i][1] &gt;= self.threshold:
+                y[category] += [[1]]
+            else:
+                y[category] += [[0]]
+    return y</code></pre>
+</details>
+</dd>
+<dt id="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.x"><code class="name flex">
+<span>def <span class="ident">x</span></span>(<span>self, instances)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def x(self, instances):
+    return DropRedundantInequalitiesStep._x_train(instances)</code></pre>
+</details>
+</dd>
+<dt id="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.y"><code class="name flex">
+<span>def <span class="ident">y</span></span>(<span>self, instances)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def y(self, instances):
+    y = {}
+    for instance in tqdm(
+        InstanceIterator(instances),
+        desc=&#34;Extract (rlx:conv_ineqs:y)&#34;,
+        disable=len(instances) &lt; 5,
+    ):
+        for (cid, slack) in instance.training_data[0][&#34;slacks&#34;].items():
+            category = instance.get_constraint_category(cid)
+            if category is None:
+                continue
+            if category not in y:
+                y[category] = []
+            if 0 &lt;= slack &lt;= self.slack_tolerance:
+                y[category] += [[1]]
+            else:
+                y[category] += [[0]]
+    return y</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="miplearn.components.component.Component" href="../component.html#miplearn.components.component.Component">Component</a></b></code>:
+<ul class="hlist">
+<li><code><a title="miplearn.components.component.Component.after_solve" href="../component.html#miplearn.components.component.Component.after_solve">after_solve</a></code></li>
+<li><code><a title="miplearn.components.component.Component.before_solve" href="../component.html#miplearn.components.component.Component.before_solve">before_solve</a></code></li>
+<li><code><a title="miplearn.components.component.Component.iteration_cb" href="../component.html#miplearn.components.component.Component.iteration_cb">iteration_cb</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="miplearn.components.steps" href="index.html">miplearn.components.steps</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep" href="#miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep">ConvertTightIneqsIntoEqsStep</a></code></h4>
+<ul class="">
+<li><code><a title="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.evaluate" href="#miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.evaluate">evaluate</a></code></li>
+<li><code><a title="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.fit" href="#miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.fit">fit</a></code></li>
+<li><code><a title="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.predict" href="#miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.predict">predict</a></code></li>
+<li><code><a title="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.x" href="#miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.x">x</a></code></li>
+<li><code><a title="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.y" href="#miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep.y">y</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.0</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
