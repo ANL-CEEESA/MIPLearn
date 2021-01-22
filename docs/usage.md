@@ -2,12 +2,12 @@
 
 ## 1. Installation
 
-In these docs, we describe the Python/Pyomo version of the package, although a [Julia/JuMP version](https://github.com/ANL-CEEESA/MIPLearn.jl) is also available. A mixed-integer solver is also required and its Python bindings must be properly installed. Supported solvers are currently CPLEX and Gurobi.
+In these docs, we describe the Python/Pyomo version of the package, although a [Julia/JuMP version](https://github.com/ANL-CEEESA/MIPLearn.jl) is also available. A mixed-integer solver is also required and its Python bindings must be properly installed. Supported solvers are currently CPLEX, Gurobi and XPRESS.
 
 To install MIPLearn, run: 
 
 ```bash
-pip3 install miplearn
+pip3 install --upgrade miplearn==0.2.*
 ```
 
 After installation, the package `miplearn` should become available to Python. It can be imported
@@ -176,11 +176,12 @@ Instance files must be pickled instance objects. The method `solve` loads at mos
 
 
 ```python
+import pickle
 from miplearn import LearningSolver
 
 # Construct and pickle 600 problem instances
 for i in range(600):
-    instance = CustomInstance([...])
+    instance = MyProblemInstance([...])
     with open("instance_%03d.pkl" % i, "w") as file:
         pickle.dump(instance, obj)
         
@@ -202,22 +203,50 @@ solver.parallel_solve(test_instances, n_jobs=4)
 ```
 
 
-By default, `solve` and `parallel_solve` modify files in place. That is, after the instances are loaded from disk and solved, MIPLearn writes them back to the disk, overwriting the original files. To write to an alternative file instead, the argument `output` may be used. In `solve`, this argument should be a single filename. In `parallel_solve`, it should be a list, containing exactly as many filenames as instances. If `output` is `None`, the modifications are simply discarded. This can be useful, for example, during benchmarks.
+By default, `solve` and `parallel_solve` modify files in place. That is, after the instances are loaded from disk and solved, MIPLearn writes them back to the disk, overwriting the original files. To write to an alternative file instead, use the arguments `output_filename` (in `solve`) and `output_filenames` (in `parallel_solve`). To discard the modifications instead, use `discard_outputs=True`. This can be useful, for example, during benchmarks.
 
 ```python
-# Solve a single instance file and store the output to another file
-solver.solve("knapsack_1.orig.pkl", output="knapsack_1.solved.pkl")
+# Solve a single instance file and write the output to another file
+solver.solve("knapsack_1.orig.pkl", output_filename="knapsack_1.solved.pkl")
 
 # Solve a list of instance files
 instances = ["knapsack_%03d.orig.pkl" % i for i in range(100)]
 output = ["knapsack_%03d.solved.pkl" % i for i in range(100)]
-solver.parallel_solve(instances, output=output)
+solver.parallel_solve(instances, output_filenames=output)
 
 # Solve instances and discard solutions and training data
-solver.parallel_solve(instances, output=None)
+solver.parallel_solve(instances, discard_outputs=True)
 ```
 
+## 7. Running benchmarks
 
-## 7. Current Limitations
+MIPLearn provides the utility class `BenchmarkRunner`, which simplifies the task of comparing the performance of different solvers. The snippet below shows its basic usage:
 
-* Only binary and continuous decision variables are currently supported. General integer variables are not currently supported by all solver components.
+```python
+from miplearn import BenchmarkRunner, LearningSolver
+
+# Create train and test instances
+train_instances = [...]
+test_instances  = [...]
+
+# Training phase...
+training_solver = LearningSolver(...)
+training_solver.parallel_solve(train_instances, n_jobs=10)
+
+# Test phase...
+benchmark = BenchmarkRunner({
+    "Baseline": LearningSolver(...),
+    "Strategy A": LearningSolver(...),
+    "Strategy B": LearningSolver(...),
+    "Strategy C": LearningSolver(...),
+})
+benchmark.fit(train_instances)
+benchmark.parallel_solve(test_instances, n_jobs=5)
+benchmark.write_csv("results.csv")
+```
+
+The method `fit` trains the ML models for each individual solver. The method `parallel_solve` solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, `write_csv` produces a table of results. The columns in the CSV file depend on the components added to the solver.
+
+## 8. Current Limitations
+
+* Only binary and continuous decision variables are currently supported. General integer variables are not currently supported by some solver components.

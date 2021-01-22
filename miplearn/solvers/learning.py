@@ -20,7 +20,7 @@ from miplearn.instance import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
-from miplearn.types import MIPSolveStats, TrainingSample
+from miplearn.types import MIPSolveStats, TrainingSample, LearningSolveStats
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +127,7 @@ class LearningSolver:
         output_filename: Optional[str] = None,
         discard_output: bool = False,
         tee: bool = False,
-    ) -> MIPSolveStats:
+    ) -> LearningSolveStats:
 
         # Load instance from file, if necessary
         filename = None
@@ -203,15 +203,24 @@ class LearningSolver:
 
         # Solve MILP
         logger.info("Solving MILP...")
-        stats = self.internal_solver.solve(
-            tee=tee,
-            iteration_cb=iteration_cb_wrapper,
-            lazy_cb=lazy_cb,
+        stats = cast(
+            LearningSolveStats,
+            self.internal_solver.solve(
+                tee=tee,
+                iteration_cb=iteration_cb_wrapper,
+                lazy_cb=lazy_cb,
+            ),
         )
         if "LP value" in training_sample.keys():
             stats["LP value"] = training_sample["LP value"]
+        stats["Solver"] = "default"
+        stats["Gap"] = self._compute_gap(
+            ub=stats["Upper bound"],
+            lb=stats["Lower bound"],
+        )
+        stats["Mode"] = self.mode
 
-        # Read MIP solution and bounds
+        # Add some information to training_sample
         training_sample["Lower bound"] = stats["Lower bound"]
         training_sample["Upper bound"] = stats["Upper bound"]
         training_sample["MIP log"] = stats["Log"]
@@ -242,7 +251,7 @@ class LearningSolver:
         output_filename: Optional[str] = None,
         discard_output: bool = False,
         tee: bool = False,
-    ) -> MIPSolveStats:
+    ) -> LearningSolveStats:
         """
         Solves the given instance. If trained machine-learning models are
         available, they will be used to accelerate the solution process.
@@ -275,7 +284,7 @@ class LearningSolver:
 
         Returns
         -------
-        MIPSolveStats
+        LearningSolveStats
             A dictionary of solver statistics containing at least the following
             keys: "Lower bound", "Upper bound", "Wallclock time", "Nodes",
             "Sense", "Log", "Warm start value" and "LP value".
@@ -311,7 +320,7 @@ class LearningSolver:
         label: str = "Solve",
         output_filenames: Optional[List[str]] = None,
         discard_outputs: bool = False,
-    ) -> List[MIPSolveStats]:
+    ) -> List[LearningSolveStats]:
         """
         Solves multiple instances in parallel.
 
@@ -338,7 +347,7 @@ class LearningSolver:
 
         Returns
         -------
-        List[MIPSolveStats]
+        List[LearningSolveStats]
             List of solver statistics, with one entry for each provided instance.
             The list is the same you would obtain by calling
             `[solver.solve(p) for p in instances]`
@@ -384,3 +393,15 @@ class LearningSolver:
     def __getstate__(self) -> Dict:
         self.internal_solver = None
         return self.__dict__
+
+    @staticmethod
+    def _compute_gap(ub: Optional[float], lb: Optional[float]) -> Optional[float]:
+        if lb is None or ub is None or lb * ub < 0:
+            # solver did not find a solution and/or bound
+            return None
+        elif abs(ub - lb) < 1e-6:
+            # avoid division by zero when ub = lb = 0
+            return 0.0
+        else:
+            # divide by max(abs(ub),abs(lb)) to ensure gap <= 1
+            return (ub - lb) / max(abs(ub), abs(lb))

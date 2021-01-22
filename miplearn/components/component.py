@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Any, List, Union, TYPE_CHECKING
 
 from miplearn.instance import Instance
-from miplearn.types import MIPSolveStats, TrainingSample
+from miplearn.types import LearningSolveStats, TrainingSample
 
 if TYPE_CHECKING:
     from miplearn.solvers.learning import LearningSolver
@@ -47,7 +47,7 @@ class Component(ABC):
         solver: "LearningSolver",
         instance: Instance,
         model: Any,
-        stats: MIPSolveStats,
+        stats: LearningSolveStats,
         training_data: TrainingSample,
     ) -> None:
         """
@@ -61,13 +61,13 @@ class Component(ABC):
             The instance being solved.
         model: Any
             The concrete optimization model being solved.
-        stats: dict
+        stats: LearningSolveStats
             A dictionary containing statistics about the solution process, such as
             number of nodes explored and running time. Components are free to add
             their own statistics here. For example, PrimalSolutionComponent adds
             statistics regarding the number of predicted variables. All statistics in
             this dictionary are exported to the benchmark CSV file.
-        training_data: dict
+        training_data: TrainingSample
             A dictionary containing data that may be useful for training machine
             learning models and accelerating the solution process. Components are
             free to add their own training data here. For example,

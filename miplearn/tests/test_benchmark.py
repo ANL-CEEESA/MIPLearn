@@ -29,21 +29,7 @@ def test_benchmark():
     benchmark = BenchmarkRunner(test_solvers)
     benchmark.fit(train_instances)
     benchmark.parallel_solve(test_instances, n_jobs=2, n_trials=2)
-    assert benchmark.raw_results().values.shape == (12, 14)
+    assert benchmark.results.values.shape == (12, 14)
 
-    benchmark.save_results("/tmp/benchmark.csv")
+    benchmark.write_csv("/tmp/benchmark.csv")
     assert os.path.isfile("/tmp/benchmark.csv")
-
-    benchmark = BenchmarkRunner(test_solvers)
-    benchmark.load_results("/tmp/benchmark.csv")
-    assert benchmark.raw_results().values.shape == (12, 14)
-
-
-def test_gap():
-    assert BenchmarkRunner._compute_gap(ub=0.0, lb=0.0) == 0.0
-    assert BenchmarkRunner._compute_gap(ub=1.0, lb=0.5) == 0.5
-    assert BenchmarkRunner._compute_gap(ub=1.0, lb=1.0) == 0.0
-    assert BenchmarkRunner._compute_gap(ub=1.0, lb=-1.0) == 1.0
-    assert BenchmarkRunner._compute_gap(ub=1.0, lb=None) == 1.0
-    assert BenchmarkRunner._compute_gap(ub=None, lb=1.0) == 1.0
-    assert BenchmarkRunner._compute_gap(ub=None, lb=None) == 1.0

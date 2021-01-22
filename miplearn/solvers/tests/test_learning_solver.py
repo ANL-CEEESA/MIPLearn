@@ -130,3 +130,13 @@ def test_simulate_perfect():
         )
         stats = solver.solve(tmp.name)
         assert stats["Lower bound"] == stats["Predicted LB"]
+
+
+def test_gap():
+    assert LearningSolver._compute_gap(ub=0.0, lb=0.0) == 0.0
+    assert LearningSolver._compute_gap(ub=1.0, lb=0.5) == 0.5
+    assert LearningSolver._compute_gap(ub=1.0, lb=1.0) == 0.0
+    assert LearningSolver._compute_gap(ub=1.0, lb=-1.0) is None
+    assert LearningSolver._compute_gap(ub=1.0, lb=None) is None
+    assert LearningSolver._compute_gap(ub=None, lb=1.0) is None
+    assert LearningSolver._compute_gap(ub=None, lb=None) is None

@@ -6,10 +6,10 @@ edit_uri: edit/dev/docs/
 nav:
     - Home: index.md
     - Usage: usage.md
-    - Benchmark: benchmark.md
     - Problems: problems.md
     - Customization: customization.md
     - About: about.md
+    - API: api/miplearn/index.html
 plugins:
   - search
 markdown_extensions:

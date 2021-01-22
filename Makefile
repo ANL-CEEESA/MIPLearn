@@ -20,10 +20,11 @@ dist-upload:
 	$(PYTHON) -m twine upload dist/*
 
 docs:
+	rm -rf ../docs/$(VERSION) html
 	mkdocs build -d ../docs/$(VERSION)/
+	pdoc3 --html miplearn
+	mv -v html ../docs/$(VERSION)/api
 
-docs-dev:
-	mkdocs build -d ../docs/dev/
 
 install-deps:
 	$(PIP) install -i https://pypi.gurobi.com gurobipy

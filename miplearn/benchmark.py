@@ -4,40 +4,71 @@
 
 import logging
 import os
-from copy import deepcopy
+from typing import Dict, Union, List
 
 import pandas as pd
-from tqdm.auto import tqdm
 
+from miplearn.instance import Instance
 from miplearn.solvers.learning import LearningSolver
+from miplearn.types import LearningSolveStats
 
 
 class BenchmarkRunner:
-    def __init__(self, solvers):
-        assert isinstance(solvers, dict)
-        for solver in solvers.values():
-            assert isinstance(solver, LearningSolver)
-        self.solvers = solvers
-        self.results = None
+    """
+    Utility class that simplifies the task of comparing the performance of different
+    solvers.
 
-    def solve(self, instances, tee=False):
-        for (solver_name, solver) in self.solvers.items():
-            for i in tqdm(range(len((instances)))):
-                results = solver.solve(deepcopy(instances[i]), tee=tee)
-                self._push_result(
-                    results,
-                    solver=solver,
-                    solver_name=solver_name,
-                    instance=i,
-                )
+    Example
+    -------
+    ```python
+    benchmark = BenchmarkRunner({
+        "Baseline": LearningSolver(...),
+        "Strategy A": LearningSolver(...),
+        "Strategy B": LearningSolver(...),
+        "Strategy C": LearningSolver(...),
+    })
+    benchmark.fit(train_instances)
+    benchmark.parallel_solve(test_instances, n_jobs=5)
+    benchmark.save_results("result.csv")
+    ```
+
+    Parameters
+    ----------
+    solvers: Dict[str, LearningSolver]
+        Dictionary containing the solvers to compare. Solvers may have different
+        arguments and components. The key should be the name of the solver. It
+        appears in the exported tables of results.
+    """
+
+    def __init__(self, solvers: Dict[str, LearningSolver]) -> None:
+        self.solvers: Dict[str, LearningSolver] = solvers
+        self.results = pd.DataFrame(
+            columns=[
+                "Solver",
+                "Instance",
+            ]
+        )
 
     def parallel_solve(
         self,
-        instances,
-        n_jobs=1,
-        n_trials=1,
-        index_offset=0,
-    ):
+        instances: Union[List[str], List[Instance]],
+        n_jobs: int = 1,
+        n_trials: int = 3,
+    ) -> None:
+        """
+        Solves the given instances in parallel and collect benchmark statistics.
+
+        Parameters
+        ----------
+        instances: Union[List[str], List[Instance]]
+            List of instances to solve. This can either be a list of instances
+            already loaded in memory, or a list of filenames pointing to pickled (and
+            optionally gzipped) files.
+        n_jobs: int
+            List of instances to solve in parallel at a time.
+        n_trials: int
+            How many times each instance should be solved.
+        """
         self._silence_miplearn_logger()
         trials = instances * n_trials
         for (solver_name, solver) in self.solvers.items():
@@ -48,68 +79,44 @@ class BenchmarkRunner:
                 discard_outputs=True,
             )
             for i in range(len(trials)):
-                idx = (i % len(instances)) + index_offset
-                self._push_result(
-                    results[i],
-                    solver=solver,
-                    solver_name=solver_name,
-                    instance=idx,
-                )
+                idx = i % len(instances)
+                results[i]["Solver"] = solver_name
+                results[i]["Instance"] = idx
+                self.results = self.results.append(pd.DataFrame([results[i]]))
         self._restore_miplearn_logger()
 
-    def raw_results(self):
-        return self.results
+    def write_csv(self, filename: str) -> None:
+        """
+        Writes the collected results to a CSV file.
 
-    def save_results(self, filename):
+        Parameters
+        ----------
+        filename: str
+            The name of the file.
+        """
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         self.results.to_csv(filename)
 
-    def load_results(self, filename):
-        self.results = pd.concat([self.results, pd.read_csv(filename, index_col=0)])
+    def fit(self, instances: Union[List[str], List[Instance]]) -> None:
+        """
+        Trains all solvers with the provided training instances.
 
-    def load_state(self, filename):
+        Parameters
+        ----------
+        instances:  Union[List[str], List[Instance]]
+            List of training instances. This can either be a list of instances
+            already loaded in memory, or a list of filenames pointing to pickled (and
+            optionally gzipped) files.
+
+        """
         for (solver_name, solver) in self.solvers.items():
-            solver.load_state(filename)
+            solver.fit(instances)
 
-    def fit(self, training_instances):
-        for (solver_name, solver) in self.solvers.items():
-            solver.fit(training_instances)
-
-    @staticmethod
-    def _compute_gap(ub, lb):
-        if lb is None or ub is None or lb * ub < 0:
-            # solver did not find a solution and/or bound, use maximum gap possible
-            return 1.0
-        elif abs(ub - lb) < 1e-6:
-            # avoid division by zero when ub = lb = 0
-            return 0.0
-        else:
-            # divide by max(abs(ub),abs(lb)) to ensure gap <= 1
-            return (ub - lb) / max(abs(ub), abs(lb))
-
-    def _push_result(self, result, solver, solver_name, instance):
-        if self.results is None:
-            self.results = pd.DataFrame(
-                # Show the following columns first in the CSV file
-                columns=[
-                    "Solver",
-                    "Instance",
-                ]
-            )
-        result["Solver"] = solver_name
-        result["Instance"] = instance
-        result["Gap"] = self._compute_gap(
-            ub=result["Upper bound"],
-            lb=result["Lower bound"],
-        )
-        result["Mode"] = solver.mode
-        self.results = self.results.append(pd.DataFrame([result]))
-
-    def _silence_miplearn_logger(self):
+    def _silence_miplearn_logger(self) -> None:
         miplearn_logger = logging.getLogger("miplearn")
         self.prev_log_level = miplearn_logger.getEffectiveLevel()
         miplearn_logger.setLevel(logging.WARNING)
 
-    def _restore_miplearn_logger(self):
+    def _restore_miplearn_logger(self) -> None:
         miplearn_logger = logging.getLogger("miplearn")
         miplearn_logger.setLevel(self.prev_log_level)

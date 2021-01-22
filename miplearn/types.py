@@ -47,6 +47,25 @@ MIPSolveStats = TypedDict(
     },
 )
 
+LearningSolveStats = TypedDict(
+    "LearningSolveStats",
+    {
+        "Gap": Optional[float],
+        "Instance": Union[str, int],
+        "LP value": Optional[float],
+        "Log": str,
+        "Lower bound": Optional[float],
+        "Mode": str,
+        "Nodes": Optional[int],
+        "Sense": str,
+        "Solver": str,
+        "Upper bound": Optional[float],
+        "Wallclock time": float,
+        "Warm start value": Optional[float],
+    },
+    total=False,
+)
+
 IterationCallback = Callable[[], bool]
 
 LazyCallback = Callable[[Any, Any], None]
