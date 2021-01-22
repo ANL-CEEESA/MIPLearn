@@ -29,9 +29,6 @@ class AdaptiveClassifier(Classifier):
         candidates: Dict[str, Any] = None,
         evaluator: ClassifierEvaluator = ClassifierEvaluator(),
     ) -> None:
-        """
-        Initializes the meta-classifier.
-        """
         if candidates is None:
             candidates = {
                 "knn(100)": {

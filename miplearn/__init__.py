@@ -3,7 +3,11 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from .benchmark import BenchmarkRunner
-from .classifiers import Classifier, Regressor
+from .classifiers import (
+    Classifier,
+    Regressor,
+    ScikitLearnClassifier,
+)
 from .classifiers.adaptive import AdaptiveClassifier
 from .classifiers.threshold import MinPrecisionThreshold
 from .components.component import Component

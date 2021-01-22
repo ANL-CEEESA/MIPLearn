@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Any
 
 import numpy as np
 
@@ -14,7 +14,7 @@ class Classifier(ABC):
     data.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.n_features: Optional[int] = None
         self.n_classes: Optional[int] = None
 
@@ -77,7 +77,7 @@ class Regressor(ABC):
     values of other variables.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.n_inputs: Optional[int] = None
 
     @abstractmethod
@@ -128,3 +128,38 @@ class Regressor(ABC):
         (n_samples, n_inputs_x) = x_test.shape
         assert n_inputs_x == self.n_inputs
         return np.ndarray([])
+
+
+class ScikitLearnClassifier(Classifier):
+    """
+    Wrapper for ScikitLearn classifiers, which makes sure inputs and outputs have the
+    correct dimensions and types.
+    """
+
+    def __init__(self, clf: Any) -> None:
+        super().__init__()
+        self.inner_clf = clf
+
+    def fit(self, x_train: np.ndarray, y_train: np.ndarray) -> None:
+        super().fit(x_train, y_train)
+        (n_samples, n_classes) = x_train.shape
+        assert n_classes == 2, "scikit-learn classifiers must have exactly two classes"
+        self.inner_clf.fit(x_train, y_train[:, 1])
+
+    def predict_proba(self, x_test: np.ndarray) -> np.ndarray:
+        super().predict_proba(x_test)
+        n_samples = x_test.shape[0]
+        sklearn_proba = self.inner_clf.predict_proba(x_test)
+        if isinstance(sklearn_proba, list):
+            assert len(sklearn_proba) == self.n_classes
+            for pb in sklearn_proba:
+                assert isinstance(pb, np.ndarray)
+                assert pb.dtype in [np.float16, np.float32, np.float64]
+                assert pb.shape == (n_samples, 2)
+            proba = np.hstack([pb[:, [1]] for pb in sklearn_proba])
+            assert proba.shape == (n_samples, self.n_classes)
+            return proba
+        else:
+            assert isinstance(sklearn_proba, np.ndarray)
+            assert sklearn_proba.shape == (n_samples, 2)
+            return sklearn_proba
