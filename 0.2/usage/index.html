@@ -83,12 +83,6 @@
                 
                 
                     <li >
-                        <a href="../benchmark/">Benchmark</a>
-                    </li>
-                
-                
-                
-                    <li >
                         <a href="../problems/">Problems</a>
                     </li>
                 
@@ -125,7 +119,7 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="next" href="../benchmark/">
+                        <a rel="next" href="../problems/">
                             Next <i class="fas fa-arrow-right"></i>
                         </a>
                     </li>
@@ -160,7 +154,9 @@
                 <li class="third-level"><a href="#61-saving-and-loading-solver-state">6.1 Saving and loading solver state</a></li>
                 <li class="third-level"><a href="#62-solving-instances-in-parallel">6.2 Solving instances in parallel</a></li>
                 <li class="third-level"><a href="#63-solving-instances-from-the-disk">6.3 Solving instances from the disk</a></li>
-            <li class="second-level"><a href="#7-current-limitations">7. Current Limitations</a></li>
+            <li class="second-level"><a href="#7-running-benchmarks">7. Running benchmarks</a></li>
+                
+            <li class="second-level"><a href="#8-current-limitations">8. Current Limitations</a></li>
                 
     </ul>
 </div></div>
@@ -168,9 +164,9 @@
 
 <h1 id="usage">Usage</h1>
 <h2 id="1-installation">1. Installation</h2>
-<p>In these docs, we describe the Python/Pyomo version of the package, although a <a href="https://github.com/ANL-CEEESA/MIPLearn.jl">Julia/JuMP version</a> is also available. A mixed-integer solver is also required and its Python bindings must be properly installed. Supported solvers are currently CPLEX and Gurobi.</p>
+<p>In these docs, we describe the Python/Pyomo version of the package, although a <a href="https://github.com/ANL-CEEESA/MIPLearn.jl">Julia/JuMP version</a> is also available. A mixed-integer solver is also required and its Python bindings must be properly installed. Supported solvers are currently CPLEX, Gurobi and XPRESS.</p>
 <p>To install MIPLearn, run: </p>
-<pre><code class="language-bash">pip3 install miplearn
+<pre><code class="language-bash">pip3 install --upgrade miplearn==0.2.*
 </code></pre>
 <p>After installation, the package <code>miplearn</code> should become available to Python. It can be imported
 as follows:</p>
@@ -244,7 +240,7 @@ for instance in test_instances:
 </div>
 <h2 id="5-obtaining-heuristic-solutions">5. Obtaining heuristic solutions</h2>
 <p>By default, <code>LearningSolver</code> uses Machine Learning to accelerate the MIP solution process, while maintaining all optimality guarantees provided by the MIP solver. In the default mode of operation, for example, predicted optimal solutions are used only as MIP starts.</p>
-<p>For more significant performance benefits, <code>LearningSolver</code> can also be configured to place additional trust in the Machine Learning predictors, by using the <code>mode="heuristic"</code> constructor argument. When operating in this mode, if a ML model is statistically shown (through <em>stratified k-fold cross validation</em>) to have exceptionally high accuracy, the solver may decide to restrict the search space based on its predictions. The parts of the solution which the ML models cannot predict accurately will still be explored using traditional (branch-and-bound) methods.  For particular applications, this mode has been shown to quickly produce optimal or near-optimal solutions (see <a href="../about/#references">references</a> and <a href="../benchmark/">benchmark results</a>).</p>
+<p>For more significant performance benefits, <code>LearningSolver</code> can also be configured to place additional trust in the Machine Learning predictors, by using the <code>mode="heuristic"</code> constructor argument. When operating in this mode, if a ML model is statistically shown (through <em>stratified k-fold cross validation</em>) to have exceptionally high accuracy, the solver may decide to restrict the search space based on its predictions. The parts of the solution which the ML models cannot predict accurately will still be explored using traditional (branch-and-bound) methods.  For particular applications, this mode has been shown to quickly produce optimal or near-optimal solutions (see <a href="../about/#references">references</a> and <a href="../problems/">benchmark results</a>).</p>
 <div class="admonition danger">
 <p class="admonition-title">Danger</p>
 <p>The <code>heuristic</code> mode provides no optimality guarantees, and therefore should only be used if the solver is first trained on a large and representative set of training instances. Training on a small or non-representative set of instances may produce low-quality solutions, or make the solver incorrectly classify new instances as infeasible.</p>
@@ -295,11 +291,12 @@ solver.parallel_solve(test_instances)
 <h3 id="63-solving-instances-from-the-disk">6.3 Solving instances from the disk</h3>
 <p>In all examples above, we have assumed that instances are available as Python objects, stored in memory. When problem instances are very large, or when there is a large number of problem instances, this approach may require an excessive amount of memory. To reduce memory requirements, MIPLearn can also operate on instances that are stored on disk. More precisely, the methods <code>fit</code>, <code>solve</code> and <code>parallel_solve</code> in <code>LearningSolver</code> can operate on filenames (or lists of filenames) instead of instance objects, as the next example illustrates.
 Instance files must be pickled instance objects. The method <code>solve</code> loads at most one instance to memory at a time, while <code>parallel_solve</code> loads at most <code>n_jobs</code> instances.</p>
-<pre><code class="language-python">from miplearn import LearningSolver
+<pre><code class="language-python">import pickle
+from miplearn import LearningSolver
 
 # Construct and pickle 600 problem instances
 for i in range(600):
-    instance = CustomInstance([...])
+    instance = MyProblemInstance([...])
     with open(&quot;instance_%03d.pkl&quot; % i, &quot;w&quot;) as file:
         pickle.dump(instance, obj)
 
@@ -319,21 +316,45 @@ solver.fit(train_instances)
 # Solve test instances 
 solver.parallel_solve(test_instances, n_jobs=4)
 </code></pre>
-<p>By default, <code>solve</code> and <code>parallel_solve</code> modify files in place. That is, after the instances are loaded from disk and solved, MIPLearn writes them back to the disk, overwriting the original files. To write to an alternative file instead, the argument <code>output</code> may be used. In <code>solve</code>, this argument should be a single filename. In <code>parallel_solve</code>, it should be a list, containing exactly as many filenames as instances. If <code>output</code> is <code>None</code>, the modifications are simply discarded. This can be useful, for example, during benchmarks.</p>
-<pre><code class="language-python"># Solve a single instance file and store the output to another file
-solver.solve(&quot;knapsack_1.orig.pkl&quot;, output=&quot;knapsack_1.solved.pkl&quot;)
+<p>By default, <code>solve</code> and <code>parallel_solve</code> modify files in place. That is, after the instances are loaded from disk and solved, MIPLearn writes them back to the disk, overwriting the original files. To write to an alternative file instead, use the arguments <code>output_filename</code> (in <code>solve</code>) and <code>output_filenames</code> (in <code>parallel_solve</code>). To discard the modifications instead, use <code>discard_outputs=True</code>. This can be useful, for example, during benchmarks.</p>
+<pre><code class="language-python"># Solve a single instance file and write the output to another file
+solver.solve(&quot;knapsack_1.orig.pkl&quot;, output_filename=&quot;knapsack_1.solved.pkl&quot;)
 
 # Solve a list of instance files
 instances = [&quot;knapsack_%03d.orig.pkl&quot; % i for i in range(100)]
 output = [&quot;knapsack_%03d.solved.pkl&quot; % i for i in range(100)]
-solver.parallel_solve(instances, output=output)
+solver.parallel_solve(instances, output_filenames=output)
 
 # Solve instances and discard solutions and training data
-solver.parallel_solve(instances, output=None)
+solver.parallel_solve(instances, discard_outputs=True)
 </code></pre>
-<h2 id="7-current-limitations">7. Current Limitations</h2>
+<h2 id="7-running-benchmarks">7. Running benchmarks</h2>
+<p>MIPLearn provides the utility class <code>BenchmarkRunner</code>, which simplifies the task of comparing the performance of different solvers. The snippet below shows its basic usage:</p>
+<pre><code class="language-python">from miplearn import BenchmarkRunner, LearningSolver
+
+# Create train and test instances
+train_instances = [...]
+test_instances  = [...]
+
+# Training phase...
+training_solver = LearningSolver(...)
+training_solver.parallel_solve(train_instances, n_jobs=10)
+
+# Test phase...
+benchmark = BenchmarkRunner({
+    &quot;Baseline&quot;: LearningSolver(...),
+    &quot;Strategy A&quot;: LearningSolver(...),
+    &quot;Strategy B&quot;: LearningSolver(...),
+    &quot;Strategy C&quot;: LearningSolver(...),
+})
+benchmark.fit(train_instances)
+benchmark.parallel_solve(test_instances, n_jobs=5)
+benchmark.write_csv(&quot;results.csv&quot;)
+</code></pre>
+<p>The method <code>fit</code> trains the ML models for each individual solver. The method <code>parallel_solve</code> solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, <code>write_csv</code> produces a table of results. The columns in the CSV file depend on the components added to the solver.</p>
+<h2 id="8-current-limitations">8. Current Limitations</h2>
 <ul>
-<li>Only binary and continuous decision variables are currently supported. General integer variables are not currently supported by all solver components.</li>
+<li>Only binary and continuous decision variables are currently supported. General integer variables are not currently supported by some solver components.</li>
 </ul></div>
         
         

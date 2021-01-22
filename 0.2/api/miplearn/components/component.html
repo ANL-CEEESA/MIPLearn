@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.0" />
+<meta name="generator" content="pdoc 0.7.5" />
 <title>miplearn.components.component API documentation</title>
 <meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
@@ -32,7 +32,7 @@ from abc import ABC, abstractmethod
 from typing import Any, List, Union, TYPE_CHECKING
 
 from miplearn.instance import Instance
-from miplearn.types import MIPSolveStats, TrainingSample
+from miplearn.types import LearningSolveStats, TrainingSample
 
 if TYPE_CHECKING:
     from miplearn.solvers.learning import LearningSolver
@@ -73,7 +73,7 @@ class Component(ABC):
         solver: &#34;LearningSolver&#34;,
         instance: Instance,
         model: Any,
-        stats: MIPSolveStats,
+        stats: LearningSolveStats,
         training_data: TrainingSample,
     ) -&gt; None:
         &#34;&#34;&#34;
@@ -87,13 +87,13 @@ class Component(ABC):
             The instance being solved.
         model: Any
             The concrete optimization model being solved.
-        stats: dict
+        stats: LearningSolveStats
             A dictionary containing statistics about the solution process, such as
             number of nodes explored and running time. Components are free to add
             their own statistics here. For example, PrimalSolutionComponent adds
             statistics regarding the number of predicted variables. All statistics in
             this dictionary are exported to the benchmark CSV file.
-        training_data: dict
+        training_data: TrainingSample
             A dictionary containing data that may be useful for training machine
             learning models and accelerating the solution process. Components are
             free to add their own training data here. For example,
@@ -156,7 +156,6 @@ class Component(ABC):
 <dl>
 <dt id="miplearn.components.component.Component"><code class="flex name class">
 <span>class <span class="ident">Component</span></span>
-<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>A Component is an object which adds functionality to a LearningSolver.</p>
@@ -202,7 +201,7 @@ strategy.</p></section>
         solver: &#34;LearningSolver&#34;,
         instance: Instance,
         model: Any,
-        stats: MIPSolveStats,
+        stats: LearningSolveStats,
         training_data: TrainingSample,
     ) -&gt; None:
         &#34;&#34;&#34;
@@ -216,13 +215,13 @@ strategy.</p></section>
             The instance being solved.
         model: Any
             The concrete optimization model being solved.
-        stats: dict
+        stats: LearningSolveStats
             A dictionary containing statistics about the solution process, such as
             number of nodes explored and running time. Components are free to add
             their own statistics here. For example, PrimalSolutionComponent adds
             statistics regarding the number of predicted variables. All statistics in
             this dictionary are exported to the benchmark CSV file.
-        training_data: dict
+        training_data: TrainingSample
             A dictionary containing data that may be useful for training machine
             learning models and accelerating the solution process. Components are
             free to add their own training data here. For example,
@@ -279,16 +278,16 @@ strategy.</p></section>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="miplearn.components.composite.CompositeComponent" href="composite.html#miplearn.components.composite.CompositeComponent">CompositeComponent</a></li>
 <li><a title="miplearn.components.cuts.UserCutsComponent" href="cuts.html#miplearn.components.cuts.UserCutsComponent">UserCutsComponent</a></li>
 <li><a title="miplearn.components.lazy_dynamic.DynamicLazyConstraintsComponent" href="lazy_dynamic.html#miplearn.components.lazy_dynamic.DynamicLazyConstraintsComponent">DynamicLazyConstraintsComponent</a></li>
+<li><a title="miplearn.components.lazy_static.StaticLazyConstraintsComponent" href="lazy_static.html#miplearn.components.lazy_static.StaticLazyConstraintsComponent">StaticLazyConstraintsComponent</a></li>
 <li><a title="miplearn.components.objective.ObjectiveValueComponent" href="objective.html#miplearn.components.objective.ObjectiveValueComponent">ObjectiveValueComponent</a></li>
 <li><a title="miplearn.components.primal.PrimalSolutionComponent" href="primal.html#miplearn.components.primal.PrimalSolutionComponent">PrimalSolutionComponent</a></li>
-<li><a title="miplearn.components.lazy_static.StaticLazyConstraintsComponent" href="lazy_static.html#miplearn.components.lazy_static.StaticLazyConstraintsComponent">StaticLazyConstraintsComponent</a></li>
-<li><a title="miplearn.components.composite.CompositeComponent" href="composite.html#miplearn.components.composite.CompositeComponent">CompositeComponent</a></li>
-<li><a title="miplearn.components.steps.drop_redundant.DropRedundantInequalitiesStep" href="steps/drop_redundant.html#miplearn.components.steps.drop_redundant.DropRedundantInequalitiesStep">DropRedundantInequalitiesStep</a></li>
-<li><a title="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep" href="steps/convert_tight.html#miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep">ConvertTightIneqsIntoEqsStep</a></li>
-<li><a title="miplearn.components.steps.relax_integrality.RelaxIntegralityStep" href="steps/relax_integrality.html#miplearn.components.steps.relax_integrality.RelaxIntegralityStep">RelaxIntegralityStep</a></li>
 <li><a title="miplearn.components.relaxation.RelaxationComponent" href="relaxation.html#miplearn.components.relaxation.RelaxationComponent">RelaxationComponent</a></li>
+<li><a title="miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep" href="steps/convert_tight.html#miplearn.components.steps.convert_tight.ConvertTightIneqsIntoEqsStep">ConvertTightIneqsIntoEqsStep</a></li>
+<li><a title="miplearn.components.steps.drop_redundant.DropRedundantInequalitiesStep" href="steps/drop_redundant.html#miplearn.components.steps.drop_redundant.DropRedundantInequalitiesStep">DropRedundantInequalitiesStep</a></li>
+<li><a title="miplearn.components.steps.relax_integrality.RelaxIntegralityStep" href="steps/relax_integrality.html#miplearn.components.steps.relax_integrality.RelaxIntegralityStep">RelaxIntegralityStep</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -305,13 +304,13 @@ strategy.</p></section>
 <dd>The instance being solved.</dd>
 <dt><strong><code>model</code></strong> :&ensp;<code>Any</code></dt>
 <dd>The concrete optimization model being solved.</dd>
-<dt><strong><code>stats</code></strong> :&ensp;<code>dict</code></dt>
+<dt><strong><code>stats</code></strong> :&ensp;<code>LearningSolveStats</code></dt>
 <dd>A dictionary containing statistics about the solution process, such as
 number of nodes explored and running time. Components are free to add
 their own statistics here. For example, PrimalSolutionComponent adds
 statistics regarding the number of predicted variables. All statistics in
 this dictionary are exported to the benchmark CSV file.</dd>
-<dt><strong><code>training_data</code></strong> :&ensp;<code>dict</code></dt>
+<dt><strong><code>training_data</code></strong> :&ensp;<code>TrainingSample</code></dt>
 <dd>A dictionary containing data that may be useful for training machine
 learning models and accelerating the solution process. Components are
 free to add their own training data here. For example,
@@ -328,7 +327,7 @@ def after_solve(
     solver: &#34;LearningSolver&#34;,
     instance: Instance,
     model: Any,
-    stats: MIPSolveStats,
+    stats: LearningSolveStats,
     training_data: TrainingSample,
 ) -&gt; None:
     &#34;&#34;&#34;
@@ -342,13 +341,13 @@ def after_solve(
         The instance being solved.
     model: Any
         The concrete optimization model being solved.
-    stats: dict
+    stats: LearningSolveStats
         A dictionary containing statistics about the solution process, such as
         number of nodes explored and running time. Components are free to add
         their own statistics here. For example, PrimalSolutionComponent adds
         statistics regarding the number of predicted variables. All statistics in
         this dictionary are exported to the benchmark CSV file.
-    training_data: dict
+    training_data: TrainingSample
         A dictionary containing data that may be useful for training machine
         learning models and accelerating the solution process. Components are
         free to add their own training data here. For example,
@@ -518,7 +517,7 @@ ends. If it retunrs True for any component, the MIP is solved again.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.5</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>
