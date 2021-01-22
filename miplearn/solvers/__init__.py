@@ -9,7 +9,7 @@ from typing import Any, List
 logger = logging.getLogger(__name__)
 
 
-class RedirectOutput:
+class _RedirectOutput:
     def __init__(self, streams: List[Any]):
         self.streams = streams
 

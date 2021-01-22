@@ -15,7 +15,7 @@ from pyomo.opt import TerminationCondition
 from pyomo.opt.base.solvers import SolverFactory
 
 from miplearn.instance import Instance
-from miplearn.solvers import RedirectOutput
+from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
     InternalSolver,
     LPSolveStats,
@@ -60,7 +60,7 @@ class BasePyomoSolver(InternalSolver):
         streams: List[Any] = [StringIO()]
         if tee:
             streams += [sys.stdout]
-        with RedirectOutput(streams):
+        with _RedirectOutput(streams):
             results = self._pyomo_solver.solve(tee=True)
         self._restore_integrality()
         opt_value = None
@@ -92,7 +92,7 @@ class BasePyomoSolver(InternalSolver):
             iteration_cb = lambda: False
         while True:
             logger.debug("Solving MIP...")
-            with RedirectOutput(streams):
+            with _RedirectOutput(streams):
                 results = self._pyomo_solver.solve(
                     tee=True,
                     warmstart=self._is_warm_start_available,

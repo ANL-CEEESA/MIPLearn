@@ -8,7 +8,7 @@ from warnings import warn
 
 import pyomo.environ as pe
 
-from miplearn.solvers import RedirectOutput
+from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
 from miplearn.solvers.tests import (
@@ -25,7 +25,7 @@ def test_redirect_output():
 
     original_stdout = sys.stdout
     io = StringIO()
-    with RedirectOutput([io]):
+    with _RedirectOutput([io]):
         print("Hello world")
     assert sys.stdout == original_stdout
     assert io.getvalue() == "Hello world\n"

@@ -9,7 +9,7 @@ from random import randint
 from typing import List, Any, Dict, Optional
 
 from miplearn.instance import Instance
-from miplearn.solvers import RedirectOutput
+from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
     InternalSolver,
     LPSolveStats,
@@ -23,24 +23,25 @@ logger = logging.getLogger(__name__)
 
 
 class GurobiSolver(InternalSolver):
+    """
+    An InternalSolver backed by Gurobi's Python API (without Pyomo).
+
+    Parameters
+    ----------
+    params: Optional[SolverParams]
+        Parameters to pass to Gurobi. For example, `params={"MIPGap": 1e-3}`
+        sets the gap tolerance to 1e-3.
+    lazy_cb_frequency: int
+        If 1, calls lazy constraint callbacks whenever an integer solution
+        is found. If 2, calls it also at every node, after solving the
+        LP relaxation of that node.
+    """
+
     def __init__(
         self,
         params: Optional[SolverParams] = None,
         lazy_cb_frequency: int = 1,
     ) -> None:
-        """
-        An InternalSolver backed by Gurobi's Python API (without Pyomo).
-
-        Parameters
-        ----------
-        params
-            Parameters to pass to Gurobi. For example, params={"MIPGap": 1e-3}
-            sets the gap tolerance to 1e-3.
-        lazy_cb_frequency
-            If 1, calls lazy constraint callbacks whenever an integer solution
-            is found. If 2, calls it also at every node, after solving the
-            LP relaxation of that node.
-        """
         import gurobipy
 
         if params is None:
@@ -108,7 +109,7 @@ class GurobiSolver(InternalSolver):
 
     def _apply_params(self, streams: List[Any]) -> None:
         assert self.model is not None
-        with RedirectOutput(streams):
+        with _RedirectOutput(streams):
             for (name, value) in self.params.items():
                 self.model.setParam(name, value)
             if "seed" not in [k.lower() for k in self.params.keys()]:
@@ -130,7 +131,7 @@ class GurobiSolver(InternalSolver):
                 var.vtype = self.gp.GRB.CONTINUOUS
                 var.lb = 0.0
                 var.ub = 1.0
-        with RedirectOutput(streams):
+        with _RedirectOutput(streams):
             self.model.optimize()
         for (varname, vardict) in self._bin_vars.items():
             for (idx, var) in vardict.items():
@@ -174,7 +175,7 @@ class GurobiSolver(InternalSolver):
         if iteration_cb is None:
             iteration_cb = lambda: False
         while True:
-            with RedirectOutput(streams):
+            with _RedirectOutput(streams):
                 if lazy_cb is None:
                     self.model.optimize()
                 else:
@@ -362,11 +363,13 @@ class GurobiSolver(InternalSolver):
         ineqs = [c for c in self.model.getConstrs() if c.sense != "="]
         return {c.ConstrName: c.Slack for c in ineqs}
 
-    def set_constraint_sense(self, cid, sense):
+    def set_constraint_sense(self, cid: str, sense: str) -> None:
+        assert self.model is not None
         c = self.model.getConstrByName(cid)
         c.Sense = sense
 
-    def get_constraint_sense(self, cid):
+    def get_constraint_sense(self, cid: str) -> str:
+        assert self.model is not None
         c = self.model.getConstrByName(cid)
         return c.Sense
 

@@ -55,11 +55,11 @@ class Component(ABC):
 
         Parameters
         ----------
-        solver: "LearningSolver"
+        solver: LearningSolver
             The solver calling this method.
         instance: Instance
             The instance being solved.
-        model:
+        model: Any
             The concrete optimization model being solved.
         stats: dict
             A dictionary containing statistics about the solution process, such as
@@ -101,11 +101,11 @@ class Component(ABC):
 
         Parameters
         ----------
-        solver: "LearningSolver"
+        solver: LearningSolver
             The solver calling this method.
         instance: Instance
             The instance being solved.
-        model:
+        model: Any
             The concrete optimization model being solved.
         """
         return False

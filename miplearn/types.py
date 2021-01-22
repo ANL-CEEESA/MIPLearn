@@ -54,3 +54,7 @@ LazyCallback = Callable[[Any, Any], None]
 SolverParams = Dict[str, Any]
 
 BranchPriorities = Solution
+
+
+class Constraint:
+    pass
