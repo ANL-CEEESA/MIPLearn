@@ -42,6 +42,7 @@ reformat:
 
 test:
 	$(MYPY) -p miplearn
+	$(MYPY) -p tests
 	$(PYTEST) $(PYTEST_ARGS)
 
 .PHONY: test test-watch docs install

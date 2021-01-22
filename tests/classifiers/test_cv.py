@@ -35,7 +35,9 @@ def test_cv():
         cv=30,
     )
     clf.fit(x_train, y_train)
-    assert norm(np.zeros(n_samples) - clf.predict(x_train)) < E
+    proba = clf.predict_proba(x_train)
+    y_pred = (proba[:, 1] > 0.5).astype(float)
+    assert norm(np.zeros(n_samples) - y_pred) < E
 
     # Support vector machines with quadratic kernels perform almost perfectly
     # on this data set, so predictor should return their prediction.
@@ -45,5 +47,6 @@ def test_cv():
         cv=30,
     )
     clf.fit(x_train, y_train)
-    print(y_train - clf.predict(x_train))
-    assert norm(y_train - clf.predict(x_train)) < E
+    proba = clf.predict_proba(x_train)
+    y_pred = (proba[:, 1] > 0.5).astype(float)
+    assert norm(y_train - y_pred) < E

@@ -37,6 +37,7 @@ class CrossValidatedClassifier(Classifier):
         cv=5,
         scoring="accuracy",
     ):
+        super().__init__()
         self.classifier = None
         self.classifier_prototype = classifier
         self.constant = constant
@@ -45,6 +46,8 @@ class CrossValidatedClassifier(Classifier):
         self.scoring = scoring
 
     def fit(self, x_train, y_train):
+        # super().fit(x_train, y_train)
+
         # Calculate dummy score and absolute score threshold
         y_train_avg = np.average(y_train)
         dummy_score = max(y_train_avg, 1 - y_train_avg)
@@ -83,4 +86,5 @@ class CrossValidatedClassifier(Classifier):
         self.classifier.fit(x_train, y_train)
 
     def predict_proba(self, x_test):
+        # super().predict_proba(x_test)
         return self.classifier.predict_proba(x_test)
