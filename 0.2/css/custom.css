@@ -14,6 +14,10 @@ a, .navbar-default a {
 }
 
 .navbar-default a:hover,
+.navbar-default a:focus {
+  background-color: #f4f4f4 !important;
+}
+
 .navbar-default .active,
 .active > a {
   background-color: #f0f0f0 !important;
