@@ -7,7 +7,6 @@ from io import StringIO
 from warnings import warn
 
 import pyomo.environ as pe
-from pytest import raises
 
 from miplearn.solvers import RedirectOutput
 from miplearn.solvers.gurobi import GurobiSolver

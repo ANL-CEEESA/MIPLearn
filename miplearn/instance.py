@@ -10,7 +10,6 @@ from typing import Any, List
 import numpy as np
 
 from miplearn.types import TrainingSample
-import pyomo.environ as pe
 
 
 class Instance(ABC):

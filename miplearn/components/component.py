@@ -2,8 +2,6 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
 from typing import Any, List, Union, TYPE_CHECKING
 
@@ -25,7 +23,7 @@ class Component(ABC):
 
     def before_solve(
         self,
-        solver: LearningSolver,
+        solver: "LearningSolver",
         instance: Instance,
         model: Any,
     ) -> None:
@@ -46,7 +44,7 @@ class Component(ABC):
     @abstractmethod
     def after_solve(
         self,
-        solver: LearningSolver,
+        solver: "LearningSolver",
         instance: Instance,
         model: Any,
         stats: MIPSolveStats,
@@ -57,7 +55,7 @@ class Component(ABC):
 
         Parameters
         ----------
-        solver: LearningSolver
+        solver: "LearningSolver"
             The solver calling this method.
         instance: Instance
             The instance being solved.
@@ -86,7 +84,7 @@ class Component(ABC):
 
     def iteration_cb(
         self,
-        solver: LearningSolver,
+        solver: "LearningSolver",
         instance: Instance,
         model: Any,
     ) -> bool:
@@ -103,7 +101,7 @@ class Component(ABC):
 
         Parameters
         ----------
-        solver: LearningSolver
+        solver: "LearningSolver"
             The solver calling this method.
         instance: Instance
             The instance being solved.
@@ -114,7 +112,7 @@ class Component(ABC):
 
     def lazy_cb(
         self,
-        solver: LearningSolver,
+        solver: "LearningSolver",
         instance: Instance,
         model: Any,
     ) -> None:
