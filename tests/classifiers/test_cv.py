@@ -4,44 +4,18 @@
 
 import numpy as np
 from numpy.linalg import norm
-from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 from miplearn.classifiers import ScikitLearnClassifier
 from miplearn.classifiers.cv import CrossValidatedClassifier
+from tests.classifiers import _build_circle_training_data
 
 E = 0.1
 
 
 def test_cv() -> None:
-    # Training set: label is true if point is inside a 2D circle
-    x_train = np.array(
-        [
-            [
-                x1,
-                x2,
-            ]
-            for x1 in range(-10, 11)
-            for x2 in range(-10, 11)
-        ]
-    )
-    x_train = StandardScaler().fit_transform(x_train)
+    x_train, y_train = _build_circle_training_data()
     n_samples = x_train.shape[0]
-    y_train = np.array(
-        [
-            [
-                False,
-                True,
-            ]
-            if x1 * x1 + x2 * x2 <= 100
-            else [
-                True,
-                False,
-            ]
-            for x1 in range(-10, 11)
-            for x2 in range(-10, 11)
-        ]
-    )
 
     # Support vector machines with linear kernels do not perform well on this
     # data set, so predictor should return the given constant.
