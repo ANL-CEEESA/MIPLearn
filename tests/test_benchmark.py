@@ -29,7 +29,7 @@ def test_benchmark():
     benchmark = BenchmarkRunner(test_solvers)
     benchmark.fit(train_instances)
     benchmark.parallel_solve(test_instances, n_jobs=2, n_trials=2)
-    assert benchmark.results.values.shape == (12, 14)
+    assert benchmark.results.values.shape == (12, 17)
 
     benchmark.write_csv("/tmp/benchmark.csv")
     assert os.path.isfile("/tmp/benchmark.csv")

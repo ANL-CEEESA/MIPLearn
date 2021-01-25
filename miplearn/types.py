@@ -62,6 +62,9 @@ LearningSolveStats = TypedDict(
         "Upper bound": Optional[float],
         "Wallclock time": float,
         "Warm start value": Optional[float],
+        "Primal: free": int,
+        "Primal: zero": int,
+        "Primal: one": int,
     },
     total=False,
 )
