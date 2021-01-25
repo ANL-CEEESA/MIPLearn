@@ -69,13 +69,18 @@ For example, if the ML model predicts that a certain binary variable will assume
 
 MIPLearn currently provides two types of thresholds:
 
-* `MinProbabilityThreshold(p: float)` A threshold which indicates that a prediction is trustworthy if its probability of being correct, as computed by the machine learning model, is above a fixed value `p`.
-* `MinPrecisionThreshold(p: float)` A dynamic threshold which automatically adjusts itself during training to ensure that the component achieves at least a given precision `p` on the training data set. Note that increasing a component's precision may reduce its recall.
+* `MinProbabilityThreshold(p: List[float])` A threshold which indicates that a prediction is trustworthy if its probability of being correct, as computed by the machine learning model, is above a fixed value.
+* `MinPrecisionThreshold(p: List[float])` A dynamic threshold which automatically adjusts itself during training to ensure that the component achieves at least a given precision on the training data set. Note that increasing a component's precision may reduce its recall.
 
-The example below shows how to configure `PrimalSolutionComponent` to achieve at least 95% precision. Other components are configured similarly.
+The example below shows how to build a `PrimalSolutionComponent` which fixes variables to zero with at least 80% precision, and to one with at least 95% precision. Other components are configured similarly.
 
 ```python
-PrimalSolutionComponent(threshold=MinPrecisionThreshold(0.95))
+from miplearn import PrimalSolutionComponent, MinPrecisionThreshold
+
+PrimalSolutionComponent(
+    mode="heuristic",
+    threshold=lambda: MinPrecisionThreshold([0.80, 0.95]),
+)
 ```
 
 ### Evaluating component performance

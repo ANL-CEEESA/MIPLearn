@@ -1,111 +1,245 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-
-from unittest.mock import Mock
+from typing import cast, List
+from unittest.mock import Mock, call
 
 import numpy as np
+from numpy.testing import assert_array_equal
 
-from miplearn.classifiers import Classifier
+from miplearn import Classifier
+from miplearn.classifiers.threshold import Threshold, MinPrecisionThreshold
 from miplearn.components.primal import PrimalSolutionComponent
-from .. import get_test_pyomo_instances
+from miplearn.instance import Instance
+from tests import get_test_pyomo_instances
 
 
-def test_predict():
-    instances, models = get_test_pyomo_instances()
+def test_x_y_fit() -> None:
     comp = PrimalSolutionComponent()
-    comp.fit(instances)
-    solution = comp.predict(instances[0])
-    assert "x" in solution
-    assert 0 in solution["x"]
-    assert 1 in solution["x"]
-    assert 2 in solution["x"]
-    assert 3 in solution["x"]
+    training_instances = cast(
+        List[Instance],
+        [
+            Mock(spec=Instance),
+            Mock(spec=Instance),
+        ],
+    )
 
+    # Construct first instance
+    training_instances[0].get_variable_category = Mock(  # type: ignore
+        side_effect=lambda var_name, index: {
+            0: "default",
+            1: None,
+            2: "default",
+            3: "default",
+        }[index]
+    )
+    training_instances[0].get_variable_features = Mock(  # type: ignore
+        side_effect=lambda var, index: {
+            0: [0.0, 0.0],
+            1: [0.0, 1.0],
+            2: [1.0, 0.0],
+            3: [1.0, 1.0],
+        }[index]
+    )
+    training_instances[0].training_data = [
+        {
+            "Solution": {
+                "x": {
+                    0: 0.0,
+                    1: 1.0,
+                    2: 0.0,
+                    3: 0.0,
+                }
+            },
+            "LP solution": {
+                "x": {
+                    0: 0.1,
+                    1: 0.1,
+                    2: 0.1,
+                    3: 0.1,
+                }
+            },
+        },
+        {
+            "Solution": {
+                "x": {
+                    0: 0.0,
+                    1: 1.0,
+                    2: 1.0,
+                    3: 0.0,
+                }
+            },
+            "LP solution": {
+                "x": {
+                    0: 0.2,
+                    1: 0.2,
+                    2: 0.2,
+                    3: 0.2,
+                }
+            },
+        },
+    ]
 
-def test_evaluate():
-    instances, models = get_test_pyomo_instances()
-    clf_zero = Mock(spec=Classifier)
-    clf_zero.predict_proba = Mock(
-        return_value=np.array(
+    # Construct second instance
+    training_instances[1].get_variable_category = Mock(  # type: ignore
+        side_effect=lambda var_name, index: {
+            0: "default",
+            1: None,
+            2: "default",
+            3: "default",
+        }[index]
+    )
+    training_instances[1].get_variable_features = Mock(  # type: ignore
+        side_effect=lambda var, index: {
+            0: [0.0, 0.0],
+            1: [0.0, 2.0],
+            2: [2.0, 0.0],
+            3: [2.0, 2.0],
+        }[index]
+    )
+    training_instances[1].training_data = [
+        {
+            "Solution": {
+                "x": {
+                    0: 1.0,
+                    1: 1.0,
+                    2: 1.0,
+                    3: 1.0,
+                }
+            },
+            "LP solution": {
+                "x": {
+                    0: 0.3,
+                    1: 0.3,
+                    2: 0.3,
+                    3: 0.3,
+                }
+            },
+        },
+        {
+            "Solution": None,
+            "LP solution": None,
+        },
+    ]
+
+    # Test x
+    x_expected = {
+        "default": np.array(
             [
-                [0.0, 1.0],  # x[0]
-                [0.0, 1.0],  # x[1]
-                [1.0, 0.0],  # x[2]
-                [1.0, 0.0],  # x[3]
+                [0.0, 0.0, 0.1],
+                [1.0, 0.0, 0.1],
+                [1.0, 1.0, 0.1],
+                [0.0, 0.0, 0.2],
+                [1.0, 0.0, 0.2],
+                [1.0, 1.0, 0.2],
+                [0.0, 0.0, 0.3],
+                [2.0, 0.0, 0.3],
+                [2.0, 2.0, 0.3],
             ]
         )
-    )
-    clf_one = Mock(spec=Classifier)
-    clf_one.predict_proba = Mock(
-        return_value=np.array(
-            [
-                [1.0, 0.0],  # x[0] instances[0]
-                [1.0, 0.0],  # x[1] instances[0]
-                [0.0, 1.0],  # x[2] instances[0]
-                [1.0, 0.0],  # x[3] instances[0]
-            ]
-        )
-    )
-    comp = PrimalSolutionComponent(classifier=[clf_zero, clf_one], threshold=0.50)
-    comp.fit(instances[:1])
-    assert comp.predict(instances[0]) == {"x": {0: 0, 1: 0, 2: 1, 3: None}}
-    assert instances[0].training_data[0]["Solution"] == {"x": {0: 1, 1: 0, 2: 1, 3: 1}}
-    ev = comp.evaluate(instances[:1])
-    assert ev == {
-        "Fix one": {
-            0: {
-                "Accuracy": 0.5,
-                "Condition negative": 1,
-                "Condition negative (%)": 25.0,
-                "Condition positive": 3,
-                "Condition positive (%)": 75.0,
-                "F1 score": 0.5,
-                "False negative": 2,
-                "False negative (%)": 50.0,
-                "False positive": 0,
-                "False positive (%)": 0.0,
-                "Precision": 1.0,
-                "Predicted negative": 3,
-                "Predicted negative (%)": 75.0,
-                "Predicted positive": 1,
-                "Predicted positive (%)": 25.0,
-                "Recall": 0.3333333333333333,
-                "True negative": 1,
-                "True negative (%)": 25.0,
-                "True positive": 1,
-                "True positive (%)": 25.0,
-            }
-        },
-        "Fix zero": {
-            0: {
-                "Accuracy": 0.75,
-                "Condition negative": 3,
-                "Condition negative (%)": 75.0,
-                "Condition positive": 1,
-                "Condition positive (%)": 25.0,
-                "F1 score": 0.6666666666666666,
-                "False negative": 0,
-                "False negative (%)": 0.0,
-                "False positive": 1,
-                "False positive (%)": 25.0,
-                "Precision": 0.5,
-                "Predicted negative": 2,
-                "Predicted negative (%)": 50.0,
-                "Predicted positive": 2,
-                "Predicted positive (%)": 50.0,
-                "Recall": 1.0,
-                "True negative": 2,
-                "True negative (%)": 50.0,
-                "True positive": 1,
-                "True positive (%)": 25.0,
-            }
-        },
     }
+    x_actual = comp.x(training_instances)
+    assert len(x_actual.keys()) == 1
+    assert_array_equal(x_actual["default"], x_expected["default"])
+
+    # Test y
+    y_expected = {
+        "default": np.array(
+            [
+                [True, False],
+                [True, False],
+                [True, False],
+                [True, False],
+                [False, True],
+                [True, False],
+                [False, True],
+                [False, True],
+                [False, True],
+            ]
+        )
+    }
+    y_actual = comp.y(training_instances)
+    assert len(y_actual.keys()) == 1
+    assert_array_equal(y_actual["default"], y_expected["default"])
+
+    # Test fit
+    classifier = Mock(spec=Classifier)
+    threshold = Mock(spec=Threshold)
+    classifier_factory = Mock(return_value=classifier)
+    threshold_factory = Mock(return_value=threshold)
+    comp = PrimalSolutionComponent(
+        classifier=classifier_factory,
+        threshold=threshold_factory,
+    )
+    comp.fit(training_instances)
+
+    # Should build and train classifier for "default" category
+    classifier_factory.assert_called_once()
+    assert_array_equal(x_actual["default"], classifier.fit.call_args.args[0])
+    assert_array_equal(y_actual["default"], classifier.fit.call_args.args[1])
+
+    # Should build and train threshold for "default" category
+    threshold_factory.assert_called_once()
+    assert classifier == threshold.fit.call_args.args[0]
+    assert_array_equal(x_actual["default"], threshold.fit.call_args.args[1])
+    assert_array_equal(y_actual["default"], threshold.fit.call_args.args[2])
 
 
-def test_primal_parallel_fit():
-    instances, models = get_test_pyomo_instances()
+def test_predict() -> None:
     comp = PrimalSolutionComponent()
-    comp.fit(instances, n_jobs=2)
-    assert len(comp.classifiers) == 2
+
+    clf = Mock(spec=Classifier)
+    clf.predict_proba = Mock(
+        return_value=np.array(
+            [
+                [0.9, 0.1],
+                [0.5, 0.5],
+                [0.1, 0.9],
+            ]
+        )
+    )
+    comp.classifiers = {"default": clf}
+
+    thr = Mock(spec=Threshold)
+    thr.predict = Mock(return_value=[0.75, 0.75])
+    comp.thresholds = {"default": thr}
+
+    instance = cast(Instance, Mock(spec=Instance))
+    instance.get_variable_category = Mock(  # type: ignore
+        return_value="default",
+    )
+    instance.get_variable_features = Mock(  # type: ignore
+        side_effect=lambda var, index: {
+            0: [0.0, 0.0],
+            1: [0.0, 2.0],
+            2: [2.0, 0.0],
+        }[index]
+    )
+    instance.training_data = [
+        {
+            "LP solution": {
+                "x": {
+                    0: 0.1,
+                    1: 0.5,
+                    2: 0.9,
+                }
+            }
+        }
+    ]
+
+    x = comp.x([instance])
+    solution_actual = comp.predict(instance)
+
+    # Should ask for probabilities and thresholds
+    clf.predict_proba.assert_called_once()
+    thr.predict.assert_called_once()
+    assert_array_equal(x["default"], clf.predict_proba.call_args.args[0])
+    assert_array_equal(x["default"], thr.predict.call_args.args[0])
+
+    assert solution_actual == {
+        "x": {
+            0: 0.0,
+            1: None,
+            2: 1.0,
+        }
+    }
