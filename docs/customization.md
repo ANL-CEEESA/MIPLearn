@@ -63,16 +63,16 @@ solver2 = LearningSolver(components=[
 
 ### Adjusting component aggressiveness
 
-The aggressiveness of classification components (such as `PrimalSolutionComponent` and `LazyConstraintComponent`) can
-be adjusted through the `threshold` constructor argument. Internally, these components ask the ML models how confident
-they are on each prediction (through the `predict_proba` method in the sklearn API), and only take into account
-predictions which have probabilities above the threshold. Lowering a component's threshold increases its aggressiveness,
-while raising a component's threshold makes it more conservative. 
+The aggressiveness of classification components, such as `PrimalSolutionComponent` and `LazyConstraintComponent`, can be adjusted through the `threshold` constructor argument. Internally, these components ask the machine learning models how confident are they on each prediction they make, then automatically discard all predictions that have low confidence. The `threshold` argument specifies how confident should the ML models be for a prediction to be considered trustworthy. Lowering a component's threshold increases its aggressiveness, while raising a component's threshold makes it more conservative.
 
-MIPLearn also includes `MinPrecisionThreshold`, a dynamic threshold which adjusts itself automatically during training
-to achieve a minimum desired true positive rate (also known as precision). The example below shows how to initialize
-a `PrimalSolutionComponent` which achieves 95% precision, possibly at the cost of a lower recall. To make the component
-more aggressive, this precision may be lowered.
+For example, if the ML model predicts that a certain binary variable will assume value `1.0` in the optimal solution with 75% confidence, and if the `PrimalSolutionComponent` is configured to discard all predictions with less than 90% confidence, then this variable will not be included in the predicted MIP start.
+
+MIPLearn currently provides two types of thresholds:
+
+* `MinProbabilityThreshold(p: float)` A threshold which indicates that a prediction is trustworthy if its probability of being correct, as computed by the machine learning model, is above a fixed value `p`.
+* `MinPrecisionThreshold(p: float)` A dynamic threshold which automatically adjusts itself during training to ensure that the component achieves at least a given precision `p` on the training data set. Note that increasing a component's precision may reduce its recall.
+
+The example below shows how to configure `PrimalSolutionComponent` to achieve at least 95% precision. Other components are configured similarly.
 
 ```python
 PrimalSolutionComponent(threshold=MinPrecisionThreshold(0.95))
