@@ -280,7 +280,7 @@ class PrimalSolutionComponent(Component):
         assert solution is not None
         opt_value = solution[var][idx]
         assert opt_value is not None
-        assert 0.0 <= opt_value <= 1.0, (
+        assert 0.0 - 1e-5 <= opt_value <= 1.0 + 1e-5, (
             f"Variable {var} has non-binary value {opt_value} in the optimal solution. "
             f"Predicting values of non-binary variables is not currently supported. "
             f"Please set its category to None."
