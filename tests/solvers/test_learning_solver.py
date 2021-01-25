@@ -3,6 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
+import dill
 import pickle
 import tempfile
 import os
@@ -44,7 +45,7 @@ def test_learning_solver():
 
             # Assert solver is picklable
             with tempfile.TemporaryFile() as file:
-                pickle.dump(solver, file)
+                dill.dump(solver, file)
 
 
 def test_solve_without_lp():

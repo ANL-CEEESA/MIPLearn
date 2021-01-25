@@ -116,9 +116,11 @@ class ConvertTightIneqsIntoEqsStep(Component):
                 if category not in y:
                     y[category] = []
                 if 0 <= slack <= self.slack_tolerance:
-                    y[category] += [[1]]
+                    y[category] += [[False, True]]
                 else:
-                    y[category] += [[0]]
+                    y[category] += [[True, False]]
+            for category in y.keys():
+                y[category] = np.array(y[category], dtype=np.bool8)
         return y
 
     def predict(self, x):

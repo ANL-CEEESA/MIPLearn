@@ -85,8 +85,10 @@ class DynamicLazyConstraintsComponent(Component):
             disable=not sys.stdout.isatty(),
         ):
             logger.debug("Training: %s" % (str(v)))
-            label = np.zeros(len(training_instances))
-            label[violation_to_instance_idx[v]] = 1.0
+            label = [[True, False] for i in training_instances]
+            for idx in violation_to_instance_idx[v]:
+                label[idx] = [False, True]
+            label = np.array(label, dtype=np.bool8)
             classifier.fit(features, label)
 
     def predict(self, instance):

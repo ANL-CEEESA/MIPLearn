@@ -90,6 +90,13 @@ class AdaptiveClassifier(Classifier):
         n_samples = x_train.shape[0]
         assert y_train.shape == (n_samples, 2)
 
+        # If almost all samples belong to the same class, return a fixed prediction and
+        # skip all the other steps.
+        if y_train[:, 0].mean() > 0.999 or y_train[:, 1].mean() > 0.999:
+            self.classifier = CountingClassifier()
+            self.classifier.fit(x_train, y_train)
+            return
+
         best_name, best_clf, best_score = None, None, -float("inf")
         for (name, specs) in self.candidates.items():
             if n_samples < specs.min_samples:
