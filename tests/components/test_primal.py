@@ -175,14 +175,14 @@ def test_x_y_fit() -> None:
 
     # Should build and train classifier for "default" category
     classifier_factory.assert_called_once()
-    assert_array_equal(x_actual["default"], classifier.fit.call_args.args[0])
-    assert_array_equal(y_actual["default"], classifier.fit.call_args.args[1])
+    assert_array_equal(x_actual["default"], classifier.fit.call_args[0][0])
+    assert_array_equal(y_actual["default"], classifier.fit.call_args[0][1])
 
     # Should build and train threshold for "default" category
     threshold_factory.assert_called_once()
-    assert classifier == threshold.fit.call_args.args[0]
-    assert_array_equal(x_actual["default"], threshold.fit.call_args.args[1])
-    assert_array_equal(y_actual["default"], threshold.fit.call_args.args[2])
+    assert classifier == threshold.fit.call_args[0][0]
+    assert_array_equal(x_actual["default"], threshold.fit.call_args[0][1])
+    assert_array_equal(y_actual["default"], threshold.fit.call_args[0][2])
 
 
 def test_predict() -> None:
@@ -233,8 +233,8 @@ def test_predict() -> None:
     # Should ask for probabilities and thresholds
     clf.predict_proba.assert_called_once()
     thr.predict.assert_called_once()
-    assert_array_equal(x["default"], clf.predict_proba.call_args.args[0])
-    assert_array_equal(x["default"], thr.predict.call_args.args[0])
+    assert_array_equal(x["default"], clf.predict_proba.call_args[0][0])
+    assert_array_equal(x["default"], thr.predict.call_args[0][0])
 
     assert solution_actual == {
         "x": {
