@@ -7,7 +7,7 @@ from unittest.mock import Mock, call
 import numpy as np
 
 from miplearn.classifiers import Classifier
-from miplearn.components.relaxation import DropRedundantInequalitiesStep
+from miplearn.components.steps.drop_redundant import DropRedundantInequalitiesStep
 from miplearn.instance import Instance
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.learning import LearningSolver

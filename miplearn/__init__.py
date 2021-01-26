@@ -16,7 +16,6 @@ from .components.lazy_dynamic import DynamicLazyConstraintsComponent
 from .components.lazy_static import StaticLazyConstraintsComponent
 from .components.objective import ObjectiveValueComponent
 from .components.primal import PrimalSolutionComponent
-from .components.relaxation import RelaxationComponent
 from .components.steps.convert_tight import ConvertTightIneqsIntoEqsStep
 from .components.steps.drop_redundant import DropRedundantInequalitiesStep
 from .components.steps.relax_integrality import RelaxIntegralityStep
