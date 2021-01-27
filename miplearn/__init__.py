@@ -19,12 +19,7 @@ from .components.primal import PrimalSolutionComponent
 from .components.steps.convert_tight import ConvertTightIneqsIntoEqsStep
 from .components.steps.drop_redundant import DropRedundantInequalitiesStep
 from .components.steps.relax_integrality import RelaxIntegralityStep
-from .extractors import (
-    SolutionExtractor,
-    InstanceFeaturesExtractor,
-    ObjectiveValueExtractor,
-    VariableFeaturesExtractor,
-)
+from .extractors import InstanceFeaturesExtractor
 from .instance import Instance
 from .log import setup_logger
 from .solvers.gurobi import GurobiSolver

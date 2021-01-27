@@ -3,11 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 import numpy as np
 
-from miplearn.extractors import (
-    SolutionExtractor,
-    InstanceFeaturesExtractor,
-    VariableFeaturesExtractor,
-)
+from miplearn.extractors import InstanceFeaturesExtractor
 from miplearn.problems.knapsack import KnapsackInstance
 from miplearn.solvers.learning import LearningSolver
 
@@ -32,38 +28,7 @@ def _get_instances():
     return instances, models
 
 
-def test_solution_extractor():
-    instances, models = _get_instances()
-    features = SolutionExtractor().extract(instances)
-    assert isinstance(features, dict)
-    assert "default" in features.keys()
-    assert isinstance(features["default"], np.ndarray)
-    assert features["default"].shape == (6, 2)
-    assert features["default"].ravel().tolist() == [
-        1.0,
-        0.0,
-        0.0,
-        1.0,
-        1.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        1.0,
-        1.0,
-        0.0,
-    ]
-
-
 def test_instance_features_extractor():
     instances, models = _get_instances()
     features = InstanceFeaturesExtractor().extract(instances)
     assert features.shape == (2, 3)
-
-
-def test_variable_features_extractor():
-    instances, models = _get_instances()
-    features = VariableFeaturesExtractor().extract(instances)
-    assert isinstance(features, dict)
-    assert "default" in features
-    assert features["default"].shape == (6, 5)
