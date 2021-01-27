@@ -117,9 +117,6 @@ class MaxWeightStableSetInstance(Instance):
             model.clique_eqs.add(sum(model.x[i] for i in clique) <= 1)
         return model
 
-    def get_instance_features(self):
-        return np.ones(0)
-
     def get_variable_features(self, var, index):
         neighbor_weights = [0] * 15
         neighbor_degrees = [100] * 15

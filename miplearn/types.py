@@ -65,6 +65,8 @@ LearningSolveStats = TypedDict(
         "Primal: free": int,
         "Primal: zero": int,
         "Primal: one": int,
+        "Objective: predicted LB": float,
+        "Objective: predicted UB": float,
     },
     total=False,
 )

@@ -1,33 +1,81 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-
+from typing import cast
 from unittest.mock import Mock
 
 import numpy as np
+from numpy.testing import assert_array_equal
 
+from miplearn.instance import Instance
 from miplearn.classifiers import Regressor
 from miplearn.components.objective import ObjectiveValueComponent
 from .. import get_test_pyomo_instances
 
 
-def test_usage():
-    instances, models = get_test_pyomo_instances()
-    comp = ObjectiveValueComponent()
-    comp.fit(instances)
-    assert instances[0].training_data[0]["Lower bound"] == 1183.0
-    assert instances[0].training_data[0]["Upper bound"] == 1183.0
-    assert np.round(comp.predict(instances), 2).tolist() == [
-        [1183.0, 1183.0],
-        [1070.0, 1070.0],
+def test_x_y_predict() -> None:
+    # Construct instance
+    instance = cast(Instance, Mock(spec=Instance))
+    instance.get_instance_features = Mock(  # type: ignore
+        return_value=[1.0, 2.0],
+    )
+    instance.training_data = [
+        {
+            "Lower bound": 1.0,
+            "Upper bound": 2.0,
+        },
+        {
+            "Lower bound": 1.5,
+            "Upper bound": 2.2,
+        },
     ]
+
+    # Construct mock regressors
+    lb_regressor = Mock(spec=Regressor)
+    lb_regressor.predict = Mock(return_value=np.array([[5.0], [6.0]]))
+    ub_regressor = Mock(spec=Regressor)
+    ub_regressor.predict = Mock(return_value=np.array([[3.0], [3.0]]))
+    comp = ObjectiveValueComponent(
+        lb_regressor=lambda: lb_regressor,
+        ub_regressor=lambda: ub_regressor,
+    )
+
+    # Should build x correctly
+    x_expected = np.array([[1.0, 2.0], [1.0, 2.0]])
+    assert_array_equal(comp.x([instance]), x_expected)
+
+    # Should build y correctly
+    y_actual = comp.y([instance])
+    y_expected_lb = np.array([[1.0], [1.5]])
+    y_expected_ub = np.array([[2.0], [2.2]])
+    assert_array_equal(y_actual["Lower bound"], y_expected_lb)
+    assert_array_equal(y_actual["Upper bound"], y_expected_ub)
+
+    # Should pass arrays to regressors
+    comp.fit([instance])
+    assert_array_equal(lb_regressor.fit.call_args[0][0], x_expected)
+    assert_array_equal(lb_regressor.fit.call_args[0][1], y_expected_lb)
+    assert_array_equal(ub_regressor.fit.call_args[0][0], x_expected)
+    assert_array_equal(ub_regressor.fit.call_args[0][1], y_expected_ub)
+
+    # Should return predictions
+    pred = comp.predict([instance])
+    assert_array_equal(lb_regressor.predict.call_args[0][0], x_expected)
+    assert_array_equal(ub_regressor.predict.call_args[0][0], x_expected)
+    assert pred == {
+        "Lower bound": [5.0, 6.0],
+        "Upper bound": [3.0, 3.0],
+    }
 
 
 def test_obj_evaluate():
     instances, models = get_test_pyomo_instances()
     reg = Mock(spec=Regressor)
-    reg.predict = Mock(return_value=np.array([1000.0, 1000.0]))
-    comp = ObjectiveValueComponent(regressor=reg)
+    reg.predict = Mock(return_value=np.array([[1000.0], [1000.0]]))
+    comp = ObjectiveValueComponent(
+        lb_regressor=lambda: reg,
+        ub_regressor=lambda: reg,
+    )
     comp.fit(instances)
     ev = comp.evaluate(instances)
     assert ev == {
