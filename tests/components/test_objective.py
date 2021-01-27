@@ -23,10 +23,12 @@ def test_x_y_predict() -> None:
         {
             "Lower bound": 1.0,
             "Upper bound": 2.0,
+            "LP value": 3.0,
         },
         {
             "Lower bound": 1.5,
             "Upper bound": 2.2,
+            "LP value": 3.4,
         },
     ]
 
@@ -41,7 +43,7 @@ def test_x_y_predict() -> None:
     )
 
     # Should build x correctly
-    x_expected = np.array([[1.0, 2.0], [1.0, 2.0]])
+    x_expected = np.array([[1.0, 2.0, 3.0], [1.0, 2.0, 3.4]])
     assert_array_equal(comp.x([instance]), x_expected)
 
     # Should build y correctly

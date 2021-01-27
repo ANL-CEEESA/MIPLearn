@@ -108,9 +108,8 @@ class ObjectiveValueComponent(Component):
     def x(instances: Union[List[str], List[Instance]]) -> np.ndarray:
         result = []
         for instance in InstanceIterator(instances):
-            for _ in instance.training_data:
-                instance_features = instance.get_instance_features()
-                result.append(instance_features)
+            for sample in instance.training_data:
+                result.append(instance.get_instance_features() + [sample["LP value"]])
         return np.array(result)
 
     @staticmethod
