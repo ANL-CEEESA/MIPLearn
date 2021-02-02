@@ -2,11 +2,11 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Optional, Dict, Callable, Any, Union, List
+from typing import Optional, Dict, Callable, Any, Union, Tuple
 
 from mypy_extensions import TypedDict
 
-VarIndex = Union[str, int, List[Union[str, int]]]
+VarIndex = Union[str, int, Tuple[Union[str, int]]]
 
 Solution = Dict[str, Dict[VarIndex, Optional[float]]]
 

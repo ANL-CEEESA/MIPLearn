@@ -6,7 +6,7 @@ import re
 import sys
 from io import StringIO
 from random import randint
-from typing import List, Any, Dict, Optional
+from typing import List, Any, Dict, Optional, cast, Tuple, Union
 
 from miplearn.instance import Instance
 from miplearn.solvers import _RedirectOutput
@@ -92,11 +92,14 @@ class GurobiSolver(InternalSolver):
             m = re.search(r"([^[]*)\[(.*)]", var.varName)
             if m is None:
                 name = var.varName
-                idx = [0]
+                idx = (0,)
             else:
                 name = m.group(1)
                 parts = m.group(2).split(",")
-                idx = tuple(int(k) if k.isdecimal() else k for k in parts)
+                idx = cast(
+                    Tuple[Union[str, int]],
+                    tuple(int(k) if k.isdecimal() else str(k) for k in parts),
+                )
             if len(idx) == 1:
                 idx = idx[0]
             if name not in self._all_vars:
