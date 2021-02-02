@@ -96,7 +96,7 @@ class GurobiSolver(InternalSolver):
             else:
                 name = m.group(1)
                 parts = m.group(2).split(",")
-                idx = [int(k) if k.isdecimal else k for k in parts]
+                idx = tuple(int(k) if k.isdecimal() else k for k in parts)
             if len(idx) == 1:
                 idx = idx[0]
             if name not in self._all_vars:
