@@ -6,11 +6,13 @@ from unittest.mock import Mock, call
 
 import numpy as np
 
+from miplearn import RelaxIntegralityStep, BasePyomoSolver
 from miplearn.classifiers import Classifier
 from miplearn.components.steps.drop_redundant import DropRedundantInequalitiesStep
 from miplearn.instance import Instance
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.learning import LearningSolver
+from tests.solvers import _get_knapsack_instance
 
 
 def _setup():
@@ -268,8 +270,20 @@ def test_x_y_fit_predict_evaluate():
         ),
     }
     expected_y = {
-        "type-a": np.array([[0], [0], [1]]),
-        "type-b": np.array([[1], [0], [0]]),
+        "type-a": np.array(
+            [
+                [True, False],
+                [True, False],
+                [False, True],
+            ]
+        ),
+        "type-b": np.array(
+            [
+                [False, True],
+                [True, False],
+                [True, False],
+            ]
+        ),
     }
 
     # Should build X and Y matrices correctly
@@ -287,7 +301,15 @@ def test_x_y_fit_predict_evaluate():
         np.testing.assert_array_equal(actual_x, expected_x[category])
         np.testing.assert_array_equal(actual_y, expected_y[category])
 
-    assert component.predict(expected_x) == {"type-a": [[1]], "type-b": [[0], [1]]}
+    assert component.predict(expected_x) == {
+        "type-a": [
+            [False, True],
+        ],
+        "type-b": [
+            [True, False],
+            [False, True],
+        ],
+    }
 
     ev = component.evaluate(instances[1])
     assert ev["True positive"] == 1
@@ -350,8 +372,20 @@ def test_x_multiple_solves():
     }
 
     expected_y = {
-        "type-a": np.array([[1], [0], [0], [1]]),
-        "type-b": np.array([[1], [0]]),
+        "type-a": np.array(
+            [
+                [False, True],
+                [True, False],
+                [True, False],
+                [False, True],
+            ]
+        ),
+        "type-b": np.array(
+            [
+                [False, True],
+                [True, False],
+            ]
+        ),
     }
 
     # Should build X and Y matrices correctly
@@ -362,3 +396,17 @@ def test_x_multiple_solves():
     for category in ["type-a", "type-b"]:
         np.testing.assert_array_equal(actual_x[category], expected_x[category])
         np.testing.assert_array_equal(actual_y[category], expected_y[category])
+
+
+def test_usage():
+    solver = LearningSolver(
+        components=[
+            RelaxIntegralityStep(),
+            DropRedundantInequalitiesStep(),
+        ]
+    )
+    instance = _get_knapsack_instance(BasePyomoSolver)
+    # The following should not crash
+    solver.solve(instance)
+    solver.fit([instance])
+    solver.solve(instance)
