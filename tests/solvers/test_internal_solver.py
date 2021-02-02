@@ -14,8 +14,8 @@ from miplearn.solvers.pyomo.base import BasePyomoSolver
 from . import (
     _get_knapsack_instance,
     _get_internal_solvers,
-    _get_infeasible_instance,
 )
+from ..fixtures.infeasible import get_infeasible_instance
 
 logger = logging.getLogger(__name__)
 
@@ -186,7 +186,7 @@ def test_relax():
 
 def test_infeasible_instance():
     for solver_class in _get_internal_solvers():
-        instance = _get_infeasible_instance(solver_class)
+        instance = get_infeasible_instance(solver_class)
         solver = solver_class()
         solver.set_instance(instance)
         stats = solver.solve()

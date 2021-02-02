@@ -308,7 +308,7 @@ class BasePyomoSolver(InternalSolver):
     def extract_constraint(self, cid: str) -> Constraint:
         raise Exception("Not implemented")
 
-    def is_constraint_satisfied(self, cobj: Constraint) -> bool:
+    def is_constraint_satisfied(self, cobj: Constraint, tol: float = 1e-6) -> bool:
         raise Exception("Not implemented")
 
     def is_infeasible(self) -> bool:

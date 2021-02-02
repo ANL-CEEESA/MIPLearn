@@ -3,38 +3,14 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from inspect import isclass
-from typing import List, Callable, Any
+from typing import List, Callable
 
-from pyomo import environ as pe
-
-from miplearn.instance import Instance
 from miplearn.problems.knapsack import KnapsackInstance, GurobiKnapsackInstance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
 from miplearn.solvers.pyomo.xpress import XpressPyomoSolver
-
-
-class InfeasiblePyomoInstance(Instance):
-    def to_model(self) -> pe.ConcreteModel:
-        model = pe.ConcreteModel()
-        model.x = pe.Var([0], domain=pe.Binary)
-        model.OBJ = pe.Objective(expr=model.x[0], sense=pe.maximize)
-        model.eq = pe.Constraint(expr=model.x[0] >= 2)
-        return model
-
-
-class InfeasibleGurobiInstance(Instance):
-    def to_model(self) -> Any:
-        import gurobipy as gp
-        from gurobipy import GRB
-
-        model = gp.Model()
-        x = model.addVars(1, vtype=GRB.BINARY, name="x")
-        model.addConstr(x[0] >= 2)
-        model.setObjective(x[0])
-        return model
 
 
 def _is_subclass_or_instance(obj, parent_class):
@@ -57,13 +33,6 @@ def _get_knapsack_instance(solver):
             capacity=67.0,
         )
     assert False
-
-
-def _get_infeasible_instance(solver):
-    if _is_subclass_or_instance(solver, BasePyomoSolver):
-        return InfeasiblePyomoInstance()
-    if _is_subclass_or_instance(solver, GurobiSolver):
-        return InfeasibleGurobiInstance()
 
 
 def _get_internal_solvers() -> List[Callable[[], InternalSolver]]:

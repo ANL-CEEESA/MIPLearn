@@ -342,7 +342,7 @@ class GurobiSolver(InternalSolver):
         self.model.remove(constr)
         return cobj
 
-    def is_constraint_satisfied(self, cobj, tol=1e-5):
+    def is_constraint_satisfied(self, cobj, tol=1e-6):
         lhs, sense, rhs, name = cobj
         if self.cb_where is not None:
             lhs_value = lhs.getConstant()
@@ -378,6 +378,7 @@ class GurobiSolver(InternalSolver):
 
     def relax(self) -> None:
         assert self.model is not None
+        self.model.update()
         self.model = self.model.relax()
         self._update_vars()
 

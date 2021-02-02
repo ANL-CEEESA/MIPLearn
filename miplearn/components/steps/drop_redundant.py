@@ -32,7 +32,7 @@ class DropRedundantInequalitiesStep(Component):
         classifier=CountingClassifier(),
         threshold=0.95,
         slack_tolerance=1e-5,
-        check_feasibility=False,
+        check_feasibility=True,
         violation_tolerance=1e-5,
         max_iterations=3,
     ):
@@ -207,6 +207,8 @@ class DropRedundantInequalitiesStep(Component):
         if not self.check_feasibility:
             return False
         if self.current_iteration >= self.max_iterations:
+            return False
+        if solver.internal_solver.is_infeasible():
             return False
         self.current_iteration += 1
         logger.debug("Checking that dropped constraints are satisfied...")

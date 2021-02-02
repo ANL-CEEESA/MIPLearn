@@ -6,13 +6,14 @@ from unittest.mock import Mock, call
 
 import numpy as np
 
-from miplearn import RelaxIntegralityStep, BasePyomoSolver
+from miplearn import RelaxIntegralityStep, GurobiSolver
 from miplearn.classifiers import Classifier
 from miplearn.components.steps.drop_redundant import DropRedundantInequalitiesStep
 from miplearn.instance import Instance
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.learning import LearningSolver
-from tests.solvers import _get_knapsack_instance
+from tests.fixtures.infeasible import get_infeasible_instance
+from tests.fixtures.redundant import get_instance_with_redundancy
 
 
 def _setup():
@@ -30,6 +31,7 @@ def _setup():
     )
     internal.extract_constraint = Mock(side_effect=lambda cid: "<%s>" % cid)
     internal.is_constraint_satisfied = Mock(return_value=False)
+    internal.is_infeasible = Mock(return_value=False)
 
     instance = Mock(spec=Instance)
     instance.get_constraint_features = Mock(
@@ -399,14 +401,19 @@ def test_x_multiple_solves():
 
 
 def test_usage():
-    solver = LearningSolver(
-        components=[
-            RelaxIntegralityStep(),
-            DropRedundantInequalitiesStep(),
-        ]
-    )
-    instance = _get_knapsack_instance(BasePyomoSolver)
-    # The following should not crash
-    solver.solve(instance)
-    solver.fit([instance])
-    solver.solve(instance)
+    for internal_solver in [GurobiSolver]:
+        for instance in [
+            get_instance_with_redundancy(internal_solver),
+            get_infeasible_instance(internal_solver),
+        ]:
+            solver = LearningSolver(
+                solver=internal_solver,
+                components=[
+                    RelaxIntegralityStep(),
+                    DropRedundantInequalitiesStep(),
+                ],
+            )
+            # The following should not crash
+            solver.solve(instance)
+            solver.fit([instance])
+            solver.solve(instance)

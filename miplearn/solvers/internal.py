@@ -173,7 +173,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def is_constraint_satisfied(self, cobj: Constraint) -> bool:
+    def is_constraint_satisfied(self, cobj: Constraint, tol: float = 1e-6) -> bool:
         """
         Returns True if the current solution satisfies the given constraint.
         """
