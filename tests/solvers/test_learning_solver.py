@@ -10,14 +10,14 @@ import os
 
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.learning import LearningSolver
-from . import _get_knapsack_instance, _get_internal_solvers
+from . import _get_knapsack_instance, get_internal_solvers
 
 logger = logging.getLogger(__name__)
 
 
 def test_learning_solver():
     for mode in ["exact", "heuristic"]:
-        for internal_solver in _get_internal_solvers():
+        for internal_solver in get_internal_solvers():
             logger.info("Solver: %s" % internal_solver)
             instance = _get_knapsack_instance(internal_solver)
             solver = LearningSolver(
@@ -26,6 +26,9 @@ def test_learning_solver():
             )
 
             solver.solve(instance)
+
+            assert hasattr(instance, "model_features")
+
             data = instance.training_data[0]
             assert data["Solution"]["x"][0] == 1.0
             assert data["Solution"]["x"][1] == 0.0
@@ -49,7 +52,7 @@ def test_learning_solver():
 
 
 def test_solve_without_lp():
-    for internal_solver in _get_internal_solvers():
+    for internal_solver in get_internal_solvers():
         logger.info("Solver: %s" % internal_solver)
         instance = _get_knapsack_instance(internal_solver)
         solver = LearningSolver(
@@ -62,7 +65,7 @@ def test_solve_without_lp():
 
 
 def test_parallel_solve():
-    for internal_solver in _get_internal_solvers():
+    for internal_solver in get_internal_solvers():
         instances = [_get_knapsack_instance(internal_solver) for _ in range(10)]
         solver = LearningSolver(solver=internal_solver)
         results = solver.parallel_solve(instances, n_jobs=3)
@@ -73,7 +76,7 @@ def test_parallel_solve():
 
 
 def test_solve_fit_from_disk():
-    for internal_solver in _get_internal_solvers():
+    for internal_solver in get_internal_solvers():
         # Create instances and pickle them
         filenames = []
         for k in range(3):

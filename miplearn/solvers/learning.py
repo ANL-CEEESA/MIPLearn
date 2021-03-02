@@ -16,11 +16,12 @@ from miplearn.components.cuts import UserCutsComponent
 from miplearn.components.lazy_dynamic import DynamicLazyConstraintsComponent
 from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
+from miplearn.features import ModelFeaturesExtractor
 from miplearn.instance import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
-from miplearn.types import MIPSolveStats, TrainingSample, LearningSolveStats
+from miplearn.types import TrainingSample, LearningSolveStats
 
 logger = logging.getLogger(__name__)
 
@@ -163,6 +164,10 @@ class LearningSolver:
         assert self.internal_solver is not None
         assert isinstance(self.internal_solver, InternalSolver)
         self.internal_solver.set_instance(instance, model)
+
+        # Extract model features
+        extractor = ModelFeaturesExtractor(self.internal_solver)
+        instance.model_features = extractor.extract()
 
         # Solve linear relaxation
         if self.solve_lp_first:

@@ -9,7 +9,7 @@ from typing import Any, List, Optional, Hashable
 
 import numpy as np
 
-from miplearn.types import TrainingSample, VarIndex
+from miplearn.types import TrainingSample, VarIndex, ModelFeatures
 
 
 class Instance(ABC):
@@ -24,8 +24,9 @@ class Instance(ABC):
     features, which can be provided as inputs to machine learning models.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.training_data: List[TrainingSample] = []
+        self.model_features: ModelFeatures = {}
 
     @abstractmethod
     def to_model(self) -> Any:

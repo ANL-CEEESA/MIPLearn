@@ -12,7 +12,7 @@ from miplearn.classifiers import Classifier
 from miplearn.components.lazy_dynamic import DynamicLazyConstraintsComponent
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.learning import LearningSolver
-from .. import get_test_pyomo_instances
+from tests.fixtures.knapsack import get_test_pyomo_instances
 
 E = 0.1
 

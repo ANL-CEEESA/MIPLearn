@@ -1,6 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+
 from typing import cast
 from unittest.mock import Mock
 
@@ -10,7 +11,7 @@ from numpy.testing import assert_array_equal
 from miplearn.instance import Instance
 from miplearn.classifiers import Regressor
 from miplearn.components.objective import ObjectiveValueComponent
-from .. import get_test_pyomo_instances
+from tests.fixtures.knapsack import get_test_pyomo_instances
 
 
 def test_x_y_predict() -> None:

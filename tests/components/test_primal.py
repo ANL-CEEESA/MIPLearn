@@ -11,7 +11,6 @@ from miplearn import Classifier
 from miplearn.classifiers.threshold import Threshold, MinPrecisionThreshold
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.instance import Instance
-from tests import get_test_pyomo_instances
 
 
 def test_x_y_fit() -> None:

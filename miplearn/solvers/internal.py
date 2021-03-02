@@ -156,6 +156,13 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
+    def get_constraint_rhs(self, cid: str) -> float:
+        """
+        Returns the right-hand side of a given constraint.
+        """
+        pass
+
+    @abstractmethod
     def add_constraint(self, cobj: Constraint) -> None:
         """
         Adds a single constraint to the model.

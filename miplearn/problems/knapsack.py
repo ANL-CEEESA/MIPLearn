@@ -1,6 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+from typing import List
 
 import numpy as np
 import pyomo.environ as pe
@@ -24,7 +25,6 @@ class ChallengeA:
         n_training_instances=500,
         n_test_instances=50,
     ):
-
         np.random.seed(seed)
         self.gen = MultiKnapsackGenerator(
             n=randint(low=250, high=251),
@@ -241,7 +241,12 @@ class KnapsackInstance(Instance):
     Simpler (one-dimensional) Knapsack Problem, used for testing.
     """
 
-    def __init__(self, weights, prices, capacity):
+    def __init__(
+        self,
+        weights: List[float],
+        prices: List[float],
+        capacity: float,
+    ) -> None:
         super().__init__()
         self.weights = weights
         self.prices = prices
@@ -282,7 +287,12 @@ class GurobiKnapsackInstance(KnapsackInstance):
     instead of Pyomo, used for testing.
     """
 
-    def __init__(self, weights, prices, capacity):
+    def __init__(
+        self,
+        weights: List[float],
+        prices: List[float],
+        capacity: float,
+    ) -> None:
         super().__init__(weights, prices, capacity)
 
     def to_model(self):

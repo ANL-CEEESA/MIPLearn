@@ -212,7 +212,11 @@ class BasePyomoSolver(InternalSolver):
         assert self.model is not None
         self._cname_to_constr = {}
         for constr in self.model.component_objects(Constraint):
-            self._cname_to_constr[constr.name] = constr
+            if isinstance(constr, pe.ConstraintList):
+                for idx in constr:
+                    self._cname_to_constr[f"{constr.name}[{idx}]"] = constr[idx]
+            else:
+                self._cname_to_constr[constr.name] = constr
 
     def fix(self, solution):
         count_total, count_fixed = 0, 0
@@ -301,6 +305,13 @@ class BasePyomoSolver(InternalSolver):
             return "<"
         else:
             return "="
+
+    def get_constraint_rhs(self, cid: str) -> float:
+        cobj = self._cname_to_constr[cid]
+        if cobj.has_ub:
+            return cobj.upper()
+        else:
+            return cobj.lower()
 
     def set_constraint_sense(self, cid: str, sense: str) -> None:
         raise Exception("Not implemented")

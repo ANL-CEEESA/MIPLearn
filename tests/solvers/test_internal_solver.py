@@ -13,7 +13,7 @@ from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
 from . import (
     _get_knapsack_instance,
-    _get_internal_solvers,
+    get_internal_solvers,
 )
 from ..fixtures.infeasible import get_infeasible_instance
 
@@ -32,7 +32,7 @@ def test_redirect_output():
 
 
 def test_internal_solver_warm_starts():
-    for solver_class in _get_internal_solvers():
+    for solver_class in get_internal_solvers():
         logger.info("Solver: %s" % solver_class)
         instance = _get_knapsack_instance(solver_class)
         model = instance.to_model()
@@ -83,7 +83,7 @@ def test_internal_solver_warm_starts():
 
 
 def test_internal_solver():
-    for solver_class in _get_internal_solvers():
+    for solver_class in get_internal_solvers():
         logger.info("Solver: %s" % solver_class)
 
         instance = _get_knapsack_instance(solver_class)
@@ -175,7 +175,7 @@ def test_internal_solver():
 
 
 def test_relax():
-    for solver_class in _get_internal_solvers():
+    for solver_class in get_internal_solvers():
         instance = _get_knapsack_instance(solver_class)
         solver = solver_class()
         solver.set_instance(instance)
@@ -185,7 +185,7 @@ def test_relax():
 
 
 def test_infeasible_instance():
-    for solver_class in _get_internal_solvers():
+    for solver_class in get_internal_solvers():
         instance = get_infeasible_instance(solver_class)
         solver = solver_class()
         solver.set_instance(instance)
@@ -203,7 +203,7 @@ def test_infeasible_instance():
 
 
 def test_iteration_cb():
-    for solver_class in _get_internal_solvers():
+    for solver_class in get_internal_solvers():
         logger.info("Solver: %s" % solver_class)
         instance = _get_knapsack_instance(solver_class)
         solver = solver_class()

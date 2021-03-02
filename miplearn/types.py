@@ -71,6 +71,14 @@ LearningSolveStats = TypedDict(
     total=False,
 )
 
+ModelFeatures = TypedDict(
+    "ModelFeatures",
+    {
+        "ConstraintRHS": Dict[str, float],
+    },
+    total=False,
+)
+
 IterationCallback = Callable[[], bool]
 
 LazyCallback = Callable[[Any, Any], None]

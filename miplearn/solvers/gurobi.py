@@ -335,6 +335,10 @@ class GurobiSolver(InternalSolver):
         self.model.update()
         return [c.ConstrName for c in self.model.getConstrs()]
 
+    def get_constraint_rhs(self, cid: str) -> float:
+        assert self.model is not None
+        return self.model.getConstrByName(cid).rhs
+
     def extract_constraint(self, cid):
         self._raise_if_callback()
         constr = self.model.getConstrByName(cid)
