@@ -6,6 +6,7 @@ import gzip
 import logging
 import os
 import pickle
+import traceback
 import tempfile
 from typing import Optional, List, Any, IO, cast, BinaryIO, Union, Callable, Dict
 
@@ -49,12 +50,17 @@ def _parallel_solve(idx):
         output_filename = None
     else:
         output_filename = output_filenames[idx]
-    stats = solver.solve(
-        instances[idx],
-        output_filename=output_filename,
-        discard_output=discard_outputs,
-    )
-    return stats, instances[idx]
+    try:
+        stats = solver.solve(
+            instances[idx],
+            output_filename=output_filename,
+            discard_output=discard_outputs,
+        )
+        return stats, instances[idx]
+    except Exception as e:
+        traceback.print_exc()
+        logger.exception(f"Exception while solving {instances[idx]}. Ignoring.")
+        return None, None
 
 
 class LearningSolver:
@@ -369,6 +375,7 @@ class LearningSolver:
             num_cpus=n_jobs,
             desc=label,
         )
+        results = [r for r in results if r[0]]
         stats = []
         for (idx, (s, instance)) in enumerate(results):
             stats.append(s)
