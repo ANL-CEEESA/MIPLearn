@@ -2,7 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Optional, Dict, Callable, Any, Union, Tuple
+from typing import Optional, Dict, Callable, Any, Union, Tuple, List
 
 from mypy_extensions import TypedDict
 
@@ -71,10 +71,20 @@ LearningSolveStats = TypedDict(
     total=False,
 )
 
+ConstraintFeatures = TypedDict(
+    "ConstraintFeatures",
+    {
+        "rhs": float,
+        "lhs": Dict[str, float],
+        "sense": str,
+    },
+    total=False,
+)
+
 ModelFeatures = TypedDict(
     "ModelFeatures",
     {
-        "ConstraintRHS": Dict[str, float],
+        "constraints": Dict[str, ConstraintFeatures],
     },
     total=False,
 )

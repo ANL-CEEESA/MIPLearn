@@ -4,7 +4,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from miplearn.instance import Instance
 from miplearn.types import (
@@ -159,6 +159,17 @@ class InternalSolver(ABC):
     def get_constraint_rhs(self, cid: str) -> float:
         """
         Returns the right-hand side of a given constraint.
+        """
+        pass
+
+    @abstractmethod
+    def get_constraint_lhs(self, cid: str) -> Dict[str, float]:
+        """
+        Returns a list of tuples encoding the left-hand side of the constraint.
+
+        The first element of the tuple is the name of the variable and the second
+        element is the coefficient. For example, the left-hand side of "2 x1 + x2 <= 3"
+        is encoded as [{"x1": 2, "x2": 1}].
         """
         pass
 

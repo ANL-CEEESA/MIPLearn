@@ -298,7 +298,9 @@ class BasePyomoSolver(InternalSolver):
         cobj = self._cname_to_constr[cid]
         has_ub = cobj.has_ub()
         has_lb = cobj.has_lb()
-        assert (not has_lb) or (not has_ub), "range constraints not supported"
+        assert (
+            (not has_lb) or (not has_ub) or cobj.upper() == cobj.lower()
+        ), "range constraints not supported"
         if has_lb:
             return ">"
         elif has_ub:
@@ -312,6 +314,9 @@ class BasePyomoSolver(InternalSolver):
             return cobj.upper()
         else:
             return cobj.lower()
+
+    def get_constraint_lhs(self, cid: str) -> Dict[str, float]:
+        return {}
 
     def set_constraint_sense(self, cid: str, sense: str) -> None:
         raise Exception("Not implemented")

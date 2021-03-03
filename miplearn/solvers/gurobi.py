@@ -339,6 +339,15 @@ class GurobiSolver(InternalSolver):
         assert self.model is not None
         return self.model.getConstrByName(cid).rhs
 
+    def get_constraint_lhs(self, cid: str) -> Dict[str, float]:
+        assert self.model is not None
+        constr = self.model.getConstrByName(cid)
+        expr = self.model.getRow(constr)
+        lhs: Dict[str, float] = {}
+        for i in range(expr.size()):
+            lhs[expr.getVar(i).varName] = expr.getCoeff(i)
+        return lhs
+
     def extract_constraint(self, cid):
         self._raise_if_callback()
         constr = self.model.getConstrByName(cid)

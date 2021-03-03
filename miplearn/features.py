@@ -2,9 +2,9 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
-from miplearn.types import ModelFeatures
+from miplearn.types import ModelFeatures, ConstraintFeatures
 
 if TYPE_CHECKING:
     from miplearn import InternalSolver
@@ -15,12 +15,16 @@ class ModelFeaturesExtractor:
         self,
         internal_solver: "InternalSolver",
     ) -> None:
-        self.internal_solver = internal_solver
+        self.solver = internal_solver
 
     def extract(self) -> ModelFeatures:
-        rhs = {}
-        for cid in self.internal_solver.get_constraint_ids():
-            rhs[cid] = self.internal_solver.get_constraint_rhs(cid)
+        constraints: Dict[str, ConstraintFeatures] = {}
+        for cid in self.solver.get_constraint_ids():
+            constraints[cid] = {
+                "rhs": self.solver.get_constraint_rhs(cid),
+                "lhs": self.solver.get_constraint_lhs(cid),
+                "sense": self.solver.get_constraint_sense(cid),
+            }
         return {
-            "ConstraintRHS": rhs,
+            "constraints": constraints,
         }
