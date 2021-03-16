@@ -7,6 +7,7 @@ from copy import deepcopy
 
 import numpy as np
 from tqdm import tqdm
+from p_tqdm import p_umap
 
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.components import classifier_evaluation_dict
@@ -54,7 +55,7 @@ class DropRedundantInequalitiesStep(Component):
         self.current_iteration = 0
 
         logger.info("Predicting redundant LP constraints...")
-        x, constraints = self._x_test(
+        x, constraints = self.x(
             instance,
             constraint_ids=solver.internal_solver.get_constraint_ids(),
         )
@@ -98,18 +99,15 @@ class DropRedundantInequalitiesStep(Component):
             }
         )
 
-    def fit(self, training_instances):
-        logger.debug("Extracting x and y...")
-        x = self.x(training_instances)
-        y = self.y(training_instances)
-        logger.debug("Fitting...")
+    def fit(self, training_instances, n_jobs=1):
+        x, y = self.x_y(training_instances, n_jobs=n_jobs)
         for category in tqdm(x.keys(), desc="Fit (drop)"):
             if category not in self.classifiers:
                 self.classifiers[category] = deepcopy(self.classifier_prototype)
             self.classifiers[category].fit(x[category], np.array(y[category]))
 
     @staticmethod
-    def _x_test(instance, constraint_ids):
+    def x(instance, constraint_ids):
         x = {}
         constraints = {}
         cids = constraint_ids
@@ -126,49 +124,58 @@ class DropRedundantInequalitiesStep(Component):
             x[category] = np.array(x[category])
         return x, constraints
 
-    @staticmethod
-    def _x_train(instances):
-        x = {}
-        for instance in tqdm(
-            InstanceIterator(instances),
-            desc="Extract (drop:x)",
-            disable=len(instances) < 5,
-        ):
-            for training_data in instance.training_data:
-                cids = training_data["slacks"].keys()
-                for cid in cids:
-                    category = instance.get_constraint_category(cid)
-                    if category is None:
-                        continue
-                    if category not in x:
-                        x[category] = []
-                    x[category] += [instance.get_constraint_features(cid)]
-        for category in x.keys():
-            x[category] = np.array(x[category])
-        return x
+    def x_y(self, instances, n_jobs=1):
+        def _extract(instance):
+            x = {}
+            y = {}
+            for instance in InstanceIterator([instance]):
+                for training_data in instance.training_data:
+                    for (cid, slack) in training_data["slacks"].items():
+                        category = instance.get_constraint_category(cid)
+                        if category is None:
+                            continue
+                        if category not in x:
+                            x[category] = []
+                        if category not in y:
+                            y[category] = []
+                        if slack > self.slack_tolerance:
+                            y[category] += [[False, True]]
+                        else:
+                            y[category] += [[True, False]]
+                        x[category] += [instance.get_constraint_features(cid)]
+            return x, y
 
-    def x(self, instances):
-        return self._x_train(instances)
+        if n_jobs == 1:
+            results = [
+                _extract(i)
+                for i in tqdm(
+                    instances,
+                    desc="Extract (drop 1/3)",
+                )
+            ]
+        else:
+            results = p_umap(
+                _extract,
+                instances,
+                num_cpus=n_jobs,
+                desc="Extract (drop 1/3)",
+            )
 
-    def y(self, instances):
-        y = {}
-        for instance in tqdm(
-            InstanceIterator(instances),
-            desc="Extract (drop:y)",
-            disable=len(instances) < 5,
-        ):
-            for training_data in instance.training_data:
-                for (cid, slack) in training_data["slacks"].items():
-                    category = instance.get_constraint_category(cid)
-                    if category is None:
-                        continue
-                    if category not in y:
-                        y[category] = []
-                    if slack > self.slack_tolerance:
-                        y[category] += [[False, True]]
-                    else:
-                        y[category] += [[True, False]]
-        return y
+        x_combined = {}
+        y_combined = {}
+        for (x, y) in tqdm(results, desc="Extract (drop 2/3)"):
+            for category in x.keys():
+                if category not in x_combined:
+                    x_combined[category] = []
+                    y_combined[category] = []
+                x_combined[category] += x[category]
+                y_combined[category] += y[category]
+
+        for category in tqdm(x_combined.keys(), desc="Extract (drop 3/3)"):
+            x_combined[category] = np.array(x_combined[category])
+            y_combined[category] = np.array(y_combined[category])
+
+        return x_combined, y_combined
 
     def predict(self, x):
         y = {}
@@ -185,9 +192,8 @@ class DropRedundantInequalitiesStep(Component):
                     y[category] += [[True, False]]
         return y
 
-    def evaluate(self, instance):
-        x = self.x([instance])
-        y_true = self.y([instance])
+    def evaluate(self, instance, n_jobs=1):
+        x, y_true = self.x_y([instance], n_jobs=n_jobs)
         y_pred = self.predict(x)
         tp, tn, fp, fn = 0, 0, 0, 0
         for category in tqdm(

@@ -48,7 +48,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
 
     def before_solve_mip(self, solver, instance, _):
         logger.info("Predicting tight LP constraints...")
-        x, constraints = DropRedundantInequalitiesStep._x_test(
+        x, constraints = DropRedundantInequalitiesStep.x(
             instance,
             constraint_ids=solver.internal_solver.get_constraint_ids(),
         )
@@ -99,8 +99,29 @@ class ConvertTightIneqsIntoEqsStep(Component):
                 self.classifiers[category] = deepcopy(self.classifier_prototype)
             self.classifiers[category].fit(x[category], y[category])
 
+    @staticmethod
+    def _x_train(instances):
+        x = {}
+        for instance in tqdm(
+            InstanceIterator(instances),
+            desc="Extract (drop:x)",
+            disable=len(instances) < 5,
+        ):
+            for training_data in instance.training_data:
+                cids = training_data["slacks"].keys()
+                for cid in cids:
+                    category = instance.get_constraint_category(cid)
+                    if category is None:
+                        continue
+                    if category not in x:
+                        x[category] = []
+                    x[category] += [instance.get_constraint_features(cid)]
+        for category in x.keys():
+            x[category] = np.array(x[category])
+        return x
+
     def x(self, instances):
-        return DropRedundantInequalitiesStep._x_train(instances)
+        return self._x_train(instances)
 
     def y(self, instances):
         y = {}

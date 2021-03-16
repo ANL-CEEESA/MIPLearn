@@ -289,8 +289,7 @@ def test_x_y_fit_predict_evaluate():
     }
 
     # Should build X and Y matrices correctly
-    actual_x = component.x(instances)
-    actual_y = component.y(instances)
+    actual_x, actual_y = component.x_y(instances)
     for category in ["type-a", "type-b"]:
         np.testing.assert_array_equal(actual_x[category], expected_x[category])
         np.testing.assert_array_equal(actual_y[category], expected_y[category])
@@ -392,9 +391,7 @@ def test_x_multiple_solves():
 
     # Should build X and Y matrices correctly
     component = DropRedundantInequalitiesStep()
-    actual_x = component.x([instance])
-    actual_y = component.y([instance])
-    print(actual_x)
+    actual_x, actual_y = component.x_y([instance])
     for category in ["type-a", "type-b"]:
         np.testing.assert_array_equal(actual_x[category], expected_x[category])
         np.testing.assert_array_equal(actual_y[category], expected_y[category])
