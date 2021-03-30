@@ -14,11 +14,11 @@ class RelaxIntegralityStep(Component):
     Component that relaxes all integrality constraints before the problem is solved.
     """
 
-    def before_solve(self, solver, instance, _):
+    def before_solve_mip(self, solver, instance, _):
         logger.info("Relaxing integrality...")
         solver.internal_solver.relax()
 
-    def after_solve(
+    def after_solve_mip(
         self,
         solver,
         instance,

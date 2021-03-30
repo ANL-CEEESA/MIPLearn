@@ -22,14 +22,14 @@ def test_composite():
     cc = CompositeComponent([c1, c2])
 
     # Should broadcast before_solve
-    cc.before_solve(solver, instance, model)
-    c1.before_solve.assert_has_calls([call(solver, instance, model)])
-    c2.before_solve.assert_has_calls([call(solver, instance, model)])
+    cc.before_solve_mip(solver, instance, model)
+    c1.before_solve_mip.assert_has_calls([call(solver, instance, model)])
+    c2.before_solve_mip.assert_has_calls([call(solver, instance, model)])
 
     # Should broadcast after_solve
-    cc.after_solve(solver, instance, model, {}, {})
-    c1.after_solve.assert_has_calls([call(solver, instance, model, {}, {})])
-    c2.after_solve.assert_has_calls([call(solver, instance, model, {}, {})])
+    cc.after_solve_mip(solver, instance, model, {}, {})
+    c1.after_solve_mip.assert_has_calls([call(solver, instance, model, {}, {})])
+    c2.after_solve_mip.assert_has_calls([call(solver, instance, model, {}, {})])
 
     # Should broadcast fit
     cc.fit([1, 2, 3])

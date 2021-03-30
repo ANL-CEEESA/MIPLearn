@@ -52,7 +52,7 @@ class PrimalSolutionComponent(Component):
         self._n_zero = 0
         self._n_one = 0
 
-    def before_solve(self, solver, instance, model):
+    def before_solve_mip(self, solver, instance, model):
         if len(self.thresholds) > 0:
             logger.info("Predicting primal solution...")
             solution = self.predict(instance)
@@ -77,7 +77,7 @@ class PrimalSolutionComponent(Component):
             else:
                 solver.internal_solver.set_warm_start(solution)
 
-    def after_solve(
+    def after_solve_mip(
         self,
         solver: "LearningSolver",
         instance: Instance,

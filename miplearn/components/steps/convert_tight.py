@@ -46,7 +46,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
         self.converted = []
         self.original_sense = {}
 
-    def before_solve(self, solver, instance, _):
+    def before_solve_mip(self, solver, instance, _):
         logger.info("Predicting tight LP constraints...")
         x, constraints = DropRedundantInequalitiesStep._x_test(
             instance,
@@ -73,7 +73,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
 
         logger.info(f"Converted {self.n_converted} inequalities")
 
-    def after_solve(
+    def after_solve_mip(
         self,
         solver,
         instance,

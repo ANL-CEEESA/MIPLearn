@@ -33,7 +33,7 @@ class UserCutsComponent(Component):
         self.classifier_prototype: Classifier = classifier
         self.classifiers: Dict[Any, Classifier] = {}
 
-    def before_solve(self, solver, instance, model):
+    def before_solve_mip(self, solver, instance, model):
         instance.found_violated_user_cuts = []
         logger.info("Predicting violated user cuts...")
         violations = self.predict(instance)
@@ -42,7 +42,7 @@ class UserCutsComponent(Component):
             cut = instance.build_user_cut(model, v)
             solver.internal_solver.add_constraint(cut)
 
-    def after_solve(
+    def after_solve_mip(
         self,
         solver,
         instance,

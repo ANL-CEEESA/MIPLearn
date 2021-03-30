@@ -85,7 +85,7 @@ def test_lazy_before():
     component.classifiers["a"].predict_proba = Mock(return_value=[[0.95, 0.05]])
     component.classifiers["b"].predict_proba = Mock(return_value=[[0.02, 0.80]])
 
-    component.before_solve(solver, instances[0], models[0])
+    component.before_solve_mip(solver, instances[0], models[0])
 
     # Should ask classifier likelihood of each constraint being violated
     expected_x_test_a = np.array([[67.0, 21.75, 1287.92]])

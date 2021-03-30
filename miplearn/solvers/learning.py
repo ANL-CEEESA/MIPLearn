@@ -86,7 +86,7 @@ class LearningSolver:
         If true, use native solver callbacks for enforcing lazy constraints,
         instead of a simple loop. May not be supported by all solvers.
     solve_lp_first: bool
-        If true, solve LP relaxation first, then solve original MILP. This
+        If true, solve LP relaxation first, then solve original MIP. This
         option should be activated if the LP relaxation is not very
         expensive to solve and if it provides good hints for the integer
         solution.
@@ -187,9 +187,9 @@ class LearningSolver:
             training_sample["LP value"] = 0.0
 
         # Before-solve callbacks
-        logger.debug("Running before_solve callbacks...")
+        logger.debug("Running before_solve_mip callbacks...")
         for component in self.components.values():
-            component.before_solve(self, instance, model)
+            component.before_solve_mip(self, instance, model)
 
         # Define wrappers
         def iteration_cb_wrapper() -> bool:
@@ -212,8 +212,8 @@ class LearningSolver:
         if self.use_lazy_cb:
             lazy_cb = lazy_cb_wrapper
 
-        # Solve MILP
-        logger.info("Solving MILP...")
+        # Solve MIP
+        logger.info("Solving MIP...")
         stats = cast(
             LearningSolveStats,
             self.internal_solver.solve(
@@ -238,9 +238,9 @@ class LearningSolver:
         training_sample["Solution"] = self.internal_solver.get_solution()
 
         # After-solve callbacks
-        logger.debug("Calling after_solve callbacks...")
+        logger.debug("Calling after_solve_mip callbacks...")
         for component in self.components.values():
-            component.after_solve(self, instance, model, stats, training_sample)
+            component.after_solve_mip(self, instance, model, stats, training_sample)
 
         # Write to file, if necessary
         if not discard_output and filename is not None:

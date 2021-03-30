@@ -21,14 +21,14 @@ class Component(ABC):
     strategy.
     """
 
-    def before_solve(
+    def before_solve_mip(
         self,
         solver: "LearningSolver",
         instance: Instance,
         model: Any,
     ) -> None:
         """
-        Method called by LearningSolver before the problem is solved.
+        Method called by LearningSolver before the MIP is solved.
 
         Parameters
         ----------
@@ -42,7 +42,7 @@ class Component(ABC):
         return
 
     @abstractmethod
-    def after_solve(
+    def after_solve_mip(
         self,
         solver: "LearningSolver",
         instance: Instance,
@@ -51,7 +51,7 @@ class Component(ABC):
         training_data: TrainingSample,
     ) -> None:
         """
-        Method called by LearningSolver after the problem is solved to optimality.
+        Method called by LearningSolver after the MIP is solved.
 
         Parameters
         ----------

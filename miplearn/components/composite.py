@@ -21,11 +21,11 @@ class CompositeComponent(Component):
     def __init__(self, children):
         self.children = children
 
-    def before_solve(self, solver, instance, model):
+    def before_solve_mip(self, solver, instance, model):
         for child in self.children:
-            child.before_solve(solver, instance, model)
+            child.before_solve_mip(solver, instance, model)
 
-    def after_solve(
+    def after_solve_mip(
         self,
         solver,
         instance,
@@ -34,7 +34,7 @@ class CompositeComponent(Component):
         training_data,
     ):
         for child in self.children:
-            child.after_solve(solver, instance, model, stats, training_data)
+            child.after_solve_mip(solver, instance, model, stats, training_data)
 
     def fit(self, training_instances):
         for child in self.children:

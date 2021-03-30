@@ -80,7 +80,7 @@ def test_drop_redundant():
     component.classifiers = classifiers
 
     # LearningSolver calls before_solve
-    component.before_solve(solver, instance, None)
+    component.before_solve_mip(solver, instance, None)
 
     # Should query list of constraints
     internal.get_constraint_ids.assert_called_once()
@@ -123,7 +123,7 @@ def test_drop_redundant():
 
     # LearningSolver calls after_solve
     training_data = {}
-    component.after_solve(solver, instance, None, {}, training_data)
+    component.after_solve_mip(solver, instance, None, {}, training_data)
 
     # Should query slack for all inequalities
     internal.get_inequality_slacks.assert_called_once()
@@ -147,7 +147,7 @@ def test_drop_redundant_with_check_feasibility():
     component.classifiers = classifiers
 
     # LearningSolver call before_solve
-    component.before_solve(solver, instance, None)
+    component.before_solve_mip(solver, instance, None)
 
     # Assert constraints are extracted
     assert internal.extract_constraint.call_count == 2

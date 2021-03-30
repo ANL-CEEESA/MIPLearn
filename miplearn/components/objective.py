@@ -44,7 +44,7 @@ class ObjectiveValueComponent(Component):
         self._predicted_ub: Optional[float] = None
         self._predicted_lb: Optional[float] = None
 
-    def before_solve(
+    def before_solve_mip(
         self,
         solver: "LearningSolver",
         instance: Instance,
@@ -63,7 +63,7 @@ class ObjectiveValueComponent(Component):
                 )
             )
 
-    def after_solve(
+    def after_solve_mip(
         self,
         solver: "LearningSolver",
         instance: Instance,

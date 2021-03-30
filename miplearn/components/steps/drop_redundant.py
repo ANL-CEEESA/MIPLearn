@@ -50,7 +50,7 @@ class DropRedundantInequalitiesStep(Component):
         self.total_kept = 0
         self.total_iterations = 0
 
-    def before_solve(self, solver, instance, _):
+    def before_solve_mip(self, solver, instance, _):
         self.current_iteration = 0
 
         logger.info("Predicting redundant LP constraints...")
@@ -79,7 +79,7 @@ class DropRedundantInequalitiesStep(Component):
                     self.total_kept += 1
         logger.info(f"Extracted {self.total_dropped} predicted constraints")
 
-    def after_solve(
+    def after_solve_mip(
         self,
         solver,
         instance,

@@ -68,7 +68,7 @@ def test_usage_with_solver():
     )
 
     # LearningSolver calls before_solve
-    component.before_solve(solver, instance, None)
+    component.before_solve_mip(solver, instance, None)
 
     # Should ask if instance has static lazy constraints
     instance.has_static_lazy_constraints.assert_called_once()
