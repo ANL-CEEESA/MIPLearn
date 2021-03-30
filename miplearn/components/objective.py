@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import List, Dict, Union, Callable, Optional, Any, TYPE_CHECKING
+from typing import List, Dict, Union, Callable, Optional, Any, TYPE_CHECKING, Tuple
 
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -161,3 +161,21 @@ class ObjectiveValueComponent(Component):
             },
         }
         return ev
+
+    @staticmethod
+    def xy(
+        instance: Any,
+        sample: TrainingSample,
+    ) -> Tuple[Dict, Dict]:
+        x: Dict = {}
+        y: Dict = {}
+        if "Lower bound" not in sample:
+            return x, y
+        features = instance.get_instance_features()
+        if "LP value" in sample and sample["LP value"] is not None:
+            features += [sample["LP value"]]
+        x["Lower bound"] = [features]
+        x["Upper bound"] = [features]
+        y["Lower bound"] = [[sample["Lower bound"]]]
+        y["Upper bound"] = [[sample["Upper bound"]]]
+        return x, y

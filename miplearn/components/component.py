@@ -136,8 +136,8 @@ class Component(ABC):
     ) -> None:
         return
 
+    @staticmethod
     def xy(
-        self,
         instance: Any,
         training_sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:

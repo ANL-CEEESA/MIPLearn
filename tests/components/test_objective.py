@@ -11,7 +11,31 @@ from numpy.testing import assert_array_equal
 from miplearn.instance import Instance
 from miplearn.classifiers import Regressor
 from miplearn.components.objective import ObjectiveValueComponent
+from miplearn.types import TrainingSample
 from tests.fixtures.knapsack import get_test_pyomo_instances
+
+
+def test_xy() -> None:
+    instance = cast(Instance, Mock(spec=Instance))
+    instance.get_instance_features = Mock(  # type: ignore
+        return_value=[1.0, 2.0],
+    )
+    sample: TrainingSample = {
+        "Lower bound": 1.0,
+        "Upper bound": 2.0,
+        "LP value": 3.0,
+    }
+    x_expected = {
+        "Lower bound": [[1.0, 2.0, 3.0]],
+        "Upper bound": [[1.0, 2.0, 3.0]],
+    }
+    y_expected = {
+        "Lower bound": [[1.0]],
+        "Upper bound": [[2.0]],
+    }
+    x_actual, y_actual = ObjectiveValueComponent.xy(instance, sample)
+    assert x_actual == x_expected
+    assert y_actual == y_expected
 
 
 def test_x_y_predict() -> None:
