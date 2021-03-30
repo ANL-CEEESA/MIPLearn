@@ -3,7 +3,17 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Union, Dict, Callable, List, Hashable, Optional, Any, TYPE_CHECKING
+from typing import (
+    Union,
+    Dict,
+    Callable,
+    List,
+    Hashable,
+    Optional,
+    Any,
+    TYPE_CHECKING,
+    Tuple,
+)
 
 import numpy as np
 from tqdm.auto import tqdm
@@ -286,3 +296,34 @@ class PrimalSolutionComponent(Component):
             f"Please set its category to None."
         )
         return [opt_value < 0.5, opt_value > 0.5]
+
+    def xy(
+        self,
+        instance: Any,
+        sample: TrainingSample,
+    ) -> Tuple[Dict, Dict]:
+        x: Dict = {}
+        y: Dict = {}
+        if "Solution" not in sample:
+            return x, y
+        assert sample["Solution"] is not None
+        for (var, var_dict) in sample["Solution"].items():
+            for (idx, opt_value) in var_dict.items():
+                assert opt_value is not None
+                assert 0.0 - 1e-5 <= opt_value <= 1.0 + 1e-5, (
+                    f"Variable {var} has non-binary value {opt_value} in the optimal "
+                    f"solution. Predicting values of non-binary variables is not "
+                    f"currently supported. Please set its category to None."
+                )
+                category = instance.get_variable_category(var, idx)
+                if category is None:
+                    continue
+                if category not in x.keys():
+                    x[category] = []
+                    y[category] = []
+                features: Any = instance.get_variable_features(var, idx)
+                if "LP solution" in sample and sample["LP solution"] is not None:
+                    features += [sample["LP solution"][var][idx]]
+                x[category] += [features]
+                y[category] += [[opt_value < 0.5, opt_value >= 0.5]]
+        return x, y

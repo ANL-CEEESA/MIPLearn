@@ -11,6 +11,123 @@ from miplearn import Classifier
 from miplearn.classifiers.threshold import Threshold, MinPrecisionThreshold
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.instance import Instance
+from miplearn.types import TrainingSample
+
+
+def test_xy_with_lp_solution() -> None:
+    comp = PrimalSolutionComponent()
+    instance = cast(Instance, Mock(spec=Instance))
+    instance.get_variable_category = Mock(  # type: ignore
+        side_effect=lambda var_name, index: {
+            0: "default",
+            1: None,
+            2: "default",
+            3: "default",
+        }[index]
+    )
+    instance.get_variable_features = Mock(  # type: ignore
+        side_effect=lambda var, index: {
+            0: [0.0, 0.0],
+            1: [0.0, 1.0],
+            2: [1.0, 0.0],
+            3: [1.0, 1.0],
+        }[index]
+    )
+    sample: TrainingSample = {
+        "Solution": {
+            "x": {
+                0: 0.0,
+                1: 1.0,
+                2: 1.0,
+                3: 0.0,
+            }
+        },
+        "LP solution": {
+            "x": {
+                0: 0.1,
+                1: 0.1,
+                2: 0.1,
+                3: 0.1,
+            }
+        },
+    }
+    x_expected = {
+        "default": np.array(
+            [
+                [0.0, 0.0, 0.1],
+                [1.0, 0.0, 0.1],
+                [1.0, 1.0, 0.1],
+            ]
+        )
+    }
+    y_expected = {
+        "default": np.array(
+            [
+                [True, False],
+                [False, True],
+                [True, False],
+            ]
+        )
+    }
+    x_actual, y_actual = comp.xy(instance, sample)
+    assert len(x_actual.keys()) == 1
+    assert len(y_actual.keys()) == 1
+    assert_array_equal(x_actual["default"], x_expected["default"])
+    assert_array_equal(y_actual["default"], y_expected["default"])
+
+
+def test_xy_without_lp_solution() -> None:
+    comp = PrimalSolutionComponent()
+    instance = cast(Instance, Mock(spec=Instance))
+    instance.get_variable_category = Mock(  # type: ignore
+        side_effect=lambda var_name, index: {
+            0: "default",
+            1: None,
+            2: "default",
+            3: "default",
+        }[index]
+    )
+    instance.get_variable_features = Mock(  # type: ignore
+        side_effect=lambda var, index: {
+            0: [0.0, 0.0],
+            1: [0.0, 1.0],
+            2: [1.0, 0.0],
+            3: [1.0, 1.0],
+        }[index]
+    )
+    sample: TrainingSample = {
+        "Solution": {
+            "x": {
+                0: 0.0,
+                1: 1.0,
+                2: 1.0,
+                3: 0.0,
+            }
+        },
+    }
+    x_expected = {
+        "default": np.array(
+            [
+                [0.0, 0.0],
+                [1.0, 0.0],
+                [1.0, 1.0],
+            ]
+        )
+    }
+    y_expected = {
+        "default": np.array(
+            [
+                [True, False],
+                [False, True],
+                [True, False],
+            ]
+        )
+    }
+    x_actual, y_actual = comp.xy(instance, sample)
+    assert len(x_actual.keys()) == 1
+    assert len(y_actual.keys()) == 1
+    assert_array_equal(x_actual["default"], x_expected["default"])
+    assert_array_equal(y_actual["default"], y_expected["default"])
 
 
 def test_x_y_fit() -> None:

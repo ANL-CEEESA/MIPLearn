@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from abc import ABC, abstractmethod
-from typing import Any, List, Union, TYPE_CHECKING
+from typing import Any, List, Union, TYPE_CHECKING, Tuple, Dict
 
 from miplearn.instance import Instance
 from miplearn.types import LearningSolveStats, TrainingSample
@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from miplearn.solvers.learning import LearningSolver
 
 
+# noinspection PyMethodMayBeStatic
 class Component(ABC):
     """
     A Component is an object which adds functionality to a LearningSolver.
@@ -134,6 +135,17 @@ class Component(ABC):
         training_instances: Union[List[str], List[Instance]],
     ) -> None:
         return
+
+    def xy(
+        self,
+        instance: Any,
+        training_sample: TrainingSample,
+    ) -> Tuple[Dict, Dict]:
+        """
+        Given a training sample, returns a pair of x and y dictionaries containing,
+        respectively, the matrices of ML features and the labels for the sample.
+        """
+        return {}, {}
 
     def iteration_cb(
         self,
