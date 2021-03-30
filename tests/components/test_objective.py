@@ -15,7 +15,7 @@ from miplearn.types import TrainingSample
 from tests.fixtures.knapsack import get_test_pyomo_instances
 
 
-def test_xy() -> None:
+def test_xy_sample() -> None:
     instance = cast(Instance, Mock(spec=Instance))
     instance.get_instance_features = Mock(  # type: ignore
         return_value=[1.0, 2.0],
@@ -33,7 +33,7 @@ def test_xy() -> None:
         "Lower bound": [[1.0]],
         "Upper bound": [[2.0]],
     }
-    x_actual, y_actual = ObjectiveValueComponent.xy(instance, sample)
+    x_actual, y_actual = ObjectiveValueComponent.xy_sample(instance, sample)
     assert x_actual == x_expected
     assert y_actual == y_expected
 

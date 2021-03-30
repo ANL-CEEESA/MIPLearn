@@ -137,7 +137,7 @@ class Component(ABC):
         return
 
     @staticmethod
-    def xy(
+    def xy_sample(
         instance: Any,
         training_sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:

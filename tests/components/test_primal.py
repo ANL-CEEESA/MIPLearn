@@ -14,7 +14,7 @@ from miplearn.instance import Instance
 from miplearn.types import TrainingSample
 
 
-def test_xy_with_lp_solution() -> None:
+def test_xy_sample_with_lp_solution() -> None:
     comp = PrimalSolutionComponent()
     instance = cast(Instance, Mock(spec=Instance))
     instance.get_variable_category = Mock(  # type: ignore
@@ -69,14 +69,14 @@ def test_xy_with_lp_solution() -> None:
             ]
         )
     }
-    x_actual, y_actual = PrimalSolutionComponent.xy(instance, sample)
+    x_actual, y_actual = PrimalSolutionComponent.xy_sample(instance, sample)
     assert len(x_actual.keys()) == 1
     assert len(y_actual.keys()) == 1
     assert_array_equal(x_actual["default"], x_expected["default"])
     assert_array_equal(y_actual["default"], y_expected["default"])
 
 
-def test_xy_without_lp_solution() -> None:
+def test_xy_sample_without_lp_solution() -> None:
     comp = PrimalSolutionComponent()
     instance = cast(Instance, Mock(spec=Instance))
     instance.get_variable_category = Mock(  # type: ignore
@@ -123,7 +123,7 @@ def test_xy_without_lp_solution() -> None:
             ]
         )
     }
-    x_actual, y_actual = comp.xy(instance, sample)
+    x_actual, y_actual = comp.xy_sample(instance, sample)
     assert len(x_actual.keys()) == 1
     assert len(y_actual.keys()) == 1
     assert_array_equal(x_actual["default"], x_expected["default"])

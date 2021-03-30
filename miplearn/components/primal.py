@@ -298,7 +298,7 @@ class PrimalSolutionComponent(Component):
         return [opt_value < 0.5, opt_value > 0.5]
 
     @staticmethod
-    def xy(
+    def xy_sample(
         instance: Any,
         sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:

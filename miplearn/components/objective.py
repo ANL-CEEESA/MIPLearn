@@ -163,7 +163,7 @@ class ObjectiveValueComponent(Component):
         return ev
 
     @staticmethod
-    def xy(
+    def xy_sample(
         instance: Any,
         sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:
