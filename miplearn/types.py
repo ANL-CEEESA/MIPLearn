@@ -2,7 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Optional, Dict, Callable, Any, Union, Tuple, List
+from typing import Optional, Dict, Callable, Any, Union, Tuple, List, Set
 
 from mypy_extensions import TypedDict
 
@@ -16,6 +16,8 @@ TrainingSample = TypedDict(
         "LP log": str,
         "LP solution": Optional[Solution],
         "LP value": Optional[float],
+        "LazyStatic: All": Set[str],
+        "LazyStatic: Enforced": Set[str],
         "Lower bound": Optional[float],
         "MIP log": str,
         "Solution": Optional[Solution],

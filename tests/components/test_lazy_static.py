@@ -9,6 +9,7 @@ from miplearn.components.lazy_static import StaticLazyConstraintsComponent
 from miplearn.instance import Instance
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.learning import LearningSolver
+from miplearn.types import TrainingSample
 
 
 def test_usage_with_solver():
@@ -230,3 +231,54 @@ def test_fit():
         expected_x["type-b"],
         expected_y["type-b"],
     )
+
+
+def test_xy_sample() -> None:
+    instance = Mock(spec=Instance)
+    sample: TrainingSample = {
+        "LazyStatic: Enforced": {"c1", "c2", "c4", "c5"},
+        "LazyStatic: All": {"c1", "c2", "c3", "c4", "c5"},
+    }
+    instance.get_constraint_category = Mock(
+        side_effect=lambda cid: {
+            "c1": "type-a",
+            "c2": "type-a",
+            "c3": "type-a",
+            "c4": "type-b",
+            "c5": "type-b",
+        }[cid]
+    )
+    instance.get_constraint_features = Mock(
+        side_effect=lambda cid: {
+            "c1": [1, 1],
+            "c2": [1, 2],
+            "c3": [1, 3],
+            "c4": [1, 4, 0],
+            "c5": [1, 5, 0],
+        }[cid]
+    )
+    x_expected = {
+        "type-a": [
+            [1, 1],
+            [1, 2],
+            [1, 3],
+        ],
+        "type-b": [
+            [1, 4, 0],
+            [1, 5, 0],
+        ],
+    }
+    y_expected = {
+        "type-a": [
+            [False, True],
+            [False, True],
+            [True, False],
+        ],
+        "type-b": [
+            [False, True],
+            [False, True],
+        ],
+    }
+    x_actual, y_actual = StaticLazyConstraintsComponent.xy_sample(instance, sample)
+    assert x_actual == x_expected
+    assert y_actual == y_expected
