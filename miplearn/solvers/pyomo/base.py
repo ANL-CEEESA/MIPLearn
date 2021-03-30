@@ -67,8 +67,8 @@ class BasePyomoSolver(InternalSolver):
         if not self.is_infeasible():
             opt_value = results["Problem"][0]["Lower bound"]
         return {
-            "Optimal value": opt_value,
-            "Log": streams[0].getvalue(),
+            "LP value": opt_value,
+            "LP log": streams[0].getvalue(),
         }
 
     def _restore_integrality(self) -> None:
@@ -114,10 +114,9 @@ class BasePyomoSolver(InternalSolver):
             "Upper bound": ub,
             "Wallclock time": total_wallclock_time,
             "Sense": self._obj_sense,
-            "Log": log,
+            "MIP log": log,
             "Nodes": node_count,
             "Warm start value": ws_value,
-            "LP value": None,
         }
         return stats
 

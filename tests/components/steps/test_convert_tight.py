@@ -68,7 +68,7 @@ def test_convert_tight_infeasibility():
     solver = LearningSolver(
         solver=GurobiSolver,
         components=[comp],
-        solve_lp_first=False,
+        solve_lp=False,
     )
     instance = SampleInstance()
     stats = solver.solve(instance)
@@ -91,7 +91,7 @@ def test_convert_tight_suboptimality():
     solver = LearningSolver(
         solver=GurobiSolver,
         components=[comp],
-        solve_lp_first=False,
+        solve_lp=False,
     )
     instance = SampleInstance()
     stats = solver.solve(instance)
@@ -114,7 +114,7 @@ def test_convert_tight_optimal():
     solver = LearningSolver(
         solver=GurobiSolver,
         components=[comp],
-        solve_lp_first=False,
+        solve_lp=False,
     )
     instance = SampleInstance()
     stats = solver.solve(instance)

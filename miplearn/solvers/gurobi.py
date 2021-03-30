@@ -144,8 +144,8 @@ class GurobiSolver(InternalSolver):
         if not self.is_infeasible():
             opt_value = self.model.objVal
         return {
-            "Optimal value": opt_value,
-            "Log": log,
+            "LP value": opt_value,
+            "LP log": log,
         }
 
     def solve(
@@ -205,9 +205,8 @@ class GurobiSolver(InternalSolver):
             "Wallclock time": total_wallclock_time,
             "Nodes": total_nodes,
             "Sense": sense,
-            "Log": log,
+            "MIP log": log,
             "Warm start value": ws_value,
-            "LP value": None,
         }
         return stats
 

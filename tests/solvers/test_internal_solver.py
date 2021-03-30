@@ -93,8 +93,8 @@ def test_internal_solver():
 
         stats = solver.solve_lp()
         assert not solver.is_infeasible()
-        assert round(stats["Optimal value"], 3) == 1287.923
-        assert len(stats["Log"]) > 100
+        assert round(stats["LP value"], 3) == 1287.923
+        assert len(stats["LP log"]) > 100
 
         solution = solver.get_solution()
         assert round(solution["x"][0], 3) == 1.000
@@ -104,7 +104,7 @@ def test_internal_solver():
 
         stats = solver.solve(tee=True)
         assert not solver.is_infeasible()
-        assert len(stats["Log"]) > 100
+        assert len(stats["MIP log"]) > 100
         assert stats["Lower bound"] == 1183.0
         assert stats["Upper bound"] == 1183.0
         assert stats["Sense"] == "max"
@@ -198,7 +198,7 @@ def test_infeasible_instance():
 
         stats = solver.solve_lp()
         assert solver.get_solution() is None
-        assert stats["Optimal value"] is None
+        assert stats["LP value"] is None
         assert solver.get_value("x", 0) is None
 
 

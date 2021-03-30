@@ -22,7 +22,7 @@ from miplearn.instance import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
-from miplearn.types import TrainingSample, LearningSolveStats
+from miplearn.types import TrainingSample, LearningSolveStats, MIPSolveStats
 
 logger = logging.getLogger(__name__)
 
@@ -85,8 +85,8 @@ class LearningSolver:
     use_lazy_cb: bool
         If true, use native solver callbacks for enforcing lazy constraints,
         instead of a simple loop. May not be supported by all solvers.
-    solve_lp_first: bool
-        If true, solve LP relaxation first, then solve original MIP. This
+    solve_lp: bool
+        If true, solve the root LP relaxation before solving the MIP. This
         option should be activated if the LP relaxation is not very
         expensive to solve and if it provides good hints for the integer
         solution.
@@ -103,7 +103,7 @@ class LearningSolver:
         mode: str = "exact",
         solver: Callable[[], InternalSolver] = None,
         use_lazy_cb: bool = False,
-        solve_lp_first: bool = True,
+        solve_lp: bool = True,
         simulate_perfect: bool = False,
     ):
         if solver is None:
@@ -113,7 +113,7 @@ class LearningSolver:
         self.internal_solver: Optional[InternalSolver] = None
         self.mode: str = mode
         self.simulate_perfect: bool = simulate_perfect
-        self.solve_lp_first: bool = solve_lp_first
+        self.solve_lp: bool = solve_lp
         self.solver_factory: Callable[[], InternalSolver] = solver
         self.tee = False
         self.use_lazy_cb: bool = use_lazy_cb
@@ -164,6 +164,9 @@ class LearningSolver:
             instance.training_data = []
         instance.training_data += [training_sample]
 
+        # Initialize stats
+        stats: LearningSolveStats = {}
+
         # Initialize internal solver
         self.tee = tee
         self.internal_solver = self.solver_factory()
@@ -175,21 +178,25 @@ class LearningSolver:
         extractor = ModelFeaturesExtractor(self.internal_solver)
         instance.model_features = extractor.extract()
 
-        # Solve linear relaxation
-        if self.solve_lp_first:
-            logger.info("Solving LP relaxation...")
+        # Solve root LP relaxation
+        if self.solve_lp:
+            logger.debug("Running before_solve_lp callbacks...")
+            for component in self.components.values():
+                component.before_solve_lp(self, instance, model)
+
+            logger.info("Solving root LP relaxation...")
             lp_stats = self.internal_solver.solve_lp(tee=tee)
+            stats.update(cast(LearningSolveStats, lp_stats))
             training_sample["LP solution"] = self.internal_solver.get_solution()
-            training_sample["LP value"] = lp_stats["Optimal value"]
-            training_sample["LP log"] = lp_stats["Log"]
+            training_sample["LP value"] = lp_stats["LP value"]
+            training_sample["LP log"] = lp_stats["LP log"]
+
+            logger.debug("Running after_solve_lp callbacks...")
+            for component in self.components.values():
+                component.after_solve_lp(self, instance, model, stats, training_sample)
         else:
             training_sample["LP solution"] = self.internal_solver.get_empty_solution()
             training_sample["LP value"] = 0.0
-
-        # Before-solve callbacks
-        logger.debug("Running before_solve_mip callbacks...")
-        for component in self.components.values():
-            component.before_solve_mip(self, instance, model)
 
         # Define wrappers
         def iteration_cb_wrapper() -> bool:
@@ -212,16 +219,19 @@ class LearningSolver:
         if self.use_lazy_cb:
             lazy_cb = lazy_cb_wrapper
 
+        # Before-solve callbacks
+        logger.debug("Running before_solve_mip callbacks...")
+        for component in self.components.values():
+            component.before_solve_mip(self, instance, model)
+
         # Solve MIP
         logger.info("Solving MIP...")
-        stats = cast(
-            LearningSolveStats,
-            self.internal_solver.solve(
-                tee=tee,
-                iteration_cb=iteration_cb_wrapper,
-                lazy_cb=lazy_cb,
-            ),
+        mip_stats = self.internal_solver.solve(
+            tee=tee,
+            iteration_cb=iteration_cb_wrapper,
+            lazy_cb=lazy_cb,
         )
+        stats.update(cast(LearningSolveStats, mip_stats))
         if "LP value" in training_sample.keys():
             stats["LP value"] = training_sample["LP value"]
         stats["Solver"] = "default"
@@ -234,7 +244,7 @@ class LearningSolver:
         # Add some information to training_sample
         training_sample["Lower bound"] = stats["Lower bound"]
         training_sample["Upper bound"] = stats["Upper bound"]
-        training_sample["MIP log"] = stats["Log"]
+        training_sample["MIP log"] = stats["MIP log"]
         training_sample["Solution"] = self.internal_solver.get_solution()
 
         # After-solve callbacks

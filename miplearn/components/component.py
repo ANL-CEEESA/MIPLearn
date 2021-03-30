@@ -21,6 +21,60 @@ class Component(ABC):
     strategy.
     """
 
+    def before_solve_lp(
+        self,
+        solver: "LearningSolver",
+        instance: Instance,
+        model: Any,
+    ) -> None:
+        """
+        Method called by LearningSolver before the root LP relaxation is solved.
+
+        Parameters
+        ----------
+        solver
+            The solver calling this method.
+        instance
+            The instance being solved.
+        model
+            The concrete optimization model being solved.
+        """
+        return
+
+    def after_solve_lp(
+        self,
+        solver: "LearningSolver",
+        instance: Instance,
+        model: Any,
+        stats: LearningSolveStats,
+        training_data: TrainingSample,
+    ) -> None:
+        """
+        Method called by LearningSolver after the root LP relaxation is solved.
+
+        Parameters
+        ----------
+        solver: LearningSolver
+            The solver calling this method.
+        instance: Instance
+            The instance being solved.
+        model: Any
+            The concrete optimization model being solved.
+        stats: LearningSolveStats
+            A dictionary containing statistics about the solution process, such as
+            number of nodes explored and running time. Components are free to add
+            their own statistics here. For example, PrimalSolutionComponent adds
+            statistics regarding the number of predicted variables. All statistics in
+            this dictionary are exported to the benchmark CSV file.
+        training_data: TrainingSample
+            A dictionary containing data that may be useful for training machine
+            learning models and accelerating the solution process. Components are
+            free to add their own training data here. For example,
+            PrimalSolutionComponent adds the current primal solution. The data must
+            be pickable.
+        """
+        return
+
     def before_solve_mip(
         self,
         solver: "LearningSolver",
@@ -41,7 +95,6 @@ class Component(ABC):
         """
         return
 
-    @abstractmethod
     def after_solve_mip(
         self,
         solver: "LearningSolver",
@@ -74,7 +127,7 @@ class Component(ABC):
             PrimalSolutionComponent adds the current primal solution. The data must
             be pickable.
         """
-        pass
+        return
 
     def fit(
         self,

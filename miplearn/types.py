@@ -28,8 +28,8 @@ TrainingSample = TypedDict(
 LPSolveStats = TypedDict(
     "LPSolveStats",
     {
-        "Optimal value": Optional[float],
-        "Log": str,
+        "LP log": str,
+        "LP value": Optional[float],
     },
 )
 
@@ -37,13 +37,12 @@ MIPSolveStats = TypedDict(
     "MIPSolveStats",
     {
         "Lower bound": Optional[float],
-        "Upper bound": Optional[float],
-        "Wallclock time": float,
+        "MIP log": str,
         "Nodes": Optional[int],
         "Sense": str,
-        "Log": str,
+        "Upper bound": Optional[float],
+        "Wallclock time": float,
         "Warm start value": Optional[float],
-        "LP value": Optional[float],
     },
 )
 
@@ -52,21 +51,22 @@ LearningSolveStats = TypedDict(
     {
         "Gap": Optional[float],
         "Instance": Union[str, int],
+        "LP log": str,
         "LP value": Optional[float],
-        "Log": str,
         "Lower bound": Optional[float],
+        "MIP log": str,
         "Mode": str,
         "Nodes": Optional[int],
+        "Objective: predicted LB": float,
+        "Objective: predicted UB": float,
+        "Primal: free": int,
+        "Primal: one": int,
+        "Primal: zero": int,
         "Sense": str,
         "Solver": str,
         "Upper bound": Optional[float],
         "Wallclock time": float,
         "Warm start value": Optional[float],
-        "Primal: free": int,
-        "Primal: zero": int,
-        "Primal: one": int,
-        "Objective: predicted LB": float,
-        "Objective: predicted UB": float,
     },
     total=False,
 )

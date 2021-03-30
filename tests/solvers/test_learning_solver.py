@@ -57,7 +57,7 @@ def test_solve_without_lp():
         instance = _get_knapsack_instance(internal_solver)
         solver = LearningSolver(
             solver=internal_solver,
-            solve_lp_first=False,
+            solve_lp=False,
         )
         solver.solve(instance)
         solver.fit([instance])
