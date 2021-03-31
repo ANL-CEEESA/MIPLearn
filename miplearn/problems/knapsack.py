@@ -265,20 +265,16 @@ class KnapsackInstance(Instance):
         return model
 
     def get_instance_features(self):
-        return np.array(
-            [
-                self.capacity,
-                np.average(self.weights),
-            ]
-        )
+        return [
+            self.capacity,
+            np.average(self.weights),
+        ]
 
     def get_variable_features(self, var, index):
-        return np.array(
-            [
-                self.weights[index],
-                self.prices[index],
-            ]
-        )
+        return [
+            self.weights[index],
+            self.prices[index],
+        ]
 
 
 class GurobiKnapsackInstance(KnapsackInstance):

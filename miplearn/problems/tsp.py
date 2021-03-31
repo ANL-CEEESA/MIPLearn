@@ -157,10 +157,10 @@ class TravelingSalesmanInstance(Instance):
         return model
 
     def get_instance_features(self):
-        return np.array([1])
+        return [1]
 
     def get_variable_features(self, var_name, index):
-        return np.array([1])
+        return [1]
 
     def get_variable_category(self, var_name, index):
         return index

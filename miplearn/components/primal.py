@@ -105,19 +105,11 @@ class PrimalSolutionComponent(Component):
     ) -> Dict[Hashable, np.ndarray]:
         return self._build_x_y_dict(instances, self._extract_variable_features)
 
-    def y(
+    def fit_xy(
         self,
-        instances: Union[List[str], List[Instance]],
-    ) -> Dict[Hashable, np.ndarray]:
-        return self._build_x_y_dict(instances, self._extract_variable_labels)
-
-    def fit(
-        self,
-        training_instances: Union[List[str], List[Instance]],
-        n_jobs: int = 1,
+        x: Dict[str, np.ndarray],
+        y: Dict[str, np.ndarray],
     ) -> None:
-        x = self.x(training_instances)
-        y = self.y(training_instances)
         for category in x.keys():
             clf = self.classifier_factory()
             thr = self.threshold_factory()
@@ -322,8 +314,11 @@ class PrimalSolutionComponent(Component):
                     x[category] = []
                     y[category] = []
                 features: Any = instance.get_variable_features(var, idx)
+                assert isinstance(features, list)
                 if "LP solution" in sample and sample["LP solution"] is not None:
-                    features += [sample["LP solution"][var][idx]]
+                    lp_value = sample["LP solution"][var][idx]
+                    if lp_value is not None:
+                        features += [sample["LP solution"][var][idx]]
                 x[category] += [features]
                 y[category] += [[opt_value < 0.5, opt_value >= 0.5]]
         return x, y

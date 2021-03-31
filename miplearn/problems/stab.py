@@ -129,7 +129,7 @@ class MaxWeightStableSetInstance(Instance):
         features += neighbor_weights[:5]
         features += neighbor_degrees[:5]
         features += [self.graph.degree(index)]
-        return np.array(features)
+        return features
 
     def get_variable_category(self, var, index):
         return "default"

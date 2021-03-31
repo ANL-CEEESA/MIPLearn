@@ -2,9 +2,10 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from abc import ABC, abstractmethod
+import numpy as np
 from typing import Any, List, Union, TYPE_CHECKING, Tuple, Dict
 
+from miplearn.extractors import InstanceIterator
 from miplearn.instance import Instance
 from miplearn.types import LearningSolveStats, TrainingSample
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 # noinspection PyMethodMayBeStatic
-class Component(ABC):
+class Component:
     """
     A Component is an object which adds functionality to a LearningSolver.
 
@@ -130,12 +131,6 @@ class Component(ABC):
         """
         return
 
-    def fit(
-        self,
-        training_instances: Union[List[str], List[Instance]],
-    ) -> None:
-        return
-
     @staticmethod
     def xy_sample(
         instance: Any,
@@ -146,6 +141,40 @@ class Component(ABC):
         respectively, the matrices of ML features and the labels for the sample.
         """
         return {}, {}
+
+    def xy_instances(
+        self,
+        instances: Union[List[str], List[Instance]],
+    ) -> Tuple[Dict, Dict]:
+        x_combined: Dict = {}
+        y_combined: Dict = {}
+        for instance in InstanceIterator(instances):
+            for sample in instance.training_data:
+                x_sample, y_sample = self.xy_sample(instance, sample)
+                for cat in x_sample.keys():
+                    if cat not in x_combined:
+                        x_combined[cat] = []
+                        y_combined[cat] = []
+                    x_combined[cat] += x_sample[cat]
+                    y_combined[cat] += y_sample[cat]
+        return x_combined, y_combined
+
+    def fit(
+        self,
+        training_instances: Union[List[str], List[Instance]],
+    ) -> None:
+        x, y = self.xy_instances(training_instances)
+        for cat in x.keys():
+            x[cat] = np.array(x[cat])
+            y[cat] = np.array(y[cat])
+        self.fit_xy(x, y)
+
+    def fit_xy(
+        self,
+        x: Dict[str, np.ndarray],
+        y: Dict[str, np.ndarray],
+    ) -> None:
+        return
 
     def iteration_cb(
         self,
