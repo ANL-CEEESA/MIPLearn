@@ -373,25 +373,28 @@ class LearningSolver:
             The list is the same you would obtain by calling
             `[solver.solve(p) for p in instances]`
         """
-        self.internal_solver = None
-        self._silence_miplearn_logger()
-        _GLOBAL[0].solver = self
-        _GLOBAL[0].output_filenames = output_filenames
-        _GLOBAL[0].instances = instances
-        _GLOBAL[0].discard_outputs = discard_outputs
-        results = p_map(
-            _parallel_solve,
-            list(range(len(instances))),
-            num_cpus=n_jobs,
-            desc=label,
-        )
-        results = [r for r in results if r[0]]
-        stats = []
-        for (idx, (s, instance)) in enumerate(results):
-            stats.append(s)
-            instances[idx] = instance
-        self._restore_miplearn_logger()
-        return stats
+        if n_jobs == 1:
+            return [self.solve(p) for p in instances]
+        else:
+            self.internal_solver = None
+            self._silence_miplearn_logger()
+            _GLOBAL[0].solver = self
+            _GLOBAL[0].output_filenames = output_filenames
+            _GLOBAL[0].instances = instances
+            _GLOBAL[0].discard_outputs = discard_outputs
+            results = p_map(
+                _parallel_solve,
+                list(range(len(instances))),
+                num_cpus=n_jobs,
+                desc=label,
+            )
+            results = [r for r in results if r[0]]
+            stats = []
+            for (idx, (s, instance)) in enumerate(results):
+                stats.append(s)
+                instances[idx] = instance
+            self._restore_miplearn_logger()
+            return stats
 
     def fit(self, training_instances: Union[List[str], List[Instance]]) -> None:
         if len(training_instances) == 0:

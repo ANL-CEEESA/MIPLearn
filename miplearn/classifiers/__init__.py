@@ -34,7 +34,11 @@ class Classifier(ABC):
         """
         assert isinstance(x_train, np.ndarray)
         assert isinstance(y_train, np.ndarray)
-        assert x_train.dtype in [np.float16, np.float32, np.float64]
+        assert x_train.dtype in [
+            np.float16,
+            np.float32,
+            np.float64,
+        ], f"x_train.dtype shoule be float. Found {x_train.dtype} instead."
         assert y_train.dtype == np.bool8
         assert len(x_train.shape) == 2
         assert len(y_train.shape) == 2
@@ -67,7 +71,10 @@ class Classifier(ABC):
         assert isinstance(x_test, np.ndarray)
         assert len(x_test.shape) == 2
         (n_samples, n_features_x) = x_test.shape
-        assert n_features_x == self.n_features
+        assert n_features_x == self.n_features, (
+            f"Test and training data have different number of "
+            f"features: {n_features_x} != {self.n_features}"
+        )
         return np.ndarray([])
 
 

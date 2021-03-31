@@ -10,7 +10,8 @@ import pandas as pd
 
 from miplearn.instance import Instance
 from miplearn.solvers.learning import LearningSolver
-from miplearn.types import LearningSolveStats
+
+logger = logging.getLogger(__name__)
 
 
 class BenchmarkRunner:
@@ -110,6 +111,7 @@ class BenchmarkRunner:
 
         """
         for (solver_name, solver) in self.solvers.items():
+            logger.debug(f"Fitting {solver_name}...")
             solver.fit(instances)
 
     def _silence_miplearn_logger(self) -> None:

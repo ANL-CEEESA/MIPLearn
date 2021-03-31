@@ -24,11 +24,9 @@ from miplearn.classifiers.adaptive import AdaptiveClassifier
 from miplearn.classifiers.threshold import MinPrecisionThreshold, Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
-from miplearn.extractors import InstanceIterator
 from miplearn.instance import Instance
 from miplearn.types import (
     TrainingSample,
-    VarIndex,
     Solution,
     LearningSolveStats,
     Features,
@@ -70,30 +68,33 @@ class PrimalSolutionComponent(Component):
         self._n_one = 0
 
     def before_solve_mip(self, solver, instance, model):
-        pass
-        # if len(self.thresholds) > 0:
-        #     logger.info("Predicting primal solution...")
-        #     solution = self.predict(instance)
-        #
-        #     # Collect prediction statistics
-        #     self._n_free = 0
-        #     self._n_zero = 0
-        #     self._n_one = 0
-        #     for (var, var_dict) in solution.items():
-        #         for (idx, value) in var_dict.items():
-        #             if value is None:
-        #                 self._n_free += 1
-        #             else:
-        #                 if value < 0.5:
-        #                     self._n_zero += 1
-        #                 else:
-        #                     self._n_one += 1
-        #
-        #     # Provide solution to the solver
-        #     if self.mode == "heuristic":
-        #         solver.internal_solver.fix(solution)
-        #     else:
-        #         solver.internal_solver.set_warm_start(solution)
+        if len(self.thresholds) > 0:
+            logger.info("Predicting primal solution...")
+            solution = self.predict(instance.features, instance.training_data[-1])
+
+            # Collect prediction statistics
+            self._n_free = 0
+            self._n_zero = 0
+            self._n_one = 0
+            for (var, var_dict) in solution.items():
+                for (idx, value) in var_dict.items():
+                    if value is None:
+                        self._n_free += 1
+                    else:
+                        if value < 0.5:
+                            self._n_zero += 1
+                        else:
+                            self._n_one += 1
+            logger.info(
+                f"Predicted: {self._n_free} free, {self._n_zero} fix-zero, "
+                f"{self._n_one} fix-one"
+            )
+
+            # Provide solution to the solver
+            if self.mode == "heuristic":
+                solver.internal_solver.fix(solution)
+            else:
+                solver.internal_solver.set_warm_start(solution)
 
     def after_solve_mip(
         self,
@@ -120,27 +121,29 @@ class PrimalSolutionComponent(Component):
             self.classifiers[category] = clf
             self.thresholds[category] = thr
 
-    def predict(self, instance: Instance) -> Solution:
-        assert len(instance.training_data) > 0
-        sample = instance.training_data[-1]
-
+    def predict(
+        self,
+        features: Features,
+        sample: TrainingSample,
+    ) -> Solution:
         # Initialize empty solution
         solution: Solution = {}
-        for (var_name, var_dict) in instance.features["Variables"].items():
+        for (var_name, var_dict) in features["Variables"].items():
             solution[var_name] = {}
             for idx in var_dict.keys():
                 solution[var_name][idx] = None
 
         # Compute y_pred
-        x = self.x_sample(instance.features, sample)
+        x = self.x_sample(features, sample)
         y_pred = {}
         for category in x.keys():
             assert category in self.classifiers, (
                 f"Classifier for category {category} has not been trained. "
                 f"Please call component.fit before component.predict."
             )
-            proba = self.classifiers[category].predict_proba(x[category])
-            thr = self.thresholds[category].predict(x[category])
+            xc = np.array(x[category])
+            proba = self.classifiers[category].predict_proba(xc)
+            thr = self.thresholds[category].predict(xc)
             y_pred[category] = np.vstack(
                 [
                     proba[:, 0] > thr[0],
@@ -150,7 +153,7 @@ class PrimalSolutionComponent(Component):
 
         # Convert y_pred into solution
         category_offset: Dict[Hashable, int] = {cat: 0 for cat in x.keys()}
-        for (var_name, var_dict) in instance.features["Variables"].items():
+        for (var_name, var_dict) in features["Variables"].items():
             for (idx, var_features) in var_dict.items():
                 category = var_features["Category"]
                 offset = category_offset[category]
@@ -250,8 +253,9 @@ class PrimalSolutionComponent(Component):
                 if category not in x.keys():
                     x[category] = []
                     y[category] = []
-                f = var_features["User features"]
-                assert f is not None
+                f: List[float] = []
+                assert var_features["User features"] is not None
+                f += var_features["User features"]
                 if "LP solution" in sample and sample["LP solution"] is not None:
                     lp_value = sample["LP solution"][var_name][idx]
                     if lp_value is not None:
