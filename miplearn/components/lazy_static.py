@@ -215,13 +215,14 @@ class StaticLazyConstraintsComponent(Component):
         if "LazyStatic: All" not in sample:
             return x, y
         for cid in sorted(sample["LazyStatic: All"]):
-            category = instance.get_constraint_category(cid)
+            cfeatures = instance.features["Constraints"][cid]
+            category = cfeatures["Category"]
             if category is None:
                 continue
             if category not in x:
                 x[category] = []
                 y[category] = []
-            x[category] += [instance.get_constraint_features(cid)]
+            x[category] += [cfeatures["User features"]]
             if cid in sample["LazyStatic: Enforced"]:
                 y[category] += [[False, True]]
             else:

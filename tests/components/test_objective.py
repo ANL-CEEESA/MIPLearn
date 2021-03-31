@@ -17,9 +17,11 @@ from tests.fixtures.knapsack import get_test_pyomo_instances
 
 def test_xy_sample() -> None:
     instance = cast(Instance, Mock(spec=Instance))
-    instance.get_instance_features = Mock(  # type: ignore
-        return_value=[1.0, 2.0],
-    )
+    instance.features = {
+        "Instance": {
+            "User features": [1.0, 2.0],
+        }
+    }
     sample: TrainingSample = {
         "Lower bound": 1.0,
         "Upper bound": 2.0,

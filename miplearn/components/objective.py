@@ -171,7 +171,7 @@ class ObjectiveValueComponent(Component):
         y: Dict = {}
         if "Lower bound" not in sample:
             return x, y
-        features = instance.get_instance_features()
+        features = instance.features["Instance"]["User features"]
         if "LP value" in sample and sample["LP value"] is not None:
             features += [sample["LP value"]]
         x["Lower bound"] = [features]

@@ -239,33 +239,39 @@ def test_xy_sample() -> None:
         "LazyStatic: Enforced": {"c1", "c2", "c4", "c5"},
         "LazyStatic: All": {"c1", "c2", "c3", "c4", "c5"},
     }
-    instance.get_constraint_category = Mock(
-        side_effect=lambda cid: {
-            "c1": "type-a",
-            "c2": "type-a",
-            "c3": "type-a",
-            "c4": "type-b",
-            "c5": "type-b",
-        }[cid]
-    )
-    instance.get_constraint_features = Mock(
-        side_effect=lambda cid: {
-            "c1": [1, 1],
-            "c2": [1, 2],
-            "c3": [1, 3],
-            "c4": [1, 4, 0],
-            "c5": [1, 5, 0],
-        }[cid]
-    )
+    instance.features = {
+        "Constraints": {
+            "c1": {
+                "Category": "type-a",
+                "User features": [1.0, 1.0],
+            },
+            "c2": {
+                "Category": "type-a",
+                "User features": [1.0, 2.0],
+            },
+            "c3": {
+                "Category": "type-a",
+                "User features": [1.0, 3.0],
+            },
+            "c4": {
+                "Category": "type-b",
+                "User features": [1.0, 4.0, 0.0],
+            },
+            "c5": {
+                "Category": "type-b",
+                "User features": [1.0, 5.0, 0.0],
+            },
+        }
+    }
     x_expected = {
         "type-a": [
-            [1, 1],
-            [1, 2],
-            [1, 3],
+            [1.0, 1.0],
+            [1.0, 2.0],
+            [1.0, 3.0],
         ],
         "type-b": [
-            [1, 4, 0],
-            [1, 5, 0],
+            [1.0, 4.0, 0.0],
+            [1.0, 5.0, 0.0],
         ],
     }
     y_expected = {
