@@ -73,6 +73,15 @@ LearningSolveStats = TypedDict(
     total=False,
 )
 
+VariableFeatures = TypedDict(
+    "VariableFeatures",
+    {
+        "Category": Optional[Hashable],
+        "User features": Optional[List[float]],
+    },
+    total=False,
+)
+
 ConstraintFeatures = TypedDict(
     "ConstraintFeatures",
     {
@@ -88,7 +97,7 @@ ConstraintFeatures = TypedDict(
 ModelFeatures = TypedDict(
     "ModelFeatures",
     {
-        "Variables": Solution,
+        "Variables": Dict[str, Dict[VarIndex, VariableFeatures]],
         "Constraints": Dict[str, ConstraintFeatures],
     },
     total=False,
