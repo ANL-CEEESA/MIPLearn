@@ -6,7 +6,7 @@ import numbers
 import collections
 from typing import TYPE_CHECKING, Dict
 
-from miplearn.types import ModelFeatures, ConstraintFeatures
+from miplearn.types import Features, ConstraintFeatures
 
 if TYPE_CHECKING:
     from miplearn import InternalSolver, Instance
@@ -19,7 +19,7 @@ class FeaturesExtractor:
     ) -> None:
         self.solver = internal_solver
 
-    def extract(self, instance: "Instance") -> ModelFeatures:
+    def extract(self, instance: "Instance") -> Features:
         return {
             "Constraints": self._extract_constraints(instance),
             "Variables": self._extract_variables(instance),

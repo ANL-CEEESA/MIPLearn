@@ -94,8 +94,8 @@ ConstraintFeatures = TypedDict(
     total=False,
 )
 
-ModelFeatures = TypedDict(
-    "ModelFeatures",
+Features = TypedDict(
+    "Features",
     {
         "Variables": Dict[str, Dict[VarIndex, VariableFeatures]],
         "Constraints": Dict[str, ConstraintFeatures],

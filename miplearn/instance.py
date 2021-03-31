@@ -9,7 +9,7 @@ from typing import Any, List, Optional, Hashable
 
 import numpy as np
 
-from miplearn.types import TrainingSample, VarIndex, ModelFeatures
+from miplearn.types import TrainingSample, VarIndex, Features
 
 
 # noinspection PyMethodMayBeStatic
@@ -27,7 +27,7 @@ class Instance(ABC):
 
     def __init__(self) -> None:
         self.training_data: List[TrainingSample] = []
-        self.features: ModelFeatures = {}
+        self.features: Features = {}
 
     @abstractmethod
     def to_model(self) -> Any:
