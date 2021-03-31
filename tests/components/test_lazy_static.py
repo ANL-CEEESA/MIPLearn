@@ -9,7 +9,7 @@ from miplearn.components.lazy_static import StaticLazyConstraintsComponent
 from miplearn.instance import Instance
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.learning import LearningSolver
-from miplearn.types import TrainingSample
+from miplearn.types import TrainingSample, Features
 
 
 def test_usage_with_solver():
@@ -234,32 +234,35 @@ def test_fit():
 
 
 def test_xy_sample() -> None:
-    instance = Mock(spec=Instance)
     sample: TrainingSample = {
-        "LazyStatic: Enforced": {"c1", "c2", "c4", "c5"},
-        "LazyStatic: All": {"c1", "c2", "c3", "c4", "c5"},
+        "LazyStatic: Enforced": {"c1", "c2", "c4"},
     }
-    instance.features = {
+    features: Features = {
         "Constraints": {
             "c1": {
                 "Category": "type-a",
                 "User features": [1.0, 1.0],
+                "Lazy": True,
             },
             "c2": {
                 "Category": "type-a",
                 "User features": [1.0, 2.0],
+                "Lazy": True,
             },
             "c3": {
                 "Category": "type-a",
                 "User features": [1.0, 3.0],
+                "Lazy": True,
             },
             "c4": {
                 "Category": "type-b",
                 "User features": [1.0, 4.0, 0.0],
+                "Lazy": True,
             },
             "c5": {
                 "Category": "type-b",
                 "User features": [1.0, 5.0, 0.0],
+                "Lazy": False,
             },
         }
     }
@@ -271,7 +274,6 @@ def test_xy_sample() -> None:
         ],
         "type-b": [
             [1.0, 4.0, 0.0],
-            [1.0, 5.0, 0.0],
         ],
     }
     y_expected = {
@@ -282,9 +284,10 @@ def test_xy_sample() -> None:
         ],
         "type-b": [
             [False, True],
-            [False, True],
         ],
     }
-    x_actual, y_actual = StaticLazyConstraintsComponent.xy_sample(instance, sample)
+    xy = StaticLazyConstraintsComponent.xy_sample(features, sample)
+    assert xy is not None
+    x_actual, y_actual = xy
     assert x_actual == x_expected
     assert y_actual == y_expected

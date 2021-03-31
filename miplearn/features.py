@@ -58,6 +58,7 @@ class FeaturesExtractor:
         self,
         instance: "Instance",
     ) -> Dict[str, ConstraintFeatures]:
+        has_static_lazy = instance.has_static_lazy_constraints()
         constraints: Dict[str, ConstraintFeatures] = {}
         for cid in self.solver.get_constraint_ids():
             user_features = None
@@ -83,6 +84,10 @@ class FeaturesExtractor:
                 "Category": category,
                 "User features": user_features,
             }
+            if has_static_lazy:
+                constraints[cid]["Lazy"] = instance.is_constraint_lazy(cid)
+            else:
+                constraints[cid]["Lazy"] = False
         return constraints
 
     @staticmethod

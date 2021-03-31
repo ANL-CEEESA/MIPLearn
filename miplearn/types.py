@@ -98,6 +98,7 @@ ConstraintFeatures = TypedDict(
         "Sense": str,
         "Category": Optional[Hashable],
         "User features": Optional[List[float]],
+        "Lazy": bool,
     },
     total=False,
 )

@@ -211,15 +211,15 @@ class PrimalSolutionComponent(Component):
 
     @staticmethod
     def xy_sample(
-        instance: Any,
+        features: Features,
         sample: TrainingSample,
-    ) -> Tuple[Dict, Dict]:
+    ) -> Optional[Tuple[Dict, Dict]]:
         if "Solution" not in sample:
-            return {}, {}
+            return None
         assert sample["Solution"] is not None
         return cast(
             Tuple[Dict, Dict],
-            PrimalSolutionComponent._extract(instance.features, sample),
+            PrimalSolutionComponent._extract(features, sample),
         )
 
     @staticmethod
@@ -227,7 +227,10 @@ class PrimalSolutionComponent(Component):
         features: Features,
         sample: TrainingSample,
     ) -> Dict:
-        return cast(Dict, PrimalSolutionComponent._extract(features, sample))
+        return cast(
+            Dict,
+            PrimalSolutionComponent._extract(features, sample),
+        )
 
     @staticmethod
     def _extract(

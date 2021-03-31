@@ -1,22 +1,22 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import cast, List
-from unittest.mock import Mock, call
+
+from typing import cast
+from unittest.mock import Mock
 
 import numpy as np
 from numpy.testing import assert_array_equal
 
 from miplearn import Classifier
-from miplearn.classifiers.threshold import Threshold, MinPrecisionThreshold
+from miplearn.classifiers.threshold import Threshold
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.instance import Instance
-from miplearn.types import TrainingSample
+from miplearn.types import TrainingSample, Features
 
 
 def test_xy_sample_with_lp_solution() -> None:
-    instance = cast(Instance, Mock(spec=Instance))
-    instance.features = {
+    features: Features = {
         "Variables": {
             "x": {
                 0: {
@@ -56,34 +56,28 @@ def test_xy_sample_with_lp_solution() -> None:
         },
     }
     x_expected = {
-        "default": np.array(
-            [
-                [0.0, 0.0, 0.1],
-                [1.0, 0.0, 0.1],
-                [1.0, 1.0, 0.1],
-            ]
-        )
+        "default": [
+            [0.0, 0.0, 0.1],
+            [1.0, 0.0, 0.1],
+            [1.0, 1.0, 0.1],
+        ]
     }
     y_expected = {
-        "default": np.array(
-            [
-                [True, False],
-                [False, True],
-                [True, False],
-            ]
-        )
+        "default": [
+            [True, False],
+            [False, True],
+            [True, False],
+        ]
     }
-    x_actual, y_actual = PrimalSolutionComponent.xy_sample(instance, sample)
-    assert len(x_actual.keys()) == 1
-    assert len(y_actual.keys()) == 1
-    assert_array_equal(x_actual["default"], x_expected["default"])
-    assert_array_equal(y_actual["default"], y_expected["default"])
+    xy = PrimalSolutionComponent.xy_sample(features, sample)
+    assert xy is not None
+    x_actual, y_actual = xy
+    assert x_actual == x_expected
+    assert y_actual == y_expected
 
 
 def test_xy_sample_without_lp_solution() -> None:
-    comp = PrimalSolutionComponent()
-    instance = cast(Instance, Mock(spec=Instance))
-    instance.features = {
+    features: Features = {
         "Variables": {
             "x": {
                 0: {
@@ -115,28 +109,24 @@ def test_xy_sample_without_lp_solution() -> None:
         },
     }
     x_expected = {
-        "default": np.array(
-            [
-                [0.0, 0.0],
-                [1.0, 0.0],
-                [1.0, 1.0],
-            ]
-        )
+        "default": [
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+        ]
     }
     y_expected = {
-        "default": np.array(
-            [
-                [True, False],
-                [False, True],
-                [True, False],
-            ]
-        )
+        "default": [
+            [True, False],
+            [False, True],
+            [True, False],
+        ]
     }
-    x_actual, y_actual = comp.xy_sample(instance, sample)
-    assert len(x_actual.keys()) == 1
-    assert len(y_actual.keys()) == 1
-    assert_array_equal(x_actual["default"], x_expected["default"])
-    assert_array_equal(y_actual["default"], y_expected["default"])
+    xy = PrimalSolutionComponent.xy_sample(features, sample)
+    assert xy is not None
+    x_actual, y_actual = xy
+    assert x_actual == x_expected
+    assert y_actual == y_expected
 
 
 def test_predict() -> None:

@@ -19,7 +19,7 @@ from miplearn.classifiers import Regressor
 from miplearn.components.component import Component
 from miplearn.extractors import InstanceIterator
 from miplearn.instance import Instance
-from miplearn.types import MIPSolveStats, TrainingSample, LearningSolveStats
+from miplearn.types import MIPSolveStats, TrainingSample, LearningSolveStats, Features
 
 if TYPE_CHECKING:
     from miplearn.solvers.learning import LearningSolver
@@ -164,18 +164,20 @@ class ObjectiveValueComponent(Component):
 
     @staticmethod
     def xy_sample(
-        instance: Any,
+        features: Features,
         sample: TrainingSample,
-    ) -> Tuple[Dict, Dict]:
-        x: Dict = {}
-        y: Dict = {}
+    ) -> Optional[Tuple[Dict, Dict]]:
         if "Lower bound" not in sample:
-            return x, y
-        features = instance.features["Instance"]["User features"]
+            return None
+        f = features["Instance"]["User features"]
         if "LP value" in sample and sample["LP value"] is not None:
-            features += [sample["LP value"]]
-        x["Lower bound"] = [features]
-        x["Upper bound"] = [features]
-        y["Lower bound"] = [[sample["Lower bound"]]]
-        y["Upper bound"] = [[sample["Upper bound"]]]
+            f += [sample["LP value"]]
+        x = {
+            "Lower bound": [f],
+            "Upper bound": [f],
+        }
+        y = {
+            "Lower bound": [[sample["Lower bound"]]],
+            "Upper bound": [[sample["Upper bound"]]],
+        }
         return x, y

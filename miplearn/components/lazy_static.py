@@ -5,14 +5,14 @@
 import logging
 import sys
 from copy import deepcopy
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, Optional
 
 import numpy as np
 from tqdm.auto import tqdm
 
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.components.component import Component
-from miplearn.types import TrainingSample
+from miplearn.types import TrainingSample, Features
 
 logger = logging.getLogger(__name__)
 
@@ -207,15 +207,16 @@ class StaticLazyConstraintsComponent(Component):
 
     @staticmethod
     def xy_sample(
-        instance: Any,
+        features: Features,
         sample: TrainingSample,
-    ) -> Tuple[Dict, Dict]:
+    ) -> Optional[Tuple[Dict, Dict]]:
+        if "LazyStatic: Enforced" not in sample:
+            return None
         x: Dict = {}
         y: Dict = {}
-        if "LazyStatic: All" not in sample:
-            return x, y
-        for cid in sorted(sample["LazyStatic: All"]):
-            cfeatures = instance.features["Constraints"][cid]
+        for (cid, cfeatures) in features["Constraints"].items():
+            if not cfeatures["Lazy"]:
+                continue
             category = cfeatures["Category"]
             if category is None:
                 continue

@@ -101,13 +101,13 @@ class Instance(ABC):
     def get_constraint_category(self, cid: str) -> Optional[str]:
         return cid
 
-    def has_static_lazy_constraints(self):
+    def has_static_lazy_constraints(self) -> bool:
         return False
 
     def has_dynamic_lazy_constraints(self):
         return False
 
-    def is_constraint_lazy(self, cid):
+    def is_constraint_lazy(self, cid: str) -> bool:
         return False
 
     def find_violated_lazy_constraints(self, model):

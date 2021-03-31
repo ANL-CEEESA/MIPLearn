@@ -44,6 +44,7 @@ def test_knapsack() -> None:
             },
             "Sense": "<",
             "RHS": 67.0,
+            "Lazy": False,
             "Category": "eq_capacity",
             "User features": [0.0],
         }
