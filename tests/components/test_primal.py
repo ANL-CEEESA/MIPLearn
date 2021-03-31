@@ -153,7 +153,7 @@ def test_predict() -> None:
             2: [2.0, 0.0],
         }[index]
     )
-    instance.model_features = {
+    instance.features = {
         "Variables": {
             "x": {
                 0: None,

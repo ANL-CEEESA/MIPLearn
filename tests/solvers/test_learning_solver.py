@@ -27,7 +27,7 @@ def test_learning_solver():
 
             solver.solve(instance)
 
-            assert hasattr(instance, "model_features")
+            assert hasattr(instance, "features")
 
             data = instance.training_data[0]
             assert data["Solution"]["x"][0] == 1.0

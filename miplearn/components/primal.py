@@ -236,7 +236,7 @@ class PrimalSolutionComponent(Component):
             PrimalSolutionComponent._extract(
                 instance,
                 sample,
-                instance.model_features["Variables"],
+                instance.features["Variables"],
                 extract_y=False,
             ),
         )

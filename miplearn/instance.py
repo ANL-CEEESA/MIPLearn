@@ -12,6 +12,7 @@ import numpy as np
 from miplearn.types import TrainingSample, VarIndex, ModelFeatures
 
 
+# noinspection PyMethodMayBeStatic
 class Instance(ABC):
     """
     Abstract class holding all the data necessary to generate a concrete model of the
@@ -26,7 +27,7 @@ class Instance(ABC):
 
     def __init__(self) -> None:
         self.training_data: List[TrainingSample] = []
-        self.model_features: ModelFeatures = {}
+        self.features: ModelFeatures = {}
 
     @abstractmethod
     def to_model(self) -> Any:
@@ -94,10 +95,10 @@ class Instance(ABC):
         """
         return "default"
 
-    def get_constraint_features(self, cid):
-        return np.zeros(1)
+    def get_constraint_features(self, cid: str) -> Optional[List[float]]:
+        return [0.0]
 
-    def get_constraint_category(self, cid):
+    def get_constraint_category(self, cid: str) -> Optional[str]:
         return cid
 
     def has_static_lazy_constraints(self):

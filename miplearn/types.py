@@ -2,7 +2,7 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Optional, Dict, Callable, Any, Union, Tuple, List, Set
+from typing import Optional, Dict, Callable, Any, Union, Tuple, List, Set, Hashable
 
 from mypy_extensions import TypedDict
 
@@ -79,6 +79,8 @@ ConstraintFeatures = TypedDict(
         "RHS": float,
         "LHS": Dict[str, float],
         "Sense": str,
+        "Category": Optional[Hashable],
+        "User features": Optional[List[float]],
     },
     total=False,
 )
