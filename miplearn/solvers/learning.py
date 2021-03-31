@@ -397,6 +397,7 @@ class LearningSolver:
             return stats
 
     def fit(self, training_instances: Union[List[str], List[Instance]]) -> None:
+        logger.debug("Fitting...")
         if len(training_instances) == 0:
             return
         for component in self.components.values():

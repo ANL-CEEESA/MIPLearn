@@ -86,8 +86,8 @@ class PrimalSolutionComponent(Component):
                         else:
                             self._n_one += 1
             logger.info(
-                f"Predicted: {self._n_free} free, {self._n_zero} fix-zero, "
-                f"{self._n_one} fix-one"
+                f"Predicted: free: {self._n_free}, zero: {self._n_zero}, "
+                f"one: {self._n_one}"
             )
 
             # Provide solution to the solver
@@ -146,8 +146,8 @@ class PrimalSolutionComponent(Component):
             thr = self.thresholds[category].predict(xc)
             y_pred[category] = np.vstack(
                 [
-                    proba[:, 0] > thr[0],
-                    proba[:, 1] > thr[1],
+                    proba[:, 0] >= thr[0],
+                    proba[:, 1] >= thr[1],
                 ]
             ).T
 
