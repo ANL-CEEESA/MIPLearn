@@ -76,9 +76,9 @@ LearningSolveStats = TypedDict(
 ConstraintFeatures = TypedDict(
     "ConstraintFeatures",
     {
-        "rhs": float,
-        "lhs": Dict[str, float],
-        "sense": str,
+        "RHS": float,
+        "LHS": Dict[str, float],
+        "Sense": str,
     },
     total=False,
 )
@@ -86,7 +86,8 @@ ConstraintFeatures = TypedDict(
 ModelFeatures = TypedDict(
     "ModelFeatures",
     {
-        "constraints": Dict[str, ConstraintFeatures],
+        "Variables": Solution,
+        "Constraints": Dict[str, ConstraintFeatures],
     },
     total=False,
 )

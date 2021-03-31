@@ -21,10 +21,11 @@ class ModelFeaturesExtractor:
         constraints: Dict[str, ConstraintFeatures] = {}
         for cid in self.solver.get_constraint_ids():
             constraints[cid] = {
-                "rhs": self.solver.get_constraint_rhs(cid),
-                "lhs": self.solver.get_constraint_lhs(cid),
-                "sense": self.solver.get_constraint_sense(cid),
+                "RHS": self.solver.get_constraint_rhs(cid),
+                "LHS": self.solver.get_constraint_lhs(cid),
+                "Sense": self.solver.get_constraint_sense(cid),
             }
         return {
-            "constraints": constraints,
+            "Constraints": constraints,
+            "Variables": self.solver.get_empty_solution(),
         }

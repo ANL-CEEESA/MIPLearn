@@ -21,11 +21,19 @@ def test_knapsack() -> None:
 
         # Test constraint features
         print(solver, features)
-        assert features["constraints"]["eq_capacity"]["lhs"] == {
+        assert features["Variables"] == {
+            "x": {
+                0: None,
+                1: None,
+                2: None,
+                3: None,
+            }
+        }
+        assert features["Constraints"]["eq_capacity"]["LHS"] == {
             "x[0]": 23.0,
             "x[1]": 26.0,
             "x[2]": 20.0,
             "x[3]": 18.0,
         }
-        assert features["constraints"]["eq_capacity"]["sense"] == "<"
-        assert features["constraints"]["eq_capacity"]["rhs"] == 67.0
+        assert features["Constraints"]["eq_capacity"]["Sense"] == "<"
+        assert features["Constraints"]["eq_capacity"]["RHS"] == 67.0
