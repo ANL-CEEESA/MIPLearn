@@ -73,6 +73,14 @@ LearningSolveStats = TypedDict(
     total=False,
 )
 
+InstanceFeatures = TypedDict(
+    "InstanceFeatures",
+    {
+        "User features": List[float],
+    },
+    total=False,
+)
+
 VariableFeatures = TypedDict(
     "VariableFeatures",
     {
@@ -97,6 +105,7 @@ ConstraintFeatures = TypedDict(
 Features = TypedDict(
     "Features",
     {
+        "Instance": InstanceFeatures,
         "Variables": Dict[str, Dict[VarIndex, VariableFeatures]],
         "Constraints": Dict[str, ConstraintFeatures],
     },

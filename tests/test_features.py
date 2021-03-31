@@ -47,3 +47,6 @@ def test_knapsack() -> None:
             "Category": "eq_capacity",
             "User features": [0.0],
         }
+        assert features["Instance"] == {
+            "User features": [67.0, 21.75],
+        }
