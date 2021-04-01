@@ -38,11 +38,13 @@ def test_x_y_predict() -> None:
     # Construct mock regressors
     lb_regressor = Mock(spec=Regressor)
     lb_regressor.predict = Mock(return_value=np.array([[5.0], [6.0]]))
+    lb_regressor.clone = lambda: lb_regressor
     ub_regressor = Mock(spec=Regressor)
     ub_regressor.predict = Mock(return_value=np.array([[3.0], [3.0]]))
+    ub_regressor.clone = lambda: ub_regressor
     comp = ObjectiveValueComponent(
-        lb_regressor=lambda: lb_regressor,
-        ub_regressor=lambda: ub_regressor,
+        lb_regressor=lb_regressor,
+        ub_regressor=ub_regressor,
     )
 
     # Should build x correctly
@@ -77,9 +79,10 @@ def test_obj_evaluate():
     instances, models = get_test_pyomo_instances()
     reg = Mock(spec=Regressor)
     reg.predict = Mock(return_value=np.array([[1000.0], [1000.0]]))
+    reg.clone = lambda: reg
     comp = ObjectiveValueComponent(
-        lb_regressor=lambda: reg,
-        ub_regressor=lambda: reg,
+        lb_regressor=reg,
+        ub_regressor=reg,
     )
     comp.fit(instances)
     ev = comp.evaluate(instances)

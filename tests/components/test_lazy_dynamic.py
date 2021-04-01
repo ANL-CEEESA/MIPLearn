@@ -22,6 +22,7 @@ def test_lazy_fit():
     instances[0].found_violated_lazy_constraints = ["a", "b"]
     instances[1].found_violated_lazy_constraints = ["b", "c"]
     classifier = Mock(spec=Classifier)
+    classifier.clone = lambda: Mock(spec=Classifier)
     component = DynamicLazyConstraintsComponent(classifier=classifier)
 
     component.fit(instances)

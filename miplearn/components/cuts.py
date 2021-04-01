@@ -4,7 +4,6 @@
 
 import logging
 import sys
-from copy import deepcopy
 from typing import Any, Dict
 
 import numpy as np
@@ -29,6 +28,7 @@ class UserCutsComponent(Component):
         classifier: Classifier = CountingClassifier(),
         threshold: float = 0.05,
     ):
+        assert isinstance(classifier, Classifier)
         self.threshold: float = threshold
         self.classifier_prototype: Classifier = classifier
         self.classifiers: Dict[Any, Classifier] = {}
@@ -63,7 +63,7 @@ class UserCutsComponent(Component):
                 continue
             for v in instance.found_violated_user_cuts:
                 if v not in self.classifiers:
-                    self.classifiers[v] = deepcopy(self.classifier_prototype)
+                    self.classifiers[v] = self.classifier_prototype.clone()
                     violation_to_instance_idx[v] = []
                 violation_to_instance_idx[v] += [idx]
 

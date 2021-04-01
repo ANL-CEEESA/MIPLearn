@@ -79,7 +79,7 @@ from miplearn import PrimalSolutionComponent, MinPrecisionThreshold
 
 PrimalSolutionComponent(
     mode="heuristic",
-    threshold=lambda: MinPrecisionThreshold([0.80, 0.95]),
+    threshold=MinPrecisionThreshold([0.80, 0.95]),
 )
 ```
 
@@ -159,14 +159,14 @@ dtype: float64
 
 By default, given a training set of instantes, MIPLearn trains a fixed set of ML classifiers and regressors, then selects the best one based on cross-validation performance. Alternatively, the user may specify which ML model a component should use through the `classifier` or `regressor` contructor parameters. Scikit-learn classifiers and regressors are currently supported. A future version of the package will add compatibility with Keras models.
 
-The example below shows how to construct a `PrimalSolutionComponent` which internally uses scikit-learn's `KNeighborsClassifiers`. Any other scikit-learn classifier or pipeline can be used. The classifier needs to be provided as a lambda function because the component may need to create multiple copies of it. It needs to be wrapped in `ScikitLearnClassifier` to ensure that all the proper data transformations are applied.
+The example below shows how to construct a `PrimalSolutionComponent` which internally uses scikit-learn's `KNeighborsClassifiers`. Any other scikit-learn classifier or pipeline can be used. It needs to be wrapped in `ScikitLearnClassifier` to ensure that all the proper data transformations are applied.
 
 ```python
 from miplearn import PrimalSolutionComponent, ScikitLearnClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
 comp = PrimalSolutionComponent(
-    classifier=lambda: ScikitLearnClassifier(
+    classifier=ScikitLearnClassifier(
         KNeighborsClassifier(n_neighbors=5),
     ),
 )

@@ -189,10 +189,11 @@ def test_predict() -> None:
 
 
 def test_fit_xy():
-    comp = PrimalSolutionComponent(
-        classifier=lambda: Mock(spec=Classifier),
-        threshold=lambda: Mock(spec=Threshold),
-    )
+    clf = Mock(spec=Classifier)
+    clf.clone = lambda: Mock(spec=Classifier)
+    thr = Mock(spec=Threshold)
+    thr.clone = lambda: Mock(spec=Threshold)
+    comp = PrimalSolutionComponent(classifier=clf, threshold=thr)
     x = {
         "type-a": np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         "type-b": np.array([[7.0, 8.0, 9.0]]),
