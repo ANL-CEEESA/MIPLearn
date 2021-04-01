@@ -10,7 +10,8 @@ from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
 
-from miplearn.classifiers import Classifier, ScikitLearnClassifier
+from miplearn.classifiers import Classifier
+from miplearn.classifiers.sklearn import ScikitLearnClassifier
 
 logger = logging.getLogger(__name__)
 

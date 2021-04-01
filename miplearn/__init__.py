@@ -6,6 +6,9 @@ from .benchmark import BenchmarkRunner
 from .classifiers import (
     Classifier,
     Regressor,
+)
+from .classifiers.sklearn import (
+    ScikitLearnRegressor,
     ScikitLearnClassifier,
 )
 from .classifiers.adaptive import AdaptiveClassifier

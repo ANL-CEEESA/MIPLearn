@@ -13,7 +13,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from miplearn.classifiers import Classifier, ScikitLearnClassifier
+from miplearn.classifiers import Classifier
+from miplearn.classifiers.sklearn import ScikitLearnClassifier
 from miplearn.classifiers.counting import CountingClassifier
 
 logger = logging.getLogger(__name__)
