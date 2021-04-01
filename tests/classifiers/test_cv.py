@@ -20,7 +20,7 @@ def test_cv() -> None:
     # Support vector machines with linear kernels do not perform well on this
     # data set, so predictor should return the given constant.
     clf = CrossValidatedClassifier(
-        classifier=lambda: ScikitLearnClassifier(
+        classifier=ScikitLearnClassifier(
             SVC(
                 probability=True,
                 random_state=42,
@@ -41,7 +41,7 @@ def test_cv() -> None:
     # Support vector machines with quadratic kernels perform almost perfectly
     # on this data set, so predictor should return their prediction.
     clf = CrossValidatedClassifier(
-        classifier=lambda: ScikitLearnClassifier(
+        classifier=ScikitLearnClassifier(
             SVC(
                 probability=True,
                 kernel="poly",

@@ -40,3 +40,6 @@ class CountingClassifier(Classifier):
 
     def __repr__(self):
         return "CountingClassifier(mean=%s)" % self.mean
+
+    def clone(self) -> "CountingClassifier":
+        return CountingClassifier()

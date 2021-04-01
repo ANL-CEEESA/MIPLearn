@@ -15,7 +15,7 @@ def test_adaptive() -> None:
     clf = AdaptiveClassifier(
         candidates={
             "linear": CandidateClassifierSpecs(
-                classifier=lambda: ScikitLearnClassifier(
+                classifier=ScikitLearnClassifier(
                     SVC(
                         probability=True,
                         random_state=42,
@@ -23,7 +23,7 @@ def test_adaptive() -> None:
                 )
             ),
             "poly": CandidateClassifierSpecs(
-                classifier=lambda: ScikitLearnClassifier(
+                classifier=ScikitLearnClassifier(
                     SVC(
                         probability=True,
                         kernel="poly",

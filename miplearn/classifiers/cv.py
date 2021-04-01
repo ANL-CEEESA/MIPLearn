@@ -46,9 +46,7 @@ class CrossValidatedClassifier(Classifier):
 
     def __init__(
         self,
-        classifier: Callable[[], ScikitLearnClassifier] = (
-            lambda: ScikitLearnClassifier(LogisticRegression())
-        ),
+        classifier: ScikitLearnClassifier = ScikitLearnClassifier(LogisticRegression()),
         threshold: float = 0.75,
         constant: Optional[List[bool]] = None,
         cv: int = 5,
@@ -60,7 +58,7 @@ class CrossValidatedClassifier(Classifier):
             constant = [True, False]
         self.n_classes = len(constant)
         self.classifier: Optional[ScikitLearnClassifier] = None
-        self.classifier_factory = classifier
+        self.classifier_prototype = classifier
         self.constant: List[bool] = constant
         self.threshold = threshold
         self.cv = cv
@@ -77,7 +75,7 @@ class CrossValidatedClassifier(Classifier):
         absolute_threshold = 1.0 * self.threshold + dummy_score * (1 - self.threshold)
 
         # Calculate cross validation score and decide which classifier to use
-        clf = self.classifier_factory()
+        clf = self.classifier_prototype.clone()
         assert clf is not None
         assert isinstance(clf, ScikitLearnClassifier), (
             f"The provided classifier callable must return a ScikitLearnClassifier. "
@@ -123,3 +121,12 @@ class CrossValidatedClassifier(Classifier):
         super().predict_proba(x_test)
         assert self.classifier is not None
         return self.classifier.predict_proba(x_test)
+
+    def clone(self) -> "CrossValidatedClassifier":
+        return CrossValidatedClassifier(
+            classifier=self.classifier_prototype,
+            threshold=self.threshold,
+            constant=self.constant,
+            cv=self.cv,
+            scoring=self.scoring,
+        )
