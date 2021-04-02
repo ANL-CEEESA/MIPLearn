@@ -33,7 +33,15 @@ class DynamicLazyConstraintsComponent(Component):
         self.classifier_prototype: Classifier = classifier
         self.classifiers: Dict[Any, Classifier] = {}
 
-    def before_solve_mip(self, solver, instance, model):
+    def before_solve_mip(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        features,
+        training_data,
+    ):
         instance.found_violated_lazy_constraints = []
         logger.info("Predicting violated lazy constraints...")
         violations = self.predict(instance)
@@ -53,16 +61,6 @@ class DynamicLazyConstraintsComponent(Component):
             cut = instance.build_lazy_constraint(model, v)
             solver.internal_solver.add_constraint(cut)
         return True
-
-    def after_solve_mip(
-        self,
-        solver,
-        instance,
-        model,
-        stats,
-        training_data,
-    ):
-        pass
 
     def fit(self, training_instances):
         logger.debug("Fitting...")

@@ -157,11 +157,11 @@ def test_xy_sample_without_lp() -> None:
     assert y_actual == y_expected
 
 
-def test_usage():
+def test_usage() -> None:
     solver = LearningSolver(components=[ObjectiveValueComponent()])
     instance = get_knapsack_instance(GurobiPyomoSolver())
     solver.solve(instance)
     solver.fit([instance])
     stats = solver.solve(instance)
-    assert stats["Lower bound"] == stats["Objective: predicted LB"]
-    assert stats["Upper bound"] == stats["Objective: predicted UB"]
+    assert stats["Lower bound"] == stats["Objective: Predicted LB"]
+    assert stats["Upper bound"] == stats["Objective: Predicted UB"]

@@ -52,32 +52,20 @@ class ObjectiveValueComponent(Component):
         solver: "LearningSolver",
         instance: Instance,
         model: Any,
+        stats: LearningSolveStats,
+        features: Features,
+        training_data: TrainingSample,
     ) -> None:
         if self.ub_regressor is not None:
             logger.info("Predicting optimal value...")
             pred = self.predict([instance])
-            self._predicted_lb = pred["Upper bound"][0]
-            self._predicted_ub = pred["Lower bound"][0]
-            logger.info(
-                "Predicted values: lb=%.2f, ub=%.2f"
-                % (
-                    self._predicted_lb,
-                    self._predicted_ub,
-                )
-            )
-
-    def after_solve_mip(
-        self,
-        solver: "LearningSolver",
-        instance: Instance,
-        model: Any,
-        stats: LearningSolveStats,
-        training_data: TrainingSample,
-    ) -> None:
-        if self._predicted_ub is not None:
-            stats["Objective: predicted UB"] = self._predicted_ub
-        if self._predicted_lb is not None:
-            stats["Objective: predicted LB"] = self._predicted_lb
+            predicted_lb = pred["Upper bound"][0]
+            predicted_ub = pred["Lower bound"][0]
+            logger.info("Predicted LB=%.2f, UB=%.2f" % (predicted_lb, predicted_ub))
+            if predicted_ub is not None:
+                stats["Objective: Predicted UB"] = predicted_ub
+            if predicted_lb is not None:
+                stats["Objective: Predicted LB"] = predicted_lb
 
     def fit(self, training_instances: Union[List[str], List[Instance]]) -> None:
         self.lb_regressor = self.lb_regressor_prototype.clone()

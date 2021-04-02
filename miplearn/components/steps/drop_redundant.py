@@ -46,12 +46,20 @@ class DropRedundantInequalitiesStep(Component):
         self.violation_tolerance = violation_tolerance
         self.max_iterations = max_iterations
         self.current_iteration = 0
-        self.total_dropped = 0
-        self.total_restored = 0
-        self.total_kept = 0
-        self.total_iterations = 0
+        self.n_iterations = 0
+        self.n_restored = 0
 
-    def before_solve_mip(self, solver, instance, _):
+    def before_solve_mip(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        features,
+        training_data,
+    ):
+        self.n_iterations = 0
+        self.n_restored = 0
         self.current_iteration = 0
 
         logger.info("Predicting redundant LP constraints...")
@@ -62,10 +70,8 @@ class DropRedundantInequalitiesStep(Component):
         y = self.predict(x)
 
         self.pool = []
-        self.total_dropped = 0
-        self.total_restored = 0
-        self.total_kept = 0
-        self.total_iterations = 0
+        n_dropped = 0
+        n_kept = 0
         for category in y.keys():
             for i in range(len(y[category])):
                 if y[category][i][1] == 1:
@@ -75,10 +81,12 @@ class DropRedundantInequalitiesStep(Component):
                         obj=solver.internal_solver.extract_constraint(cid),
                     )
                     self.pool += [c]
-                    self.total_dropped += 1
+                    n_dropped += 1
                 else:
-                    self.total_kept += 1
-        logger.info(f"Extracted {self.total_dropped} predicted constraints")
+                    n_kept += 1
+        stats["DropRedundant: Kept"] = n_kept
+        stats["DropRedundant: Dropped"] = n_dropped
+        logger.info(f"Extracted {n_dropped} predicted constraints")
 
     def after_solve_mip(
         self,
@@ -86,18 +94,13 @@ class DropRedundantInequalitiesStep(Component):
         instance,
         model,
         stats,
+        features,
         training_data,
     ):
         if "slacks" not in training_data.keys():
             training_data["slacks"] = solver.internal_solver.get_inequality_slacks()
-        stats.update(
-            {
-                "DropRedundant: Kept": self.total_kept,
-                "DropRedundant: Dropped": self.total_dropped,
-                "DropRedundant: Restored": self.total_restored,
-                "DropRedundant: Iterations": self.total_iterations,
-            }
-        )
+        stats["DropRedundant: Iterations"] = self.n_iterations
+        stats["DropRedundant: Restored"] = self.n_restored
 
     def fit(self, training_instances, n_jobs=1):
         x, y = self.x_y(training_instances, n_jobs=n_jobs)
@@ -234,12 +237,12 @@ class DropRedundantInequalitiesStep(Component):
             self.pool.remove(c)
             solver.internal_solver.add_constraint(c.obj)
         if len(constraints_to_add) > 0:
-            self.total_restored += len(constraints_to_add)
+            self.n_restored += len(constraints_to_add)
             logger.info(
                 "%8d constraints %8d in the pool"
                 % (len(constraints_to_add), len(self.pool))
             )
-            self.total_iterations += 1
+            self.n_iterations += 1
             return True
         else:
             return False

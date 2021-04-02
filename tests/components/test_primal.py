@@ -226,6 +226,6 @@ def test_usage():
     solver.solve(instance)
     solver.fit([instance])
     stats = solver.solve(instance)
-    assert stats["Primal: free"] == 0
-    assert stats["Primal: one"] + stats["Primal: zero"] == 10
+    assert stats["Primal: Free"] == 0
+    assert stats["Primal: One"] + stats["Primal: Zero"] == 10
     assert stats["Lower bound"] == stats["Warm start value"]

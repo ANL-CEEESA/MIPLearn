@@ -178,11 +178,20 @@ class LearningSolver:
         extractor = FeaturesExtractor(self.internal_solver)
         instance.features = extractor.extract(instance)
 
+        callback_args = (
+            self,
+            instance,
+            model,
+            stats,
+            instance.features,
+            training_sample,
+        )
+
         # Solve root LP relaxation
         if self.solve_lp:
             logger.debug("Running before_solve_lp callbacks...")
             for component in self.components.values():
-                component.before_solve_lp(self, instance, model)
+                component.before_solve_lp(*callback_args)
 
             logger.info("Solving root LP relaxation...")
             lp_stats = self.internal_solver.solve_lp(tee=tee)
@@ -193,7 +202,7 @@ class LearningSolver:
 
             logger.debug("Running after_solve_lp callbacks...")
             for component in self.components.values():
-                component.after_solve_lp(self, instance, model, stats, training_sample)
+                component.after_solve_lp(*callback_args)
         else:
             training_sample["LP solution"] = self.internal_solver.get_empty_solution()
             training_sample["LP value"] = 0.0
@@ -222,7 +231,7 @@ class LearningSolver:
         # Before-solve callbacks
         logger.debug("Running before_solve_mip callbacks...")
         for component in self.components.values():
-            component.before_solve_mip(self, instance, model)
+            component.before_solve_mip(*callback_args)
 
         # Solve MIP
         logger.info("Solving MIP...")
@@ -250,7 +259,7 @@ class LearningSolver:
         # After-solve callbacks
         logger.debug("Calling after_solve_mip callbacks...")
         for component in self.components.values():
-            component.after_solve_mip(self, instance, model, stats, training_sample)
+            component.after_solve_mip(*callback_args)
 
         # Write to file, if necessary
         if not discard_output and filename is not None:

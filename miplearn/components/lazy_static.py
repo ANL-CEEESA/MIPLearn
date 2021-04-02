@@ -43,7 +43,15 @@ class StaticLazyConstraintsComponent(Component):
         self.use_two_phase_gap = use_two_phase_gap
         self.violation_tolerance = violation_tolerance
 
-    def before_solve_mip(self, solver, instance, model):
+    def before_solve_mip(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        features,
+        training_data,
+    ):
         self.pool = []
         if not solver.use_lazy_cb and self.use_two_phase_gap:
             logger.info("Increasing gap tolerance to %f", self.large_gap)
@@ -54,16 +62,6 @@ class StaticLazyConstraintsComponent(Component):
         instance.found_violated_lazy_constraints = []
         if instance.has_static_lazy_constraints():
             self._extract_and_predict_static(solver, instance)
-
-    def after_solve_mip(
-        self,
-        solver,
-        instance,
-        model,
-        stats,
-        training_data,
-    ):
-        pass
 
     def iteration_cb(self, solver, instance, model):
         if solver.use_lazy_cb:

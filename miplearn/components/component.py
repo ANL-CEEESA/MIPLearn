@@ -28,18 +28,35 @@ class Component:
         solver: "LearningSolver",
         instance: Instance,
         model: Any,
+        stats: LearningSolveStats,
+        features: Features,
+        training_data: TrainingSample,
     ) -> None:
         """
         Method called by LearningSolver before the root LP relaxation is solved.
 
         Parameters
         ----------
-        solver
+        solver: LearningSolver
             The solver calling this method.
-        instance
+        instance: Instance
             The instance being solved.
         model
             The concrete optimization model being solved.
+        stats: LearningSolveStats
+            A dictionary containing statistics about the solution process, such as
+            number of nodes explored and running time. Components are free to add
+            their own statistics here. For example, PrimalSolutionComponent adds
+            statistics regarding the number of predicted variables. All statistics in
+            this dictionary are exported to the benchmark CSV file.
+        features: Features
+            Features describing the model.
+        training_data: TrainingSample
+            A dictionary containing data that may be useful for training machine
+            learning models and accelerating the solution process. Components are
+            free to add their own training data here. For example,
+            PrimalSolutionComponent adds the current primal solution. The data must
+            be pickable.
         """
         return
 
@@ -49,31 +66,12 @@ class Component:
         instance: Instance,
         model: Any,
         stats: LearningSolveStats,
+        features: Features,
         training_data: TrainingSample,
     ) -> None:
         """
         Method called by LearningSolver after the root LP relaxation is solved.
-
-        Parameters
-        ----------
-        solver: LearningSolver
-            The solver calling this method.
-        instance: Instance
-            The instance being solved.
-        model: Any
-            The concrete optimization model being solved.
-        stats: LearningSolveStats
-            A dictionary containing statistics about the solution process, such as
-            number of nodes explored and running time. Components are free to add
-            their own statistics here. For example, PrimalSolutionComponent adds
-            statistics regarding the number of predicted variables. All statistics in
-            this dictionary are exported to the benchmark CSV file.
-        training_data: TrainingSample
-            A dictionary containing data that may be useful for training machine
-            learning models and accelerating the solution process. Components are
-            free to add their own training data here. For example,
-            PrimalSolutionComponent adds the current primal solution. The data must
-            be pickable.
+        See before_solve_lp for a description of the pameters.
         """
         return
 
@@ -82,18 +80,13 @@ class Component:
         solver: "LearningSolver",
         instance: Instance,
         model: Any,
+        stats: LearningSolveStats,
+        features: Features,
+        training_data: TrainingSample,
     ) -> None:
         """
         Method called by LearningSolver before the MIP is solved.
-
-        Parameters
-        ----------
-        solver
-            The solver calling this method.
-        instance
-            The instance being solved.
-        model
-            The concrete optimization model being solved.
+        See before_solve_lp for a description of the pameters.
         """
         return
 
@@ -103,31 +96,12 @@ class Component:
         instance: Instance,
         model: Any,
         stats: LearningSolveStats,
+        features: Features,
         training_data: TrainingSample,
     ) -> None:
         """
         Method called by LearningSolver after the MIP is solved.
-
-        Parameters
-        ----------
-        solver: LearningSolver
-            The solver calling this method.
-        instance: Instance
-            The instance being solved.
-        model: Any
-            The concrete optimization model being solved.
-        stats: LearningSolveStats
-            A dictionary containing statistics about the solution process, such as
-            number of nodes explored and running time. Components are free to add
-            their own statistics here. For example, PrimalSolutionComponent adds
-            statistics regarding the number of predicted variables. All statistics in
-            this dictionary are exported to the benchmark CSV file.
-        training_data: TrainingSample
-            A dictionary containing data that may be useful for training machine
-            learning models and accelerating the solution process. Components are
-            free to add their own training data here. For example,
-            PrimalSolutionComponent adds the current primal solution. The data must
-            be pickable.
+        See before_solve_lp for a description of the pameters.
         """
         return
 

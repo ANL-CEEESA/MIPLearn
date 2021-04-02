@@ -45,8 +45,23 @@ class ConvertTightIneqsIntoEqsStep(Component):
         self.check_optimality = check_optimality
         self.converted = []
         self.original_sense = {}
+        self.n_restored = 0
+        self.n_infeasible_iterations = 0
+        self.n_suboptimal_iterations = 0
 
-    def before_solve_mip(self, solver, instance, _):
+    def before_solve_mip(
+        self,
+        solver,
+        instance,
+        model,
+        stats,
+        features,
+        training_data,
+    ):
+        self.n_restored = 0
+        self.n_infeasible_iterations = 0
+        self.n_suboptimal_iterations = 0
+
         logger.info("Predicting tight LP constraints...")
         x, constraints = DropRedundantInequalitiesStep.x(
             instance,
@@ -54,11 +69,8 @@ class ConvertTightIneqsIntoEqsStep(Component):
         )
         y = self.predict(x)
 
-        self.n_converted = 0
-        self.n_restored = 0
-        self.n_kept = 0
-        self.n_infeasible_iterations = 0
-        self.n_suboptimal_iterations = 0
+        n_converted = 0
+        n_kept = 0
         for category in y.keys():
             for i in range(len(y[category])):
                 if y[category][i][0] == 1:
@@ -67,11 +79,13 @@ class ConvertTightIneqsIntoEqsStep(Component):
                     self.original_sense[cid] = s
                     solver.internal_solver.set_constraint_sense(cid, "=")
                     self.converted += [cid]
-                    self.n_converted += 1
+                    n_converted += 1
                 else:
-                    self.n_kept += 1
+                    n_kept += 1
+        stats["ConvertTight: Kept"] = n_kept
+        stats["ConvertTight: Converted"] = n_converted
 
-        logger.info(f"Converted {self.n_converted} inequalities")
+        logger.info(f"Converted {n_converted} inequalities")
 
     def after_solve_mip(
         self,
@@ -79,12 +93,11 @@ class ConvertTightIneqsIntoEqsStep(Component):
         instance,
         model,
         stats,
+        features,
         training_data,
     ):
         if "slacks" not in training_data.keys():
             training_data["slacks"] = solver.internal_solver.get_inequality_slacks()
-        stats["ConvertTight: Kept"] = self.n_kept
-        stats["ConvertTight: Converted"] = self.n_converted
         stats["ConvertTight: Restored"] = self.n_restored
         stats["ConvertTight: Inf iterations"] = self.n_infeasible_iterations
         stats["ConvertTight: Subopt iterations"] = self.n_suboptimal_iterations
