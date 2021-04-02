@@ -286,7 +286,7 @@ def test_xy_sample() -> None:
             [False, True],
         ],
     }
-    xy = StaticLazyConstraintsComponent.xy_sample(features, sample)
+    xy = StaticLazyConstraintsComponent.xy(features, sample)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected

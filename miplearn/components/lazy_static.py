@@ -207,12 +207,10 @@ class StaticLazyConstraintsComponent(Component):
         return result
 
     @staticmethod
-    def xy_sample(
+    def xy(
         features: Features,
         sample: TrainingSample,
-    ) -> Optional[Tuple[Dict, Dict]]:
-        if "LazyStatic: Enforced" not in sample:
-            return None
+    ) -> Tuple[Dict, Dict]:
         x: Dict = {}
         y: Dict = {}
         for (cid, cfeatures) in features["Constraints"].items():
@@ -225,8 +223,9 @@ class StaticLazyConstraintsComponent(Component):
                 x[category] = []
                 y[category] = []
             x[category] += [cfeatures["User features"]]
-            if cid in sample["LazyStatic: Enforced"]:
-                y[category] += [[False, True]]
-            else:
-                y[category] += [[True, False]]
+            if "LazyStatic: Enforced" in sample:
+                if cid in sample["LazyStatic: Enforced"]:
+                    y[category] += [[False, True]]
+                else:
+                    y[category] += [[True, False]]
         return x, y

@@ -166,12 +166,10 @@ class ObjectiveValueComponent(Component):
         return ev
 
     @staticmethod
-    def xy_sample(
+    def xy(
         features: Features,
         sample: TrainingSample,
-    ) -> Optional[Tuple[Dict, Dict]]:
-        if "Lower bound" not in sample:
-            return None
+    ) -> Tuple[Dict, Dict]:
         f = features["Instance"]["User features"]
         if "LP value" in sample and sample["LP value"] is not None:
             f += [sample["LP value"]]
@@ -179,8 +177,11 @@ class ObjectiveValueComponent(Component):
             "Lower bound": [f],
             "Upper bound": [f],
         }
-        y = {
-            "Lower bound": [[sample["Lower bound"]]],
-            "Upper bound": [[sample["Upper bound"]]],
-        }
-        return x, y
+        if "Lower bound" in sample:
+            y = {
+                "Lower bound": [[sample["Lower bound"]]],
+                "Upper bound": [[sample["Upper bound"]]],
+            }
+            return x, y
+        else:
+            return x, {}

@@ -8,15 +8,14 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from scipy.stats import randint
 
-from miplearn import Classifier, LearningSolver, GurobiSolver, GurobiPyomoSolver
+from miplearn import Classifier, LearningSolver
 from miplearn.classifiers.threshold import Threshold
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.problems.tsp import TravelingSalesmanGenerator
 from miplearn.types import TrainingSample, Features
-from tests.fixtures.knapsack import get_knapsack_instance
 
 
-def test_xy_sample_with_lp_solution() -> None:
+def test_xy() -> None:
     features: Features = {
         "Variables": {
             "x": {
@@ -70,14 +69,14 @@ def test_xy_sample_with_lp_solution() -> None:
             [True, False],
         ]
     }
-    xy = PrimalSolutionComponent.xy_sample(features, sample)
+    xy = PrimalSolutionComponent.xy(features, sample)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected
     assert y_actual == y_expected
 
 
-def test_xy_sample_without_lp_solution() -> None:
+def test_xy_without_lp_solution() -> None:
     features: Features = {
         "Variables": {
             "x": {
@@ -123,7 +122,7 @@ def test_xy_sample_without_lp_solution() -> None:
             [True, False],
         ]
     }
-    xy = PrimalSolutionComponent.xy_sample(features, sample)
+    xy = PrimalSolutionComponent.xy(features, sample)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected
@@ -170,7 +169,7 @@ def test_predict() -> None:
             }
         }
     }
-    x = PrimalSolutionComponent.x_sample(features, sample)
+    x, _ = PrimalSolutionComponent.xy(features, sample)
     comp = PrimalSolutionComponent()
     comp.classifiers = {"default": clf}
     comp.thresholds = {"default": thr}

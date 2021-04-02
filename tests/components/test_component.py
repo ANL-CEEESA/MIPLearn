@@ -57,7 +57,7 @@ def test_xy_instance():
     instance_2 = Mock(spec=Instance)
     instance_2.training_data = ["s3"]
     instance_2.features = {}
-    comp.xy_sample = _xy_sample
+    comp.xy = _xy_sample
     x_expected = {
         "category_a": [
             [1, 2, 3],
