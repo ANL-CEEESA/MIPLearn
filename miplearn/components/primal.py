@@ -63,31 +63,32 @@ class PrimalSolutionComponent(Component):
         self.threshold_prototype = threshold
         self.classifier_prototype = classifier
         self.stats: Dict[str, float] = {}
-        self._n_free = 0
-        self._n_zero = 0
-        self._n_one = 0
 
     def before_solve_mip(self, solver, instance, model):
         if len(self.thresholds) > 0:
-            logger.info("Predicting primal solution...")
-            solution = self.predict(instance.features, instance.training_data[-1])
+            logger.info("Predicting MIP solution...")
+            solution = self.predict(
+                instance.features,
+                instance.training_data[-1],
+            )
 
             # Collect prediction statistics
-            self._n_free = 0
-            self._n_zero = 0
-            self._n_one = 0
+            self.stats["Primal: Free"] = 0
+            self.stats["Primal: Zero"] = 0
+            self.stats["Primal: One"] = 0
             for (var, var_dict) in solution.items():
                 for (idx, value) in var_dict.items():
                     if value is None:
-                        self._n_free += 1
+                        self.stats["Primal: Free"] += 1
                     else:
                         if value < 0.5:
-                            self._n_zero += 1
+                            self.stats["Primal: Zero"] += 1
                         else:
-                            self._n_one += 1
+                            self.stats["Primal: One"] += 1
             logger.info(
-                f"Predicted: free: {self._n_free}, zero: {self._n_zero}, "
-                f"one: {self._n_one}"
+                f"Predicted: free: {self.stats['Primal: Free']}, "
+                f"zero: {self.stats['Primal: zero']}, "
+                f"one: {self.stats['Primal: One']}"
             )
 
             # Provide solution to the solver
@@ -104,9 +105,7 @@ class PrimalSolutionComponent(Component):
         stats: LearningSolveStats,
         training_data: TrainingSample,
     ) -> None:
-        stats["Primal: free"] = self._n_free
-        stats["Primal: zero"] = self._n_zero
-        stats["Primal: one"] = self._n_one
+        stats.update(self.stats)
 
     def fit_xy(
         self,
