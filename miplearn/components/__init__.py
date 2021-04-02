@@ -1,12 +1,13 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+from typing import Dict
 
 
-def classifier_evaluation_dict(tp, tn, fp, fn):
+def classifier_evaluation_dict(tp: int, tn: int, fp: int, fn: int) -> Dict:
     p = tp + fn
     n = fp + tn
-    d = {
+    d: Dict = {
         "Predicted positive": fp + tp,
         "Predicted negative": fn + tn,
         "Condition positive": p,

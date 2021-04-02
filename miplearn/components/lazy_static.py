@@ -205,7 +205,7 @@ class StaticLazyConstraintsComponent(Component):
         return result
 
     @staticmethod
-    def xy(
+    def sample_xy(
         features: Features,
         sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:

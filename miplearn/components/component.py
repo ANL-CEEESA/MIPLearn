@@ -106,7 +106,7 @@ class Component:
         return
 
     @staticmethod
-    def xy(
+    def sample_xy(
         features: Features,
         sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:
@@ -127,7 +127,7 @@ class Component:
         for instance in InstanceIterator(instances):
             assert isinstance(instance, Instance)
             for sample in instance.training_data:
-                xy = self.xy(instance.features, sample)
+                xy = self.sample_xy(instance.features, sample)
                 if xy is None:
                     continue
                 x_sample, y_sample = xy
@@ -191,3 +191,13 @@ class Component:
         model: Any,
     ) -> None:
         return
+
+    def evaluate(self, instances: Union[List[str], List[Instance]]) -> List:
+        ev = []
+        for instance in InstanceIterator(instances):
+            for sample in instance.training_data:
+                ev += [self.sample_evaluate(instance.features, sample)]
+        return ev
+
+    def sample_evaluate(self, features: Features, sample: TrainingSample) -> Dict:
+        return {}

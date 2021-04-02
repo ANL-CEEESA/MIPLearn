@@ -7,7 +7,7 @@ from miplearn import Component, Instance
 
 
 def test_xy_instance():
-    def _xy_sample(features, sample):
+    def _sample_xy(features, sample):
         x = {
             "s1": {
                 "category_a": [
@@ -57,7 +57,7 @@ def test_xy_instance():
     instance_2 = Mock(spec=Instance)
     instance_2.training_data = ["s3"]
     instance_2.features = {}
-    comp.xy = _xy_sample
+    comp.sample_xy = _sample_xy
     x_expected = {
         "category_a": [
             [1, 2, 3],
