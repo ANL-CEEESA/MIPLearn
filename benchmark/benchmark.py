@@ -171,11 +171,11 @@ def charts(args):
     if (sense == "min").any():
         primal_column = "Relative upper bound"
         obj_column = "Upper bound"
-        predicted_obj_column = "Objective: Predicted UB"
+        predicted_obj_column = "Objective: Predicted upper bound"
     else:
         primal_column = "Relative lower bound"
         obj_column = "Lower bound"
-        predicted_obj_column = "Objective: Predicted LB"
+        predicted_obj_column = "Objective: Predicted lower bound"
 
     palette = {"baseline": "#9b59b6", "ml-exact": "#3498db", "ml-heuristic": "#95a5a6"}
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(

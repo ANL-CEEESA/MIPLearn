@@ -114,18 +114,30 @@ def test_fit_xy() -> None:
     reg = Mock(spec=Regressor)
     reg.clone = Mock(side_effect=lambda: Mock(spec=Regressor))
     comp = ObjectiveValueComponent(regressor=reg)
-    assert comp.ub_regressor is None
-    assert comp.lb_regressor is None
+    assert "Upper bound" not in comp.regressors
+    assert "Lower bound" not in comp.regressors
     comp.fit_xy(x, y)
     assert reg.clone.call_count == 2
-    assert comp.ub_regressor is not None
-    assert comp.lb_regressor is not None
-    assert comp.ub_regressor.fit.call_count == 1
-    assert comp.lb_regressor.fit.call_count == 1
-    assert_array_equal(comp.ub_regressor.fit.call_args[0][0], x["Upper bound"])
-    assert_array_equal(comp.lb_regressor.fit.call_args[0][0], x["Lower bound"])
-    assert_array_equal(comp.ub_regressor.fit.call_args[0][1], y["Upper bound"])
-    assert_array_equal(comp.lb_regressor.fit.call_args[0][1], y["Lower bound"])
+    assert "Upper bound" in comp.regressors
+    assert "Lower bound" in comp.regressors
+    assert comp.regressors["Upper bound"].fit.call_count == 1  # type: ignore
+    assert comp.regressors["Lower bound"].fit.call_count == 1  # type: ignore
+    assert_array_equal(
+        comp.regressors["Upper bound"].fit.call_args[0][0],  # type: ignore
+        x["Upper bound"],
+    )
+    assert_array_equal(
+        comp.regressors["Lower bound"].fit.call_args[0][0],  # type: ignore
+        x["Lower bound"],
+    )
+    assert_array_equal(
+        comp.regressors["Upper bound"].fit.call_args[0][1],  # type: ignore
+        y["Upper bound"],
+    )
+    assert_array_equal(
+        comp.regressors["Lower bound"].fit.call_args[0][1],  # type: ignore
+        y["Lower bound"],
+    )
 
 
 def test_fit_xy_without_ub() -> None:
@@ -139,15 +151,21 @@ def test_fit_xy_without_ub() -> None:
     reg = Mock(spec=Regressor)
     reg.clone = Mock(side_effect=lambda: Mock(spec=Regressor))
     comp = ObjectiveValueComponent(regressor=reg)
-    assert comp.ub_regressor is None
-    assert comp.lb_regressor is None
+    assert "Upper bound" not in comp.regressors
+    assert "Lower bound" not in comp.regressors
     comp.fit_xy(x, y)
     assert reg.clone.call_count == 1
-    assert comp.ub_regressor is None
-    assert comp.lb_regressor is not None
-    assert comp.lb_regressor.fit.call_count == 1
-    assert_array_equal(comp.lb_regressor.fit.call_args[0][0], x["Lower bound"])
-    assert_array_equal(comp.lb_regressor.fit.call_args[0][1], y["Lower bound"])
+    assert "Upper bound" not in comp.regressors
+    assert "Lower bound" in comp.regressors
+    assert comp.regressors["Lower bound"].fit.call_count == 1  # type: ignore
+    assert_array_equal(
+        comp.regressors["Lower bound"].fit.call_args[0][0],  # type: ignore
+        x["Lower bound"],
+    )
+    assert_array_equal(
+        comp.regressors["Lower bound"].fit.call_args[0][1],  # type: ignore
+        y["Lower bound"],
+    )
 
 
 def test_sample_predict(
@@ -156,17 +174,27 @@ def test_sample_predict(
 ) -> None:
     x, y = ObjectiveValueComponent.sample_xy(features, sample)
     comp = ObjectiveValueComponent()
-    comp.lb_regressor = Mock(spec=Regressor)
-    comp.ub_regressor = Mock(spec=Regressor)
-    comp.lb_regressor.predict = Mock(side_effect=lambda _: np.array([[50.0]]))
-    comp.ub_regressor.predict = Mock(side_effect=lambda _: np.array([[60.0]]))
+    comp.regressors["Lower bound"] = Mock(spec=Regressor)
+    comp.regressors["Upper bound"] = Mock(spec=Regressor)
+    comp.regressors["Lower bound"].predict = Mock(  # type: ignore
+        side_effect=lambda _: np.array([[50.0]])
+    )
+    comp.regressors["Upper bound"].predict = Mock(  # type: ignore
+        side_effect=lambda _: np.array([[60.0]])
+    )
     pred = comp.sample_predict(features, sample)
     assert pred == {
         "Lower bound": 50.0,
         "Upper bound": 60.0,
     }
-    assert_array_equal(comp.ub_regressor.predict.call_args[0][0], x["Upper bound"])
-    assert_array_equal(comp.lb_regressor.predict.call_args[0][0], x["Lower bound"])
+    assert_array_equal(
+        comp.regressors["Upper bound"].predict.call_args[0][0],  # type: ignore
+        x["Upper bound"],
+    )
+    assert_array_equal(
+        comp.regressors["Lower bound"].predict.call_args[0][0],  # type: ignore
+        x["Lower bound"],
+    )
 
 
 def test_sample_predict_without_ub(
@@ -175,21 +203,26 @@ def test_sample_predict_without_ub(
 ) -> None:
     x, y = ObjectiveValueComponent.sample_xy(features, sample_without_ub)
     comp = ObjectiveValueComponent()
-    comp.lb_regressor = Mock(spec=Regressor)
-    comp.lb_regressor.predict = Mock(side_effect=lambda _: np.array([[50.0]]))
+    comp.regressors["Lower bound"] = Mock(spec=Regressor)
+    comp.regressors["Lower bound"].predict = Mock(  # type: ignore
+        side_effect=lambda _: np.array([[50.0]])
+    )
     pred = comp.sample_predict(features, sample_without_ub)
     assert pred == {
         "Lower bound": 50.0,
     }
-    assert_array_equal(comp.lb_regressor.predict.call_args[0][0], x["Lower bound"])
+    assert_array_equal(
+        comp.regressors["Lower bound"].predict.call_args[0][0],  # type: ignore
+        x["Lower bound"],
+    )
 
 
 def test_sample_evaluate(features: Features, sample: TrainingSample) -> None:
     comp = ObjectiveValueComponent()
-    comp.lb_regressor = Mock(spec=Regressor)
-    comp.lb_regressor.predict = lambda _: np.array([[1.05]])
-    comp.ub_regressor = Mock(spec=Regressor)
-    comp.ub_regressor.predict = lambda _: np.array([[2.50]])
+    comp.regressors["Lower bound"] = Mock(spec=Regressor)
+    comp.regressors["Lower bound"].predict = lambda _: np.array([[1.05]])  # type: ignore
+    comp.regressors["Upper bound"] = Mock(spec=Regressor)
+    comp.regressors["Upper bound"].predict = lambda _: np.array([[2.50]])  # type: ignore
     ev = comp.sample_evaluate(features, sample)
     assert ev == {
         "Lower bound": {
@@ -213,5 +246,5 @@ def test_usage() -> None:
     solver.solve(instance)
     solver.fit([instance])
     stats = solver.solve(instance)
-    assert stats["Lower bound"] == stats["Objective: Predicted LB"]
-    assert stats["Upper bound"] == stats["Objective: Predicted UB"]
+    assert stats["Lower bound"] == stats["Objective: Predicted lower bound"]
+    assert stats["Upper bound"] == stats["Objective: Predicted upper bound"]

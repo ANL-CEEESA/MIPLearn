@@ -133,7 +133,7 @@ def test_simulate_perfect():
             simulate_perfect=True,
         )
         stats = solver.solve(tmp.name)
-        assert stats["Lower bound"] == stats["Objective: Predicted LB"]
+        assert stats["Lower bound"] == stats["Objective: Predicted lower bound"]
 
 
 def test_gap():
