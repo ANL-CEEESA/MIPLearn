@@ -1,5 +1,9 @@
 name: Test
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '45 10 * * *'
 jobs:
   test:
     runs-on: ubuntu-latest
