@@ -96,8 +96,7 @@ class FeaturesExtractor:
         user_features = instance.get_instance_features()
         assert isinstance(user_features, list), (
             f"Instance features must be a list. "
-            f"Found {type(user_features).__name__} instead for "
-            f"var={var_name}[{idx}]."
+            f"Found {type(user_features).__name__} instead."
         )
         for v in user_features:
             assert isinstance(v, numbers.Real), (
