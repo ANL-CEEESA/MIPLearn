@@ -35,15 +35,12 @@ class ObjectiveValueComponent(Component):
 
     def __init__(
         self,
-        lb_regressor: Regressor = ScikitLearnRegressor(LinearRegression()),
-        ub_regressor: Regressor = ScikitLearnRegressor(LinearRegression()),
+        regressor: Regressor = ScikitLearnRegressor(LinearRegression()),
     ) -> None:
-        assert isinstance(lb_regressor, Regressor)
-        assert isinstance(ub_regressor, Regressor)
+        assert isinstance(regressor, Regressor)
         self.ub_regressor: Optional[Regressor] = None
         self.lb_regressor: Optional[Regressor] = None
-        self.lb_regressor_prototype = lb_regressor
-        self.ub_regressor_prototype = ub_regressor
+        self.regressor_prototype = regressor
         self._predicted_ub: Optional[float] = None
         self._predicted_lb: Optional[float] = None
 
@@ -56,65 +53,28 @@ class ObjectiveValueComponent(Component):
         features: Features,
         training_data: TrainingSample,
     ) -> None:
-        if self.ub_regressor is not None:
-            logger.info("Predicting optimal value...")
-            pred = self.predict([instance])
-            predicted_lb = pred["Upper bound"][0]
-            predicted_ub = pred["Lower bound"][0]
-            logger.info("Predicted LB=%.2f, UB=%.2f" % (predicted_lb, predicted_ub))
-            if predicted_ub is not None:
-                stats["Objective: Predicted UB"] = predicted_ub
-            if predicted_lb is not None:
-                stats["Objective: Predicted LB"] = predicted_lb
+        logger.info("Predicting optimal value...")
+        pred = self.sample_predict(features, training_data)
+        if "Upper bound" in pred:
+            ub = pred["Upper bound"]
+            logger.info("Predicted upper bound: %.6e" % ub)
+            stats["Objective: Predicted UB"] = ub
+        if "Lower bound" in pred:
+            lb = pred["Lower bound"]
+            logger.info("Predicted lower bound: %.6e" % lb)
+            stats["Objective: Predicted LB"] = lb
 
-    def fit(self, training_instances: Union[List[str], List[Instance]]) -> None:
-        self.lb_regressor = self.lb_regressor_prototype.clone()
-        self.ub_regressor = self.ub_regressor_prototype.clone()
-        logger.debug("Extracting features...")
-        x_train = self.x(training_instances)
-        y_train = self.y(training_instances)
-        logger.debug("Fitting lb_regressor...")
-        self.lb_regressor.fit(x_train, y_train["Lower bound"])
-        logger.debug("Fitting ub_regressor...")
-        self.ub_regressor.fit(x_train, y_train["Upper bound"])
-
-    def predict(
+    def fit_xy(
         self,
-        instances: Union[List[str], List[Instance]],
-    ) -> Dict[str, List[float]]:
-        assert self.lb_regressor is not None
-        assert self.ub_regressor is not None
-        x_test = self.x(instances)
-        (n_samples, n_features) = x_test.shape
-        lb = self.lb_regressor.predict(x_test)
-        ub = self.ub_regressor.predict(x_test)
-        assert lb.shape == (n_samples, 1)
-        assert ub.shape == (n_samples, 1)
-        return {
-            "Lower bound": lb.ravel().tolist(),
-            "Upper bound": ub.ravel().tolist(),
-        }
-
-    @staticmethod
-    def x(instances: Union[List[str], List[Instance]]) -> np.ndarray:
-        result = []
-        for instance in InstanceIterator(instances):
-            for sample in instance.training_data:
-                result.append(instance.get_instance_features() + [sample["LP value"]])
-        return np.array(result)
-
-    @staticmethod
-    def y(instances: Union[List[str], List[Instance]]) -> Dict[str, np.ndarray]:
-        ub: List[List[float]] = []
-        lb: List[List[float]] = []
-        for instance in InstanceIterator(instances):
-            for sample in instance.training_data:
-                lb.append([sample["Lower bound"]])
-                ub.append([sample["Upper bound"]])
-        return {
-            "Lower bound": np.array(lb),
-            "Upper bound": np.array(ub),
-        }
+        x: Dict[str, np.ndarray],
+        y: Dict[str, np.ndarray],
+    ) -> None:
+        if "Lower bound" in y:
+            self.lb_regressor = self.regressor_prototype.clone()
+            self.lb_regressor.fit(x["Lower bound"], y["Lower bound"])
+        if "Upper bound" in y:
+            self.ub_regressor = self.regressor_prototype.clone()
+            self.ub_regressor.fit(x["Upper bound"], y["Upper bound"])
 
     # def evaluate(
     #     self,
@@ -153,23 +113,39 @@ class ObjectiveValueComponent(Component):
     #     }
     #     return ev
 
+    def sample_predict(
+        self,
+        features: Features,
+        sample: TrainingSample,
+    ) -> Dict[str, float]:
+        pred: Dict[str, float] = {}
+        x, _ = self.sample_xy(features, sample)
+        if self.lb_regressor is not None:
+            lb_pred = self.lb_regressor.predict(np.array(x["Lower bound"]))
+            pred["Lower bound"] = lb_pred[0, 0]
+        else:
+            logger.info("Lower bound regressor not fitted. Skipping.")
+        if self.ub_regressor is not None:
+            ub_pred = self.ub_regressor.predict(np.array(x["Upper bound"]))
+            pred["Upper bound"] = ub_pred[0, 0]
+        else:
+            logger.info("Upper bound regressor not fitted. Skipping.")
+        return pred
+
     @staticmethod
     def sample_xy(
         features: Features,
         sample: TrainingSample,
-    ) -> Tuple[Dict, Dict]:
-        f = features["Instance"]["User features"]
+    ) -> Tuple[Dict[str, List[List[float]]], Dict[str, List[List[float]]]]:
+        x: Dict[str, List[List[float]]] = {}
+        y: Dict[str, List[List[float]]] = {}
+        f = list(features["Instance"]["User features"])
         if "LP value" in sample and sample["LP value"] is not None:
             f += [sample["LP value"]]
-        x = {
-            "Lower bound": [f],
-            "Upper bound": [f],
-        }
-        if "Lower bound" in sample:
-            y = {
-                "Lower bound": [[sample["Lower bound"]]],
-                "Upper bound": [[sample["Upper bound"]]],
-            }
-            return x, y
-        else:
-            return x, {}
+        x["Lower bound"] = [f]
+        x["Upper bound"] = [f]
+        if "Lower bound" in sample and sample["Lower bound"] is not None:
+            y["Lower bound"] = [[sample["Lower bound"]]]
+        if "Upper bound" in sample and sample["Upper bound"] is not None:
+            y["Upper bound"] = [[sample["Upper bound"]]]
+        return x, y

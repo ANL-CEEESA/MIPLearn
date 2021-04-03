@@ -154,6 +154,12 @@ class Component:
         x: Dict[str, np.ndarray],
         y: Dict[str, np.ndarray],
     ) -> None:
+        """
+        Given two dictionaries x and y, mapping the name of the category to matrices
+        of features and targets, this function does two things. First, for each
+        category, it creates a clone of the prototype regressor/classifier. Second,
+        it passes (x[category], y[category]) to the clone's fit method.
+        """
         return
 
     def iteration_cb(

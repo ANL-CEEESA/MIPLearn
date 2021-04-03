@@ -143,10 +143,16 @@ class Regressor(ABC):
             `n_outputs` is the number of columns in `y_train` provided to `fit`.
         """
         assert self.n_inputs is not None
-        assert isinstance(x_test, np.ndarray)
+        assert isinstance(x_test, np.ndarray), (
+            f"Parameter x_train must be np.ndarray. "
+            f"Found {x_test.__class__.__name__} instead."
+        )
         assert len(x_test.shape) == 2
         (n_samples, n_inputs_x) = x_test.shape
-        assert n_inputs_x == self.n_inputs
+        assert n_inputs_x == self.n_inputs, (
+            f"Test and training data have different number of "
+            f"inputs: {n_inputs_x} != {self.n_inputs}"
+        )
         return np.ndarray([])
 
     @abstractmethod
