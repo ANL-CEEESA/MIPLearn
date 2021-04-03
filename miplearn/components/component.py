@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import numpy as np
-from typing import Any, List, Union, TYPE_CHECKING, Tuple, Dict, Optional
+from typing import Any, List, Union, TYPE_CHECKING, Tuple, Dict, Optional, Hashable
 
 from miplearn.extractors import InstanceIterator
 from miplearn.instance import Instance
@@ -205,5 +205,9 @@ class Component:
                 ev += [self.sample_evaluate(instance.features, sample)]
         return ev
 
-    def sample_evaluate(self, features: Features, sample: TrainingSample) -> Dict:
+    def sample_evaluate(
+        self,
+        features: Features,
+        sample: TrainingSample,
+    ) -> Dict[Hashable, Dict[str, float]]:
         return {}

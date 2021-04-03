@@ -186,7 +186,7 @@ class PrimalSolutionComponent(Component):
         self,
         features: Features,
         sample: TrainingSample,
-    ) -> Dict:
+    ) -> Dict[Hashable, Dict[str, float]]:
         solution_actual = sample["Solution"]
         assert solution_actual is not None
         solution_pred = self.sample_predict(features, sample)

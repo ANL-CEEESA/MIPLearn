@@ -4,7 +4,12 @@
 from typing import Dict
 
 
-def classifier_evaluation_dict(tp: int, tn: int, fp: int, fn: int) -> Dict:
+def classifier_evaluation_dict(
+    tp: int,
+    tn: int,
+    fp: int,
+    fn: int,
+) -> Dict[str, float]:
     p = tp + fn
     n = fp + tn
     d: Dict = {
