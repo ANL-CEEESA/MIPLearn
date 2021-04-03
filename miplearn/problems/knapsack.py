@@ -85,24 +85,10 @@ class MultiKnapsackInstance(Instance):
         return model
 
     def get_instance_features(self):
-        return np.hstack(
-            [
-                np.mean(self.prices),
-                self.capacities,
-            ]
-        )
+        return [np.mean(self.prices)] + list(self.capacities)
 
     def get_variable_features(self, var, index):
-        return np.hstack(
-            [
-                self.prices[index],
-                self.weights[:, index],
-            ]
-        )
-
-
-#     def get_variable_category(self, var, index):
-#         return index
+        return [self.prices[index]] + list(self.weights[:, index])
 
 
 class MultiKnapsackGenerator:

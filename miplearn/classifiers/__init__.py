@@ -112,8 +112,14 @@ class Regressor(ABC):
         assert isinstance(y_train, np.ndarray)
         assert x_train.dtype in [np.float16, np.float32, np.float64]
         assert y_train.dtype in [np.float16, np.float32, np.float64]
-        assert len(x_train.shape) == 2
-        assert len(y_train.shape) == 2
+        assert len(x_train.shape) == 2, (
+            f"Parameter x_train should be a square matrix. "
+            f"Found {x_train.shape} ndarray instead."
+        )
+        assert len(y_train.shape) == 2, (
+            f"Parameter y_train should be a square matrix. "
+            f"Found {y_train.shape} ndarray instead."
+        )
         (n_samples_x, n_inputs) = x_train.shape
         (n_samples_y, n_outputs) = y_train.shape
         assert n_samples_y == n_samples_x

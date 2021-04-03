@@ -5,6 +5,10 @@
 import logging
 import sys
 import time
+import warnings
+import traceback
+
+_formatwarning = warnings.formatwarning
 
 
 class TimeFormatter(logging.Formatter):
@@ -28,6 +32,13 @@ class TimeFormatter(logging.Formatter):
         )
 
 
+def formatwarning_tb(*args, **kwargs):
+    s = _formatwarning(*args, **kwargs)
+    tb = traceback.format_stack()
+    s += "".join(tb[:-1])
+    return s
+
+
 def setup_logger(start_time=None, force_color=False):
     if start_time is None:
         start_time = time.time()
@@ -49,3 +60,5 @@ def setup_logger(start_time=None, force_color=False):
     handler.setFormatter(TimeFormatter(start_time, log_colors))
     logging.getLogger().addHandler(handler)
     logging.getLogger("miplearn").setLevel(logging.INFO)
+    warnings.formatwarning = formatwarning_tb
+    logging.captureWarnings(True)

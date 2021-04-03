@@ -41,13 +41,14 @@ class FeaturesExtractor:
                     assert isinstance(user_features, list), (
                         f"Variable features must be a list. "
                         f"Found {type(user_features).__name__} instead for "
-                        f"var={var_name}."
+                        f"var={var_name}[{idx}]."
                     )
-                    assert isinstance(user_features[0], numbers.Real), (
-                        f"Variable features must be a list of numbers."
-                        f"Found {type(user_features[0]).__name__} instead "
-                        f"for var={var_name}."
-                    )
+                    for v in user_features:
+                        assert isinstance(v, numbers.Real), (
+                            f"Variable features must be a list of numbers. "
+                            f"Found {type(v).__name__} instead "
+                            f"for var={var_name}[{idx}]."
+                        )
                 var_dict[idx] = {
                     "Category": category,
                     "User features": user_features,
@@ -92,4 +93,15 @@ class FeaturesExtractor:
 
     @staticmethod
     def _extract_instance(instance: "Instance") -> InstanceFeatures:
-        return {"User features": instance.get_instance_features()}
+        user_features = instance.get_instance_features()
+        assert isinstance(user_features, list), (
+            f"Instance features must be a list. "
+            f"Found {type(user_features).__name__} instead for "
+            f"var={var_name}[{idx}]."
+        )
+        for v in user_features:
+            assert isinstance(v, numbers.Real), (
+                f"Instance features must be a list of numbers. "
+                f"Found {type(v).__name__} instead."
+            )
+        return {"User features": user_features}
