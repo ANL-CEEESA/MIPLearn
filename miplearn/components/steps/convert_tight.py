@@ -13,7 +13,6 @@ from miplearn.classifiers.counting import CountingClassifier
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
 from miplearn.components.steps.drop_redundant import DropRedundantInequalitiesStep
-from miplearn.extractors import InstanceIterator
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +115,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
     def _x_train(instances):
         x = {}
         for instance in tqdm(
-            InstanceIterator(instances),
+            instances,
             desc="Extract (drop:x)",
             disable=len(instances) < 5,
         ):
@@ -139,7 +138,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
     def y(self, instances):
         y = {}
         for instance in tqdm(
-            InstanceIterator(instances),
+            instances,
             desc="Extract (rlx:conv_ineqs:y)",
             disable=len(instances) < 5,
         ):

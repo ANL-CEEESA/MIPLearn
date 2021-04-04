@@ -3,22 +3,14 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import List, Dict, Union, Optional, Any, TYPE_CHECKING, Tuple, Hashable
+from typing import List, Dict, Any, TYPE_CHECKING, Tuple, Hashable
 
 import numpy as np
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import (
-    mean_squared_error,
-    explained_variance_score,
-    max_error,
-    mean_absolute_error,
-    r2_score,
-)
 
 from miplearn.classifiers import Regressor
 from miplearn.classifiers.sklearn import ScikitLearnRegressor
 from miplearn.components.component import Component
-from miplearn.extractors import InstanceIterator
 from miplearn.instance import Instance
 from miplearn.types import TrainingSample, LearningSolveStats, Features
 

@@ -18,7 +18,7 @@ from miplearn.components.lazy_dynamic import DynamicLazyConstraintsComponent
 from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.features import FeaturesExtractor
-from miplearn.instance import Instance
+from miplearn.instance import Instance, PickleGzInstance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
@@ -30,8 +30,7 @@ logger = logging.getLogger(__name__)
 class _GlobalVariables:
     def __init__(self) -> None:
         self.solver: Optional[LearningSolver] = None
-        self.instances: Optional[Union[List[str], List[Instance]]] = None
-        self.output_filenames: Optional[List[str]] = None
+        self.instances: Optional[List[Instance]] = None
         self.discard_outputs: bool = False
 
 
@@ -44,16 +43,10 @@ _GLOBAL = [_GlobalVariables()]
 def _parallel_solve(idx):
     solver = _GLOBAL[0].solver
     instances = _GLOBAL[0].instances
-    output_filenames = _GLOBAL[0].output_filenames
     discard_outputs = _GLOBAL[0].discard_outputs
-    if output_filenames is None:
-        output_filename = None
-    else:
-        output_filename = output_filenames[idx]
     try:
         stats = solver.solve(
             instances[idx],
-            output_filename=output_filename,
             discard_output=discard_outputs,
         )
         return stats, instances[idx]
@@ -129,29 +122,11 @@ class LearningSolver:
 
     def _solve(
         self,
-        instance: Union[Instance, str],
+        instance: Instance,
         model: Any = None,
-        output_filename: Optional[str] = None,
         discard_output: bool = False,
         tee: bool = False,
     ) -> LearningSolveStats:
-
-        # Load instance from file, if necessary
-        filename = None
-        fileformat = None
-        file: Union[BinaryIO, gzip.GzipFile]
-        if isinstance(instance, str):
-            filename = instance
-            logger.info("Reading: %s" % filename)
-            if filename.endswith(".gz"):
-                fileformat = "pickle-gz"
-                with gzip.GzipFile(filename, "rb") as file:
-                    instance = pickle.load(cast(IO[bytes], file))
-            else:
-                fileformat = "pickle"
-                with open(filename, "rb") as file:
-                    instance = pickle.load(cast(IO[bytes], file))
-        assert isinstance(instance, Instance)
 
         # Generate model
         if model is None:
@@ -262,23 +237,15 @@ class LearningSolver:
             component.after_solve_mip(*callback_args)
 
         # Write to file, if necessary
-        if not discard_output and filename is not None:
-            if output_filename is None:
-                output_filename = filename
-            logger.info("Writing: %s" % output_filename)
-            if fileformat == "pickle":
-                with open(output_filename, "wb") as file:
-                    pickle.dump(instance, cast(IO[bytes], file))
-            else:
-                with gzip.GzipFile(output_filename, "wb") as file:
-                    pickle.dump(instance, cast(IO[bytes], file))
+        if not discard_output:
+            instance.flush()
+
         return stats
 
     def solve(
         self,
-        instance: Union[Instance, str],
+        instance: Instance,
         model: Any = None,
-        output_filename: Optional[str] = None,
         discard_output: bool = False,
         tee: bool = False,
     ) -> LearningSolveStats:
@@ -298,14 +265,10 @@ class LearningSolver:
 
         Parameters
         ----------
-        instance: Union[Instance, str]
-            The instance to be solved, or a filename.
+        instance: Instance
+            The instance to be solved.
         model: Any
             The corresponding Pyomo model. If not provided, it will be created.
-        output_filename: Optional[str]
-            If instance is a filename and output_filename is provided, write the
-            modified instance to this file, instead of replacing the original one. If
-            output_filename is None (the default), modified the original file in-place.
         discard_output: bool
             If True, do not write the modified instances anywhere; simply discard
             them. Useful during benchmarking.
@@ -325,30 +288,28 @@ class LearningSolver:
             details.
         """
         if self.simulate_perfect:
-            if not isinstance(instance, str):
+            if not isinstance(instance, PickleGzInstance):
                 raise Exception("Not implemented")
-            with tempfile.NamedTemporaryFile(suffix=os.path.basename(instance)) as tmp:
-                self._solve(
-                    instance=instance,
-                    model=model,
-                    output_filename=tmp.name,
-                    tee=tee,
-                )
-                self.fit([tmp.name])
+            self._solve(
+                instance=instance,
+                model=model,
+                tee=tee,
+                discard_output=True,
+            )
+            self.fit([instance])
+            instance.instance = None
         return self._solve(
             instance=instance,
             model=model,
-            output_filename=output_filename,
             discard_output=discard_output,
             tee=tee,
         )
 
     def parallel_solve(
         self,
-        instances: Union[List[str], List[Instance]],
+        instances: List[Instance],
         n_jobs: int = 4,
         label: str = "Solve",
-        output_filenames: Optional[List[str]] = None,
         discard_outputs: bool = False,
     ) -> List[LearningSolveStats]:
         """
@@ -361,17 +322,13 @@ class LearningSolver:
 
         Parameters
         ----------
-        output_filenames: Optional[List[str]]
-            If instances are file names and output_filenames is provided, write the
-            modified instances to these files, instead of replacing the original
-            files. If output_filenames is None, modifies the instances in-place.
         discard_outputs: bool
             If True, do not write the modified instances anywhere; simply discard
             them instead. Useful during benchmarking.
         label: str
             Label to show in the progress bar.
-        instances: Union[List[str], List[Instance]]
-            The instances to be solved
+        instances: List[Instance]
+            The instances to be solved.
         n_jobs: int
             Number of instances to solve in parallel at a time.
 
@@ -388,7 +345,6 @@ class LearningSolver:
             self.internal_solver = None
             self._silence_miplearn_logger()
             _GLOBAL[0].solver = self
-            _GLOBAL[0].output_filenames = output_filenames
             _GLOBAL[0].instances = instances
             _GLOBAL[0].discard_outputs = discard_outputs
             results = p_map(
@@ -405,7 +361,7 @@ class LearningSolver:
             self._restore_miplearn_logger()
             return stats
 
-    def fit(self, training_instances: Union[List[str], List[Instance]]) -> None:
+    def fit(self, training_instances: List[Instance]) -> None:
         logger.debug("Fitting...")
         if len(training_instances) == 0:
             return

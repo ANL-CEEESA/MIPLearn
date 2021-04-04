@@ -52,7 +52,7 @@ class BenchmarkRunner:
 
     def parallel_solve(
         self,
-        instances: Union[List[str], List[Instance]],
+        instances: List[Instance],
         n_jobs: int = 1,
         n_trials: int = 3,
     ) -> None:
@@ -61,7 +61,7 @@ class BenchmarkRunner:
 
         Parameters
         ----------
-        instances: Union[List[str], List[Instance]]
+        instances: List[Instance]
             List of instances to solve. This can either be a list of instances
             already loaded in memory, or a list of filenames pointing to pickled (and
             optionally gzipped) files.
@@ -98,17 +98,14 @@ class BenchmarkRunner:
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         self.results.to_csv(filename)
 
-    def fit(self, instances: Union[List[str], List[Instance]]) -> None:
+    def fit(self, instances: List[Instance]) -> None:
         """
         Trains all solvers with the provided training instances.
 
         Parameters
         ----------
-        instances:  Union[List[str], List[Instance]]
-            List of training instances. This can either be a list of instances
-            already loaded in memory, or a list of filenames pointing to pickled (and
-            optionally gzipped) files.
-
+        instances:  List[Instance]
+            List of training instances.
         """
         for (solver_name, solver) in self.solvers.items():
             logger.debug(f"Fitting {solver_name}...")

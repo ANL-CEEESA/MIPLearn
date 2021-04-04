@@ -119,11 +119,10 @@ For more significant performance benefits, `LearningSolver` can also be configur
 
 ### 6.1 Saving and loading solver state
 
-After solving a large number of training instances, it may be desirable to save the current state of `LearningSolver` to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the standard `pickle` module, as the following example illustrates:
+After solving a large number of training instances, it may be desirable to save the current state of `LearningSolver` to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the the utility functions `write_pickle_gz` and `read_pickle_gz`, as the following example illustrates:
 
 ```python
-from miplearn import LearningSolver
-import pickle
+from miplearn import LearningSolver, write_pickle_gz, read_pickle_gz
 
 # Solve training instances
 training_instances = [...]
@@ -135,14 +134,12 @@ for instance in training_instances:
 solver.fit(training_instances)
 
 # Save trained solver to disk
-with open("solver.pickle", "wb") as file:
-    pickle.dump(solver, file)
+write_pickle_gz(solver, "solver.pkl.gz")
 
 # Application restarts...
 
 # Load trained solver from disk
-with open("solver.pickle", "rb") as file:
-    solver = pickle.load(file)
+solver = read_pickle_gz("solver.pkl.gz")
 
 # Solve additional instances
 test_instances = [...]
@@ -171,23 +168,24 @@ solver.parallel_solve(test_instances)
 
 ### 6.3 Solving instances from the disk
 
-In all examples above, we have assumed that instances are available as Python objects, stored in memory. When problem instances are very large, or when there is a large number of problem instances, this approach may require an excessive amount of memory. To reduce memory requirements, MIPLearn can also operate on instances that are stored on disk. More precisely, the methods `fit`, `solve` and `parallel_solve` in `LearningSolver` can operate on filenames (or lists of filenames) instead of instance objects, as the next example illustrates.
-Instance files must be pickled instance objects. The method `solve` loads at most one instance to memory at a time, while `parallel_solve` loads at most `n_jobs` instances.
-
+In all examples above, we have assumed that instances are available as Python objects, stored in memory. When problem instances are very large, or when there is a large number of problem instances, this approach may require an excessive amount of memory. To reduce memory requirements, MIPLearn can also operate on instances that are stored on disk, through the `PickleGzInstance` class, as the next example illustrates.
 
 ```python
 import pickle
-from miplearn import LearningSolver
+from miplearn import (
+    LearningSolver,
+    PickleGzInstance,
+    write_pickle_gz,
+)
 
 # Construct and pickle 600 problem instances
 for i in range(600):
     instance = MyProblemInstance([...])
-    with open("instance_%03d.pkl" % i, "w") as file:
-        pickle.dump(instance, obj)
+    write_pickle_gz(instance, "instance_%03d.pkl" % i)
         
 # Split instances into training and test
-test_instances  = ["instance_%03d.pkl" % i for i in range(500)]
-train_instances = ["instance_%03d.pkl" % i for i in range(500, 600)]
+test_instances  = [PickleGzInstance("instance_%03d.pkl" % i) for i in range(500)]
+train_instances = [PickleGzInstance("instance_%03d.pkl" % i) for i in range(500, 600)]
 
 # Create solver
 solver = LearningSolver([...])
@@ -203,20 +201,7 @@ solver.parallel_solve(test_instances, n_jobs=4)
 ```
 
 
-By default, `solve` and `parallel_solve` modify files in place. That is, after the instances are loaded from disk and solved, MIPLearn writes them back to the disk, overwriting the original files. To write to an alternative file instead, use the arguments `output_filename` (in `solve`) and `output_filenames` (in `parallel_solve`). To discard the modifications instead, use `discard_outputs=True`. This can be useful, for example, during benchmarks.
-
-```python
-# Solve a single instance file and write the output to another file
-solver.solve("knapsack_1.orig.pkl", output_filename="knapsack_1.solved.pkl")
-
-# Solve a list of instance files
-instances = ["knapsack_%03d.orig.pkl" % i for i in range(100)]
-output = ["knapsack_%03d.solved.pkl" % i for i in range(100)]
-solver.parallel_solve(instances, output_filenames=output)
-
-# Solve instances and discard solutions and training data
-solver.parallel_solve(instances, discard_outputs=True)
-```
+By default, `solve` and `parallel_solve` modify files in place. That is, after the instances are loaded from disk and solved, MIPLearn writes them back to the disk, overwriting the original files. To discard the modifications instead, use `LearningSolver(..., discard_outputs=True)`. This can be useful, for example, during benchmarks.
 
 ## 7. Running benchmarks
 

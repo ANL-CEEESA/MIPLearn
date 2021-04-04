@@ -40,30 +40,14 @@ from miplearn import (
     BenchmarkRunner,
     GurobiPyomoSolver,
     setup_logger,
+    PickleGzInstance,
+    write_pickle_gz_multiple,
 )
 
 setup_logger()
 logging.getLogger("gurobipy").setLevel(logging.ERROR)
 logging.getLogger("pyomo.core").setLevel(logging.ERROR)
 logger = logging.getLogger("benchmark")
-
-
-def write_pickle_gz(obj, filename):
-    logger.info(f"Writing: {filename}")
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
-    with gzip.GzipFile(filename, "wb") as file:
-        pickle.dump(obj, file)
-
-
-def read_pickle_gz(filename):
-    logger.info(f"Reading: {filename}")
-    with gzip.GzipFile(filename, "rb") as file:
-        return pickle.load(file)
-
-
-def write_pickle_gz_multiple(objs, dirname):
-    for (i, obj) in enumerate(objs):
-        write_pickle_gz(obj, f"{dirname}/{i:05d}.pkl.gz")
 
 
 def train(args):
@@ -78,7 +62,9 @@ def train(args):
 
     done_filename = f"{basepath}/train/done"
     if not os.path.isfile(done_filename):
-        train_instances = glob.glob(f"{basepath}/train/*.gz")
+        train_instances = [
+            PickleGzInstance(f) for f in glob.glob(f"{basepath}/train/*.gz")
+        ]
         solver = LearningSolver(
             solver=lambda: GurobiPyomoSolver(
                 params={
@@ -96,7 +82,7 @@ def train(args):
 
 def test_baseline(args):
     basepath = args["<challenge>"]
-    test_instances = glob.glob(f"{basepath}/test/*.gz")
+    test_instances = [PickleGzInstance(f) for f in glob.glob(f"{basepath}/test/*.gz")]
     csv_filename = f"{basepath}/benchmark_baseline.csv"
     if not os.path.isfile(csv_filename):
         solvers = {
@@ -119,8 +105,8 @@ def test_baseline(args):
 
 def test_ml(args):
     basepath = args["<challenge>"]
-    test_instances = glob.glob(f"{basepath}/test/*.gz")
-    train_instances = glob.glob(f"{basepath}/train/*.gz")
+    test_instances = [PickleGzInstance(f) for f in glob.glob(f"{basepath}/test/*.gz")]
+    train_instances = [PickleGzInstance(f) for f in glob.glob(f"{basepath}/train/*.gz")]
     csv_filename = f"{basepath}/benchmark_ml.csv"
     if not os.path.isfile(csv_filename):
         solvers = {

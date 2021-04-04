@@ -6,14 +6,13 @@ import logging
 from copy import deepcopy
 
 import numpy as np
-from tqdm import tqdm
 from p_tqdm import p_umap
+from tqdm import tqdm
 
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
 from miplearn.components.lazy_static import LazyConstraint
-from miplearn.extractors import InstanceIterator
 
 logger = logging.getLogger(__name__)
 
@@ -131,31 +130,24 @@ class DropRedundantInequalitiesStep(Component):
         def _extract(instance):
             x = {}
             y = {}
-            for instance in InstanceIterator([instance]):
-                for training_data in instance.training_data:
-                    for (cid, slack) in training_data["slacks"].items():
-                        category = instance.get_constraint_category(cid)
-                        if category is None:
-                            continue
-                        if category not in x:
-                            x[category] = []
-                        if category not in y:
-                            y[category] = []
-                        if slack > self.slack_tolerance:
-                            y[category] += [[False, True]]
-                        else:
-                            y[category] += [[True, False]]
-                        x[category] += [instance.get_constraint_features(cid)]
+            for training_data in instance.training_data:
+                for (cid, slack) in training_data["slacks"].items():
+                    category = instance.get_constraint_category(cid)
+                    if category is None:
+                        continue
+                    if category not in x:
+                        x[category] = []
+                    if category not in y:
+                        y[category] = []
+                    if slack > self.slack_tolerance:
+                        y[category] += [[False, True]]
+                    else:
+                        y[category] += [[True, False]]
+                    x[category] += [instance.get_constraint_features(cid)]
             return x, y
 
         if n_jobs == 1:
-            results = [
-                _extract(i)
-                for i in tqdm(
-                    instances,
-                    desc="Extract (drop 1/3)",
-                )
-            ]
+            results = [_extract(i) for i in tqdm(instances, desc="Extract (drop 1/3)")]
         else:
             results = p_umap(
                 _extract,
