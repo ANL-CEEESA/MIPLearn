@@ -71,7 +71,7 @@ class Component:
     ) -> None:
         """
         Method called by LearningSolver after the root LP relaxation is solved.
-        See before_solve_lp for a description of the pameters.
+        See before_solve_lp for a description of the parameters.
         """
         return
 
@@ -86,7 +86,7 @@ class Component:
     ) -> None:
         """
         Method called by LearningSolver before the MIP is solved.
-        See before_solve_lp for a description of the pameters.
+        See before_solve_lp for a description of the parameters.
         """
         return
 
@@ -101,7 +101,7 @@ class Component:
     ) -> None:
         """
         Method called by LearningSolver after the MIP is solved.
-        See before_solve_lp for a description of the pameters.
+        See before_solve_lp for a description of the parameters.
         """
         return
 
