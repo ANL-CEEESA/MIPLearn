@@ -151,8 +151,8 @@ class Component:
 
     def fit_xy(
         self,
-        x: Dict[str, np.ndarray],
-        y: Dict[str, np.ndarray],
+        x: Dict[Hashable, np.ndarray],
+        y: Dict[Hashable, np.ndarray],
     ) -> None:
         """
         Given two dictionaries x and y, mapping the name of the category to matrices

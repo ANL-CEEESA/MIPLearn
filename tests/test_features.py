@@ -50,4 +50,5 @@ def test_knapsack() -> None:
         }
         assert features["Instance"] == {
             "User features": [67.0, 21.75],
+            "Lazy constraint count": 0,
         }

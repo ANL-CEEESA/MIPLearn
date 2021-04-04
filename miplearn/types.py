@@ -69,6 +69,10 @@ LearningSolveStats = TypedDict(
         "Upper bound": Optional[float],
         "Wallclock time": float,
         "Warm start value": Optional[float],
+        "LazyStatic: Removed": int,
+        "LazyStatic: Kept": int,
+        "LazyStatic: Restored": int,
+        "LazyStatic: Iterations": int,
     },
     total=False,
 )
@@ -77,6 +81,7 @@ InstanceFeatures = TypedDict(
     "InstanceFeatures",
     {
         "User features": List[float],
+        "Lazy constraint count": int,
     },
     total=False,
 )

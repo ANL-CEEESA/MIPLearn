@@ -148,7 +148,7 @@ class PrimalSolutionComponent(Component):
     def sample_xy(
         features: Features,
         sample: TrainingSample,
-    ) -> Tuple[Dict, Dict]:
+    ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
         x: Dict = {}
         y: Dict = {}
         solution: Optional[Solution] = None
@@ -227,8 +227,8 @@ class PrimalSolutionComponent(Component):
 
     def fit_xy(
         self,
-        x: Dict[str, np.ndarray],
-        y: Dict[str, np.ndarray],
+        x: Dict[Hashable, np.ndarray],
+        y: Dict[Hashable, np.ndarray],
     ) -> None:
         for category in x.keys():
             clf = self.classifier_prototype.clone()

@@ -58,8 +58,8 @@ class ObjectiveValueComponent(Component):
 
     def fit_xy(
         self,
-        x: Dict[str, np.ndarray],
-        y: Dict[str, np.ndarray],
+        x: Dict[Hashable, np.ndarray],
+        y: Dict[Hashable, np.ndarray],
     ) -> None:
         for c in ["Upper bound", "Lower bound"]:
             if c in y:
@@ -84,9 +84,9 @@ class ObjectiveValueComponent(Component):
     def sample_xy(
         features: Features,
         sample: TrainingSample,
-    ) -> Tuple[Dict[str, List[List[float]]], Dict[str, List[List[float]]]]:
-        x: Dict[str, List[List[float]]] = {}
-        y: Dict[str, List[List[float]]] = {}
+    ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
+        x: Dict[Hashable, List[List[float]]] = {}
+        y: Dict[Hashable, List[List[float]]] = {}
         f = list(features["Instance"]["User features"])
         if "LP value" in sample and sample["LP value"] is not None:
             f += [sample["LP value"]]
