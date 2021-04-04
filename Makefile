@@ -27,9 +27,10 @@ docs:
 
 
 install-deps:
-	$(PIP) install -i https://pypi.gurobi.com gurobipy
-	$(PIP) install xpress
-	$(PIP) install -r requirements.txt
+	$(PIP) install --upgrade pip
+	$(PIP) install --upgrade -i https://pypi.gurobi.com gurobipy
+	$(PIP) install --upgrade xpress
+	$(PIP) install --upgrade -r requirements.txt
 
 install:
 	$(PYTHON) setup.py install

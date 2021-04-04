@@ -21,12 +21,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install xpress
-        python -m pip install -i https://pypi.gurobi.com gurobipy
-        pip install -r requirements.txt
+      run: make install-deps
 
     - name: Test
-      run: |
-        make test
+      run: make test
