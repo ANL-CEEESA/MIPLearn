@@ -128,6 +128,7 @@ class TravelingSalesmanInstance(Instance):
     """
 
     def __init__(self, n_cities, distances):
+        super().__init__()
         assert isinstance(distances, np.ndarray)
         assert distances.shape == (n_cities, n_cities)
         self.n_cities = n_cities

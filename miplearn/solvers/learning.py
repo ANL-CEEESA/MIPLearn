@@ -135,8 +135,6 @@ class LearningSolver:
 
         # Initialize training sample
         training_sample: TrainingSample = {}
-        if not hasattr(instance, "training_data"):
-            instance.training_data = []
         instance.training_data += [training_sample]
 
         # Initialize stats
@@ -151,7 +149,8 @@ class LearningSolver:
 
         # Extract features
         extractor = FeaturesExtractor(self.internal_solver)
-        instance.features = extractor.extract(instance)
+        instance.features.clear()  # type: ignore
+        instance.features.update(extractor.extract(instance))
 
         callback_args = (
             self,
