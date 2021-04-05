@@ -10,6 +10,7 @@ from numpy.testing import assert_array_equal
 
 from miplearn import LearningSolver, InternalSolver, Instance
 from miplearn.classifiers import Classifier
+from miplearn.classifiers.threshold import Threshold, MinProbabilityThreshold
 from miplearn.components.lazy_static import StaticLazyConstraintsComponent
 from miplearn.types import TrainingSample, Features, LearningSolveStats
 
@@ -69,10 +70,9 @@ def test_usage_with_solver(features: Features) -> None:
     instance = Mock(spec=Instance)
     instance.has_static_lazy_constraints = Mock(return_value=True)
 
-    component = StaticLazyConstraintsComponent(
-        threshold=0.50,
-        violation_tolerance=1.0,
-    )
+    component = StaticLazyConstraintsComponent(violation_tolerance=1.0)
+    component.thresholds["type-a"] = MinProbabilityThreshold([0.5, 0.5])
+    component.thresholds["type-b"] = MinProbabilityThreshold([0.5, 0.5])
     component.classifiers = {
         "type-a": Mock(spec=Classifier),
         "type-b": Mock(spec=Classifier),
@@ -158,7 +158,9 @@ def test_sample_predict(
     features: Features,
     sample: TrainingSample,
 ) -> None:
-    comp = StaticLazyConstraintsComponent(threshold=0.5)
+    comp = StaticLazyConstraintsComponent()
+    comp.thresholds["type-a"] = MinProbabilityThreshold([0.5, 0.5])
+    comp.thresholds["type-b"] = MinProbabilityThreshold([0.5, 0.5])
     comp.classifiers["type-a"] = Mock(spec=Classifier)
     comp.classifiers["type-a"].predict_proba = lambda _: np.array(  # type:ignore
         [
@@ -192,9 +194,14 @@ def test_fit_xy() -> None:
             "type-b": np.array([[False, True]]),
         },
     )
-    clf = Mock(spec=Classifier)
-    clf.clone = Mock(side_effect=lambda: Mock(spec=Classifier))
-    comp = StaticLazyConstraintsComponent(classifier=clf)
+    clf: Classifier = Mock(spec=Classifier)
+    thr: Threshold = Mock(spec=Threshold)
+    clf.clone = Mock(side_effect=lambda: Mock(spec=Classifier))  # type: ignore
+    thr.clone = Mock(side_effect=lambda: Mock(spec=Threshold))  # type: ignore
+    comp = StaticLazyConstraintsComponent(
+        classifier=clf,
+        threshold=thr,
+    )
     comp.fit_xy(x, y)
     assert clf.clone.call_count == 2
     clf_a = comp.classifiers["type-a"]
@@ -203,6 +210,13 @@ def test_fit_xy() -> None:
     assert clf_b.fit.call_count == 1  # type: ignore
     assert_array_equal(clf_a.fit.call_args[0][0], x["type-a"])  # type: ignore
     assert_array_equal(clf_b.fit.call_args[0][0], x["type-b"])  # type: ignore
+    assert thr.clone.call_count == 2
+    thr_a = comp.thresholds["type-a"]
+    thr_b = comp.thresholds["type-b"]
+    assert thr_a.fit.call_count == 1  # type: ignore
+    assert thr_b.fit.call_count == 1  # type: ignore
+    assert thr_a.fit.call_args[0][0] == clf_a  # type: ignore
+    assert thr_b.fit.call_args[0][0] == clf_b  # type: ignore
 
 
 def test_sample_xy(
