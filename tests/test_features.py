@@ -13,9 +13,8 @@ def test_knapsack() -> None:
         instance = get_knapsack_instance(solver)
         model = instance.to_model()
         solver.set_instance(instance, model)
-        extractor = FeaturesExtractor(solver)
-        features = extractor.extract(instance)
-        assert features["Variables"] == {
+        FeaturesExtractor(solver).extract(instance)
+        assert instance.features.variables == {
             "x": {
                 0: {
                     "Category": "default",
@@ -35,20 +34,22 @@ def test_knapsack() -> None:
                 },
             }
         }
-        assert features["Constraints"]["eq_capacity"] == {
-            "LHS": {
-                "x[0]": 23.0,
-                "x[1]": 26.0,
-                "x[2]": 20.0,
-                "x[3]": 18.0,
-            },
-            "Sense": "<",
-            "RHS": 67.0,
-            "Lazy": False,
-            "Category": "eq_capacity",
-            "User features": [0.0],
+        assert instance.features.constraints == {
+            "eq_capacity": {
+                "LHS": {
+                    "x[0]": 23.0,
+                    "x[1]": 26.0,
+                    "x[2]": 20.0,
+                    "x[3]": 18.0,
+                },
+                "Sense": "<",
+                "RHS": 67.0,
+                "Lazy": False,
+                "Category": "eq_capacity",
+                "User features": [0.0],
+            }
         }
-        assert features["Instance"] == {
+        assert instance.features.instance == {
             "User features": [67.0, 21.75],
             "Lazy constraint count": 0,
         }

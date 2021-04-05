@@ -91,14 +91,18 @@ def test_solve_fit_from_disk():
         solver.solve(instances[0])
         instance_loaded = read_pickle_gz(instances[0].filename)
         assert len(instance_loaded.training_data) > 0
-        assert len(instance_loaded.features) > 0
+        assert instance_loaded.features.instance is not None
+        assert instance_loaded.features.variables is not None
+        assert instance_loaded.features.constraints is not None
 
         # Test: parallel_solve
         solver.parallel_solve(instances)
         for instance in instances:
             instance_loaded = read_pickle_gz(instance.filename)
             assert len(instance_loaded.training_data) > 0
-            assert len(instance_loaded.features) > 0
+            assert instance_loaded.features.instance is not None
+            assert instance_loaded.features.variables is not None
+            assert instance_loaded.features.constraints is not None
 
         # Delete temporary files
         for instance in instances:

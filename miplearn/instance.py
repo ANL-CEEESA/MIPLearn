@@ -47,7 +47,7 @@ class Instance(ABC):
 
     def __init__(self) -> None:
         self.training_data: List[TrainingSample] = []
-        self.features: Features = {}
+        self.features: Features = Features()
 
     @abstractmethod
     def to_model(self) -> Any:
@@ -206,8 +206,8 @@ class PickleGzInstance(Instance):
         Path of the gzipped pickle file that should be loaded.
     """
 
+    # noinspection PyMissingConstructor
     def __init__(self, filename: str) -> None:
-        super().__init__()
         assert os.path.exists(filename), f"File not found: {filename}"
         self.instance: Optional[Instance] = None
         self.filename: str = filename

@@ -17,8 +17,8 @@ from miplearn.types import TrainingSample, Features
 
 
 def test_xy() -> None:
-    features: Features = {
-        "Variables": {
+    features = Features(
+        variables={
             "x": {
                 0: {
                     "Category": "default",
@@ -37,7 +37,7 @@ def test_xy() -> None:
                 },
             }
         }
-    }
+    )
     sample: TrainingSample = {
         "Solution": {
             "x": {
@@ -78,8 +78,8 @@ def test_xy() -> None:
 
 
 def test_xy_without_lp_solution() -> None:
-    features: Features = {
-        "Variables": {
+    features = Features(
+        variables={
             "x": {
                 0: {
                     "Category": "default",
@@ -98,7 +98,7 @@ def test_xy_without_lp_solution() -> None:
                 },
             }
         }
-    }
+    )
     sample: TrainingSample = {
         "Solution": {
             "x": {
@@ -143,8 +143,8 @@ def test_predict() -> None:
     )
     thr = Mock(spec=Threshold)
     thr.predict = Mock(return_value=[0.75, 0.75])
-    features: Features = {
-        "Variables": {
+    features = Features(
+        variables={
             "x": {
                 0: {
                     "Category": "default",
@@ -160,7 +160,7 @@ def test_predict() -> None:
                 },
             }
         }
-    }
+    )
     sample: TrainingSample = {
         "LP solution": {
             "x": {
@@ -243,8 +243,8 @@ def test_evaluate() -> None:
             4: 1.0,
         }
     }
-    features: Features = {
-        "Variables": {
+    features = Features(
+        variables={
             "x": {
                 0: {},
                 1: {},
@@ -253,7 +253,7 @@ def test_evaluate() -> None:
                 4: {},
             }
         }
-    }
+    )
     sample: TrainingSample = {
         "Solution": {
             "x": {

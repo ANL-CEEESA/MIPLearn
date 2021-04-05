@@ -17,11 +17,11 @@ import numpy as np
 
 @pytest.fixture
 def features() -> Features:
-    return {
-        "Instance": {
+    return Features(
+        instance={
             "User features": [1.0, 2.0],
         }
-    }
+    )
 
 
 @pytest.fixture

@@ -148,9 +148,7 @@ class LearningSolver:
         self.internal_solver.set_instance(instance, model)
 
         # Extract features
-        extractor = FeaturesExtractor(self.internal_solver)
-        instance.features.clear()  # type: ignore
-        instance.features.update(extractor.extract(instance))
+        FeaturesExtractor(self.internal_solver).extract(instance)
 
         callback_args = (
             self,

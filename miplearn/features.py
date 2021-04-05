@@ -19,13 +19,10 @@ class FeaturesExtractor:
     ) -> None:
         self.solver = internal_solver
 
-    def extract(self, instance: "Instance") -> Features:
-        features: Features = {
-            "Variables": self._extract_variables(instance),
-            "Constraints": self._extract_constraints(instance),
-        }
-        features["Instance"] = self._extract_instance(instance, features)
-        return features
+    def extract(self, instance: "Instance") -> None:
+        instance.features.variables = self._extract_variables(instance)
+        instance.features.constraints = self._extract_constraints(instance)
+        instance.features.instance = self._extract_instance(instance, instance.features)
 
     def _extract_variables(self, instance: "Instance") -> Dict:
         variables = self.solver.get_empty_solution()
@@ -97,6 +94,7 @@ class FeaturesExtractor:
         instance: "Instance",
         features: Features,
     ) -> InstanceFeatures:
+        assert features.constraints is not None
         user_features = instance.get_instance_features()
         assert isinstance(user_features, list), (
             f"Instance features must be a list. "
@@ -108,7 +106,7 @@ class FeaturesExtractor:
                 f"Found {type(v).__name__} instead."
             )
         lazy_count = 0
-        for (cid, cdict) in features["Constraints"].items():
+        for (cid, cdict) in features.constraints.items():
             if cdict["Lazy"]:
                 lazy_count += 1
         return {

@@ -24,11 +24,11 @@ def sample() -> TrainingSample:
 
 @pytest.fixture
 def features() -> Features:
-    return {
-        "Instance": {
+    return Features(
+        instance={
             "Lazy constraint count": 4,
         },
-        "Constraints": {
+        constraints={
             "c1": {
                 "Category": "type-a",
                 "User features": [1.0, 1.0],
@@ -55,7 +55,7 @@ def features() -> Features:
                 "Lazy": False,
             },
         },
-    }
+    )
 
 
 def test_usage_with_solver(features: Features) -> None:

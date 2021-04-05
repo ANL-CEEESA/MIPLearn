@@ -3,6 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from typing import Optional, Dict, Callable, Any, Union, Tuple, List, Set, Hashable
+from dataclasses import dataclass
 
 from mypy_extensions import TypedDict
 
@@ -108,15 +109,13 @@ ConstraintFeatures = TypedDict(
     total=False,
 )
 
-Features = TypedDict(
-    "Features",
-    {
-        "Instance": InstanceFeatures,
-        "Variables": Dict[str, Dict[VarIndex, VariableFeatures]],
-        "Constraints": Dict[str, ConstraintFeatures],
-    },
-    total=False,
-)
+
+@dataclass
+class Features:
+    instance: Optional[InstanceFeatures] = None
+    variables: Optional[Dict[str, Dict[VarIndex, VariableFeatures]]] = None
+    constraints: Optional[Dict[str, ConstraintFeatures]] = None
+
 
 IterationCallback = Callable[[], bool]
 

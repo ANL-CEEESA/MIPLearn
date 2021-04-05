@@ -61,13 +61,16 @@ class StaticLazyConstraintsComponent(Component):
         training_data: TrainingSample,
     ) -> None:
         assert solver.internal_solver is not None
-        if not features["Instance"]["Lazy constraint count"] == 0:
+        assert features.instance is not None
+        assert features.constraints is not None
+
+        if not features.instance["Lazy constraint count"] == 0:
             logger.info("Instance does not have static lazy constraints. Skipping.")
         logger.info("Predicting required lazy constraints...")
         self.enforced_cids = set(self.sample_predict(features, training_data))
         logger.info("Moving lazy constraints to the pool...")
         self.pool = {}
-        for (cid, cdict) in features["Constraints"].items():
+        for (cid, cdict) in features.constraints.items():
             if cdict["Lazy"] and cid not in self.enforced_cids:
                 self.pool[cid] = LazyConstraint(
                     cid=cid,
@@ -145,9 +148,11 @@ class StaticLazyConstraintsComponent(Component):
         features: Features,
         sample: TrainingSample,
     ) -> List[str]:
+        assert features.constraints is not None
+
         x, y = self.sample_xy(features, sample)
         category_to_cids: Dict[Hashable, List[str]] = {}
-        for (cid, cdict) in features["Constraints"].items():
+        for (cid, cdict) in features.constraints.items():
             if "Category" not in cdict or cdict["Category"] is None:
                 continue
             category = cdict["Category"]
@@ -172,9 +177,10 @@ class StaticLazyConstraintsComponent(Component):
         features: Features,
         sample: TrainingSample,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
+        assert features.constraints is not None
         x: Dict = {}
         y: Dict = {}
-        for (cid, cfeatures) in features["Constraints"].items():
+        for (cid, cfeatures) in features.constraints.items():
             if not cfeatures["Lazy"]:
                 continue
             category = cfeatures["Category"]

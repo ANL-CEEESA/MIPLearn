@@ -77,9 +77,10 @@ class ObjectiveValueComponent(Component):
         features: Features,
         sample: TrainingSample,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
+        assert features.instance is not None
         x: Dict[Hashable, List[List[float]]] = {}
         y: Dict[Hashable, List[List[float]]] = {}
-        f = list(features["Instance"]["User features"])
+        f = list(features.instance["User features"])
         if "LP value" in sample and sample["LP value"] is not None:
             f += [sample["LP value"]]
         for c in ["Upper bound", "Lower bound"]:
