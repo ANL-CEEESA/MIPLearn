@@ -4,6 +4,7 @@
 
 from miplearn import GurobiSolver
 from miplearn.features import FeaturesExtractor
+from miplearn.types import VariableFeatures
 from tests.fixtures.knapsack import get_knapsack_instance
 
 
@@ -16,22 +17,22 @@ def test_knapsack() -> None:
         FeaturesExtractor(solver).extract(instance)
         assert instance.features.variables == {
             "x": {
-                0: {
-                    "Category": "default",
-                    "User features": [23.0, 505.0],
-                },
-                1: {
-                    "Category": "default",
-                    "User features": [26.0, 352.0],
-                },
-                2: {
-                    "Category": "default",
-                    "User features": [20.0, 458.0],
-                },
-                3: {
-                    "Category": "default",
-                    "User features": [18.0, 220.0],
-                },
+                0: VariableFeatures(
+                    category="default",
+                    user_features=[23.0, 505.0],
+                ),
+                1: VariableFeatures(
+                    category="default",
+                    user_features=[26.0, 352.0],
+                ),
+                2: VariableFeatures(
+                    category="default",
+                    user_features=[20.0, 458.0],
+                ),
+                3: VariableFeatures(
+                    category="default",
+                    user_features=[18.0, 220.0],
+                ),
             }
         }
         assert instance.features.constraints == {

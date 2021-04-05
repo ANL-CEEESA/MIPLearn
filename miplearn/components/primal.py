@@ -136,7 +136,7 @@ class PrimalSolutionComponent(Component):
         category_offset: Dict[Hashable, int] = {cat: 0 for cat in x.keys()}
         for (var_name, var_dict) in features.variables.items():
             for (idx, var_features) in var_dict.items():
-                category = var_features["Category"]
+                category = var_features.category
                 offset = category_offset[category]
                 category_offset[category] += 1
                 if y_pred[category][offset, 0]:
@@ -159,15 +159,15 @@ class PrimalSolutionComponent(Component):
             solution = sample["Solution"]
         for (var_name, var_dict) in features.variables.items():
             for (idx, var_features) in var_dict.items():
-                category = var_features["Category"]
+                category = var_features.category
                 if category is None:
                     continue
                 if category not in x.keys():
                     x[category] = []
                     y[category] = []
                 f: List[float] = []
-                assert var_features["User features"] is not None
-                f += var_features["User features"]
+                assert var_features.user_features is not None
+                f += var_features.user_features
                 if "LP solution" in sample and sample["LP solution"] is not None:
                     lp_value = sample["LP solution"][var_name][idx]
                     if lp_value is not None:

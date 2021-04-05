@@ -87,14 +87,12 @@ InstanceFeatures = TypedDict(
     total=False,
 )
 
-VariableFeatures = TypedDict(
-    "VariableFeatures",
-    {
-        "Category": Optional[Hashable],
-        "User features": Optional[List[float]],
-    },
-    total=False,
-)
+
+@dataclass
+class VariableFeatures:
+    category: Optional[Hashable] = None
+    user_features: Optional[List[float]] = None
+
 
 ConstraintFeatures = TypedDict(
     "ConstraintFeatures",

@@ -4,9 +4,15 @@
 
 import numbers
 import collections
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Hashable
 
-from miplearn.types import Features, ConstraintFeatures, InstanceFeatures
+from miplearn.types import (
+    Features,
+    ConstraintFeatures,
+    InstanceFeatures,
+    VariableFeatures,
+    VarIndex,
+)
 
 if TYPE_CHECKING:
     from miplearn import InternalSolver, Instance
@@ -24,9 +30,14 @@ class FeaturesExtractor:
         instance.features.constraints = self._extract_constraints(instance)
         instance.features.instance = self._extract_instance(instance, instance.features)
 
-    def _extract_variables(self, instance: "Instance") -> Dict:
-        variables = self.solver.get_empty_solution()
-        for (var_name, var_dict) in variables.items():
+    def _extract_variables(
+        self,
+        instance: "Instance",
+    ) -> Dict[str, Dict[VarIndex, VariableFeatures]]:
+        result: Dict[str, Dict[VarIndex, VariableFeatures]] = {}
+        empty_solution = self.solver.get_empty_solution()
+        for (var_name, var_dict) in empty_solution.items():
+            result[var_name] = {}
             for idx in var_dict.keys():
                 user_features = None
                 category = instance.get_variable_category(var_name, idx)
@@ -47,11 +58,11 @@ class FeaturesExtractor:
                             f"Found {type(v).__name__} instead "
                             f"for var={var_name}[{idx}]."
                         )
-                var_dict[idx] = {
-                    "Category": category,
-                    "User features": user_features,
-                }
-        return variables
+                result[var_name][idx] = VariableFeatures(
+                    category=category,
+                    user_features=user_features,
+                )
+        return result
 
     def _extract_constraints(
         self,

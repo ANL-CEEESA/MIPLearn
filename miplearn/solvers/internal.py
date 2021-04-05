@@ -274,7 +274,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def get_empty_solution(self) -> Dict:
+    def get_empty_solution(self) -> Dict[str, Dict[VarIndex, Optional[float]]]:
         """
         Returns a dictionary with the same shape as the one produced by
         `get_solution`, but with all values set to None. This method is
