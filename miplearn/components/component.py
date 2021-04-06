@@ -108,14 +108,13 @@ class Component:
 
     @staticmethod
     def sample_xy(
-        features: Features,
+        instance: Instance,
         sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:
         """
-        Given a set of features and a training sample, returns a pair of x and y
-        dictionaries containing, respectively, the matrices of ML features and the
-        labels for the sample. If the training sample does not include label
-        information, returns (x, {}).
+        Returns a pair of x and y dictionaries containing, respectively, the matrices
+        of ML features and the labels for the sample. If the training sample does not
+        include label information, returns (x, {}).
         """
         pass
 
@@ -128,7 +127,7 @@ class Component:
         for instance in instances:
             assert isinstance(instance, Instance)
             for sample in instance.training_data:
-                xy = self.sample_xy(instance.features, sample)
+                xy = self.sample_xy(instance, sample)
                 if xy is None:
                     continue
                 x_sample, y_sample = xy
@@ -203,12 +202,12 @@ class Component:
         ev = []
         for instance in instances:
             for sample in instance.training_data:
-                ev += [self.sample_evaluate(instance.features, sample)]
+                ev += [self.sample_evaluate(instance, sample)]
         return ev
 
     def sample_evaluate(
         self,
-        features: Features,
+        instance: Instance,
         sample: TrainingSample,
     ) -> Dict[Hashable, Dict[str, float]]:
         return {}

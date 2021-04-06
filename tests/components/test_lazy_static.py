@@ -24,6 +24,14 @@ from miplearn.features import (
 
 
 @pytest.fixture
+def instance(features: Features) -> Instance:
+    instance = Mock(spec=Instance)
+    instance.features = features
+    instance.has_static_lazy_constraints = Mock(return_value=True)
+    return instance
+
+
+@pytest.fixture
 def sample() -> TrainingSample:
     return TrainingSample(
         lazy_enforced={"c1", "c2", "c4"},
@@ -67,7 +75,7 @@ def features() -> Features:
     )
 
 
-def test_usage_with_solver(features: Features) -> None:
+def test_usage_with_solver(instance: Instance) -> None:
     solver = Mock(spec=LearningSolver)
     solver.use_lazy_cb = False
     solver.gap_tolerance = 1e-4
@@ -75,9 +83,6 @@ def test_usage_with_solver(features: Features) -> None:
     internal = solver.internal_solver = Mock(spec=InternalSolver)
     internal.extract_constraint = Mock(side_effect=lambda cid: "<%s>" % cid)
     internal.is_constraint_satisfied = Mock(return_value=False)
-
-    instance = Mock(spec=Instance)
-    instance.has_static_lazy_constraints = Mock(return_value=True)
 
     component = StaticLazyConstraintsComponent(violation_tolerance=1.0)
     component.thresholds["type-a"] = MinProbabilityThreshold([0.5, 0.5])
@@ -112,7 +117,7 @@ def test_usage_with_solver(features: Features) -> None:
         instance=instance,
         model=None,
         stats=stats,
-        features=features,
+        features=instance.features,
         training_data=sample,
     )
 
@@ -149,7 +154,7 @@ def test_usage_with_solver(features: Features) -> None:
         instance=instance,
         model=None,
         stats=stats,
-        features=features,
+        features=instance.features,
         training_data=sample,
     )
 
@@ -164,7 +169,7 @@ def test_usage_with_solver(features: Features) -> None:
 
 
 def test_sample_predict(
-    features: Features,
+    instance: Instance,
     sample: TrainingSample,
 ) -> None:
     comp = StaticLazyConstraintsComponent()
@@ -184,7 +189,7 @@ def test_sample_predict(
             [0.0, 1.0],  # c4
         ]
     )
-    pred = comp.sample_predict(features, sample)
+    pred = comp.sample_predict(instance, sample)
     assert pred == ["c1", "c2", "c4"]
 
 
@@ -229,7 +234,7 @@ def test_fit_xy() -> None:
 
 
 def test_sample_xy(
-    features: Features,
+    instance: Instance,
     sample: TrainingSample,
 ) -> None:
     x_expected = {
@@ -240,7 +245,7 @@ def test_sample_xy(
         "type-a": [[False, True], [False, True], [True, False]],
         "type-b": [[False, True]],
     }
-    xy = StaticLazyConstraintsComponent.sample_xy(features, sample)
+    xy = StaticLazyConstraintsComponent.sample_xy(instance, sample)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected

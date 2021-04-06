@@ -4,7 +4,7 @@
 
 import logging
 import sys
-from typing import Any, Dict, List, TYPE_CHECKING, Set, Hashable
+from typing import Any, Dict, List, TYPE_CHECKING, Hashable
 
 import numpy as np
 from tqdm.auto import tqdm
@@ -14,12 +14,11 @@ from miplearn.classifiers.counting import CountingClassifier
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
 from miplearn.extractors import InstanceFeaturesExtractor
-from miplearn.features import TrainingSample
 
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from miplearn.solvers.learning import LearningSolver, Instance
+    from miplearn.solvers.learning import Instance
 
 
 class DynamicLazyConstraintsComponent(Component):

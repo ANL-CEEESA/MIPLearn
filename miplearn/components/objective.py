@@ -44,7 +44,7 @@ class ObjectiveValueComponent(Component):
         training_data: TrainingSample,
     ) -> None:
         logger.info("Predicting optimal value...")
-        pred = self.sample_predict(features, training_data)
+        pred = self.sample_predict(instance, training_data)
         for (c, v) in pred.items():
             logger.info(f"Predicted {c.lower()}: %.6e" % v)
             stats[f"Objective: Predicted {c.lower()}"] = v  # type: ignore
@@ -61,11 +61,11 @@ class ObjectiveValueComponent(Component):
 
     def sample_predict(
         self,
-        features: Features,
+        instance: Instance,
         sample: TrainingSample,
     ) -> Dict[str, float]:
         pred: Dict[str, float] = {}
-        x, _ = self.sample_xy(features, sample)
+        x, _ = self.sample_xy(instance, sample)
         for c in ["Upper bound", "Lower bound"]:
             if c in self.regressors is not None:
                 pred[c] = self.regressors[c].predict(np.array(x[c]))[0, 0]
@@ -75,14 +75,15 @@ class ObjectiveValueComponent(Component):
 
     @staticmethod
     def sample_xy(
-        features: Features,
+        instance: Instance,
         sample: TrainingSample,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
-        assert features.instance is not None
-        assert features.instance.user_features is not None
+        ifeatures = instance.features.instance
+        assert ifeatures is not None
+        assert ifeatures.user_features is not None
         x: Dict[Hashable, List[List[float]]] = {}
         y: Dict[Hashable, List[List[float]]] = {}
-        f = list(features.instance.user_features)
+        f = list(ifeatures.user_features)
         if sample.lp_value is not None:
             f += [sample.lp_value]
         x["Upper bound"] = [f]
@@ -95,7 +96,7 @@ class ObjectiveValueComponent(Component):
 
     def sample_evaluate(
         self,
-        features: Features,
+        instance: Instance,
         sample: TrainingSample,
     ) -> Dict[Hashable, Dict[str, float]]:
         def compare(y_pred: float, y_actual: float) -> Dict[str, float]:
@@ -108,7 +109,7 @@ class ObjectiveValueComponent(Component):
             }
 
         result: Dict[Hashable, Dict[str, float]] = {}
-        pred = self.sample_predict(features, sample)
+        pred = self.sample_predict(instance, sample)
         if sample.upper_bound is not None:
             result["Upper bound"] = compare(pred["Upper bound"], sample.upper_bound)
         if sample.lower_bound is not None:

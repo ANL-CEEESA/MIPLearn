@@ -66,7 +66,7 @@ class StaticLazyConstraintsComponent(Component):
         if not features.instance.lazy_constraint_count == 0:
             logger.info("Instance does not have static lazy constraints. Skipping.")
         logger.info("Predicting required lazy constraints...")
-        self.enforced_cids = set(self.sample_predict(features, training_data))
+        self.enforced_cids = set(self.sample_predict(instance, training_data))
         logger.info("Moving lazy constraints to the pool...")
         self.pool = {}
         for (cid, cdict) in features.constraints.items():
@@ -144,14 +144,14 @@ class StaticLazyConstraintsComponent(Component):
 
     def sample_predict(
         self,
-        features: Features,
+        instance: "Instance",
         sample: TrainingSample,
     ) -> List[str]:
-        assert features.constraints is not None
+        assert instance.features.constraints is not None
 
-        x, y = self.sample_xy(features, sample)
+        x, y = self.sample_xy(instance, sample)
         category_to_cids: Dict[Hashable, List[str]] = {}
-        for (cid, cfeatures) in features.constraints.items():
+        for (cid, cfeatures) in instance.features.constraints.items():
             if cfeatures.category is None:
                 continue
             category = cfeatures.category
@@ -173,13 +173,13 @@ class StaticLazyConstraintsComponent(Component):
 
     @staticmethod
     def sample_xy(
-        features: Features,
+        instance: "Instance",
         sample: TrainingSample,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
-        assert features.constraints is not None
+        assert instance.features.constraints is not None
         x: Dict = {}
         y: Dict = {}
-        for (cid, cfeatures) in features.constraints.items():
+        for (cid, cfeatures) in instance.features.constraints.items():
             if not cfeatures.lazy:
                 continue
             category = cfeatures.category

@@ -8,7 +8,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from scipy.stats import randint
 
-from miplearn import Classifier, LearningSolver
+from miplearn import Classifier, LearningSolver, Instance
 from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.primal import PrimalSolutionComponent
@@ -38,6 +38,8 @@ def test_xy() -> None:
             }
         }
     )
+    instance = Mock(spec=Instance)
+    instance.features = features
     sample = TrainingSample(
         solution={
             "x": {
@@ -70,7 +72,7 @@ def test_xy() -> None:
             [True, False],
         ]
     }
-    xy = PrimalSolutionComponent.sample_xy(features, sample)
+    xy = PrimalSolutionComponent.sample_xy(instance, sample)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected
@@ -99,6 +101,8 @@ def test_xy_without_lp_solution() -> None:
             }
         }
     )
+    instance = Mock(spec=Instance)
+    instance.features = features
     sample = TrainingSample(
         solution={
             "x": {
@@ -123,7 +127,7 @@ def test_xy_without_lp_solution() -> None:
             [True, False],
         ]
     }
-    xy = PrimalSolutionComponent.sample_xy(features, sample)
+    xy = PrimalSolutionComponent.sample_xy(instance, sample)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected
@@ -161,6 +165,8 @@ def test_predict() -> None:
             }
         }
     )
+    instance = Mock(spec=Instance)
+    instance.features = features
     sample = TrainingSample(
         lp_solution={
             "x": {
@@ -170,11 +176,11 @@ def test_predict() -> None:
             }
         }
     )
-    x, _ = PrimalSolutionComponent.sample_xy(features, sample)
+    x, _ = PrimalSolutionComponent.sample_xy(instance, sample)
     comp = PrimalSolutionComponent()
     comp.classifiers = {"default": clf}
     comp.thresholds = {"default": thr}
-    solution_actual = comp.sample_predict(features, sample)
+    solution_actual = comp.sample_predict(instance, sample)
     clf.predict_proba.assert_called_once()
     assert_array_equal(x["default"], clf.predict_proba.call_args[0][0])
     thr.predict.assert_called_once()
@@ -243,7 +249,7 @@ def test_evaluate() -> None:
             4: 1.0,
         }
     }
-    features = Features(
+    features: Features = Features(
         variables={
             "x": {
                 0: VariableFeatures(),
@@ -254,7 +260,9 @@ def test_evaluate() -> None:
             }
         }
     )
-    sample = TrainingSample(
+    instance = Mock(spec=Instance)
+    instance.features = features
+    sample: TrainingSample = TrainingSample(
         solution={
             "x": {
                 0: 1.0,
@@ -265,7 +273,7 @@ def test_evaluate() -> None:
             }
         }
     )
-    ev = comp.sample_evaluate(features, sample)
+    ev = comp.sample_evaluate(instance, sample)
     assert ev == {
         0: classifier_evaluation_dict(tp=1, fp=1, tn=3, fn=0),
         1: classifier_evaluation_dict(tp=2, fp=0, tn=1, fn=2),
