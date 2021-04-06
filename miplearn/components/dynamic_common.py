@@ -85,8 +85,8 @@ class DynamicConstraintsComponent(Component):
         self,
         instance: "Instance",
         sample: TrainingSample,
-    ) -> List[str]:
-        pred: List[str] = []
+    ) -> List[Hashable]:
+        pred: List[Hashable] = []
         x, _, cids = self.sample_xy_with_cids(instance, sample)
         for category in x.keys():
             assert category in self.classifiers

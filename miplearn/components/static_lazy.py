@@ -45,7 +45,7 @@ class StaticLazyConstraintsComponent(Component):
         self.thresholds: Dict[Hashable, Threshold] = {}
         self.pool: Dict[str, LazyConstraint] = {}
         self.violation_tolerance: float = violation_tolerance
-        self.enforced_cids: Set[str] = set()
+        self.enforced_cids: Set[Hashable] = set()
         self.n_restored: int = 0
         self.n_iterations: int = 0
 
@@ -145,11 +145,11 @@ class StaticLazyConstraintsComponent(Component):
         self,
         instance: "Instance",
         sample: TrainingSample,
-    ) -> List[str]:
+    ) -> List[Hashable]:
         assert instance.features.constraints is not None
 
         x, y = self.sample_xy(instance, sample)
-        category_to_cids: Dict[Hashable, List[str]] = {}
+        category_to_cids: Dict[Hashable, List[Hashable]] = {}
         for (cid, cfeatures) in instance.features.constraints.items():
             if cfeatures.category is None:
                 continue
@@ -157,7 +157,7 @@ class StaticLazyConstraintsComponent(Component):
             if category not in category_to_cids:
                 category_to_cids[category] = []
             category_to_cids[category] += [cid]
-        enforced_cids: List[str] = []
+        enforced_cids: List[Hashable] = []
         for category in x.keys():
             if category not in self.classifiers:
                 continue

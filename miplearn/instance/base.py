@@ -104,13 +104,13 @@ class Instance(ABC):
     def has_static_lazy_constraints(self) -> bool:
         return False
 
-    def has_dynamic_lazy_constraints(self):
+    def has_dynamic_lazy_constraints(self) -> bool:
         return False
 
     def is_constraint_lazy(self, cid: str) -> bool:
         return False
 
-    def find_violated_lazy_constraints(self, model):
+    def find_violated_lazy_constraints(self, model: Any) -> List[Hashable]:
         """
         Returns lazy constraint violations found for the current solution.
 
@@ -129,7 +129,7 @@ class Instance(ABC):
         """
         return []
 
-    def build_lazy_constraint(self, model, violation):
+    def build_lazy_constraint(self, model: Any, violation: Hashable) -> Any:
         """
         Returns a Pyomo constraint which fixes a given violation.
 

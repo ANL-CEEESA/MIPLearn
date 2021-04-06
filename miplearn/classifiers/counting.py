@@ -38,7 +38,7 @@ class CountingClassifier(Classifier):
         n_samples = x_test.shape[0]
         return np.array([self.mean for _ in range(n_samples)])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "CountingClassifier(mean=%s)" % self.mean
 
     def clone(self) -> "CountingClassifier":

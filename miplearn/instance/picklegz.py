@@ -5,14 +5,14 @@
 import gzip
 import os
 import pickle
-from typing import Optional, Any, List, Hashable, cast, IO
+from typing import Optional, Any, List, Hashable, cast, IO, Callable
 
 from miplearn.instance.base import logger, Instance
 from miplearn.types import VarIndex
 
 
-def lazy_load(func):
-    def inner(self, *args):
+def lazy_load(func: Callable) -> Callable:
+    def inner(self: Any, *args: Any) -> Any:
         if self.instance is None:
             self.instance = self._load()
             self.features = self.instance.features
@@ -81,7 +81,7 @@ class PickleGzInstance(Instance):
         return self.instance.has_static_lazy_constraints()
 
     @lazy_load
-    def has_dynamic_lazy_constraints(self):
+    def has_dynamic_lazy_constraints(self) -> bool:
         assert self.instance is not None
         return self.instance.has_dynamic_lazy_constraints()
 
@@ -91,22 +91,22 @@ class PickleGzInstance(Instance):
         return self.instance.is_constraint_lazy(cid)
 
     @lazy_load
-    def find_violated_lazy_constraints(self, model):
+    def find_violated_lazy_constraints(self, model: Any) -> List[Hashable]:
         assert self.instance is not None
         return self.instance.find_violated_lazy_constraints(model)
 
     @lazy_load
-    def build_lazy_constraint(self, model, violation):
+    def build_lazy_constraint(self, model: Any, violation: Hashable) -> Any:
         assert self.instance is not None
         return self.instance.build_lazy_constraint(model, violation)
 
     @lazy_load
-    def find_violated_user_cuts(self, model):
+    def find_violated_user_cuts(self, model: Any) -> List[Hashable]:
         assert self.instance is not None
         return self.instance.find_violated_user_cuts(model)
 
     @lazy_load
-    def build_user_cut(self, model, violation):
+    def build_user_cut(self, model: Any, violation: Hashable) -> Any:
         assert self.instance is not None
         return self.instance.build_user_cut(model, violation)
 

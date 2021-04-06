@@ -3,21 +3,23 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Dict, List, TYPE_CHECKING, Hashable, Tuple
+from typing import Dict, List, TYPE_CHECKING, Hashable, Tuple, Any
 
 import numpy as np
 
+from miplearn.instance.base import Instance
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold, Threshold
 from miplearn.components.component import Component
 from miplearn.components.dynamic_common import DynamicConstraintsComponent
-from miplearn.features import TrainingSample
+from miplearn.features import TrainingSample, Features
+from miplearn.types import LearningSolveStats
 
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from miplearn.solvers.learning import Instance
+    from miplearn.solvers.learning import LearningSolver
 
 
 class DynamicLazyConstraintsComponent(Component):
@@ -40,34 +42,47 @@ class DynamicLazyConstraintsComponent(Component):
         self.known_cids = self.dynamic.known_cids
 
     @staticmethod
-    def enforce(cids, instance, model, solver):
+    def enforce(
+        cids: List[Hashable],
+        instance: Instance,
+        model: Any,
+        solver: "LearningSolver",
+    ) -> None:
+        assert solver.internal_solver is not None
         for cid in cids:
             cobj = instance.build_lazy_constraint(model, cid)
             solver.internal_solver.add_constraint(cobj)
 
     def before_solve_mip(
         self,
-        solver,
-        instance,
-        model,
-        stats,
-        features,
-        training_data,
-    ):
+        solver: "LearningSolver",
+        instance: Instance,
+        model: Any,
+        stats: LearningSolveStats,
+        features: Features,
+        training_data: TrainingSample,
+    ) -> None:
         training_data.lazy_enforced = set()
         logger.info("Predicting violated lazy constraints...")
         cids = self.dynamic.sample_predict(instance, training_data)
         logger.info("Enforcing %d lazy constraints..." % len(cids))
         self.enforce(cids, instance, model, solver)
 
-    def iteration_cb(self, solver, instance, model):
+    def iteration_cb(
+        self,
+        solver: "LearningSolver",
+        instance: Instance,
+        model: Any,
+    ) -> bool:
         logger.debug("Finding violated lazy constraints...")
         cids = instance.find_violated_lazy_constraints(model)
         if len(cids) == 0:
             logger.debug("No violations found")
             return False
         else:
-            instance.training_data[-1].lazy_enforced |= set(cids)
+            sample = instance.training_data[-1]
+            assert sample.lazy_enforced is not None
+            sample.lazy_enforced |= set(cids)
             logger.debug("    %d violations found" % len(cids))
             self.enforce(cids, instance, model, solver)
             return True
@@ -85,7 +100,7 @@ class DynamicLazyConstraintsComponent(Component):
         self,
         instance: "Instance",
         sample: TrainingSample,
-    ) -> List[str]:
+    ) -> List[Hashable]:
         return self.dynamic.sample_predict(instance, sample)
 
     def fit(self, training_instances: List["Instance"]) -> None:

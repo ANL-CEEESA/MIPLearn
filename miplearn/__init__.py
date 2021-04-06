@@ -13,9 +13,6 @@ from .components.dynamic_user_cuts import UserCutsComponent
 from .components.objective import ObjectiveValueComponent
 from .components.primal import PrimalSolutionComponent
 from .components.static_lazy import StaticLazyConstraintsComponent
-from .components.steps.convert_tight import ConvertTightIneqsIntoEqsStep
-from .components.steps.drop_redundant import DropRedundantInequalitiesStep
-from .components.steps.relax_integrality import RelaxIntegralityStep
 from .instance.base import Instance
 from .instance.picklegz import (
     PickleGzInstance,

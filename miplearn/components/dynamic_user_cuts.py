@@ -104,7 +104,7 @@ class UserCutsComponent(Component):
         self,
         instance: "Instance",
         sample: TrainingSample,
-    ) -> List[str]:
+    ) -> List[Hashable]:
         return self.dynamic.sample_predict(instance, sample)
 
     def fit(self, training_instances: List["Instance"]) -> None:

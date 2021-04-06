@@ -19,7 +19,7 @@ class TrainingSample:
     lp_log: Optional[str] = None
     lp_solution: Optional[Solution] = None
     lp_value: Optional[float] = None
-    lazy_enforced: Optional[Set[str]] = None
+    lazy_enforced: Optional[Set[Hashable]] = None
     lower_bound: Optional[float] = None
     mip_log: Optional[str] = None
     solution: Optional[Solution] = None
