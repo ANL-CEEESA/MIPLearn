@@ -14,7 +14,7 @@ from pyomo.core import Var, Constraint
 from pyomo.opt import TerminationCondition
 from pyomo.opt.base.solvers import SolverFactory
 
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
     InternalSolver,

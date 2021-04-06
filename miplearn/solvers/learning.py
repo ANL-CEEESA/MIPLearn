@@ -14,7 +14,8 @@ from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.features import FeaturesExtractor, TrainingSample
-from miplearn.instance import Instance, PickleGzInstance
+from miplearn.instance.base import Instance
+from miplearn.instance.picklegz import PickleGzInstance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver

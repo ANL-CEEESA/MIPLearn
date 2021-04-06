@@ -7,7 +7,7 @@ from unittest.mock import Mock
 from miplearn.classifiers import Classifier
 from miplearn.components.steps.convert_tight import ConvertTightIneqsIntoEqsStep
 from miplearn.components.steps.relax_integrality import RelaxIntegralityStep
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 from miplearn.problems.knapsack import GurobiKnapsackInstance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.learning import LearningSolver

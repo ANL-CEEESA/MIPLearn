@@ -17,7 +17,7 @@ from miplearn.features import (
     ConstraintFeatures,
     Features,
 )
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.learning import LearningSolver
 from miplearn.types import (

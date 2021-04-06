@@ -8,7 +8,7 @@ from typing import Dict, List
 
 import pandas as pd
 
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 from miplearn.solvers.learning import LearningSolver
 
 logger = logging.getLogger(__name__)

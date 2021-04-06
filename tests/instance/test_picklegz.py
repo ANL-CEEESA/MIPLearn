@@ -3,12 +3,12 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 import tempfile
 
-from miplearn.instance import write_pickle_gz, PickleGzInstance
+from miplearn.instance.picklegz import write_pickle_gz, PickleGzInstance
 from miplearn.solvers.gurobi import GurobiSolver
 from tests.fixtures.knapsack import get_knapsack_instance
 
 
-def test_pickled() -> None:
+def test_usage() -> None:
     original = get_knapsack_instance(GurobiSolver())
     file = tempfile.NamedTemporaryFile()
     write_pickle_gz(original, file.name)

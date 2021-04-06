@@ -7,7 +7,7 @@ from typing import Any, List, TYPE_CHECKING, Tuple, Dict, Hashable
 import numpy as np
 
 from miplearn.features import TrainingSample, Features
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats
 
 if TYPE_CHECKING:

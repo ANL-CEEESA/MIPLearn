@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 from miplearn.problems.knapsack import KnapsackInstance, GurobiKnapsackInstance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.internal import InternalSolver

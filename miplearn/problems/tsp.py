@@ -9,7 +9,7 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 
 
 class ChallengeA:

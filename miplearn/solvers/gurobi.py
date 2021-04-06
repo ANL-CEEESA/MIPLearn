@@ -8,7 +8,7 @@ from io import StringIO
 from random import randint
 from typing import List, Any, Dict, Optional, cast, Tuple, Union
 
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
     InternalSolver,

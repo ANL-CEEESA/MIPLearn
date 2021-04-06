@@ -6,7 +6,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 from miplearn.types import (
     LPSolveStats,
     IterationCallback,

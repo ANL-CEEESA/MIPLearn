@@ -58,7 +58,6 @@ eggs/
 env.bak/
 env/
 htmlcov/
-instance/
 ipython_config.py
 lib/
 lib64/

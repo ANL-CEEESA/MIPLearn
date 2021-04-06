@@ -8,7 +8,7 @@ import tempfile
 
 import dill
 
-from miplearn.instance import PickleGzInstance, write_pickle_gz, read_pickle_gz
+from miplearn.instance.picklegz import PickleGzInstance, write_pickle_gz, read_pickle_gz
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.learning import LearningSolver
 from . import _get_knapsack_instance, get_internal_solvers

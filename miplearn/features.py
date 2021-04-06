@@ -11,7 +11,7 @@ from miplearn.types import VarIndex, Solution
 
 if TYPE_CHECKING:
     from miplearn.solvers.internal import InternalSolver
-    from miplearn.instance import Instance
+    from miplearn.instance.base import Instance
 
 
 @dataclass

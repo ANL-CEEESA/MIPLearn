@@ -3,15 +3,9 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from .benchmark import BenchmarkRunner
-from .classifiers import (
-    Classifier,
-    Regressor,
-)
+from .classifiers import Classifier, Regressor
 from .classifiers.adaptive import AdaptiveClassifier
-from .classifiers.sklearn import (
-    ScikitLearnRegressor,
-    ScikitLearnClassifier,
-)
+from .classifiers.sklearn import ScikitLearnRegressor, ScikitLearnClassifier
 from .classifiers.threshold import MinPrecisionThreshold
 from .components.component import Component
 from .components.dynamic_lazy import DynamicLazyConstraintsComponent
@@ -22,12 +16,12 @@ from .components.static_lazy import StaticLazyConstraintsComponent
 from .components.steps.convert_tight import ConvertTightIneqsIntoEqsStep
 from .components.steps.drop_redundant import DropRedundantInequalitiesStep
 from .components.steps.relax_integrality import RelaxIntegralityStep
-from .instance import (
-    Instance,
+from .instance.base import Instance
+from .instance.picklegz import (
     PickleGzInstance,
     write_pickle_gz,
-    write_pickle_gz_multiple,
     read_pickle_gz,
+    write_pickle_gz_multiple,
 )
 from .log import setup_logger
 from .solvers.gurobi import GurobiSolver

@@ -12,7 +12,7 @@ from miplearn.classifiers import Regressor
 from miplearn.classifiers.sklearn import ScikitLearnRegressor
 from miplearn.components.component import Component
 from miplearn.features import TrainingSample, Features
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats
 
 if TYPE_CHECKING:

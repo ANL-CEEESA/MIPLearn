@@ -17,7 +17,7 @@ from miplearn.features import (
     Features,
     InstanceFeatures,
 )
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 
 E = 0.1
 

@@ -11,7 +11,7 @@ from numpy.testing import assert_array_equal
 from miplearn.classifiers import Regressor
 from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.features import TrainingSample, InstanceFeatures, Features
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 from miplearn.solvers.learning import LearningSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
 from tests.fixtures.knapsack import get_knapsack_instance

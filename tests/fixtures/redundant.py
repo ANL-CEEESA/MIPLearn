@@ -5,7 +5,7 @@ from typing import Any
 
 import pyomo.environ as pe
 
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
 from tests.solvers import _is_subclass_or_instance

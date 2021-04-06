@@ -4,7 +4,7 @@
 from unittest.mock import Mock
 
 from miplearn.components.component import Component
-from miplearn.instance import Instance
+from miplearn.instance.base import Instance
 
 
 def test_xy_instance():
