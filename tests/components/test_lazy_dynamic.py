@@ -1,15 +1,23 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-
+from typing import List, cast
 from unittest.mock import Mock
 
 import numpy as np
+import pytest
 from numpy.linalg import norm
 from numpy.testing import assert_array_equal
 
+from miplearn import Instance
 from miplearn.classifiers import Classifier
 from miplearn.components.lazy_dynamic import DynamicLazyConstraintsComponent
+from miplearn.features import (
+    TrainingSample,
+    Features,
+    ConstraintFeatures,
+    InstanceFeatures,
+)
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.learning import LearningSolver
 from tests.fixtures.knapsack import get_test_pyomo_instances
@@ -171,3 +179,123 @@ def test_lazy_evaluate():
             "True positive (%)": 25.0,
         },
     }
+
+
+@pytest.fixture
+def training_instances() -> List[Instance]:
+    instances = [cast(Instance, Mock(spec=Instance)) for _ in range(2)]
+    instances[0].features = Features(
+        instance=InstanceFeatures(
+            user_features=[50.0],
+        ),
+    )
+    instances[0].training_data = [
+        TrainingSample(lazy_enforced={"c1", "c2"}),
+        TrainingSample(lazy_enforced={"c2", "c3"}),
+    ]
+    instances[0].get_constraint_category = Mock(  # type: ignore
+        side_effect=lambda cid: {
+            "c1": "type-a",
+            "c2": "type-a",
+            "c3": "type-b",
+            "c4": "type-b",
+        }[cid]
+    )
+    instances[0].get_constraint_features = Mock(  # type: ignore
+        side_effect=lambda cid: {
+            "c1": [1.0, 2.0, 3.0],
+            "c2": [4.0, 5.0, 6.0],
+            "c3": [1.0, 2.0],
+            "c4": [3.0, 4.0],
+        }[cid]
+    )
+    instances[1].features = Features(
+        instance=InstanceFeatures(
+            user_features=[80.0],
+        ),
+    )
+    instances[1].training_data = [
+        TrainingSample(lazy_enforced={"c3", "c4"}),
+    ]
+    instances[1].get_constraint_category = Mock(  # type: ignore
+        side_effect=lambda cid: {
+            "c1": None,
+            "c2": "type-a",
+            "c3": "type-b",
+            "c4": "type-b",
+        }[cid]
+    )
+    instances[1].get_constraint_features = Mock(  # type: ignore
+        side_effect=lambda cid: {
+            "c2": [7.0, 8.0, 9.0],
+            "c3": [5.0, 6.0],
+            "c4": [7.0, 8.0],
+        }[cid]
+    )
+    return instances
+
+
+def test_fit_new(training_instances: List[Instance]) -> None:
+    clf = Mock(spec=Classifier)
+    clf.clone = Mock(side_effect=lambda: Mock(spec=Classifier))
+    comp = DynamicLazyConstraintsComponent(classifier=clf)
+    comp.fit_new(training_instances)
+    assert clf.clone.call_count == 2
+
+    assert "type-a" in comp.classifiers
+    clf_a = comp.classifiers["type-a"]
+    assert clf_a.fit.call_count == 1  # type: ignore
+    assert_array_equal(
+        clf_a.fit.call_args[0][0],  # type: ignore
+        np.array(
+            [
+                [50.0, 1.0, 2.0, 3.0],
+                [50.0, 4.0, 5.0, 6.0],
+                [50.0, 1.0, 2.0, 3.0],
+                [50.0, 4.0, 5.0, 6.0],
+                [80.0, 7.0, 8.0, 9.0],
+            ]
+        ),
+    )
+    assert_array_equal(
+        clf_a.fit.call_args[0][1],  # type: ignore
+        np.array(
+            [
+                [False, True],
+                [False, True],
+                [True, False],
+                [False, True],
+                [True, False],
+            ]
+        ),
+    )
+
+    assert "type-b" in comp.classifiers
+    clf_b = comp.classifiers["type-b"]
+    assert clf_b.fit.call_count == 1  # type: ignore
+    assert_array_equal(
+        clf_b.fit.call_args[0][0],  # type: ignore
+        np.array(
+            [
+                [50.0, 1.0, 2.0],
+                [50.0, 3.0, 4.0],
+                [50.0, 1.0, 2.0],
+                [50.0, 3.0, 4.0],
+                [80.0, 5.0, 6.0],
+                [80.0, 7.0, 8.0],
+            ]
+        ),
+    )
+    assert_array_equal(
+        clf_b.fit.call_args[0][1],  # type: ignore
+        np.array(
+            [
+                [True, False],
+                [True, False],
+                [False, True],
+                [True, False],
+                [False, True],
+                [False, True],
+            ]
+        ),
+    )

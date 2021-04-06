@@ -119,7 +119,7 @@ class Instance(ABC):
     def get_constraint_features(self, cid: str) -> Optional[List[float]]:
         return [0.0]
 
-    def get_constraint_category(self, cid: str) -> Optional[str]:
+    def get_constraint_category(self, cid: str) -> Optional[Hashable]:
         return cid
 
     def has_static_lazy_constraints(self) -> bool:
@@ -243,7 +243,7 @@ class PickleGzInstance(Instance):
         return self.instance.get_constraint_features(cid)
 
     @lazy_load
-    def get_constraint_category(self, cid: str) -> Optional[str]:
+    def get_constraint_category(self, cid: str) -> Optional[Hashable]:
         assert self.instance is not None
         return self.instance.get_constraint_category(cid)
 
