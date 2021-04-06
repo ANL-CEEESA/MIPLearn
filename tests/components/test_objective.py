@@ -26,27 +26,27 @@ def features() -> Features:
 
 @pytest.fixture
 def sample() -> TrainingSample:
-    return {
-        "Lower bound": 1.0,
-        "Upper bound": 2.0,
-        "LP value": 3.0,
-    }
+    return TrainingSample(
+        lower_bound=1.0,
+        upper_bound=2.0,
+        lp_value=3.0,
+    )
 
 
 @pytest.fixture
 def sample_without_lp() -> TrainingSample:
-    return {
-        "Lower bound": 1.0,
-        "Upper bound": 2.0,
-    }
+    return TrainingSample(
+        lower_bound=1.0,
+        upper_bound=2.0,
+    )
 
 
 @pytest.fixture
 def sample_without_ub() -> TrainingSample:
-    return {
-        "Lower bound": 1.0,
-        "LP value": 3.0,
-    }
+    return TrainingSample(
+        lower_bound=1.0,
+        lp_value=3.0,
+    )
 
 
 def test_sample_xy(

@@ -95,8 +95,8 @@ class ConvertTightIneqsIntoEqsStep(Component):
         features,
         training_data,
     ):
-        if "slacks" not in training_data.keys():
-            training_data["slacks"] = solver.internal_solver.get_inequality_slacks()
+        if training_data.slacks is None:
+            training_data.slacks = solver.internal_solver.get_inequality_slacks()
         stats["ConvertTight: Restored"] = self.n_restored
         stats["ConvertTight: Inf iterations"] = self.n_infeasible_iterations
         stats["ConvertTight: Subopt iterations"] = self.n_suboptimal_iterations
@@ -120,7 +120,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
             disable=len(instances) < 5,
         ):
             for training_data in instance.training_data:
-                cids = training_data["slacks"].keys()
+                cids = training_data.slacks.keys()
                 for cid in cids:
                     category = instance.get_constraint_category(cid)
                     if category is None:
@@ -142,7 +142,7 @@ class ConvertTightIneqsIntoEqsStep(Component):
             desc="Extract (rlx:conv_ineqs:y)",
             disable=len(instances) < 5,
         ):
-            for (cid, slack) in instance.training_data[0]["slacks"].items():
+            for (cid, slack) in instance.training_data[0].slacks.items():
                 category = instance.get_constraint_category(cid)
                 if category is None:
                     continue

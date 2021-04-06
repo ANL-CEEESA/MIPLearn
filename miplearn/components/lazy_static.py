@@ -93,7 +93,7 @@ class StaticLazyConstraintsComponent(Component):
         features: Features,
         training_data: TrainingSample,
     ) -> None:
-        training_data["LazyStatic: Enforced"] = self.enforced_cids
+        training_data.lazy_enforced = self.enforced_cids
         stats["LazyStatic: Restored"] = self.n_restored
         stats["LazyStatic: Iterations"] = self.n_iterations
 
@@ -188,8 +188,8 @@ class StaticLazyConstraintsComponent(Component):
                 x[category] = []
                 y[category] = []
             x[category] += [cfeatures.user_features]
-            if "LazyStatic: Enforced" in sample:
-                if cid in sample["LazyStatic: Enforced"]:
+            if sample.lazy_enforced is not None:
+                if cid in sample.lazy_enforced:
                     y[category] += [[False, True]]
                 else:
                     y[category] += [[True, False]]

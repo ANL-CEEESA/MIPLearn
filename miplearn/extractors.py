@@ -18,7 +18,7 @@ class Extractor(ABC):
     @staticmethod
     def split_variables(instance):
         result = {}
-        lp_solution = instance.training_data[0]["LP solution"]
+        lp_solution = instance.training_data[0].lp_solution
         for var_name in lp_solution:
             for index in lp_solution[var_name]:
                 category = instance.get_variable_category(var_name, index)
@@ -37,7 +37,7 @@ class InstanceFeaturesExtractor(Extractor):
                 np.hstack(
                     [
                         instance.get_instance_features(),
-                        instance.training_data[0]["LP value"],
+                        instance.training_data[0].lp_value,
                     ]
                 )
                 for instance in instances

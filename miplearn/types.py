@@ -11,22 +11,19 @@ VarIndex = Union[str, int, Tuple[Union[str, int]]]
 
 Solution = Dict[str, Dict[VarIndex, Optional[float]]]
 
-TrainingSample = TypedDict(
-    "TrainingSample",
-    {
-        "LP log": str,
-        "LP solution": Optional[Solution],
-        "LP value": Optional[float],
-        "LazyStatic: All": Set[str],
-        "LazyStatic: Enforced": Set[str],
-        "Lower bound": Optional[float],
-        "MIP log": str,
-        "Solution": Optional[Solution],
-        "Upper bound": Optional[float],
-        "slacks": Dict,
-    },
-    total=False,
-)
+
+@dataclass
+class TrainingSample:
+    lp_log: Optional[str] = None
+    lp_solution: Optional[Solution] = None
+    lp_value: Optional[float] = None
+    lazy_enforced: Optional[Set[str]] = None
+    lower_bound: Optional[float] = None
+    mip_log: Optional[str] = None
+    solution: Optional[Solution] = None
+    upper_bound: Optional[float] = None
+    slacks: Optional[Dict[str, float]] = None
+
 
 LPSolveStats = TypedDict(
     "LPSolveStats",

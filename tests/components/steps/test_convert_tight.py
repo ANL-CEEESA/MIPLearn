@@ -28,7 +28,7 @@ def test_convert_tight_usage():
     original_upper_bound = stats["Upper bound"]
 
     # Should collect training data
-    assert instance.training_data[0]["slacks"]["eq_capacity"] == 0.0
+    assert instance.training_data[0].slacks["eq_capacity"] == 0.0
 
     # Fit and resolve
     solver.fit([instance])

@@ -96,8 +96,8 @@ class DropRedundantInequalitiesStep(Component):
         features,
         training_data,
     ):
-        if "slacks" not in training_data.keys():
-            training_data["slacks"] = solver.internal_solver.get_inequality_slacks()
+        if training_data.slacks is None:
+            training_data.slacks = solver.internal_solver.get_inequality_slacks()
         stats["DropRedundant: Iterations"] = self.n_iterations
         stats["DropRedundant: Restored"] = self.n_restored
 
@@ -131,7 +131,7 @@ class DropRedundantInequalitiesStep(Component):
             x = {}
             y = {}
             for training_data in instance.training_data:
-                for (cid, slack) in training_data["slacks"].items():
+                for (cid, slack) in training_data.slacks.items():
                     category = instance.get_constraint_category(cid)
                     if category is None:
                         continue
