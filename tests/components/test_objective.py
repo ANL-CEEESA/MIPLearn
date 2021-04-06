@@ -9,7 +9,7 @@ from numpy.testing import assert_array_equal
 
 from miplearn import GurobiPyomoSolver, LearningSolver, Regressor
 from miplearn.components.objective import ObjectiveValueComponent
-from miplearn.types import TrainingSample, Features
+from miplearn.types import TrainingSample, Features, InstanceFeatures
 from tests.fixtures.knapsack import get_knapsack_instance
 
 import numpy as np
@@ -18,9 +18,9 @@ import numpy as np
 @pytest.fixture
 def features() -> Features:
     return Features(
-        instance={
-            "User features": [1.0, 2.0],
-        }
+        instance=InstanceFeatures(
+            user_features=[1.0, 2.0],
+        )
     )
 
 

@@ -12,7 +12,12 @@ from miplearn import LearningSolver, InternalSolver, Instance
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold, MinProbabilityThreshold
 from miplearn.components.lazy_static import StaticLazyConstraintsComponent
-from miplearn.types import TrainingSample, Features, LearningSolveStats
+from miplearn.types import (
+    TrainingSample,
+    Features,
+    LearningSolveStats,
+    InstanceFeatures,
+)
 
 
 @pytest.fixture
@@ -25,9 +30,10 @@ def sample() -> TrainingSample:
 @pytest.fixture
 def features() -> Features:
     return Features(
-        instance={
-            "Lazy constraint count": 4,
-        },
+        instance=InstanceFeatures(
+            user_features=[0],
+            lazy_constraint_count=4,
+        ),
         constraints={
             "c1": {
                 "Category": "type-a",

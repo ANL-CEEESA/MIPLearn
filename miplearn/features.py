@@ -120,7 +120,7 @@ class FeaturesExtractor:
         for (cid, cdict) in features.constraints.items():
             if cdict["Lazy"]:
                 lazy_count += 1
-        return {
-            "User features": user_features,
-            "Lazy constraint count": lazy_count,
-        }
+        return InstanceFeatures(
+            user_features=user_features,
+            lazy_constraint_count=lazy_count,
+        )

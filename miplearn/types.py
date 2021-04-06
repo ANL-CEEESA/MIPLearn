@@ -78,14 +78,11 @@ LearningSolveStats = TypedDict(
     total=False,
 )
 
-InstanceFeatures = TypedDict(
-    "InstanceFeatures",
-    {
-        "User features": List[float],
-        "Lazy constraint count": int,
-    },
-    total=False,
-)
+
+@dataclass
+class InstanceFeatures:
+    user_features: List[float]
+    lazy_constraint_count: int = 0
 
 
 @dataclass
