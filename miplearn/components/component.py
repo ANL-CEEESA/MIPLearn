@@ -106,8 +106,8 @@ class Component:
         """
         return
 
-    @staticmethod
     def sample_xy(
+        self,
         instance: Instance,
         sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:

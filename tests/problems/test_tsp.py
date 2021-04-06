@@ -66,7 +66,7 @@ def test_subtour():
     instance = TravelingSalesmanInstance(n_cities, distances)
     solver = LearningSolver()
     solver.solve(instance)
-    assert hasattr(instance, "found_violated_lazy_constraints")
+    assert len(instance.training_data[0].lazy_enforced) > 0
     assert hasattr(instance, "found_violated_user_cuts")
     x = instance.training_data[0].solution["x"]
     assert x[0, 1] == 1.0
