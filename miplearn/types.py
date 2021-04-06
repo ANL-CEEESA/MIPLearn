@@ -81,7 +81,7 @@ LearningSolveStats = TypedDict(
 
 @dataclass
 class InstanceFeatures:
-    user_features: List[float]
+    user_features: Optional[List[float]] = None
     lazy_constraint_count: int = 0
 
 
@@ -91,18 +91,14 @@ class VariableFeatures:
     user_features: Optional[List[float]] = None
 
 
-ConstraintFeatures = TypedDict(
-    "ConstraintFeatures",
-    {
-        "RHS": float,
-        "LHS": Dict[str, float],
-        "Sense": str,
-        "Category": Optional[Hashable],
-        "User features": Optional[List[float]],
-        "Lazy": bool,
-    },
-    total=False,
-)
+@dataclass
+class ConstraintFeatures:
+    rhs: Optional[float] = None
+    lhs: Optional[Dict[str, float]] = None
+    sense: Optional[str] = None
+    category: Optional[Hashable] = None
+    user_features: Optional[List[float]] = None
+    lazy: bool = False
 
 
 @dataclass

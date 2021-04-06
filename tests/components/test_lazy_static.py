@@ -17,6 +17,7 @@ from miplearn.types import (
     Features,
     LearningSolveStats,
     InstanceFeatures,
+    ConstraintFeatures,
 )
 
 
@@ -35,31 +36,31 @@ def features() -> Features:
             lazy_constraint_count=4,
         ),
         constraints={
-            "c1": {
-                "Category": "type-a",
-                "User features": [1.0, 1.0],
-                "Lazy": True,
-            },
-            "c2": {
-                "Category": "type-a",
-                "User features": [1.0, 2.0],
-                "Lazy": True,
-            },
-            "c3": {
-                "Category": "type-a",
-                "User features": [1.0, 3.0],
-                "Lazy": True,
-            },
-            "c4": {
-                "Category": "type-b",
-                "User features": [1.0, 4.0, 0.0],
-                "Lazy": True,
-            },
-            "c5": {
-                "Category": "type-b",
-                "User features": [1.0, 5.0, 0.0],
-                "Lazy": False,
-            },
+            "c1": ConstraintFeatures(
+                category="type-a",
+                user_features=[1.0, 1.0],
+                lazy=True,
+            ),
+            "c2": ConstraintFeatures(
+                category="type-a",
+                user_features=[1.0, 2.0],
+                lazy=True,
+            ),
+            "c3": ConstraintFeatures(
+                category="type-a",
+                user_features=[1.0, 3.0],
+                lazy=True,
+            ),
+            "c4": ConstraintFeatures(
+                category="type-b",
+                user_features=[1.0, 4.0, 0.0],
+                lazy=True,
+            ),
+            "c5": ConstraintFeatures(
+                category="type-b",
+                user_features=[1.0, 5.0, 0.0],
+                lazy=False,
+            ),
         },
     )
 

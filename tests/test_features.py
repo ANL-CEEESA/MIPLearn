@@ -4,7 +4,7 @@
 
 from miplearn import GurobiSolver
 from miplearn.features import FeaturesExtractor
-from miplearn.types import VariableFeatures, InstanceFeatures
+from miplearn.types import VariableFeatures, InstanceFeatures, ConstraintFeatures
 from tests.fixtures.knapsack import get_knapsack_instance
 
 
@@ -36,19 +36,19 @@ def test_knapsack() -> None:
             }
         }
         assert instance.features.constraints == {
-            "eq_capacity": {
-                "LHS": {
+            "eq_capacity": ConstraintFeatures(
+                lhs={
                     "x[0]": 23.0,
                     "x[1]": 26.0,
                     "x[2]": 20.0,
                     "x[3]": 18.0,
                 },
-                "Sense": "<",
-                "RHS": 67.0,
-                "Lazy": False,
-                "Category": "eq_capacity",
-                "User features": [0.0],
-            }
+                sense="<",
+                rhs=67.0,
+                lazy=False,
+                category="eq_capacity",
+                user_features=[0.0],
+            )
         }
         assert instance.features.instance == InstanceFeatures(
             user_features=[67.0, 21.75],

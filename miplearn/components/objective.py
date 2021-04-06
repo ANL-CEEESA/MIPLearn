@@ -78,6 +78,7 @@ class ObjectiveValueComponent(Component):
         sample: TrainingSample,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
         assert features.instance is not None
+        assert features.instance.user_features is not None
         x: Dict[Hashable, List[List[float]]] = {}
         y: Dict[Hashable, List[List[float]]] = {}
         f = list(features.instance.user_features)

@@ -2,9 +2,9 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-import numbers
 import collections
-from typing import TYPE_CHECKING, Dict, Hashable
+import numbers
+from typing import TYPE_CHECKING, Dict
 
 from miplearn.types import (
     Features,
@@ -87,17 +87,15 @@ class FeaturesExtractor:
                     f"Constraint features must be a list of floats. "
                     f"Found {type(user_features[0]).__name__} instead for cid={cid}."
                 )
-            constraints[cid] = {
-                "RHS": self.solver.get_constraint_rhs(cid),
-                "LHS": self.solver.get_constraint_lhs(cid),
-                "Sense": self.solver.get_constraint_sense(cid),
-                "Category": category,
-                "User features": user_features,
-            }
+            constraints[cid] = ConstraintFeatures(
+                rhs=self.solver.get_constraint_rhs(cid),
+                lhs=self.solver.get_constraint_lhs(cid),
+                sense=self.solver.get_constraint_sense(cid),
+                category=category,
+                user_features=user_features,
+            )
             if has_static_lazy:
-                constraints[cid]["Lazy"] = instance.is_constraint_lazy(cid)
-            else:
-                constraints[cid]["Lazy"] = False
+                constraints[cid].lazy = instance.is_constraint_lazy(cid)
         return constraints
 
     @staticmethod
@@ -118,7 +116,7 @@ class FeaturesExtractor:
             )
         lazy_count = 0
         for (cid, cdict) in features.constraints.items():
-            if cdict["Lazy"]:
+            if cdict.lazy:
                 lazy_count += 1
         return InstanceFeatures(
             user_features=user_features,
