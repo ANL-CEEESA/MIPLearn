@@ -9,7 +9,7 @@ from numpy.testing import assert_array_equal
 
 from miplearn import GurobiPyomoSolver, LearningSolver, Regressor
 from miplearn.components.objective import ObjectiveValueComponent
-from miplearn.types import TrainingSample, Features, InstanceFeatures
+from miplearn.features import TrainingSample, InstanceFeatures, Features
 from tests.fixtures.knapsack import get_knapsack_instance
 
 import numpy as np

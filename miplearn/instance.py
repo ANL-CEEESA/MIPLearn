@@ -9,7 +9,8 @@ import pickle
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional, Hashable, IO, cast
 
-from miplearn.types import TrainingSample, VarIndex, Features
+from miplearn.types import VarIndex
+from miplearn.features import TrainingSample, Features
 
 logger = logging.getLogger(__name__)
 

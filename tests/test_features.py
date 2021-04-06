@@ -3,8 +3,12 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from miplearn import GurobiSolver
-from miplearn.features import FeaturesExtractor
-from miplearn.types import VariableFeatures, InstanceFeatures, ConstraintFeatures
+from miplearn.features import (
+    FeaturesExtractor,
+    InstanceFeatures,
+    VariableFeatures,
+    ConstraintFeatures,
+)
 from tests.fixtures.knapsack import get_knapsack_instance
 
 

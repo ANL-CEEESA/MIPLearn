@@ -22,11 +22,10 @@ from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
 from miplearn.instance import Instance
 from miplearn.types import (
-    TrainingSample,
     Solution,
     LearningSolveStats,
-    Features,
 )
+from miplearn.features import TrainingSample, Features
 
 logger = logging.getLogger(__name__)
 

@@ -13,7 +13,7 @@ from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.problems.tsp import TravelingSalesmanGenerator
-from miplearn.types import TrainingSample, Features, VariableFeatures
+from miplearn.features import TrainingSample, VariableFeatures, Features
 
 
 def test_xy() -> None:

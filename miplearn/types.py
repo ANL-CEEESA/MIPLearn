@@ -2,28 +2,13 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Optional, Dict, Callable, Any, Union, Tuple, List, Set, Hashable
-from dataclasses import dataclass
+from typing import Optional, Dict, Callable, Any, Union, Tuple
 
 from mypy_extensions import TypedDict
 
 VarIndex = Union[str, int, Tuple[Union[str, int]]]
 
 Solution = Dict[str, Dict[VarIndex, Optional[float]]]
-
-
-@dataclass
-class TrainingSample:
-    lp_log: Optional[str] = None
-    lp_solution: Optional[Solution] = None
-    lp_value: Optional[float] = None
-    lazy_enforced: Optional[Set[str]] = None
-    lower_bound: Optional[float] = None
-    mip_log: Optional[str] = None
-    solution: Optional[Solution] = None
-    upper_bound: Optional[float] = None
-    slacks: Optional[Dict[str, float]] = None
-
 
 LPSolveStats = TypedDict(
     "LPSolveStats",
@@ -74,36 +59,6 @@ LearningSolveStats = TypedDict(
     },
     total=False,
 )
-
-
-@dataclass
-class InstanceFeatures:
-    user_features: Optional[List[float]] = None
-    lazy_constraint_count: int = 0
-
-
-@dataclass
-class VariableFeatures:
-    category: Optional[Hashable] = None
-    user_features: Optional[List[float]] = None
-
-
-@dataclass
-class ConstraintFeatures:
-    rhs: Optional[float] = None
-    lhs: Optional[Dict[str, float]] = None
-    sense: Optional[str] = None
-    category: Optional[Hashable] = None
-    user_features: Optional[List[float]] = None
-    lazy: bool = False
-
-
-@dataclass
-class Features:
-    instance: Optional[InstanceFeatures] = None
-    variables: Optional[Dict[str, Dict[VarIndex, VariableFeatures]]] = None
-    constraints: Optional[Dict[str, ConstraintFeatures]] = None
-
 
 IterationCallback = Callable[[], bool]
 

@@ -13,12 +13,12 @@ from miplearn.components.cuts import UserCutsComponent
 from miplearn.components.lazy_dynamic import DynamicLazyConstraintsComponent
 from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
-from miplearn.features import FeaturesExtractor
+from miplearn.features import FeaturesExtractor, TrainingSample
 from miplearn.instance import Instance, PickleGzInstance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
-from miplearn.types import TrainingSample, LearningSolveStats
+from miplearn.types import LearningSolveStats
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,8 @@ from typing import Any, List, TYPE_CHECKING, Tuple, Dict, Hashable
 import numpy as np
 
 from miplearn.instance import Instance
-from miplearn.types import LearningSolveStats, TrainingSample, Features
+from miplearn.types import LearningSolveStats
+from miplearn.features import TrainingSample, Features
 
 if TYPE_CHECKING:
     from miplearn.solvers.learning import LearningSolver
@@ -49,7 +50,7 @@ class Component:
             their own statistics here. For example, PrimalSolutionComponent adds
             statistics regarding the number of predicted variables. All statistics in
             this dictionary are exported to the benchmark CSV file.
-        features: Features
+        features: miplearn.features.Features
             Features describing the model.
         training_data: TrainingSample
             A dictionary containing data that may be useful for training machine

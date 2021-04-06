@@ -13,11 +13,13 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold, MinProbabilityThreshold
 from miplearn.components.lazy_static import StaticLazyConstraintsComponent
 from miplearn.types import (
-    TrainingSample,
-    Features,
     LearningSolveStats,
+)
+from miplearn.features import (
+    TrainingSample,
     InstanceFeatures,
     ConstraintFeatures,
+    Features,
 )
 
 

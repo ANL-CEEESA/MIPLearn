@@ -11,7 +11,8 @@ from miplearn import Classifier
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold, Threshold
 from miplearn.components.component import Component
-from miplearn.types import TrainingSample, Features, LearningSolveStats
+from miplearn.types import LearningSolveStats
+from miplearn.features import TrainingSample, Features
 
 logger = logging.getLogger(__name__)
 
