@@ -171,8 +171,8 @@ class StaticLazyConstraintsComponent(Component):
                     enforced_cids += [category_to_cids[category][i]]
         return enforced_cids
 
-    @staticmethod
     def sample_xy(
+        self,
         instance: "Instance",
         sample: TrainingSample,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:

@@ -68,7 +68,7 @@ def test_sample_xy(
         "Lower bound": [[1.0]],
         "Upper bound": [[2.0]],
     }
-    xy = ObjectiveValueComponent.sample_xy(instance, sample)
+    xy = ObjectiveValueComponent().sample_xy(instance, sample)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected
@@ -87,7 +87,7 @@ def test_sample_xy_without_lp(
         "Lower bound": [[1.0]],
         "Upper bound": [[2.0]],
     }
-    xy = ObjectiveValueComponent.sample_xy(instance, sample_without_lp)
+    xy = ObjectiveValueComponent().sample_xy(instance, sample_without_lp)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected
@@ -103,7 +103,7 @@ def test_sample_xy_without_ub(
         "Upper bound": [[1.0, 2.0, 3.0]],
     }
     y_expected = {"Lower bound": [[1.0]]}
-    xy = ObjectiveValueComponent.sample_xy(instance, sample_without_ub)
+    xy = ObjectiveValueComponent().sample_xy(instance, sample_without_ub)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected
@@ -180,7 +180,7 @@ def test_sample_predict(
     instance: Instance,
     sample: TrainingSample,
 ) -> None:
-    x, y = ObjectiveValueComponent.sample_xy(instance, sample)
+    x, y = ObjectiveValueComponent().sample_xy(instance, sample)
     comp = ObjectiveValueComponent()
     comp.regressors["Lower bound"] = Mock(spec=Regressor)
     comp.regressors["Upper bound"] = Mock(spec=Regressor)
@@ -209,7 +209,7 @@ def test_sample_predict_without_ub(
     instance: Instance,
     sample_without_ub: TrainingSample,
 ) -> None:
-    x, y = ObjectiveValueComponent.sample_xy(instance, sample_without_ub)
+    x, y = ObjectiveValueComponent().sample_xy(instance, sample_without_ub)
     comp = ObjectiveValueComponent()
     comp.regressors["Lower bound"] = Mock(spec=Regressor)
     comp.regressors["Lower bound"].predict = Mock(  # type: ignore

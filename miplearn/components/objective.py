@@ -73,8 +73,8 @@ class ObjectiveValueComponent(Component):
                 logger.info(f"{c} regressor not fitted. Skipping.")
         return pred
 
-    @staticmethod
     def sample_xy(
+        self,
         instance: Instance,
         sample: TrainingSample,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
