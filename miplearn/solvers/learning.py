@@ -9,8 +9,8 @@ from typing import Optional, List, Any, cast, Callable, Dict
 from p_tqdm import p_map
 
 from miplearn.components.component import Component
-from miplearn.components.cuts import UserCutsComponent
-from miplearn.components.lazy_dynamic import DynamicLazyConstraintsComponent
+from miplearn.components.dynamic_lazy import DynamicLazyConstraintsComponent
+from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.features import FeaturesExtractor, TrainingSample

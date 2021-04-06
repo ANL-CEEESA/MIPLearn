@@ -2,13 +2,13 @@
 #  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from miplearn import GurobiSolver
 from miplearn.features import (
     FeaturesExtractor,
     InstanceFeatures,
     VariableFeatures,
     ConstraintFeatures,
 )
+from miplearn.solvers.gurobi import GurobiSolver
 from tests.fixtures.knapsack import get_knapsack_instance
 
 

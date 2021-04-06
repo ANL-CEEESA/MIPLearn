@@ -67,7 +67,6 @@ def test_subtour():
     solver = LearningSolver()
     solver.solve(instance)
     assert len(instance.training_data[0].lazy_enforced) > 0
-    assert hasattr(instance, "found_violated_user_cuts")
     x = instance.training_data[0].solution["x"]
     assert x[0, 1] == 1.0
     assert x[0, 4] == 1.0

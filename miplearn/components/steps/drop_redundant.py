@@ -12,7 +12,7 @@ from tqdm import tqdm
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
-from miplearn.components.lazy_static import LazyConstraint
+from miplearn.components.static_lazy import LazyConstraint
 
 logger = logging.getLogger(__name__)
 

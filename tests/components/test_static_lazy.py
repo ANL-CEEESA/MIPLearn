@@ -8,10 +8,12 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
 
-from miplearn import LearningSolver, InternalSolver, Instance
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold, MinProbabilityThreshold
-from miplearn.components.lazy_static import StaticLazyConstraintsComponent
+from miplearn.components.static_lazy import StaticLazyConstraintsComponent
+from miplearn.instance import Instance
+from miplearn.solvers.internal import InternalSolver
+from miplearn.solvers.learning import LearningSolver
 from miplearn.types import (
     LearningSolveStats,
 )

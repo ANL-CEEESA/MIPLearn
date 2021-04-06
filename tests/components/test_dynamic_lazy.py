@@ -8,16 +8,16 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
 
-from miplearn import Instance
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold
 from miplearn.components import classifier_evaluation_dict
-from miplearn.components.lazy_dynamic import DynamicLazyConstraintsComponent
+from miplearn.components.dynamic_lazy import DynamicLazyConstraintsComponent
 from miplearn.features import (
     TrainingSample,
     Features,
     InstanceFeatures,
 )
+from miplearn.instance import Instance
 
 E = 0.1
 
@@ -144,7 +144,7 @@ def test_fit(training_instances: List[Instance]) -> None:
 
 def test_sample_predict_evaluate(training_instances: List[Instance]) -> None:
     comp = DynamicLazyConstraintsComponent()
-    comp.known_cids = ["c1", "c2", "c3", "c4"]
+    comp.known_cids.extend(["c1", "c2", "c3", "c4"])
     comp.thresholds["type-a"] = MinProbabilityThreshold([0.5, 0.5])
     comp.thresholds["type-b"] = MinProbabilityThreshold([0.5, 0.5])
     comp.classifiers["type-a"] = Mock(spec=Classifier)

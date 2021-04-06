@@ -3,8 +3,8 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 import tempfile
 
-from miplearn import GurobiSolver
 from miplearn.instance import write_pickle_gz, PickleGzInstance
+from miplearn.solvers.gurobi import GurobiSolver
 from tests.fixtures.knapsack import get_knapsack_instance
 
 

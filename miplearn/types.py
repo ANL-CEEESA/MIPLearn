@@ -59,6 +59,8 @@ LearningSolveStats = TypedDict(
         "LazyStatic: Kept": int,
         "LazyStatic: Restored": int,
         "LazyStatic: Iterations": int,
+        "UserCuts: Added ahead-of-time": int,
+        "UserCuts: Added in callback": int,
     },
     total=False,
 )

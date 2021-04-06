@@ -5,8 +5,8 @@
 from numpy.linalg import norm
 from sklearn.svm import SVC
 
-from miplearn import AdaptiveClassifier, ScikitLearnClassifier
-from miplearn.classifiers.adaptive import CandidateClassifierSpecs
+from miplearn.classifiers.adaptive import CandidateClassifierSpecs, AdaptiveClassifier
+from miplearn.classifiers.sklearn import ScikitLearnClassifier
 from tests.classifiers import _build_circle_training_data
 
 

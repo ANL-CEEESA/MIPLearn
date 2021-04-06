@@ -3,7 +3,8 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 from unittest.mock import Mock
 
-from miplearn import Component, Instance
+from miplearn.components.component import Component
+from miplearn.instance import Instance
 
 
 def test_xy_instance():

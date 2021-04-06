@@ -14,9 +14,9 @@ from .classifiers.sklearn import (
 from .classifiers.adaptive import AdaptiveClassifier
 from .classifiers.threshold import MinPrecisionThreshold
 from .components.component import Component
-from .components.cuts import UserCutsComponent
-from .components.lazy_dynamic import DynamicLazyConstraintsComponent
-from .components.lazy_static import StaticLazyConstraintsComponent
+from .components.dynamic_lazy import DynamicLazyConstraintsComponent
+from .components.dynamic_user_cuts import UserCutsComponent
+from .components.static_lazy import StaticLazyConstraintsComponent
 from .components.objective import ObjectiveValueComponent
 from .components.primal import PrimalSolutionComponent
 from .components.steps.convert_tight import ConvertTightIneqsIntoEqsStep

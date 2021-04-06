@@ -1,34 +1,27 @@
-#  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
-#  Copyright (C) 2020, UChicago Argonne, LLC. All rights reserved.
-#  Released under the modified BSD license. See COPYING.md for more details.
-
-import logging
-from typing import Dict, List, TYPE_CHECKING, Hashable, Tuple
+from typing import Dict, Hashable, List, Tuple, TYPE_CHECKING
 
 import numpy as np
 
 from miplearn.classifiers import Classifier
-from miplearn.classifiers.counting import CountingClassifier
-from miplearn.classifiers.threshold import MinProbabilityThreshold, Threshold
+from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
 from miplearn.features import TrainingSample
-
-logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from miplearn.solvers.learning import Instance
 
 
-class DynamicLazyConstraintsComponent(Component):
+class DynamicConstraintsComponent(Component):
     """
-    A component that predicts which lazy constraints to enforce.
+    Base component used by both DynamicLazyConstraintsComponent and UserCutsComponent.
     """
 
     def __init__(
         self,
-        classifier: Classifier = CountingClassifier(),
-        threshold: Threshold = MinProbabilityThreshold([0, 0.05]),
+        attr: str,
+        classifier: Classifier,
+        threshold: Threshold,
     ):
         assert isinstance(classifier, Classifier)
         self.threshold_prototype: Threshold = threshold
@@ -36,39 +29,7 @@ class DynamicLazyConstraintsComponent(Component):
         self.classifiers: Dict[Hashable, Classifier] = {}
         self.thresholds: Dict[Hashable, Threshold] = {}
         self.known_cids: List[str] = []
-
-    @staticmethod
-    def enforce(cids, instance, model, solver):
-        for cid in cids:
-            cobj = instance.build_lazy_constraint(model, cid)
-            solver.internal_solver.add_constraint(cobj)
-
-    def before_solve_mip(
-        self,
-        solver,
-        instance,
-        model,
-        stats,
-        features,
-        training_data,
-    ):
-        training_data.lazy_enforced = set()
-        logger.info("Predicting violated lazy constraints...")
-        cids = self.sample_predict(instance, training_data)
-        logger.info("Enforcing %d lazy constraints..." % len(cids))
-        self.enforce(cids, instance, model, solver)
-
-    def iteration_cb(self, solver, instance, model):
-        logger.debug("Finding violated lazy constraints...")
-        cids = instance.find_violated_lazy_constraints(model)
-        if len(cids) == 0:
-            logger.debug("No violations found")
-            return False
-        else:
-            instance.training_data[-1].lazy_enforced |= set(cids)
-            logger.debug("    %d violations found" % len(cids))
-            self.enforce(cids, instance, model, solver)
-            return True
+        self.attr = attr
 
     def sample_xy_with_cids(
         self,
@@ -101,8 +62,8 @@ class DynamicLazyConstraintsComponent(Component):
             f += cfeatures
             x[category] += [f]
             cids[category] += [cid]
-            if sample.lazy_enforced is not None:
-                if cid in sample.lazy_enforced:
+            if getattr(sample, self.attr) is not None:
+                if cid in getattr(sample, self.attr):
                     y[category] += [[False, True]]
                 else:
                     y[category] += [[True, False]]
@@ -137,13 +98,14 @@ class DynamicLazyConstraintsComponent(Component):
         return pred
 
     def fit(self, training_instances: List["Instance"]) -> None:
-        self.known_cids.clear()
+        collected_cids = set()
         for instance in training_instances:
             for sample in instance.training_data:
-                if sample.lazy_enforced is None:
+                if getattr(sample, self.attr) is None:
                     continue
-                self.known_cids += list(sample.lazy_enforced)
-        self.known_cids = sorted(set(self.known_cids))
+                collected_cids |= getattr(sample, self.attr)
+        self.known_cids.clear()
+        self.known_cids.extend(sorted(collected_cids))
         super().fit(training_instances)
 
     def fit_xy(
@@ -164,7 +126,7 @@ class DynamicLazyConstraintsComponent(Component):
         instance: "Instance",
         sample: TrainingSample,
     ) -> Dict[Hashable, Dict[str, float]]:
-        assert sample.lazy_enforced is not None
+        assert getattr(sample, self.attr) is not None
         pred = set(self.sample_predict(instance, sample))
         tp: Dict[Hashable, int] = {}
         tn: Dict[Hashable, int] = {}
@@ -180,12 +142,12 @@ class DynamicLazyConstraintsComponent(Component):
                 fp[category] = 0
                 fn[category] = 0
             if cid in pred:
-                if cid in sample.lazy_enforced:
+                if cid in getattr(sample, self.attr):
                     tp[category] += 1
                 else:
                     fp[category] += 1
             else:
-                if cid in sample.lazy_enforced:
+                if cid in getattr(sample, self.attr):
                     fn[category] += 1
                 else:
                     tn[category] += 1

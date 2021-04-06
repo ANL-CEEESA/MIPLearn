@@ -7,15 +7,14 @@ from typing import Dict, Tuple, List, Hashable, Any, TYPE_CHECKING, Set
 
 import numpy as np
 
-from miplearn import Classifier
+from miplearn.classifiers import Classifier
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold, Threshold
 from miplearn.components.component import Component
-from miplearn.types import LearningSolveStats
 from miplearn.features import TrainingSample, Features
+from miplearn.types import LearningSolveStats
 
 logger = logging.getLogger(__name__)
-
 
 if TYPE_CHECKING:
     from miplearn.solvers.learning import LearningSolver, Instance

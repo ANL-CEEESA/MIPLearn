@@ -8,12 +8,14 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from scipy.stats import randint
 
-from miplearn import Classifier, LearningSolver, Instance
+from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.primal import PrimalSolutionComponent
+from miplearn.instance import Instance
 from miplearn.problems.tsp import TravelingSalesmanGenerator
 from miplearn.features import TrainingSample, VariableFeatures, Features
+from miplearn.solvers.learning import LearningSolver
 
 
 def test_xy() -> None:

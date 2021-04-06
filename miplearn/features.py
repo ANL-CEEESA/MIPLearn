@@ -10,7 +10,8 @@ from typing import TYPE_CHECKING, Dict, Optional, Set, List, Hashable
 from miplearn.types import VarIndex, Solution
 
 if TYPE_CHECKING:
-    from miplearn import InternalSolver, Instance
+    from miplearn.solvers.internal import InternalSolver
+    from miplearn.instance import Instance
 
 
 @dataclass
