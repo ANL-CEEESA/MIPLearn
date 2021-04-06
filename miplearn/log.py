@@ -5,8 +5,8 @@
 import logging
 import sys
 import time
-import warnings
 import traceback
+import warnings
 
 _formatwarning = warnings.formatwarning
 

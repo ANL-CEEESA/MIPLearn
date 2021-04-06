@@ -19,21 +19,17 @@ Options:
     --test-time-limit=<n>   Solver time limit during test in seconds [default: 900]
     --solver-threads=<n>    Number of threads the solver is allowed to use [default: 4]
 """
+import glob
 import importlib
 import logging
-import pathlib
-import pickle
-import sys
 import os
-import gzip
-import glob
+from pathlib import Path
 
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 from docopt import docopt
 from numpy import median
-from pathlib import Path
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 from miplearn import (
     LearningSolver,

@@ -6,8 +6,8 @@ import numpy as np
 from numpy.linalg import norm
 from sklearn.svm import SVC
 
-from miplearn.classifiers.sklearn import ScikitLearnClassifier
 from miplearn.classifiers.cv import CrossValidatedClassifier
+from miplearn.classifiers.sklearn import ScikitLearnClassifier
 from tests.classifiers import _build_circle_training_data
 
 E = 0.1

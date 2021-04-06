@@ -11,17 +11,17 @@ from numpy.testing import assert_array_equal
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold, MinProbabilityThreshold
 from miplearn.components.static_lazy import StaticLazyConstraintsComponent
-from miplearn.instance import Instance
-from miplearn.solvers.internal import InternalSolver
-from miplearn.solvers.learning import LearningSolver
-from miplearn.types import (
-    LearningSolveStats,
-)
 from miplearn.features import (
     TrainingSample,
     InstanceFeatures,
     ConstraintFeatures,
     Features,
+)
+from miplearn.instance import Instance
+from miplearn.solvers.internal import InternalSolver
+from miplearn.solvers.learning import LearningSolver
+from miplearn.types import (
+    LearningSolveStats,
 )
 
 

@@ -4,7 +4,7 @@
 
 import logging
 import os
-from typing import Dict, Union, List
+from typing import Dict, List
 
 import pandas as pd
 

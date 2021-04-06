@@ -7,6 +7,7 @@ from typing import Optional, Dict, Callable, Any, Union, Tuple, TYPE_CHECKING
 from mypy_extensions import TypedDict
 
 if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
     from miplearn.solvers.learning import InternalSolver
 
 VarIndex = Union[str, int, Tuple[Union[str, int]]]

@@ -7,18 +7,18 @@ from .classifiers import (
     Classifier,
     Regressor,
 )
+from .classifiers.adaptive import AdaptiveClassifier
 from .classifiers.sklearn import (
     ScikitLearnRegressor,
     ScikitLearnClassifier,
 )
-from .classifiers.adaptive import AdaptiveClassifier
 from .classifiers.threshold import MinPrecisionThreshold
 from .components.component import Component
 from .components.dynamic_lazy import DynamicLazyConstraintsComponent
 from .components.dynamic_user_cuts import UserCutsComponent
-from .components.static_lazy import StaticLazyConstraintsComponent
 from .components.objective import ObjectiveValueComponent
 from .components.primal import PrimalSolutionComponent
+from .components.static_lazy import StaticLazyConstraintsComponent
 from .components.steps.convert_tight import ConvertTightIneqsIntoEqsStep
 from .components.steps.drop_redundant import DropRedundantInequalitiesStep
 from .components.steps.relax_integrality import RelaxIntegralityStep

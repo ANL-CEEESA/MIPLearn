@@ -1,7 +1,6 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import Dict
 from unittest.mock import Mock
 
 import numpy as np
@@ -12,9 +11,9 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.primal import PrimalSolutionComponent
+from miplearn.features import TrainingSample, VariableFeatures, Features
 from miplearn.instance import Instance
 from miplearn.problems.tsp import TravelingSalesmanGenerator
-from miplearn.features import TrainingSample, VariableFeatures, Features
 from miplearn.solvers.learning import LearningSolver
 
 

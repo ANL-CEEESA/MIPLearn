@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Optional, Callable, List
+from typing import Optional, List
 
 import numpy as np
 from sklearn.dummy import DummyClassifier

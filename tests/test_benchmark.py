@@ -4,10 +4,10 @@
 
 import os.path
 
-from miplearn.benchmark import BenchmarkRunner
-from miplearn.problems.stab import MaxWeightStableSetGenerator
 from scipy.stats import randint
 
+from miplearn.benchmark import BenchmarkRunner
+from miplearn.problems.stab import MaxWeightStableSetGenerator
 from miplearn.solvers.learning import LearningSolver
 
 

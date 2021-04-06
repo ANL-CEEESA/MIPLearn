@@ -20,12 +20,12 @@ from miplearn.classifiers.adaptive import AdaptiveClassifier
 from miplearn.classifiers.threshold import MinPrecisionThreshold, Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
+from miplearn.features import TrainingSample, Features
 from miplearn.instance import Instance
 from miplearn.types import (
     Solution,
     LearningSolveStats,
 )
-from miplearn.features import TrainingSample, Features
 
 logger = logging.getLogger(__name__)
 

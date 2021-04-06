@@ -3,8 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from copy import deepcopy
-from typing import Dict, Callable, Optional
+from typing import Dict, Optional
 
 import numpy as np
 from sklearn.linear_model import LogisticRegression
@@ -14,8 +13,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from miplearn.classifiers import Classifier
-from miplearn.classifiers.sklearn import ScikitLearnClassifier
 from miplearn.classifiers.counting import CountingClassifier
+from miplearn.classifiers.sklearn import ScikitLearnClassifier
 
 logger = logging.getLogger(__name__)
 

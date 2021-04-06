@@ -3,10 +3,10 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-import dill
-import pickle
-import tempfile
 import os
+import tempfile
+
+import dill
 
 from miplearn.instance import PickleGzInstance, write_pickle_gz, read_pickle_gz
 from miplearn.solvers.gurobi import GurobiSolver

@@ -4,6 +4,7 @@
 from typing import Hashable, Dict
 from unittest.mock import Mock
 
+import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
 
@@ -14,8 +15,6 @@ from miplearn.instance import Instance
 from miplearn.solvers.learning import LearningSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
 from tests.fixtures.knapsack import get_knapsack_instance
-
-import numpy as np
 
 
 @pytest.fixture

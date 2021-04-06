@@ -9,11 +9,11 @@ import numpy as np
 from miplearn.classifiers import Classifier
 from miplearn.components.steps.drop_redundant import DropRedundantInequalitiesStep
 from miplearn.components.steps.relax_integrality import RelaxIntegralityStep
+from miplearn.features import TrainingSample, Features
 from miplearn.instance import Instance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.learning import LearningSolver
-from miplearn.features import TrainingSample, Features
 from tests.fixtures.infeasible import get_infeasible_instance
 from tests.fixtures.redundant import get_instance_with_redundancy
 
