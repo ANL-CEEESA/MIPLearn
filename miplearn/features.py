@@ -24,6 +24,7 @@ class TrainingSample:
     solution: Optional[Solution] = None
     upper_bound: Optional[float] = None
     slacks: Optional[Dict[str, float]] = None
+    user_cuts_enforced: Optional[Set[Hashable]] = None
 
 
 @dataclass

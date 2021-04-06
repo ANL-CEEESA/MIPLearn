@@ -16,6 +16,7 @@ from miplearn.types import (
     Solution,
     BranchPriorities,
     Constraint,
+    UserCutCallback,
 )
 
 logger = logging.getLogger(__name__)
@@ -51,6 +52,7 @@ class InternalSolver(ABC):
         tee: bool = False,
         iteration_cb: IterationCallback = None,
         lazy_cb: LazyCallback = None,
+        user_cut_cb: UserCutCallback = None,
     ) -> MIPSolveStats:
         """
         Solves the currently loaded instance. After this method finishes,
@@ -72,6 +74,9 @@ class InternalSolver(ABC):
                 - Querying if a constraint is satisfied
                 - Adding a new constraint to the problem
             Additional operations may be allowed by specific subclasses.
+        user_cut_cb: UserCutCallback
+            This function is called whenever the solver found a new integer-infeasible
+            solution and needs to generate cutting planes to cut it off.
         tee: bool
             If true, prints the solver log to the screen.
         """
@@ -146,7 +151,7 @@ class InternalSolver(ABC):
         `get_solution`. Missing values indicate variables whose priorities
         should not be modified.
         """
-        raise Exception("Not implemented")
+        raise NotImplementedError()
 
     @abstractmethod
     def get_constraint_ids(self) -> List[str]:
@@ -179,6 +184,13 @@ class InternalSolver(ABC):
         Adds a single constraint to the model.
         """
         pass
+
+    def add_cut(self, cobj: Any) -> None:
+        """
+        Adds a cutting plane to the model. This function can only be called from a user
+        cut callback.
+        """
+        raise NotImplementedError()
 
     @abstractmethod
     def extract_constraint(self, cid: str) -> Constraint:

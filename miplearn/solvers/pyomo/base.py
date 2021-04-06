@@ -23,7 +23,7 @@ from miplearn.solvers.internal import (
     LazyCallback,
     MIPSolveStats,
 )
-from miplearn.types import VarIndex, SolverParams, Solution
+from miplearn.types import VarIndex, SolverParams, Solution, UserCutCallback
 
 logger = logging.getLogger(__name__)
 
@@ -81,9 +81,12 @@ class BasePyomoSolver(InternalSolver):
         tee: bool = False,
         iteration_cb: IterationCallback = None,
         lazy_cb: LazyCallback = None,
+        user_cut_cb: UserCutCallback = None,
     ) -> MIPSolveStats:
         if lazy_cb is not None:
-            raise Exception("lazy callback not supported")
+            raise Exception("lazy callback not currently supported")
+        if user_cut_cb is not None:
+            raise Exception("user cut callback not currently supported")
         total_wallclock_time = 0
         streams: List[Any] = [StringIO()]
         if tee:
@@ -318,19 +321,19 @@ class BasePyomoSolver(InternalSolver):
         return {}
 
     def set_constraint_sense(self, cid: str, sense: str) -> None:
-        raise Exception("Not implemented")
+        raise NotImplementedError()
 
     def extract_constraint(self, cid: str) -> Constraint:
-        raise Exception("Not implemented")
+        raise NotImplementedError()
 
     def is_constraint_satisfied(self, cobj: Constraint, tol: float = 1e-6) -> bool:
-        raise Exception("Not implemented")
+        raise NotImplementedError()
 
     def is_infeasible(self) -> bool:
         return self._termination_condition == TerminationCondition.infeasible
 
     def get_dual(self, cid):
-        raise Exception("Not implemented")
+        raise NotImplementedError()
 
     def get_sense(self) -> str:
         return self._obj_sense

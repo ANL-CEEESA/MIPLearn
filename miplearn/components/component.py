@@ -198,6 +198,14 @@ class Component:
     ) -> None:
         return
 
+    def user_cut_cb(
+        self,
+        solver: "LearningSolver",
+        instance: Instance,
+        model: Any,
+    ) -> None:
+        return
+
     def evaluate(self, instances: List[Instance]) -> List:
         ev = []
         for instance in instances:

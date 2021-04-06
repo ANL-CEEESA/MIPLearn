@@ -185,9 +185,3 @@ class TravelingSalesmanInstance(Instance):
             or (e[0] not in component and e[1] in component)
         ]
         return model.eq_subtour.add(sum(model.x[e] for e in cut_edges) >= 2)
-
-    def find_violated_user_cuts(self, model):
-        return self.find_violated_lazy_constraints(model)
-
-    def build_user_cut(self, model, violation):
-        return self.build_lazy_constraint(model, violation)

@@ -170,11 +170,14 @@ class Instance(ABC):
         """
         pass
 
-    def find_violated_user_cuts(self, model):
+    def has_user_cuts(self) -> bool:
+        return False
+
+    def find_violated_user_cuts(self, model: Any) -> List[Hashable]:
         return []
 
-    def build_user_cut(self, model, violation):
-        pass
+    def build_user_cut(self, model: Any, violation: Hashable) -> Any:
+        return None
 
     def flush(self) -> None:
         """
