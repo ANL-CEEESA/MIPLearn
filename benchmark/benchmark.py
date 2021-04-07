@@ -14,7 +14,7 @@ Usage:
 Options:
     -h --help               Show this screen
     --train-jobs=<n>        Number of instances to solve in parallel during training [default: 10]
-    --train-time-limit=<n>  Solver time limit during training in seconds [default: 3600]
+    --train-time-limit=<n>  Solver time limit during training in seconds [default: 900]
     --test-jobs=<n>         Number of instances to solve in parallel during test [default: 5]
     --test-time-limit=<n>   Solver time limit during test in seconds [default: 900]
     --solver-threads=<n>    Number of threads the solver is allowed to use [default: 4]
