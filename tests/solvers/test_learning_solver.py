@@ -30,16 +30,16 @@ def test_learning_solver():
             assert hasattr(instance, "features")
 
             sample = instance.training_data[0]
-            assert sample.solution["x"][0] == 1.0
-            assert sample.solution["x"][1] == 0.0
-            assert sample.solution["x"][2] == 1.0
-            assert sample.solution["x"][3] == 1.0
+            assert sample.solution["x[0]"] == 1.0
+            assert sample.solution["x[1]"] == 0.0
+            assert sample.solution["x[2]"] == 1.0
+            assert sample.solution["x[3]"] == 1.0
             assert sample.lower_bound == 1183.0
             assert sample.upper_bound == 1183.0
-            assert round(sample.lp_solution["x"][0], 3) == 1.000
-            assert round(sample.lp_solution["x"][1], 3) == 0.923
-            assert round(sample.lp_solution["x"][2], 3) == 1.000
-            assert round(sample.lp_solution["x"][3], 3) == 0.000
+            assert round(sample.lp_solution["x[0]"], 3) == 1.000
+            assert round(sample.lp_solution["x[1]"], 3) == 0.923
+            assert round(sample.lp_solution["x[2]"], 3) == 1.000
+            assert round(sample.lp_solution["x[3]"], 3) == 0.000
             assert round(sample.lp_value, 3) == 1287.923
             assert len(sample.mip_log) > 100
 
@@ -72,7 +72,7 @@ def test_parallel_solve():
         assert len(results) == 10
         for instance in instances:
             data = instance.training_data[0]
-            assert len(data.solution["x"].keys()) == 4
+            assert len(data.solution.keys()) == 4
 
 
 def test_solve_fit_from_disk():

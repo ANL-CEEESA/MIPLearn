@@ -5,6 +5,7 @@
 import networkx as nx
 import numpy as np
 import pyomo.environ as pe
+from overrides import overrides
 from scipy.spatial.distance import pdist, squareform
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
@@ -133,15 +134,17 @@ class TravelingSalesmanInstance(Instance):
         assert distances.shape == (n_cities, n_cities)
         self.n_cities = n_cities
         self.distances = distances
-
-    def to_model(self):
-        model = pe.ConcreteModel()
-        model.edges = edges = [
+        self.edges = [
             (i, j) for i in range(self.n_cities) for j in range(i + 1, self.n_cities)
         ]
-        model.x = pe.Var(edges, domain=pe.Binary)
+        self.varname_to_index = {f"x[{e}]": e for e in self.edges}
+
+    @overrides
+    def to_model(self):
+        model = pe.ConcreteModel()
+        model.x = pe.Var(self.edges, domain=pe.Binary)
         model.obj = pe.Objective(
-            expr=sum(model.x[i, j] * self.distances[i, j] for (i, j) in edges),
+            expr=sum(model.x[i, j] * self.distances[i, j] for (i, j) in self.edges),
             sense=pe.minimize,
         )
         model.eq_degree = pe.ConstraintList()
@@ -157,17 +160,13 @@ class TravelingSalesmanInstance(Instance):
             )
         return model
 
-    def get_instance_features(self):
-        return [0.0]
+    @overrides
+    def get_variable_category(self, var_name):
+        return self.varname_to_index[var_name]
 
-    def get_variable_features(self, var_name, index):
-        return [0.0]
-
-    def get_variable_category(self, var_name, index):
-        return index
-
+    @overrides
     def find_violated_lazy_constraints(self, model):
-        selected_edges = [e for e in model.edges if model.x[e].value > 0.5]
+        selected_edges = [e for e in self.edges if model.x[e].value > 0.5]
         graph = nx.Graph()
         graph.add_edges_from(selected_edges)
         components = [frozenset(c) for c in list(nx.connected_components(graph))]
@@ -177,10 +176,11 @@ class TravelingSalesmanInstance(Instance):
                 violations += [c]
         return violations
 
+    @overrides
     def build_lazy_constraint(self, model, component):
         cut_edges = [
             e
-            for e in model.edges
+            for e in self.edges
             if (e[0] in component and e[1] not in component)
             or (e[0] not in component and e[1] in component)
         ]

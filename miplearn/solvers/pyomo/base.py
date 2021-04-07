@@ -9,6 +9,7 @@ from io import StringIO
 from typing import Any, List, Dict, Optional
 
 import pyomo
+from overrides import overrides
 from pyomo import environ as pe
 from pyomo.core import Var, Constraint
 from pyomo.opt import TerminationCondition
@@ -23,7 +24,12 @@ from miplearn.solvers.internal import (
     LazyCallback,
     MIPSolveStats,
 )
-from miplearn.types import VarIndex, SolverParams, Solution, UserCutCallback
+from miplearn.types import (
+    SolverParams,
+    UserCutCallback,
+    Solution,
+    VariableName,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +58,7 @@ class BasePyomoSolver(InternalSolver):
         for (key, value) in params.items():
             self._pyomo_solver.options[key] = value
 
+    @overrides
     def solve_lp(
         self,
         tee: bool = False,
@@ -76,6 +83,7 @@ class BasePyomoSolver(InternalSolver):
             var.domain = pyomo.core.base.set_types.Binary
             self._pyomo_solver.update_var(var)
 
+    @overrides
     def solve(
         self,
         tee: bool = False,
@@ -123,36 +131,44 @@ class BasePyomoSolver(InternalSolver):
         }
         return stats
 
+    @overrides
     def get_solution(self) -> Optional[Solution]:
         assert self.model is not None
         if self.is_infeasible():
             return None
         solution: Solution = {}
         for var in self.model.component_objects(Var):
-            solution[str(var)] = {}
             for index in var:
                 if var[index].fixed:
                     continue
-                solution[str(var)][index] = var[index].value
+                solution[f"{var}[{index}]"] = var[index].value
         return solution
 
+    @overrides
+    def get_variable_names(self) -> List[VariableName]:
+        assert self.model is not None
+        variables: List[VariableName] = []
+        for var in self.model.component_objects(Var):
+            for index in var:
+                if var[index].fixed:
+                    continue
+                variables += [f"{var}[{index}]"]
+        return variables
+
+    @overrides
     def set_warm_start(self, solution: Solution) -> None:
         self._clear_warm_start()
-        count_total, count_fixed = 0, 0
-        for var_name in solution:
+        count_fixed = 0
+        for (var_name, value) in solution.items():
+            if value is None:
+                continue
             var = self._varname_to_var[var_name]
-            for index in solution[var_name]:
-                count_total += 1
-                var[index].value = solution[var_name][index]
-                if solution[var_name][index] is not None:
-                    count_fixed += 1
+            var.value = solution[var_name]
+            count_fixed += 1
         if count_fixed > 0:
             self._is_warm_start_available = True
-        logger.info(
-            "Setting start values for %d variables (out of %d)"
-            % (count_fixed, count_total)
-        )
 
+    @overrides
     def set_instance(
         self,
         instance: Instance,
@@ -167,25 +183,6 @@ class BasePyomoSolver(InternalSolver):
         self._update_obj()
         self._update_vars()
         self._update_constrs()
-
-    def get_value(self, var_name: str, index: VarIndex) -> Optional[float]:
-        if self.is_infeasible():
-            return None
-        else:
-            var = self._varname_to_var[var_name]
-            return var[index].value
-
-    def get_empty_solution(self) -> Solution:
-        assert self.model is not None
-        solution: Solution = {}
-        for var in self.model.component_objects(Var):
-            svar = str(var)
-            solution[svar] = {}
-            for index in var:
-                if var[index].fixed:
-                    continue
-                solution[svar][index] = None
-        return solution
 
     def _clear_warm_start(self) -> None:
         for var in self._all_vars:
@@ -204,8 +201,8 @@ class BasePyomoSolver(InternalSolver):
         self._bin_vars = []
         self._varname_to_var = {}
         for var in self.model.component_objects(Var):
-            self._varname_to_var[var.name] = var
             for idx in var:
+                self._varname_to_var[f"{var.name}[{idx}]"] = var[idx]
                 self._all_vars += [var[idx]]
                 if var[idx].domain == pyomo.core.base.set_types.Binary:
                     self._bin_vars += [var[idx]]
@@ -220,25 +217,16 @@ class BasePyomoSolver(InternalSolver):
             else:
                 self._cname_to_constr[constr.name] = constr
 
-    def fix(self, solution):
-        count_total, count_fixed = 0, 0
-        for varname in solution:
-            for index in solution[varname]:
-                var = self._varname_to_var[varname]
-                count_total += 1
-                if solution[varname][index] is None:
-                    continue
-                count_fixed += 1
-                var[index].fix(solution[varname][index])
-                self._pyomo_solver.update_var(var[index])
-        logger.info(
-            "Fixing values for %d variables (out of %d)"
-            % (
-                count_fixed,
-                count_total,
-            )
-        )
+    @overrides
+    def fix(self, solution: Solution) -> None:
+        for (varname, value) in solution.items():
+            if value is None:
+                continue
+            var = self._varname_to_var[varname]
+            var.fix(value)
+            self._pyomo_solver.update_var(var)
 
+    @overrides
     def add_constraint(self, constraint):
         self._pyomo_solver.add_constraint(constraint)
         self._update_constrs()
@@ -271,6 +259,7 @@ class BasePyomoSolver(InternalSolver):
             return None
         return int(value)
 
+    @overrides
     def get_constraint_ids(self):
         return list(self._cname_to_constr.keys())
 
@@ -280,6 +269,7 @@ class BasePyomoSolver(InternalSolver):
     def _get_node_count_regexp(self) -> Optional[str]:
         return None
 
+    @overrides
     def relax(self) -> None:
         for var in self._bin_vars:
             lb, ub = var.bounds
@@ -288,6 +278,7 @@ class BasePyomoSolver(InternalSolver):
             var.domain = pyomo.core.base.set_types.Reals
             self._pyomo_solver.update_var(var)
 
+    @overrides
     def get_inequality_slacks(self) -> Dict[str, float]:
         result: Dict[str, float] = {}
         for (cname, cobj) in self._cname_to_constr.items():
@@ -296,6 +287,7 @@ class BasePyomoSolver(InternalSolver):
             result[cname] = cobj.slack()
         return result
 
+    @overrides
     def get_constraint_sense(self, cid: str) -> str:
         cobj = self._cname_to_constr[cid]
         has_ub = cobj.has_ub()
@@ -310,6 +302,7 @@ class BasePyomoSolver(InternalSolver):
         else:
             return "="
 
+    @overrides
     def get_constraint_rhs(self, cid: str) -> float:
         cobj = self._cname_to_constr[cid]
         if cobj.has_ub:
@@ -317,23 +310,30 @@ class BasePyomoSolver(InternalSolver):
         else:
             return cobj.lower()
 
+    @overrides
     def get_constraint_lhs(self, cid: str) -> Dict[str, float]:
         return {}
 
+    @overrides
     def set_constraint_sense(self, cid: str, sense: str) -> None:
         raise NotImplementedError()
 
+    @overrides
     def extract_constraint(self, cid: str) -> Constraint:
         raise NotImplementedError()
 
+    @overrides
     def is_constraint_satisfied(self, cobj: Constraint, tol: float = 1e-6) -> bool:
         raise NotImplementedError()
 
+    @overrides
     def is_infeasible(self) -> bool:
         return self._termination_condition == TerminationCondition.infeasible
 
+    @overrides
     def get_dual(self, cid):
         raise NotImplementedError()
 
+    @overrides
     def get_sense(self) -> str:
         return self._obj_sense

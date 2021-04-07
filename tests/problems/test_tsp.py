@@ -39,13 +39,13 @@ def test_instance():
     instance = TravelingSalesmanInstance(n_cities, distances)
     solver = LearningSolver()
     stats = solver.solve(instance)
-    x = instance.training_data[0].solution["x"]
-    assert x[0, 1] == 1.0
-    assert x[0, 2] == 0.0
-    assert x[0, 3] == 1.0
-    assert x[1, 2] == 1.0
-    assert x[1, 3] == 0.0
-    assert x[2, 3] == 1.0
+    solution = instance.training_data[0].solution
+    assert solution["x[(0, 1)]"] == 1.0
+    assert solution["x[(0, 2)]"] == 0.0
+    assert solution["x[(0, 3)]"] == 1.0
+    assert solution["x[(1, 2)]"] == 1.0
+    assert solution["x[(1, 3)]"] == 0.0
+    assert solution["x[(2, 3)]"] == 1.0
     assert stats["Lower bound"] == 4.0
     assert stats["Upper bound"] == 4.0
 
@@ -67,12 +67,12 @@ def test_subtour():
     solver = LearningSolver()
     solver.solve(instance)
     assert len(instance.training_data[0].lazy_enforced) > 0
-    x = instance.training_data[0].solution["x"]
-    assert x[0, 1] == 1.0
-    assert x[0, 4] == 1.0
-    assert x[1, 2] == 1.0
-    assert x[2, 3] == 1.0
-    assert x[3, 5] == 1.0
-    assert x[4, 5] == 1.0
+    solution = instance.training_data[0].solution
+    assert solution["x[(0, 1)]"] == 1.0
+    assert solution["x[(0, 4)]"] == 1.0
+    assert solution["x[(1, 2)]"] == 1.0
+    assert solution["x[(2, 3)]"] == 1.0
+    assert solution["x[(3, 5)]"] == 1.0
+    assert solution["x[(4, 5)]"] == 1.0
     solver.fit([instance])
     solver.solve(instance)

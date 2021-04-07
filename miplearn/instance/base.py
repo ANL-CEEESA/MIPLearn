@@ -6,14 +6,16 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional, Hashable
 
+from overrides import EnforceOverrides
+
 from miplearn.features import TrainingSample, Features
-from miplearn.types import VarIndex
+from miplearn.types import VariableName, Category
 
 logger = logging.getLogger(__name__)
 
 
 # noinspection PyMethodMayBeStatic
-class Instance(ABC):
+class Instance(ABC, EnforceOverrides):
     """
     Abstract class holding all the data necessary to generate a concrete model of the
     proble.
@@ -60,9 +62,9 @@ class Instance(ABC):
         """
         return [0]
 
-    def get_variable_features(self, var_name: str, index: VarIndex) -> List[float]:
+    def get_variable_features(self, var_name: VariableName) -> List[float]:
         """
-        Returns a 1-dimensional array of (numerical) features describing a particular
+        Returns a (1-dimensional) list of numerical features describing a particular
         decision variable.
 
         In combination with instance features, variable features are used by
@@ -79,11 +81,7 @@ class Instance(ABC):
         """
         return [0]
 
-    def get_variable_category(
-        self,
-        var_name: str,
-        index: VarIndex,
-    ) -> Optional[Hashable]:
+    def get_variable_category(self, var_name: VariableName) -> Optional[Category]:
         """
         Returns the category for each decision variable.
 
@@ -91,6 +89,7 @@ class Instance(ABC):
         internal ML model to predict the values of both variables. If the returned
         category is None, ML models will ignore the variable.
 
+        A category can be any hashable type, such as strings, numbers or tuples.
         By default, returns "default".
         """
         return "default"

@@ -7,7 +7,7 @@ import numbers
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Dict, Optional, Set, List, Hashable
 
-from miplearn.types import VarIndex, Solution
+from miplearn.types import Solution, VariableName, Category
 
 if TYPE_CHECKING:
     from miplearn.solvers.internal import InternalSolver
@@ -53,7 +53,7 @@ class ConstraintFeatures:
 @dataclass
 class Features:
     instance: Optional[InstanceFeatures] = None
-    variables: Optional[Dict[str, Dict[VarIndex, VariableFeatures]]] = None
+    variables: Optional[Dict[str, VariableFeatures]] = None
     constraints: Optional[Dict[str, ConstraintFeatures]] = None
 
 
@@ -72,35 +72,32 @@ class FeaturesExtractor:
     def _extract_variables(
         self,
         instance: "Instance",
-    ) -> Dict[str, Dict[VarIndex, VariableFeatures]]:
-        result: Dict[str, Dict[VarIndex, VariableFeatures]] = {}
-        empty_solution = self.solver.get_empty_solution()
-        for (var_name, var_dict) in empty_solution.items():
-            result[var_name] = {}
-            for idx in var_dict.keys():
-                user_features = None
-                category = instance.get_variable_category(var_name, idx)
-                if category is not None:
-                    assert isinstance(category, collections.Hashable), (
-                        f"Variable category must be be hashable. "
-                        f"Found {type(category).__name__} instead for var={var_name}."
-                    )
-                    user_features = instance.get_variable_features(var_name, idx)
-                    assert isinstance(user_features, list), (
-                        f"Variable features must be a list. "
-                        f"Found {type(user_features).__name__} instead for "
-                        f"var={var_name}[{idx}]."
-                    )
-                    for v in user_features:
-                        assert isinstance(v, numbers.Real), (
-                            f"Variable features must be a list of numbers. "
-                            f"Found {type(v).__name__} instead "
-                            f"for var={var_name}[{idx}]."
-                        )
-                result[var_name][idx] = VariableFeatures(
-                    category=category,
-                    user_features=user_features,
+    ) -> Dict[VariableName, VariableFeatures]:
+        result: Dict[VariableName, VariableFeatures] = {}
+        for var_name in self.solver.get_variable_names():
+            user_features: Optional[List[float]] = None
+            category: Category = instance.get_variable_category(var_name)
+            if category is not None:
+                assert isinstance(category, collections.Hashable), (
+                    f"Variable category must be be hashable. "
+                    f"Found {type(category).__name__} instead for var={var_name}."
                 )
+                user_features = instance.get_variable_features(var_name)
+                assert isinstance(user_features, list), (
+                    f"Variable features must be a list. "
+                    f"Found {type(user_features).__name__} instead for "
+                    f"var={var_name}."
+                )
+                for v in user_features:
+                    assert isinstance(v, numbers.Real), (
+                        f"Variable features must be a list of numbers. "
+                        f"Found {type(v).__name__} instead "
+                        f"for var={var_name}."
+                    )
+            result[var_name] = VariableFeatures(
+                category=category,
+                user_features=user_features,
+            )
         return result
 
     def _extract_constraints(

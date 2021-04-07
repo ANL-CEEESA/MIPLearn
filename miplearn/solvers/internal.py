@@ -6,23 +6,25 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
+from overrides import EnforceOverrides
+
 from miplearn.instance.base import Instance
 from miplearn.types import (
     LPSolveStats,
     IterationCallback,
     LazyCallback,
     MIPSolveStats,
-    VarIndex,
-    Solution,
     BranchPriorities,
     Constraint,
     UserCutCallback,
+    Solution,
+    VariableName,
 )
 
 logger = logging.getLogger(__name__)
 
 
-class InternalSolver(ABC):
+class InternalSolver(ABC, EnforceOverrides):
     """
     Abstract class representing the MIP solver used internally by LearningSolver.
     """
@@ -90,9 +92,6 @@ class InternalSolver(ABC):
         If called after `solve`, returns the best primal solution found during
         the search. If called after `solve_lp`, returns the optimal solution
         to the LP relaxation. If no primal solution is available, return None.
-
-        The solution is a dictionary `sol`, where the optimal value of `var[idx]`
-        is given by `sol[var][idx]`.
         """
         pass
 
@@ -236,14 +235,6 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def get_value(self, var_name: str, index: VarIndex) -> Optional[float]:
-        """
-        Returns the value of a given variable in the current solution. If no
-        solution is available, returns None.
-        """
-        pass
-
-    @abstractmethod
     def relax(self) -> None:
         """
         Drops all integrality constraints from the model.
@@ -286,11 +277,10 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def get_empty_solution(self) -> Dict[str, Dict[VarIndex, Optional[float]]]:
+    def get_variable_names(self) -> List[VariableName]:
         """
-        Returns a dictionary with the same shape as the one produced by
-        `get_solution`, but with all values set to None. This method is
-        used by the ML components to query what variables are there in
-        the model before a solution is available.
+        Returns a list containing the names of all variables in the model. This
+        method is used by the ML components to query what variables are there in the
+        model before a solution is available.
         """
         pass

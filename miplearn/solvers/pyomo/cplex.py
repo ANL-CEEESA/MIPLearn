@@ -3,6 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 from typing import Optional
 
+from overrides import overrides
 from pyomo import environ as pe
 from scipy.stats import randint
 
@@ -36,8 +37,10 @@ class CplexPyomoSolver(BasePyomoSolver):
             params=params,
         )
 
+    @overrides
     def _get_warm_start_regexp(self):
         return "MIP start .* with objective ([0-9.e+-]*)\\."
 
+    @overrides
     def _get_node_count_regexp(self):
         return "^[ *] *([0-9]+)"

@@ -5,6 +5,7 @@
 import logging
 from typing import Optional
 
+from overrides import overrides
 from pyomo import environ as pe
 from scipy.stats import randint
 
@@ -38,22 +39,25 @@ class GurobiPyomoSolver(BasePyomoSolver):
             params=params,
         )
 
+    @overrides
     def _extract_node_count(self, log: str) -> int:
         return max(1, int(self._pyomo_solver._solver_model.getAttr("NodeCount")))
 
+    @overrides
     def _get_warm_start_regexp(self) -> str:
         return "MIP start with objective ([0-9.e+-]*)"
 
+    @overrides
     def _get_node_count_regexp(self) -> Optional[str]:
         return None
 
+    @overrides
     def set_branching_priorities(self, priorities: BranchPriorities) -> None:
         from gurobipy import GRB
 
-        for varname in priorities.keys():
+        for (varname, priority) in priorities.items():
+            if priority is None:
+                continue
             var = self._varname_to_var[varname]
-            for (index, priority) in priorities[varname].items():
-                if priority is None:
-                    continue
-                gvar = self._pyomo_solver._pyomo_var_to_solver_var_map[var[index]]
-                gvar.setAttr(GRB.Attr.BranchPriority, int(round(priority)))
+            gvar = self._pyomo_solver._pyomo_var_to_solver_var_map[var]
+            gvar.setAttr(GRB.Attr.BranchPriority, int(round(priority)))

@@ -1,14 +1,16 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List
+from typing import List, Dict
 
 import numpy as np
 import pyomo.environ as pe
+from overrides import overrides
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
 from miplearn.instance.base import Instance
+from miplearn.types import VariableName
 
 
 class ChallengeA:
@@ -67,7 +69,9 @@ class MultiKnapsackInstance(Instance):
         self.prices = prices
         self.capacities = capacities
         self.weights = weights
+        self.varname_to_index = {f"x[{i}]": i for i in range(self.n)}
 
+    @overrides
     def to_model(self):
         model = pe.ConcreteModel()
         model.x = pe.Var(range(self.n), domain=pe.Binary)
@@ -84,10 +88,13 @@ class MultiKnapsackInstance(Instance):
 
         return model
 
+    @overrides
     def get_instance_features(self):
         return [np.mean(self.prices)] + list(self.capacities)
 
-    def get_variable_features(self, var, index):
+    @overrides
+    def get_variable_features(self, var_name: VariableName) -> List[float]:
+        index = self.varname_to_index[var_name]
         return [self.prices[index]] + list(self.weights[:, index])
 
 
@@ -237,7 +244,11 @@ class KnapsackInstance(Instance):
         self.weights = weights
         self.prices = prices
         self.capacity = capacity
+        self.varname_to_item: Dict[VariableName, int] = {
+            f"x[{i}]": i for i in range(len(self.weights))
+        }
 
+    @overrides
     def to_model(self):
         model = pe.ConcreteModel()
         items = range(len(self.weights))
@@ -250,16 +261,19 @@ class KnapsackInstance(Instance):
         )
         return model
 
+    @overrides
     def get_instance_features(self):
         return [
             self.capacity,
             np.average(self.weights),
         ]
 
-    def get_variable_features(self, var, index):
+    @overrides
+    def get_variable_features(self, var_name):
+        item = self.varname_to_item[var_name]
         return [
-            self.weights[index],
-            self.prices[index],
+            self.weights[item],
+            self.prices[item],
         ]
 
 
@@ -277,6 +291,7 @@ class GurobiKnapsackInstance(KnapsackInstance):
     ) -> None:
         super().__init__(weights, prices, capacity)
 
+    @overrides
     def to_model(self):
         import gurobipy as gp
         from gurobipy import GRB

@@ -20,24 +20,22 @@ def test_knapsack() -> None:
         solver.set_instance(instance, model)
         FeaturesExtractor(solver).extract(instance)
         assert instance.features.variables == {
-            "x": {
-                0: VariableFeatures(
-                    category="default",
-                    user_features=[23.0, 505.0],
-                ),
-                1: VariableFeatures(
-                    category="default",
-                    user_features=[26.0, 352.0],
-                ),
-                2: VariableFeatures(
-                    category="default",
-                    user_features=[20.0, 458.0],
-                ),
-                3: VariableFeatures(
-                    category="default",
-                    user_features=[18.0, 220.0],
-                ),
-            }
+            "x[0]": VariableFeatures(
+                category="default",
+                user_features=[23.0, 505.0],
+            ),
+            "x[1]": VariableFeatures(
+                category="default",
+                user_features=[26.0, 352.0],
+            ),
+            "x[2]": VariableFeatures(
+                category="default",
+                user_features=[20.0, 458.0],
+            ),
+            "x[3]": VariableFeatures(
+                category="default",
+                user_features=[18.0, 220.0],
+            ),
         }
         assert instance.features.constraints == {
             "eq_capacity": ConstraintFeatures(

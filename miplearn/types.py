@@ -2,7 +2,7 @@
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Optional, Dict, Callable, Any, Union, Tuple, TYPE_CHECKING
+from typing import Optional, Dict, Callable, Any, Union, Tuple, TYPE_CHECKING, Hashable
 
 from mypy_extensions import TypedDict
 
@@ -10,9 +10,15 @@ if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from miplearn.solvers.learning import InternalSolver
 
-VarIndex = Union[str, int, Tuple[Union[str, int]]]
-
-Solution = Dict[str, Dict[VarIndex, Optional[float]]]
+BranchPriorities = Dict[str, Optional[float]]
+Category = Hashable
+Constraint = Any
+IterationCallback = Callable[[], bool]
+LazyCallback = Callable[[Any, Any], None]
+SolverParams = Dict[str, Any]
+UserCutCallback = Callable[["InternalSolver", Any], None]
+VariableName = str
+Solution = Dict[VariableName, Optional[float]]
 
 LPSolveStats = TypedDict(
     "LPSolveStats",
@@ -65,17 +71,3 @@ LearningSolveStats = TypedDict(
     },
     total=False,
 )
-
-IterationCallback = Callable[[], bool]
-
-LazyCallback = Callable[[Any, Any], None]
-
-UserCutCallback = Callable[["InternalSolver", Any], None]
-
-SolverParams = Dict[str, Any]
-
-BranchPriorities = Solution
-
-
-class Constraint:
-    pass

@@ -4,6 +4,7 @@
 
 from typing import Any
 
+from overrides import overrides
 from pyomo import environ as pe
 
 from miplearn.instance.base import Instance
@@ -13,6 +14,7 @@ from tests.solvers import _is_subclass_or_instance
 
 
 class InfeasiblePyomoInstance(Instance):
+    @overrides
     def to_model(self) -> pe.ConcreteModel:
         model = pe.ConcreteModel()
         model.x = pe.Var([0], domain=pe.Binary)
@@ -22,6 +24,7 @@ class InfeasiblePyomoInstance(Instance):
 
 
 class InfeasibleGurobiInstance(Instance):
+    @overrides
     def to_model(self) -> Any:
         import gurobipy as gp
         from gurobipy import GRB

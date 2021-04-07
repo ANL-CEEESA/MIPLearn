@@ -38,45 +38,18 @@ def test_internal_solver_warm_starts():
         model = instance.to_model()
         solver = solver_class()
         solver.set_instance(instance, model)
-        solver.set_warm_start(
-            {
-                "x": {
-                    0: 1.0,
-                    1: 0.0,
-                    2: 0.0,
-                    3: 1.0,
-                }
-            }
-        )
+        solver.set_warm_start({"x[0]": 1.0, "x[1]": 0.0, "x[2]": 0.0, "x[3]": 1.0})
         stats = solver.solve(tee=True)
         if stats["Warm start value"] is not None:
             assert stats["Warm start value"] == 725.0
         else:
             warn(f"{solver_class.__name__} should set warm start value")
 
-        solver.set_warm_start(
-            {
-                "x": {
-                    0: 1.0,
-                    1: 1.0,
-                    2: 1.0,
-                    3: 1.0,
-                }
-            }
-        )
+        solver.set_warm_start({"x[0]": 1.0, "x[1]": 1.0, "x[2]": 1.0, "x[3]": 1.0})
         stats = solver.solve(tee=True)
         assert stats["Warm start value"] is None
 
-        solver.fix(
-            {
-                "x": {
-                    0: 1.0,
-                    1: 0.0,
-                    2: 0.0,
-                    3: 1.0,
-                }
-            }
-        )
+        solver.fix({"x[0]": 1.0, "x[1]": 0.0, "x[2]": 0.0, "x[3]": 1.0})
         stats = solver.solve(tee=True)
         assert stats["Lower bound"] == 725.0
         assert stats["Upper bound"] == 725.0
@@ -91,16 +64,18 @@ def test_internal_solver():
         solver = solver_class()
         solver.set_instance(instance, model)
 
+        assert solver.get_variable_names() == ["x[0]", "x[1]", "x[2]", "x[3]"]
+
         stats = solver.solve_lp()
         assert not solver.is_infeasible()
         assert round(stats["LP value"], 3) == 1287.923
         assert len(stats["LP log"]) > 100
 
         solution = solver.get_solution()
-        assert round(solution["x"][0], 3) == 1.000
-        assert round(solution["x"][1], 3) == 0.923
-        assert round(solution["x"][2], 3) == 1.000
-        assert round(solution["x"][3], 3) == 0.000
+        assert round(solution["x[0]"], 3) == 1.000
+        assert round(solution["x[1]"], 3) == 0.923
+        assert round(solution["x[2]"], 3) == 1.000
+        assert round(solution["x[3]"], 3) == 0.000
 
         stats = solver.solve(tee=True)
         assert not solver.is_infeasible()
@@ -111,10 +86,10 @@ def test_internal_solver():
         assert isinstance(stats["Wallclock time"], float)
 
         solution = solver.get_solution()
-        assert solution["x"][0] == 1.0
-        assert solution["x"][1] == 0.0
-        assert solution["x"][2] == 1.0
-        assert solution["x"][3] == 1.0
+        assert solution["x[0]"] == 1.0
+        assert solution["x[1]"] == 0.0
+        assert solution["x[2]"] == 1.0
+        assert solution["x[3]"] == 1.0
 
         # Add a brand new constraint
         if isinstance(solver, BasePyomoSolver):
@@ -199,7 +174,6 @@ def test_infeasible_instance():
         stats = solver.solve_lp()
         assert solver.get_solution() is None
         assert stats["LP value"] is None
-        assert solver.get_value("x", 0) is None
 
 
 def test_iteration_cb():

@@ -5,6 +5,7 @@
 import networkx as nx
 import numpy as np
 import pyomo.environ as pe
+from overrides import overrides
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
@@ -104,32 +105,38 @@ class MaxWeightStableSetInstance(Instance):
         super().__init__()
         self.graph = graph
         self.weights = weights
+        self.nodes = list(self.graph.nodes)
+        self.varname_to_node = {f"x[{v}]": v for v in self.nodes}
 
+    @overrides
     def to_model(self):
-        nodes = list(self.graph.nodes)
         model = pe.ConcreteModel()
-        model.x = pe.Var(nodes, domain=pe.Binary)
+        model.x = pe.Var(self.nodes, domain=pe.Binary)
         model.OBJ = pe.Objective(
-            expr=sum(model.x[v] * self.weights[v] for v in nodes), sense=pe.maximize
+            expr=sum(model.x[v] * self.weights[v] for v in self.nodes),
+            sense=pe.maximize,
         )
         model.clique_eqs = pe.ConstraintList()
         for clique in nx.find_cliques(self.graph):
-            model.clique_eqs.add(sum(model.x[i] for i in clique) <= 1)
+            model.clique_eqs.add(sum(model.x[v] for v in clique) <= 1)
         return model
 
-    def get_variable_features(self, var, index):
+    @overrides
+    def get_variable_features(self, var_name):
+        v1 = self.varname_to_node[var_name]
         neighbor_weights = [0] * 15
         neighbor_degrees = [100] * 15
-        for n in self.graph.neighbors(index):
-            neighbor_weights += [self.weights[n] / self.weights[index]]
-            neighbor_degrees += [self.graph.degree(n) / self.graph.degree(index)]
+        for v2 in self.graph.neighbors(v1):
+            neighbor_weights += [self.weights[v2] / self.weights[v1]]
+            neighbor_degrees += [self.graph.degree(v2) / self.graph.degree(v1)]
         neighbor_weights.sort(reverse=True)
         neighbor_degrees.sort()
         features = []
         features += neighbor_weights[:5]
         features += neighbor_degrees[:5]
-        features += [self.graph.degree(index)]
+        features += [self.graph.degree(v1)]
         return features
 
-    def get_variable_category(self, var, index):
+    @overrides
+    def get_variable_category(self, var):
         return "default"
