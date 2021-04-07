@@ -13,6 +13,7 @@ from typing import (
 )
 
 import numpy as np
+from overrides import overrides
 
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.adaptive import AdaptiveClassifier
@@ -58,6 +59,7 @@ class PrimalSolutionComponent(Component):
         self.threshold_prototype = threshold
         self.classifier_prototype = classifier
 
+    @overrides
     def before_solve_mip(
         self,
         solver: "LearningSolver",
@@ -137,6 +139,7 @@ class PrimalSolutionComponent(Component):
 
         return solution
 
+    @overrides
     def sample_xy(
         self,
         instance: Instance,
@@ -172,6 +175,7 @@ class PrimalSolutionComponent(Component):
                 y[category] += [[opt_value < 0.5, opt_value >= 0.5]]
         return x, y
 
+    @overrides
     def sample_evaluate(
         self,
         instance: Instance,
@@ -212,6 +216,7 @@ class PrimalSolutionComponent(Component):
             ),
         }
 
+    @overrides
     def fit_xy(
         self,
         x: Dict[Hashable, np.ndarray],

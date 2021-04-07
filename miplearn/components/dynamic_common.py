@@ -5,6 +5,7 @@
 from typing import Dict, Hashable, List, Tuple, TYPE_CHECKING
 
 import numpy as np
+from overrides import overrides
 
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold
@@ -73,6 +74,7 @@ class DynamicConstraintsComponent(Component):
                     y[category] += [[True, False]]
         return x, y, cids
 
+    @overrides
     def sample_xy(
         self,
         instance: "Instance",
@@ -101,6 +103,7 @@ class DynamicConstraintsComponent(Component):
                     pred += [cids[category][i]]
         return pred
 
+    @overrides
     def fit(self, training_instances: List["Instance"]) -> None:
         collected_cids = set()
         for instance in training_instances:
@@ -114,6 +117,7 @@ class DynamicConstraintsComponent(Component):
         self.known_cids.extend(sorted(collected_cids))
         super().fit(training_instances)
 
+    @overrides
     def fit_xy(
         self,
         x: Dict[Hashable, np.ndarray],
@@ -127,6 +131,7 @@ class DynamicConstraintsComponent(Component):
             self.classifiers[category].fit(npx, npy)
             self.thresholds[category].fit(self.classifiers[category], npx, npy)
 
+    @overrides
     def sample_evaluate(
         self,
         instance: "Instance",

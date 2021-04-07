@@ -27,3 +27,6 @@ from .solvers.learning import LearningSolver
 from .solvers.pyomo.base import BasePyomoSolver
 from .solvers.pyomo.cplex import CplexPyomoSolver
 from .solvers.pyomo.gurobi import GurobiPyomoSolver
+
+# noinspection PyUnresolvedReferences
+from overrides import overrides

@@ -6,6 +6,7 @@ import logging
 from typing import Dict, List, TYPE_CHECKING, Hashable, Tuple, Any
 
 import numpy as np
+from overrides import overrides
 
 from miplearn.instance.base import Instance
 from miplearn.classifiers import Classifier
@@ -53,6 +54,7 @@ class DynamicLazyConstraintsComponent(Component):
             cobj = instance.build_lazy_constraint(model, cid)
             solver.internal_solver.add_constraint(cobj)
 
+    @overrides
     def before_solve_mip(
         self,
         solver: "LearningSolver",
@@ -68,6 +70,7 @@ class DynamicLazyConstraintsComponent(Component):
         logger.info("Enforcing %d lazy constraints..." % len(cids))
         self.enforce(cids, instance, model, solver)
 
+    @overrides
     def iteration_cb(
         self,
         solver: "LearningSolver",
@@ -89,6 +92,7 @@ class DynamicLazyConstraintsComponent(Component):
 
     # Delegate ML methods to self.dynamic
     # -------------------------------------------------------------------
+    @overrides
     def sample_xy(
         self,
         instance: "Instance",
@@ -103,9 +107,11 @@ class DynamicLazyConstraintsComponent(Component):
     ) -> List[Hashable]:
         return self.dynamic.sample_predict(instance, sample)
 
+    @overrides
     def fit(self, training_instances: List["Instance"]) -> None:
         self.dynamic.fit(training_instances)
 
+    @overrides
     def fit_xy(
         self,
         x: Dict[Hashable, np.ndarray],
@@ -113,6 +119,7 @@ class DynamicLazyConstraintsComponent(Component):
     ) -> None:
         self.dynamic.fit_xy(x, y)
 
+    @overrides
     def sample_evaluate(
         self,
         instance: "Instance",

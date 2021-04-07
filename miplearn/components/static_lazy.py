@@ -6,6 +6,7 @@ import logging
 from typing import Dict, Tuple, List, Hashable, Any, TYPE_CHECKING, Set
 
 import numpy as np
+from overrides import overrides
 
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.counting import CountingClassifier
@@ -49,6 +50,7 @@ class StaticLazyConstraintsComponent(Component):
         self.n_restored: int = 0
         self.n_iterations: int = 0
 
+    @overrides
     def before_solve_mip(
         self,
         solver: "LearningSolver",
@@ -84,6 +86,7 @@ class StaticLazyConstraintsComponent(Component):
         self.n_restored = 0
         self.n_iterations = 0
 
+    @overrides
     def after_solve_mip(
         self,
         solver: "LearningSolver",
@@ -97,6 +100,7 @@ class StaticLazyConstraintsComponent(Component):
         stats["LazyStatic: Restored"] = self.n_restored
         stats["LazyStatic: Iterations"] = self.n_iterations
 
+    @overrides
     def iteration_cb(
         self,
         solver: "LearningSolver",
@@ -108,6 +112,7 @@ class StaticLazyConstraintsComponent(Component):
         else:
             return self._check_and_add(solver)
 
+    @overrides
     def lazy_cb(
         self,
         solver: "LearningSolver",
@@ -170,6 +175,7 @@ class StaticLazyConstraintsComponent(Component):
                     enforced_cids += [category_to_cids[category][i]]
         return enforced_cids
 
+    @overrides
     def sample_xy(
         self,
         instance: "Instance",
@@ -195,6 +201,7 @@ class StaticLazyConstraintsComponent(Component):
                     y[category] += [[True, False]]
         return x, y
 
+    @overrides
     def fit_xy(
         self,
         x: Dict[Hashable, np.ndarray],
