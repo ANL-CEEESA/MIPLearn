@@ -104,10 +104,12 @@ class DynamicConstraintsComponent(Component):
     def fit(self, training_instances: List["Instance"]) -> None:
         collected_cids = set()
         for instance in training_instances:
+            instance.load()
             for sample in instance.training_data:
                 if getattr(sample, self.attr) is None:
                     continue
                 collected_cids |= getattr(sample, self.attr)
+            instance.free()
         self.known_cids.clear()
         self.known_cids.extend(sorted(collected_cids))
         super().fit(training_instances)

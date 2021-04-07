@@ -127,6 +127,7 @@ class LearningSolver:
 
         # Generate model
         # -------------------------------------------------------
+        instance.load()
         if model is None:
             with _RedirectOutput([]):
                 model = instance.to_model()

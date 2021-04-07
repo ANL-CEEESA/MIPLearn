@@ -13,4 +13,5 @@ def test_usage() -> None:
     file = tempfile.NamedTemporaryFile()
     write_pickle_gz(original, file.name)
     pickled = PickleGzInstance(file.name)
+    pickled.load()
     assert pickled.to_model() is not None

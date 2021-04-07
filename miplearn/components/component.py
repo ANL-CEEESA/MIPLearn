@@ -125,7 +125,7 @@ class Component:
         x_combined: Dict = {}
         y_combined: Dict = {}
         for instance in instances:
-            assert isinstance(instance, Instance)
+            instance.load()
             for sample in instance.training_data:
                 xy = self.sample_xy(instance, sample)
                 if xy is None:
@@ -137,6 +137,7 @@ class Component:
                         y_combined[cat] = []
                     x_combined[cat] += x_sample[cat]
                     y_combined[cat] += y_sample[cat]
+            instance.free()
         return x_combined, y_combined
 
     def fit(
@@ -209,8 +210,10 @@ class Component:
     def evaluate(self, instances: List[Instance]) -> List:
         ev = []
         for instance in instances:
+            instance.load()
             for sample in instance.training_data:
                 ev += [self.sample_evaluate(instance, sample)]
+            instance.free()
         return ev
 
     def sample_evaluate(

@@ -158,6 +158,12 @@ class Instance(ABC):
     def build_user_cut(self, model: Any, violation: Hashable) -> Any:
         return None
 
+    def load(self) -> None:
+        pass
+
+    def free(self) -> None:
+        pass
+
     def flush(self) -> None:
         """
         Save any pending changes made to the instance to the underlying data store.
