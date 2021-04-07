@@ -20,7 +20,7 @@
 
 ### Changed
 
-- **Variables are now referenced by their names,** instead of tuples `(var_name, index)`. This change was required to improve the compatibility with other modeling languages, which do not follow this convention. The functions `get_variable_category` and `get_variable_features` now have the following signature:
+- Variables are now referenced by their names, instead of tuples `(var_name, index)`. This change was required to improve the compatibility with other modeling languages, which do not follow this convention. The functions `get_variable_category` and `get_variable_features` now have the following signature:
   ````python
    def get_variable_features(self, var_name: str) -> List[float]:
       pass
@@ -28,9 +28,9 @@
    def get_variable_category(self, var_name: str) -> Optional[Hashable]:
       pass  
    ````
-- **Features are now represented as a list of floating point numbers,** as indicated in the snipped above. This change was required for performance reasons. Returning numpy arrays is no longer supported.
+- Features are now represented as a list of floating point numbers, as indicated in the snipped above. This change was required for performance reasons. Returning numpy arrays is no longer supported.
 
-- **Internal solvers must now be specified as objects, instead of strings.** For example,
+- Internal solvers must now be specified as objects, instead of strings. For example,
   ```python
   solver = LearningSolver(
       solver=GurobiPyomoSolver(
