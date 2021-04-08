@@ -13,6 +13,10 @@ from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
 from miplearn.features import TrainingSample
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 if TYPE_CHECKING:
     from miplearn.solvers.learning import Instance
 
@@ -89,6 +93,9 @@ class DynamicConstraintsComponent(Component):
         sample: TrainingSample,
     ) -> List[Hashable]:
         pred: List[Hashable] = []
+        if len(self.known_cids) == 0:
+            logger.info("Classifiers not fitted. Skipping.")
+            return pred
         x, _, cids = self.sample_xy_with_cids(instance, sample)
         for category in x.keys():
             assert category in self.classifiers

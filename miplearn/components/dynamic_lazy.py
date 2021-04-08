@@ -65,7 +65,7 @@ class DynamicLazyConstraintsComponent(Component):
         training_data: TrainingSample,
     ) -> None:
         training_data.lazy_enforced = set()
-        logger.info("Predicting violated lazy constraints...")
+        logger.info("Predicting violated (dynamic) lazy constraints...")
         cids = self.dynamic.sample_predict(instance, training_data)
         logger.info("Enforcing %d lazy constraints..." % len(cids))
         self.enforce(cids, instance, model, solver)

@@ -93,7 +93,8 @@ class UserCutsComponent(Component):
     ) -> None:
         training_data.user_cuts_enforced = set(self.enforced)
         stats["UserCuts: Added in callback"] = self.n_added_in_callback
-        logger.info(f"{self.n_added_in_callback} user cuts added in callback")
+        if self.n_added_in_callback > 0:
+            logger.info(f"{self.n_added_in_callback} user cuts added in callback")
 
     # Delegate ML methods to self.dynamic
     # -------------------------------------------------------------------

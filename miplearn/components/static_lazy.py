@@ -64,9 +64,9 @@ class StaticLazyConstraintsComponent(Component):
         assert features.instance is not None
         assert features.constraints is not None
 
-        if not features.instance.lazy_constraint_count == 0:
+        logger.info("Predicting violated (static) lazy constraints...")
+        if features.instance.lazy_constraint_count == 0:
             logger.info("Instance does not have static lazy constraints. Skipping.")
-        logger.info("Predicting required lazy constraints...")
         self.enforced_cids = set(self.sample_predict(instance, training_data))
         logger.info("Moving lazy constraints to the pool...")
         self.pool = {}

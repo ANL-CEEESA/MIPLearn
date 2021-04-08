@@ -155,6 +155,7 @@ class LearningSolver:
 
         # Extract features
         # -------------------------------------------------------
+        logger.info("Extracting features...")
         FeaturesExtractor(self.internal_solver).extract(instance)
 
         callback_args = (
