@@ -11,7 +11,7 @@ from miplearn.problems.stab import MaxWeightStableSetGenerator
 from miplearn.solvers.learning import LearningSolver
 
 
-def test_benchmark():
+def test_benchmark() -> None:
     for n_jobs in [1, 4]:
         # Generate training and test instances
         generator = MaxWeightStableSetGenerator(n=randint(low=25, high=26))

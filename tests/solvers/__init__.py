@@ -5,6 +5,7 @@
 from inspect import isclass
 from typing import List, Callable, Any
 
+from miplearn.instance.base import Instance
 from miplearn.problems.knapsack import KnapsackInstance, GurobiKnapsackInstance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.internal import InternalSolver
@@ -19,7 +20,7 @@ def _is_subclass_or_instance(obj: Any, parent_class: Any) -> bool:
     )
 
 
-def _get_knapsack_instance(solver):
+def _get_knapsack_instance(solver: Any) -> Instance:
     if _is_subclass_or_instance(solver, BasePyomoSolver):
         return KnapsackInstance(
             weights=[23.0, 26.0, 20.0, 18.0],

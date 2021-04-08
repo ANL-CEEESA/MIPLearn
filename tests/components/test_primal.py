@@ -1,6 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+from typing import cast
 from unittest.mock import Mock
 
 import numpy as np
@@ -179,9 +180,9 @@ def test_predict() -> None:
     }
 
 
-def test_fit_xy():
+def test_fit_xy() -> None:
     clf = Mock(spec=Classifier)
-    clf.clone = lambda: Mock(spec=Classifier)
+    clf.clone = lambda: Mock(spec=Classifier)  # type: ignore
     thr = Mock(spec=Threshold)
     thr.clone = lambda: Mock(spec=Threshold)
     comp = PrimalSolutionComponent(classifier=clf, threshold=thr)
@@ -197,17 +198,17 @@ def test_fit_xy():
     for category in ["type-a", "type-b"]:
         assert category in comp.classifiers
         assert category in comp.thresholds
-        clf = comp.classifiers[category]
+        clf = comp.classifiers[category]  # type: ignore
         clf.fit.assert_called_once()
         assert_array_equal(x[category], clf.fit.call_args[0][0])
         assert_array_equal(y[category], clf.fit.call_args[0][1])
-        thr = comp.thresholds[category]
+        thr = comp.thresholds[category]  # type: ignore
         thr.fit.assert_called_once()
         assert_array_equal(x[category], thr.fit.call_args[0][1])
         assert_array_equal(y[category], thr.fit.call_args[0][2])
 
 
-def test_usage():
+def test_usage() -> None:
     solver = LearningSolver(
         components=[
             PrimalSolutionComponent(),

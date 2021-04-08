@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Any, FrozenSet, Hashable
+from typing import Any, FrozenSet, Hashable, List
 
 import gurobipy as gp
 import networkx as nx
@@ -39,7 +39,7 @@ class GurobiStableSetProblem(Instance):
         return True
 
     @overrides
-    def find_violated_user_cuts(self, model):
+    def find_violated_user_cuts(self, model: Any) -> List[FrozenSet]:
         assert isinstance(model, gp.Model)
         vals = model.cbGetNodeRel(model.getVars())
         violations = []

@@ -1,6 +1,9 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+
+from typing import List, Any, Tuple
+
 from miplearn.instance.base import Instance
 from miplearn.problems.knapsack import KnapsackInstance, GurobiKnapsackInstance
 from miplearn.solvers.gurobi import GurobiSolver
@@ -10,7 +13,7 @@ from miplearn.solvers.pyomo.base import BasePyomoSolver
 from tests.solvers import _is_subclass_or_instance
 
 
-def get_test_pyomo_instances():
+def get_test_pyomo_instances() -> Tuple[List[Instance], List[Any]]:
     instances = [
         KnapsackInstance(
             weights=[23.0, 26.0, 20.0, 18.0],

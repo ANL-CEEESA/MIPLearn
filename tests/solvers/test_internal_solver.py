@@ -20,7 +20,7 @@ from ..fixtures.infeasible import get_infeasible_instance
 logger = logging.getLogger(__name__)
 
 
-def test_redirect_output():
+def test_redirect_output() -> None:
     import sys
 
     original_stdout = sys.stdout
@@ -31,7 +31,7 @@ def test_redirect_output():
     assert io.getvalue() == "Hello world\n"
 
 
-def test_internal_solver_warm_starts():
+def test_internal_solver_warm_starts() -> None:
     for solver in get_internal_solvers():
         logger.info("Solver: %s" % solver)
         instance = _get_knapsack_instance(solver)
@@ -54,7 +54,7 @@ def test_internal_solver_warm_starts():
         assert stats["Upper bound"] == 725.0
 
 
-def test_internal_solver():
+def test_internal_solver() -> None:
     for solver in get_internal_solvers():
         logger.info("Solver: %s" % solver)
 
@@ -64,26 +64,37 @@ def test_internal_solver():
 
         assert solver.get_variable_names() == ["x[0]", "x[1]", "x[2]", "x[3]"]
 
-        stats = solver.solve_lp()
+        lp_stats = solver.solve_lp()
         assert not solver.is_infeasible()
-        assert round(stats["LP value"], 3) == 1287.923
-        assert len(stats["LP log"]) > 100
+        assert lp_stats["LP value"] is not None
+        assert round(lp_stats["LP value"], 3) == 1287.923
+        assert len(lp_stats["LP log"]) > 100
 
         solution = solver.get_solution()
+        assert solution is not None
+        assert solution["x[0]"] is not None
+        assert solution["x[1]"] is not None
+        assert solution["x[2]"] is not None
+        assert solution["x[3]"] is not None
         assert round(solution["x[0]"], 3) == 1.000
         assert round(solution["x[1]"], 3) == 0.923
         assert round(solution["x[2]"], 3) == 1.000
         assert round(solution["x[3]"], 3) == 0.000
 
-        stats = solver.solve(tee=True)
+        mip_stats = solver.solve(tee=True)
         assert not solver.is_infeasible()
-        assert len(stats["MIP log"]) > 100
-        assert stats["Lower bound"] == 1183.0
-        assert stats["Upper bound"] == 1183.0
-        assert stats["Sense"] == "max"
-        assert isinstance(stats["Wallclock time"], float)
+        assert len(mip_stats["MIP log"]) > 100
+        assert mip_stats["Lower bound"] == 1183.0
+        assert mip_stats["Upper bound"] == 1183.0
+        assert mip_stats["Sense"] == "max"
+        assert isinstance(mip_stats["Wallclock time"], float)
 
         solution = solver.get_solution()
+        assert solution is not None
+        assert solution["x[0]"] is not None
+        assert solution["x[1]"] is not None
+        assert solution["x[2]"] is not None
+        assert solution["x[3]"] is not None
         assert solution["x[0]"] == 1.0
         assert solution["x[1]"] == 0.0
         assert solution["x[2]"] == 1.0
@@ -143,43 +154,45 @@ def test_internal_solver():
             solver.relax()
             solver.set_constraint_sense("cut", "=")
             stats = solver.solve()
+            assert stats["Lower bound"] is not None
             assert round(stats["Lower bound"]) == 1030.0
             assert round(solver.get_dual("eq_capacity")) == 0.0
 
 
-def test_relax():
+def test_relax() -> None:
     for solver in get_internal_solvers():
         instance = _get_knapsack_instance(solver)
         solver.set_instance(instance)
         solver.relax()
         stats = solver.solve()
+        assert stats["Lower bound"] is not None
         assert round(stats["Lower bound"]) == 1288.0
 
 
-def test_infeasible_instance():
+def test_infeasible_instance() -> None:
     for solver in get_internal_solvers():
         instance = get_infeasible_instance(solver)
         solver.set_instance(instance)
-        stats = solver.solve()
+        mip_stats = solver.solve()
 
         assert solver.is_infeasible()
         assert solver.get_solution() is None
-        assert stats["Upper bound"] is None
-        assert stats["Lower bound"] is None
+        assert mip_stats["Upper bound"] is None
+        assert mip_stats["Lower bound"] is None
 
-        stats = solver.solve_lp()
+        lp_stats = solver.solve_lp()
         assert solver.get_solution() is None
-        assert stats["LP value"] is None
+        assert lp_stats["LP value"] is None
 
 
-def test_iteration_cb():
+def test_iteration_cb() -> None:
     for solver in get_internal_solvers():
         logger.info("Solver: %s" % solver)
         instance = _get_knapsack_instance(solver)
         solver.set_instance(instance)
         count = 0
 
-        def custom_iteration_cb():
+        def custom_iteration_cb() -> bool:
             nonlocal count
             count += 1
             return count < 5

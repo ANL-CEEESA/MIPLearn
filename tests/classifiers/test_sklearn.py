@@ -10,7 +10,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from miplearn.classifiers.sklearn import ScikitLearnClassifier, ScikitLearnRegressor
 
 
-def test_constant_prediction():
+def test_constant_prediction() -> None:
     x_train = np.array([[0.0, 1.0], [1.0, 0.0]])
     y_train = np.array([[True, False], [True, False]])
     clf = ScikitLearnClassifier(KNeighborsClassifier(n_neighbors=1))
@@ -22,7 +22,7 @@ def test_constant_prediction():
     )
 
 
-def test_regressor():
+def test_regressor() -> None:
     x_train = np.array([[0.0, 1.0], [1.0, 4.0], [2.0, 2.0]])
     y_train = np.array([[1.0], [5.0], [4.0]])
     x_test = np.array([[4.0, 4.0], [0.0, 0.0]])

@@ -10,16 +10,16 @@ from miplearn.problems.stab import MaxWeightStableSetInstance
 from miplearn.solvers.learning import LearningSolver
 
 
-def test_stab():
+def test_stab() -> None:
     graph = nx.cycle_graph(5)
-    weights = [1.0, 1.0, 1.0, 1.0, 1.0]
+    weights = np.array([1.0, 1.0, 1.0, 1.0, 1.0])
     instance = MaxWeightStableSetInstance(graph, weights)
     solver = LearningSolver()
     stats = solver.solve(instance)
     assert stats["Lower bound"] == 2.0
 
 
-def test_stab_generator_fixed_graph():
+def test_stab_generator_fixed_graph() -> None:
     np.random.seed(42)
     from miplearn.problems.stab import MaxWeightStableSetGenerator
 
@@ -36,7 +36,7 @@ def test_stab_generator_fixed_graph():
     assert list(weights_avg_actual) == weights_avg_expected
 
 
-def test_stab_generator_random_graph():
+def test_stab_generator_random_graph() -> None:
     np.random.seed(42)
     from miplearn.problems.stab import MaxWeightStableSetGenerator
 

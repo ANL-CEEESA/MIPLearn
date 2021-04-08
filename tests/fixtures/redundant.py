@@ -34,8 +34,9 @@ class GurobiInstanceWithRedundancy(Instance):
         return model
 
 
-def get_instance_with_redundancy(solver):
+def get_instance_with_redundancy(solver: Any) -> Instance:
     if _is_subclass_or_instance(solver, BasePyomoSolver):
         return PyomoInstanceWithRedundancy()
     if _is_subclass_or_instance(solver, GurobiSolver):
         return GurobiInstanceWithRedundancy()
+    assert False

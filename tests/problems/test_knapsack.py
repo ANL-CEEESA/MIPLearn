@@ -8,7 +8,7 @@ from scipy.stats import uniform, randint
 from miplearn.problems.knapsack import MultiKnapsackGenerator
 
 
-def test_knapsack_generator():
+def test_knapsack_generator() -> None:
     gen = MultiKnapsackGenerator(
         n=randint(low=100, high=101),
         m=randint(low=30, high=31),
@@ -20,5 +20,5 @@ def test_knapsack_generator():
     instances = gen.generate(100)
     w_sum = sum(instance.weights for instance in instances) / len(instances)
     b_sum = sum(instance.capacities for instance in instances) / len(instances)
-    assert round(np.mean(w_sum), -1) == 500.0
-    assert round(np.mean(b_sum), -3) == 25000.0
+    assert round(float(np.mean(w_sum)), -1) == 500.0
+    assert round(float(np.mean(b_sum)), -3) == 25000.0

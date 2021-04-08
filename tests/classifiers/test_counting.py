@@ -10,7 +10,7 @@ from miplearn.classifiers.counting import CountingClassifier
 E = 0.1
 
 
-def test_counting():
+def test_counting() -> None:
     clf = CountingClassifier()
     n_features = 25
     x_train = np.zeros((8, n_features))

@@ -10,7 +10,7 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import MinPrecisionThreshold
 
 
-def test_threshold_dynamic():
+def test_threshold_dynamic() -> None:
     clf = Mock(spec=Classifier)
     clf.predict_proba = Mock(
         return_value=np.array(

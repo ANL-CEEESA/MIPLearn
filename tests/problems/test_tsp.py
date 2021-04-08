@@ -11,7 +11,7 @@ from miplearn.problems.tsp import TravelingSalesmanGenerator, TravelingSalesmanI
 from miplearn.solvers.learning import LearningSolver
 
 
-def test_generator():
+def test_generator() -> None:
     instances = TravelingSalesmanGenerator(
         x=uniform(loc=0.0, scale=1000.0),
         y=uniform(loc=0.0, scale=1000.0),
@@ -26,7 +26,7 @@ def test_generator():
     assert np.std(d) > 0
 
 
-def test_instance():
+def test_instance() -> None:
     n_cities = 4
     distances = np.array(
         [
@@ -40,6 +40,7 @@ def test_instance():
     solver = LearningSolver()
     stats = solver.solve(instance)
     solution = instance.training_data[0].solution
+    assert solution is not None
     assert solution["x[(0, 1)]"] == 1.0
     assert solution["x[(0, 2)]"] == 0.0
     assert solution["x[(0, 3)]"] == 1.0
@@ -50,7 +51,7 @@ def test_instance():
     assert stats["Upper bound"] == 4.0
 
 
-def test_subtour():
+def test_subtour() -> None:
     n_cities = 6
     cities = np.array(
         [
@@ -66,8 +67,10 @@ def test_subtour():
     instance = TravelingSalesmanInstance(n_cities, distances)
     solver = LearningSolver()
     solver.solve(instance)
+    assert instance.training_data[0].lazy_enforced is not None
     assert len(instance.training_data[0].lazy_enforced) > 0
     solution = instance.training_data[0].solution
+    assert solution is not None
     assert solution["x[(0, 1)]"] == 1.0
     assert solution["x[(0, 4)]"] == 1.0
     assert solution["x[(1, 2)]"] == 1.0

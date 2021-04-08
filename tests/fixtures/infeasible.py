@@ -36,8 +36,9 @@ class InfeasibleGurobiInstance(Instance):
         return model
 
 
-def get_infeasible_instance(solver):
+def get_infeasible_instance(solver: Any) -> Instance:
     if _is_subclass_or_instance(solver, BasePyomoSolver):
         return InfeasiblePyomoInstance()
     if _is_subclass_or_instance(solver, GurobiSolver):
         return InfeasibleGurobiInstance()
+    assert False

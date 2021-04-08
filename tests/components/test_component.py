@@ -1,14 +1,16 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+from typing import Dict, Tuple
 from unittest.mock import Mock
 
 from miplearn.components.component import Component
+from miplearn.features import Features, TrainingSample
 from miplearn.instance.base import Instance
 
 
-def test_xy_instance():
-    def _sample_xy(features, sample):
+def test_xy_instance() -> None:
+    def _sample_xy(features: Features, sample: str) -> Tuple[Dict, Dict]:
         x = {
             "s1": {
                 "category_a": [
@@ -58,7 +60,7 @@ def test_xy_instance():
     instance_2 = Mock(spec=Instance)
     instance_2.training_data = ["s3"]
     instance_2.features = {}
-    comp.sample_xy = _sample_xy
+    comp.sample_xy = _sample_xy  # type: ignore
     x_expected = {
         "category_a": [
             [1, 2, 3],
