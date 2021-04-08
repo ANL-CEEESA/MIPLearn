@@ -4,7 +4,7 @@
 
 import logging
 import traceback
-from typing import Optional, List, Any, cast, Callable, Dict
+from typing import Optional, List, Any, cast, Callable, Dict, Tuple
 
 from p_tqdm import p_map
 
@@ -37,10 +37,14 @@ class _GlobalVariables:
 _GLOBAL = [_GlobalVariables()]
 
 
-def _parallel_solve(idx):
+def _parallel_solve(
+    idx: int,
+) -> Tuple[Optional[LearningSolveStats], Optional[Instance]]:
     solver = _GLOBAL[0].solver
     instances = _GLOBAL[0].instances
     discard_outputs = _GLOBAL[0].discard_outputs
+    assert solver is not None
+    assert instances is not None
     try:
         stats = solver.solve(
             instances[idx],

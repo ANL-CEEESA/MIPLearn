@@ -4,13 +4,13 @@
 
 import logging
 import sys
-from typing import Any, List
+from typing import Any, List, TextIO, cast
 
 logger = logging.getLogger(__name__)
 
 
 class _RedirectOutput:
-    def __init__(self, streams: List[Any]):
+    def __init__(self, streams: List[Any]) -> None:
         self.streams = streams
 
     def write(self, data: Any) -> None:
@@ -21,13 +21,18 @@ class _RedirectOutput:
         for stream in self.streams:
             stream.flush()
 
-    def __enter__(self):
+    def __enter__(self) -> Any:
         self._original_stdout = sys.stdout
         self._original_stderr = sys.stderr
-        sys.stdout = self
-        sys.stderr = self
+        sys.stdout = cast(TextIO, self)
+        sys.stderr = cast(TextIO, self)
         return self
 
-    def __exit__(self, _type, _value, _traceback):
+    def __exit__(
+        self,
+        _type: Any,
+        _value: Any,
+        _traceback: Any,
+    ) -> None:
         sys.stdout = self._original_stdout
         sys.stderr = self._original_stderr

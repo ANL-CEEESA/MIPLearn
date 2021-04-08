@@ -37,11 +37,11 @@ class CplexPyomoSolver(BasePyomoSolver):
         )
 
     @overrides
-    def _get_warm_start_regexp(self):
+    def _get_warm_start_regexp(self) -> str:
         return "MIP start .* with objective ([0-9.e+-]*)\\."
 
     @overrides
-    def _get_node_count_regexp(self):
+    def _get_node_count_regexp(self) -> str:
         return "^[ *] *([0-9]+)"
 
     @overrides

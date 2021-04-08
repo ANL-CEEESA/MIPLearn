@@ -228,7 +228,7 @@ class BasePyomoSolver(InternalSolver):
             self._pyomo_solver.update_var(var)
 
     @overrides
-    def add_constraint(self, constraint):
+    def add_constraint(self, constraint: Any) -> Any:
         self._pyomo_solver.add_constraint(constraint)
         self._update_constrs()
 
@@ -261,7 +261,7 @@ class BasePyomoSolver(InternalSolver):
         return int(value)
 
     @overrides
-    def get_constraint_ids(self):
+    def get_constraint_ids(self) -> List[str]:
         return list(self._cname_to_constr.keys())
 
     def _get_warm_start_regexp(self) -> Optional[str]:
@@ -332,7 +332,7 @@ class BasePyomoSolver(InternalSolver):
         return self._termination_condition == TerminationCondition.infeasible
 
     @overrides
-    def get_dual(self, cid):
+    def get_dual(self, cid: str) -> float:
         raise NotImplementedError()
 
     @overrides
