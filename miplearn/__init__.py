@@ -13,6 +13,13 @@ from .components.dynamic_user_cuts import UserCutsComponent
 from .components.objective import ObjectiveValueComponent
 from .components.primal import PrimalSolutionComponent
 from .components.static_lazy import StaticLazyConstraintsComponent
+from .features import (
+    Features,
+    TrainingSample,
+    ConstraintFeatures,
+    VariableFeatures,
+    InstanceFeatures,
+)
 from .instance.base import Instance
 from .instance.picklegz import (
     PickleGzInstance,
@@ -27,6 +34,3 @@ from .solvers.learning import LearningSolver
 from .solvers.pyomo.base import BasePyomoSolver
 from .solvers.pyomo.cplex import CplexPyomoSolver
 from .solvers.pyomo.gurobi import GurobiPyomoSolver
-
-# noinspection PyUnresolvedReferences
-from overrides import overrides

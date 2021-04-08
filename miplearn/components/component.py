@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 # noinspection PyMethodMayBeStatic
-class Component(EnforceOverrides):
+class Component:
     """
     A Component is an object which adds functionality to a LearningSolver.
 

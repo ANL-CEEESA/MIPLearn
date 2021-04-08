@@ -28,8 +28,6 @@
    def get_variable_category(self, var_name: str) -> Optional[Hashable]:
       pass  
    ````
-- Features are now represented as a list of floating point numbers, as indicated in the snippet above. This change was required for performance reasons. Returning numpy arrays is no longer supported, and raises an error.
-
 - Internal solvers must now be specified as objects, instead of strings. For example,
   ```python
   solver = LearningSolver(

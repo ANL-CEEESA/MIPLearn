@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 # noinspection PyMethodMayBeStatic
-class Instance(ABC, EnforceOverrides):
+class Instance(ABC):
     """
     Abstract class holding all the data necessary to generate a concrete model of the
     proble.

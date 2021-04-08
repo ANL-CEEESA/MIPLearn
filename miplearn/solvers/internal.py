@@ -24,7 +24,7 @@ from miplearn.types import (
 logger = logging.getLogger(__name__)
 
 
-class InternalSolver(ABC, EnforceOverrides):
+class InternalSolver(ABC):
     """
     Abstract class representing the MIP solver used internally by LearningSolver.
     """
