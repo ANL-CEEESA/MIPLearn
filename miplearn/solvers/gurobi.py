@@ -149,9 +149,9 @@ class GurobiSolver(InternalSolver):
     def solve(
         self,
         tee: bool = False,
-        iteration_cb: IterationCallback = None,
-        lazy_cb: LazyCallback = None,
-        user_cut_cb: UserCutCallback = None,
+        iteration_cb: Optional[IterationCallback] = None,
+        lazy_cb: Optional[LazyCallback] = None,
+        user_cut_cb: Optional[UserCutCallback] = None,
     ) -> MIPSolveStats:
         self._raise_if_callback()
         assert self.model is not None

@@ -28,7 +28,7 @@ class GurobiPyomoSolver(BasePyomoSolver):
 
     def __init__(
         self,
-        params: SolverParams = None,
+        params: Optional[SolverParams] = None,
     ) -> None:
         if params is None:
             params = {}

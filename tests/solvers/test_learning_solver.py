@@ -38,6 +38,10 @@ def test_learning_solver() -> None:
             assert sample.lower_bound == 1183.0
             assert sample.upper_bound == 1183.0
             assert sample.lp_solution is not None
+            assert sample.lp_solution["x[0]"] is not None
+            assert sample.lp_solution["x[1]"] is not None
+            assert sample.lp_solution["x[2]"] is not None
+            assert sample.lp_solution["x[3]"] is not None
             assert round(sample.lp_solution["x[0]"], 3) == 1.000
             assert round(sample.lp_solution["x[1]"], 3) == 0.923
             assert round(sample.lp_solution["x[2]"], 3) == 1.000

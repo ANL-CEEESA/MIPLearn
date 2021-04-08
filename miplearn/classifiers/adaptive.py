@@ -58,7 +58,7 @@ class AdaptiveClassifier(Classifier):
 
     def __init__(
         self,
-        candidates: Dict[str, CandidateClassifierSpecs] = None,
+        candidates: Optional[Dict[str, CandidateClassifierSpecs]] = None,
     ) -> None:
         super().__init__()
         if candidates is None:

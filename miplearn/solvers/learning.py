@@ -93,9 +93,9 @@ class LearningSolver:
 
     def __init__(
         self,
-        components: List[Component] = None,
+        components: Optional[List[Component]] = None,
         mode: str = "exact",
-        solver: InternalSolver = None,
+        solver: Optional[InternalSolver] = None,
         use_lazy_cb: bool = False,
         solve_lp: bool = True,
         simulate_perfect: bool = False,

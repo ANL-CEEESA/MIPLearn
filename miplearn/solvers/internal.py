@@ -52,9 +52,9 @@ class InternalSolver(ABC, EnforceOverrides):
     def solve(
         self,
         tee: bool = False,
-        iteration_cb: IterationCallback = None,
-        lazy_cb: LazyCallback = None,
-        user_cut_cb: UserCutCallback = None,
+        iteration_cb: Optional[IterationCallback] = None,
+        lazy_cb: Optional[LazyCallback] = None,
+        user_cut_cb: Optional[UserCutCallback] = None,
     ) -> MIPSolveStats:
         """
         Solves the currently loaded instance. After this method finishes,

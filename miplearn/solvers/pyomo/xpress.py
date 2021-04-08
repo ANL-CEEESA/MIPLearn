@@ -3,6 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
+from typing import Optional
 
 from overrides import overrides
 from pyomo import environ as pe
@@ -25,7 +26,10 @@ class XpressPyomoSolver(BasePyomoSolver):
         {"Threads": 4} to set the number of threads.
     """
 
-    def __init__(self, params: SolverParams = None) -> None:
+    def __init__(
+        self,
+        params: Optional[SolverParams] = None,
+    ) -> None:
         if params is None:
             params = {}
         params["randomseed"] = randint(low=0, high=1000).rvs()
