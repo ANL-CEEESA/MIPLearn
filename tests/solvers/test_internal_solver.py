@@ -32,18 +32,17 @@ def test_redirect_output():
 
 
 def test_internal_solver_warm_starts():
-    for solver_class in get_internal_solvers():
-        logger.info("Solver: %s" % solver_class)
-        instance = _get_knapsack_instance(solver_class)
+    for solver in get_internal_solvers():
+        logger.info("Solver: %s" % solver)
+        instance = _get_knapsack_instance(solver)
         model = instance.to_model()
-        solver = solver_class()
         solver.set_instance(instance, model)
         solver.set_warm_start({"x[0]": 1.0, "x[1]": 0.0, "x[2]": 0.0, "x[3]": 1.0})
         stats = solver.solve(tee=True)
         if stats["Warm start value"] is not None:
             assert stats["Warm start value"] == 725.0
         else:
-            warn(f"{solver_class.__name__} should set warm start value")
+            warn(f"{solver.__class__.__name__} should set warm start value")
 
         solver.set_warm_start({"x[0]": 1.0, "x[1]": 1.0, "x[2]": 1.0, "x[3]": 1.0})
         stats = solver.solve(tee=True)
@@ -56,12 +55,11 @@ def test_internal_solver_warm_starts():
 
 
 def test_internal_solver():
-    for solver_class in get_internal_solvers():
-        logger.info("Solver: %s" % solver_class)
+    for solver in get_internal_solvers():
+        logger.info("Solver: %s" % solver)
 
-        instance = _get_knapsack_instance(solver_class)
+        instance = _get_knapsack_instance(solver)
         model = instance.to_model()
-        solver = solver_class()
         solver.set_instance(instance, model)
 
         assert solver.get_variable_names() == ["x[0]", "x[1]", "x[2]", "x[3]"]
@@ -150,9 +148,8 @@ def test_internal_solver():
 
 
 def test_relax():
-    for solver_class in get_internal_solvers():
-        instance = _get_knapsack_instance(solver_class)
-        solver = solver_class()
+    for solver in get_internal_solvers():
+        instance = _get_knapsack_instance(solver)
         solver.set_instance(instance)
         solver.relax()
         stats = solver.solve()
@@ -160,9 +157,8 @@ def test_relax():
 
 
 def test_infeasible_instance():
-    for solver_class in get_internal_solvers():
-        instance = get_infeasible_instance(solver_class)
-        solver = solver_class()
+    for solver in get_internal_solvers():
+        instance = get_infeasible_instance(solver)
         solver.set_instance(instance)
         stats = solver.solve()
 
@@ -177,10 +173,9 @@ def test_infeasible_instance():
 
 
 def test_iteration_cb():
-    for solver_class in get_internal_solvers():
-        logger.info("Solver: %s" % solver_class)
-        instance = _get_knapsack_instance(solver_class)
-        solver = solver_class()
+    for solver in get_internal_solvers():
+        logger.info("Solver: %s" % solver)
+        instance = _get_knapsack_instance(solver)
         solver.set_instance(instance)
         count = 0
 

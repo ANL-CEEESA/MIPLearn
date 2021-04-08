@@ -35,5 +35,9 @@ def _get_knapsack_instance(solver):
     assert False
 
 
-def get_internal_solvers() -> List[Callable[[], InternalSolver]]:
-    return [GurobiPyomoSolver, GurobiSolver, XpressPyomoSolver]
+def get_internal_solvers() -> List[InternalSolver]:
+    return [
+        GurobiPyomoSolver(),
+        GurobiSolver(),
+        XpressPyomoSolver(),
+    ]

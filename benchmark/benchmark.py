@@ -62,7 +62,7 @@ def train(args):
             PickleGzInstance(f) for f in glob.glob(f"{basepath}/train/*.gz")
         ]
         solver = LearningSolver(
-            solver=lambda: GurobiPyomoSolver(
+            solver=GurobiPyomoSolver(
                 params={
                     "TimeLimit": int(args["--train-time-limit"]),
                     "Threads": int(args["--solver-threads"]),
@@ -83,7 +83,7 @@ def test_baseline(args):
     if not os.path.isfile(csv_filename):
         solvers = {
             "baseline": LearningSolver(
-                solver=lambda: GurobiPyomoSolver(
+                solver=GurobiPyomoSolver(
                     params={
                         "TimeLimit": int(args["--test-time-limit"]),
                         "Threads": int(args["--solver-threads"]),
@@ -107,7 +107,7 @@ def test_ml(args):
     if not os.path.isfile(csv_filename):
         solvers = {
             "ml-exact": LearningSolver(
-                solver=lambda: GurobiPyomoSolver(
+                solver=GurobiPyomoSolver(
                     params={
                         "TimeLimit": int(args["--test-time-limit"]),
                         "Threads": int(args["--solver-threads"]),
@@ -115,7 +115,7 @@ def test_ml(args):
                 ),
             ),
             "ml-heuristic": LearningSolver(
-                solver=lambda: GurobiPyomoSolver(
+                solver=GurobiPyomoSolver(
                     params={
                         "TimeLimit": int(args["--test-time-limit"]),
                         "Threads": int(args["--solver-threads"]),

@@ -91,20 +91,20 @@ class LearningSolver:
         self,
         components: List[Component] = None,
         mode: str = "exact",
-        solver: Callable[[], InternalSolver] = None,
+        solver: InternalSolver = None,
         use_lazy_cb: bool = False,
         solve_lp: bool = True,
         simulate_perfect: bool = False,
-    ):
+    ) -> None:
         if solver is None:
-            solver = GurobiPyomoSolver
-        assert callable(solver), f"Callable expected. Found {solver.__class__} instead."
+            solver = GurobiPyomoSolver()
+        assert isinstance(solver, InternalSolver)
         self.components: Dict[str, Component] = {}
         self.internal_solver: Optional[InternalSolver] = None
+        self.internal_solver_prototype: InternalSolver = solver
         self.mode: str = mode
         self.simulate_perfect: bool = simulate_perfect
         self.solve_lp: bool = solve_lp
-        self.solver_factory: Callable[[], InternalSolver] = solver
         self.tee = False
         self.use_lazy_cb: bool = use_lazy_cb
         if components is not None:
@@ -144,7 +144,7 @@ class LearningSolver:
         # Initialize internal solver
         # -------------------------------------------------------
         self.tee = tee
-        self.internal_solver = self.solver_factory()
+        self.internal_solver = self.internal_solver_prototype.clone()
         assert self.internal_solver is not None
         assert isinstance(self.internal_solver, InternalSolver)
         self.internal_solver.set_instance(instance, model)

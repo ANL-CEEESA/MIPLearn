@@ -46,6 +46,7 @@ class BasePyomoSolver(InternalSolver):
     ) -> None:
         self.instance: Optional[Instance] = None
         self.model: Optional[pe.ConcreteModel] = None
+        self.params = params
         self._all_vars: List[pe.Var] = []
         self._bin_vars: List[pe.Var] = []
         self._is_warm_start_available: bool = False

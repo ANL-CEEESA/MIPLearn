@@ -51,9 +51,11 @@ class GurobiSolver(InternalSolver):
     ) -> None:
         import gurobipy
 
+        assert lazy_cb_frequency in [1, 2]
         if params is None:
             params = {}
         params["InfUnbdInfo"] = True
+        params["Seed"] = randint(0, 1_000_000)
 
         self.gp = gurobipy
         self.instance: Optional[Instance] = None
@@ -62,9 +64,9 @@ class GurobiSolver(InternalSolver):
         self.varname_to_var: Dict[str, "gurobipy.Var"] = {}
         self.bin_vars: List["gurobipy.Var"] = []
         self.cb_where: Optional[int] = None
+        self.lazy_cb_frequency = lazy_cb_frequency
 
-        assert lazy_cb_frequency in [1, 2]
-        if lazy_cb_frequency == 1:
+        if self.lazy_cb_frequency == 1:
             self.lazy_cb_where = [self.gp.GRB.Callback.MIPSOL]
         else:
             self.lazy_cb_where = [
@@ -113,8 +115,6 @@ class GurobiSolver(InternalSolver):
         with _RedirectOutput(streams):
             for (name, value) in self.params.items():
                 self.model.setParam(name, value)
-            if "seed" not in [k.lower() for k in self.params.keys()]:
-                self.model.setParam("Seed", randint(0, 1_000_000))
 
     @overrides
     def solve_lp(
@@ -428,3 +428,10 @@ class GurobiSolver(InternalSolver):
         self.instance = None
         self.model = None
         self.cb_where = None
+
+    @overrides
+    def clone(self) -> "GurobiSolver":
+        return GurobiSolver(
+            params=self.params,
+            lazy_cb_frequency=self.lazy_cb_frequency,
+        )

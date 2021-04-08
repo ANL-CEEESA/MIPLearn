@@ -28,8 +28,7 @@ class CplexPyomoSolver(BasePyomoSolver):
     ) -> None:
         if params is None:
             params = {}
-        if "randomseed" not in params.keys():
-            params["randomseed"] = randint(low=0, high=1000).rvs()
+        params["randomseed"] = randint(low=0, high=1000).rvs()
         if "mip_display" not in params.keys():
             params["mip_display"] = 4
         super().__init__(
@@ -44,3 +43,7 @@ class CplexPyomoSolver(BasePyomoSolver):
     @overrides
     def _get_node_count_regexp(self):
         return "^[ *] *([0-9]+)"
+
+    @overrides
+    def clone(self) -> "CplexPyomoSolver":
+        return CplexPyomoSolver(params=self.params)

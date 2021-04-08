@@ -284,3 +284,11 @@ class InternalSolver(ABC, EnforceOverrides):
         model before a solution is available.
         """
         pass
+
+    @abstractmethod
+    def clone(self) -> "InternalSolver":
+        """
+        Returns a new copy of this solver with identical parameters, but otherwise
+        completely unitialized.
+        """
+        pass

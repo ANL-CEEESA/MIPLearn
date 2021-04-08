@@ -4,6 +4,7 @@
 
 import logging
 
+from overrides import overrides
 from pyomo import environ as pe
 from scipy.stats import randint
 
@@ -27,9 +28,12 @@ class XpressPyomoSolver(BasePyomoSolver):
     def __init__(self, params: SolverParams = None) -> None:
         if params is None:
             params = {}
-        if "randomseed" not in params.keys():
-            params["randomseed"] = randint(low=0, high=1000).rvs()
+        params["randomseed"] = randint(low=0, high=1000).rvs()
         super().__init__(
             solver_factory=pe.SolverFactory("xpress_persistent"),
             params=params,
         )
+
+    @overrides
+    def clone(self) -> "XpressPyomoSolver":
+        return XpressPyomoSolver(params=self.params)

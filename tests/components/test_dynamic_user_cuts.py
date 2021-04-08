@@ -64,10 +64,8 @@ def stab_instance() -> Instance:
 @pytest.fixture
 def solver() -> LearningSolver:
     return LearningSolver(
-        solver=lambda: GurobiSolver(),
-        components=[
-            UserCutsComponent(),
-        ],
+        solver=GurobiSolver(),
+        components=[UserCutsComponent()],
     )
 
 

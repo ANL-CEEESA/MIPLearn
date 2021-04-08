@@ -32,8 +32,7 @@ class GurobiPyomoSolver(BasePyomoSolver):
     ) -> None:
         if params is None:
             params = {}
-        if "seed" not in params.keys():
-            params["seed"] = randint(low=0, high=1000).rvs()
+        params["seed"] = randint(low=0, high=1000).rvs()
         super().__init__(
             solver_factory=pe.SolverFactory("gurobi_persistent"),
             params=params,
@@ -61,3 +60,7 @@ class GurobiPyomoSolver(BasePyomoSolver):
             var = self._varname_to_var[varname]
             gvar = self._pyomo_solver._pyomo_var_to_solver_var_map[var]
             gvar.setAttr(GRB.Attr.BranchPriority, int(round(priority)))
+
+    @overrides
+    def clone(self) -> "GurobiPyomoSolver":
+        return GurobiPyomoSolver(params=self.params)

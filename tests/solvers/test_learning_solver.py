@@ -109,7 +109,7 @@ def test_solve_fit_from_disk():
 
 
 def test_simulate_perfect():
-    internal_solver = GurobiSolver
+    internal_solver = GurobiSolver()
     instance = _get_knapsack_instance(internal_solver)
     with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as tmp:
         write_pickle_gz(instance, tmp.name)
