@@ -7,17 +7,22 @@ import sys
 import time
 import traceback
 import warnings
+from typing import Dict, Any, Optional
 
 _formatwarning = warnings.formatwarning
 
 
 class TimeFormatter(logging.Formatter):
-    def __init__(self, start_time, log_colors):
+    def __init__(
+        self,
+        start_time: float,
+        log_colors: Dict[str, str],
+    ) -> None:
         super().__init__()
         self.start_time = start_time
         self.log_colors = log_colors
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         if record.levelno >= logging.ERROR:
             color = self.log_colors["red"]
         elif record.levelno >= logging.WARNING:
@@ -32,14 +37,17 @@ class TimeFormatter(logging.Formatter):
         )
 
 
-def formatwarning_tb(*args, **kwargs):
+def formatwarning_tb(*args: Any, **kwargs: Any) -> str:
     s = _formatwarning(*args, **kwargs)
     tb = traceback.format_stack()
     s += "".join(tb[:-1])
     return s
 
 
-def setup_logger(start_time=None, force_color=False):
+def setup_logger(
+    start_time: Optional[float] = None,
+    force_color: bool = False,
+) -> None:
     if start_time is None:
         start_time = time.time()
     if sys.stdout.isatty() or force_color:
