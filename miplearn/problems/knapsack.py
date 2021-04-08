@@ -1,16 +1,16 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List, Dict
+from typing import List, Dict, Optional, Hashable, Any
 
 import numpy as np
 import pyomo.environ as pe
 from overrides import overrides
-from scipy.stats import uniform, randint
+from scipy.stats import uniform, randint, rv_discrete
 from scipy.stats.distributions import rv_frozen
 
 from miplearn.instance.base import Instance
-from miplearn.types import VariableName
+from miplearn.types import VariableName, Category
 
 
 class ChallengeA:
@@ -23,10 +23,10 @@ class ChallengeA:
 
     def __init__(
         self,
-        seed=42,
-        n_training_instances=500,
-        n_test_instances=50,
-    ):
+        seed: int = 42,
+        n_training_instances: int = 500,
+        n_test_instances: int = 50,
+    ) -> None:
         np.random.seed(seed)
         self.gen = MultiKnapsackGenerator(
             n=randint(low=250, high=251),
@@ -57,7 +57,12 @@ class MultiKnapsackInstance(Instance):
     same size and items don't shuffle around.
     """
 
-    def __init__(self, prices, capacities, weights):
+    def __init__(
+        self,
+        prices: np.ndarray,
+        capacities: np.ndarray,
+        weights: np.ndarray,
+    ) -> None:
         super().__init__()
         assert isinstance(prices, np.ndarray)
         assert isinstance(capacities, np.ndarray)
@@ -72,11 +77,11 @@ class MultiKnapsackInstance(Instance):
         self.varname_to_index = {f"x[{i}]": i for i in range(self.n)}
 
     @overrides
-    def to_model(self):
+    def to_model(self) -> pe.ConcreteModel:
         model = pe.ConcreteModel()
         model.x = pe.Var(range(self.n), domain=pe.Binary)
         model.OBJ = pe.Objective(
-            rule=lambda model: sum(model.x[j] * self.prices[j] for j in range(self.n)),
+            expr=sum(model.x[j] * self.prices[j] for j in range(self.n)),
             sense=pe.maximize,
         )
         model.eq_capacity = pe.ConstraintList()
@@ -89,8 +94,8 @@ class MultiKnapsackInstance(Instance):
         return model
 
     @overrides
-    def get_instance_features(self):
-        return [np.mean(self.prices)] + list(self.capacities)
+    def get_instance_features(self) -> List[float]:
+        return [float(np.mean(self.prices))] + list(self.capacities)
 
     @overrides
     def get_variable_features(self, var_name: VariableName) -> List[float]:
@@ -98,53 +103,57 @@ class MultiKnapsackInstance(Instance):
         return [self.prices[index]] + list(self.weights[:, index])
 
 
+# noinspection PyPep8Naming
 class MultiKnapsackGenerator:
     def __init__(
         self,
-        n=randint(low=100, high=101),
-        m=randint(low=30, high=31),
-        w=randint(low=0, high=1000),
-        K=randint(low=500, high=500),
-        u=uniform(loc=0.0, scale=1.0),
-        alpha=uniform(loc=0.25, scale=0.0),
-        fix_w=False,
-        w_jitter=uniform(loc=1.0, scale=0.0),
-        round=True,
+        n: rv_frozen = randint(low=100, high=101),
+        m: rv_frozen = randint(low=30, high=31),
+        w: rv_frozen = randint(low=0, high=1000),
+        K: rv_frozen = randint(low=500, high=500),
+        u: rv_frozen = uniform(loc=0.0, scale=1.0),
+        alpha: rv_frozen = uniform(loc=0.25, scale=0.0),
+        fix_w: bool = False,
+        w_jitter: rv_frozen = uniform(loc=1.0, scale=0.0),
+        round: bool = True,
     ):
         """Initialize the problem generator.
 
-        Instances have a random number of items (or variables) and a random number of knapsacks
-        (or constraints), as specified by the provided probability distributions `n` and `m`,
-        respectively. The weight of each item `i` on knapsack `j` is sampled independently from
-        the provided distribution `w`. The capacity of knapsack `j` is set to:
+        Instances have a random number of items (or variables) and a random number of
+        knapsacks (or constraints), as specified by the provided probability
+        distributions `n` and `m`, respectively. The weight of each item `i` on
+        knapsack `j` is sampled independently from the provided distribution `w`. The
+        capacity of knapsack `j` is set to:
 
             alpha_j * sum(w[i,j] for i in range(n)),
 
-        where `alpha_j`, the tightness ratio, is sampled from the provided probability
-        distribution `alpha`. To make the instances more challenging, the costs of the items
-        are linearly correlated to their average weights. More specifically, the weight of each
-        item `i` is set to:
+        where `alpha_j`, the tightness ratio, is sampled from the provided
+        probability distribution `alpha`. To make the instances more challenging,
+        the costs of the items are linearly correlated to their average weights. More
+        specifically, the weight of each item `i` is set to:
 
             sum(w[i,j]/m for j in range(m)) + K * u_i,
 
-        where `K`, the correlation coefficient, and `u_i`, the correlation multiplier, are sampled
-        from the provided probability distributions. Note that `K` is only sample once for the
-        entire instance.
+        where `K`, the correlation coefficient, and `u_i`, the correlation
+        multiplier, are sampled from the provided probability distributions. Note
+        that `K` is only sample once for the entire instance.
 
-        If fix_w=True is provided, then w[i,j] are kept the same in all generated instances. This
-        also implies that n and m are kept fixed. Although the prices and capacities are derived
-        from w[i,j], as long as u and K are not constants, the generated instances will still not
-        be completely identical.
+        If fix_w=True is provided, then w[i,j] are kept the same in all generated
+        instances. This also implies that n and m are kept fixed. Although the prices
+        and capacities are derived from w[i,j], as long as u and K are not constants,
+        the generated instances will still not be completely identical.
 
-        If a probability distribution w_jitter is provided, then item weights will be set to
-        w[i,j] * gamma[i,j] where gamma[i,j] is sampled from w_jitter. When combined with
-        fix_w=True, this argument may be used to generate instances where the weight of each item
-        is roughly the same, but not exactly identical, across all instances. The prices of the
-        items and the capacities of the knapsacks will be calculated as above, but using these
-        perturbed weights instead.
+        If a probability distribution w_jitter is provided, then item weights will be
+        set to w[i,j] * gamma[i,j] where gamma[i,j] is sampled from w_jitter. When
+        combined with fix_w=True, this argument may be used to generate instances
+        where the weight of each item is roughly the same, but not exactly identical,
+        across all instances. The prices of the items and the capacities of the
+        knapsacks will be calculated as above, but using these perturbed weights
+        instead.
 
-        By default, all generated prices, weights and capacities are rounded to the nearest integer
-        number. If `round=False` is provided, this rounding will be disabled.
+        By default, all generated prices, weights and capacities are rounded to the
+        nearest integer number. If `round=False` is provided, this rounding will be
+        disabled.
 
         Parameters
         ----------
@@ -161,11 +170,13 @@ class MultiKnapsackGenerator:
         alpha: rv_continuous
             Probability distribution for the tightness ratio
         fix_w: boolean
-            If true, weights are kept the same (minus the noise from w_jitter) in all instances
+            If true, weights are kept the same (minus the noise from w_jitter) in all
+            instances
         w_jitter: rv_continuous
             Probability distribution for random noise added to the weights
         round: boolean
-            If true, all prices, weights and capacities are rounded to the nearest integer
+            If true, all prices, weights and capacities are rounded to the nearest
+            integer
         """
         assert isinstance(n, rv_frozen), "n should be a SciPy probability distribution"
         assert isinstance(m, rv_frozen), "m should be a SciPy probability distribution"
@@ -183,11 +194,16 @@ class MultiKnapsackGenerator:
         self.n = n
         self.m = m
         self.w = w
-        self.K = K
         self.u = u
+        self.K = K
         self.alpha = alpha
         self.w_jitter = w_jitter
         self.round = round
+        self.fix_n: Optional[int] = None
+        self.fix_m: Optional[int] = None
+        self.fix_w: Optional[np.ndarray] = None
+        self.fix_u: Optional[np.ndarray] = None
+        self.fix_K: Optional[float] = None
 
         if fix_w:
             self.fix_n = self.n.rvs()
@@ -195,16 +211,14 @@ class MultiKnapsackGenerator:
             self.fix_w = np.array([self.w.rvs(self.fix_n) for _ in range(self.fix_m)])
             self.fix_u = self.u.rvs(self.fix_n)
             self.fix_K = self.K.rvs()
-        else:
-            self.fix_n = None
-            self.fix_m = None
-            self.fix_w = None
-            self.fix_u = None
-            self.fix_K = None
 
-    def generate(self, n_samples):
-        def _sample():
+    def generate(self, n_samples: int) -> List[MultiKnapsackInstance]:
+        def _sample() -> MultiKnapsackInstance:
             if self.fix_w is not None:
+                assert self.fix_m is not None
+                assert self.fix_n is not None
+                assert self.fix_u is not None
+                assert self.fix_K is not None
                 n = self.fix_n
                 m = self.fix_m
                 w = self.fix_w
@@ -249,7 +263,7 @@ class KnapsackInstance(Instance):
         }
 
     @overrides
-    def to_model(self):
+    def to_model(self) -> pe.ConcreteModel:
         model = pe.ConcreteModel()
         items = range(len(self.weights))
         model.x = pe.Var(items, domain=pe.Binary)
@@ -262,14 +276,14 @@ class KnapsackInstance(Instance):
         return model
 
     @overrides
-    def get_instance_features(self):
+    def get_instance_features(self) -> List[float]:
         return [
             self.capacity,
             np.average(self.weights),
         ]
 
     @overrides
-    def get_variable_features(self, var_name):
+    def get_variable_features(self, var_name: VariableName) -> List[Category]:
         item = self.varname_to_item[var_name]
         return [
             self.weights[item],
@@ -292,7 +306,7 @@ class GurobiKnapsackInstance(KnapsackInstance):
         super().__init__(weights, prices, capacity)
 
     @overrides
-    def to_model(self):
+    def to_model(self) -> Any:
         import gurobipy as gp
         from gurobipy import GRB
 
