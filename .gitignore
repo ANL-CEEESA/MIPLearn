@@ -78,3 +78,6 @@ wheels/
 notebooks/
 .vscode
 tmp
+benchmark/tsp
+benchmark/stab
+benchmark/knapsack
