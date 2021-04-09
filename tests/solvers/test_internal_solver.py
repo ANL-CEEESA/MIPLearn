@@ -4,17 +4,19 @@
 
 import logging
 from io import StringIO
+from typing import List
 from warnings import warn
 
 import pyomo.environ as pe
 
+from miplearn import InternalSolver
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
-from . import (
-    _get_knapsack_instance,
-    get_internal_solvers,
-)
+from . import _get_knapsack_instance
+
+# noinspection PyUnresolvedReferences
+from .. import internal_solvers
 from ..fixtures.infeasible import get_infeasible_instance
 
 logger = logging.getLogger(__name__)
@@ -31,8 +33,10 @@ def test_redirect_output() -> None:
     assert io.getvalue() == "Hello world\n"
 
 
-def test_internal_solver_warm_starts() -> None:
-    for solver in get_internal_solvers():
+def test_internal_solver_warm_starts(
+    internal_solvers: List[InternalSolver],
+) -> None:
+    for solver in internal_solvers:
         logger.info("Solver: %s" % solver)
         instance = _get_knapsack_instance(solver)
         model = instance.to_model()
@@ -54,8 +58,10 @@ def test_internal_solver_warm_starts() -> None:
         assert stats["Upper bound"] == 725.0
 
 
-def test_internal_solver() -> None:
-    for solver in get_internal_solvers():
+def test_internal_solver(
+    internal_solvers: List[InternalSolver],
+) -> None:
+    for solver in internal_solvers:
         logger.info("Solver: %s" % solver)
 
         instance = _get_knapsack_instance(solver)
@@ -159,8 +165,10 @@ def test_internal_solver() -> None:
             assert round(solver.get_dual("eq_capacity")) == 0.0
 
 
-def test_relax() -> None:
-    for solver in get_internal_solvers():
+def test_relax(
+    internal_solvers: List[InternalSolver],
+) -> None:
+    for solver in internal_solvers:
         instance = _get_knapsack_instance(solver)
         solver.set_instance(instance)
         solver.relax()
@@ -169,8 +177,10 @@ def test_relax() -> None:
         assert round(stats["Lower bound"]) == 1288.0
 
 
-def test_infeasible_instance() -> None:
-    for solver in get_internal_solvers():
+def test_infeasible_instance(
+    internal_solvers: List[InternalSolver],
+) -> None:
+    for solver in internal_solvers:
         instance = get_infeasible_instance(solver)
         solver.set_instance(instance)
         mip_stats = solver.solve()
@@ -185,8 +195,10 @@ def test_infeasible_instance() -> None:
         assert lp_stats["LP value"] is None
 
 
-def test_iteration_cb() -> None:
-    for solver in get_internal_solvers():
+def test_iteration_cb(
+    internal_solvers: List[InternalSolver],
+) -> None:
+    for solver in internal_solvers:
         logger.info("Solver: %s" % solver)
         instance = _get_knapsack_instance(solver)
         solver.set_instance(instance)

@@ -3,15 +3,12 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from inspect import isclass
-from typing import List, Callable, Any
+from typing import Any
 
 from miplearn.instance.base import Instance
 from miplearn.problems.knapsack import KnapsackInstance, GurobiKnapsackInstance
 from miplearn.solvers.gurobi import GurobiSolver
-from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
-from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
-from miplearn.solvers.pyomo.xpress import XpressPyomoSolver
 
 
 def _is_subclass_or_instance(obj: Any, parent_class: Any) -> bool:
@@ -34,11 +31,3 @@ def _get_knapsack_instance(solver: Any) -> Instance:
             capacity=67.0,
         )
     assert False
-
-
-def get_internal_solvers() -> List[InternalSolver]:
-    return [
-        GurobiPyomoSolver(),
-        GurobiSolver(),
-        XpressPyomoSolver(),
-    ]
