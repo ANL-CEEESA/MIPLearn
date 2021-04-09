@@ -17,7 +17,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/ANL-CEEESA/MIPLearn/",
     packages=find_namespace_packages(),
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=[
         "matplotlib>=3,<4",
         "networkx>=2,<3",
