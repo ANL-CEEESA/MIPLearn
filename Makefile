@@ -47,4 +47,4 @@ test:
 	$(MYPY) -p benchmark
 	$(PYTEST) $(PYTEST_ARGS) 
 
-.PHONY: test test-watch docs install
+.PHONY: test test-watch docs install dist
