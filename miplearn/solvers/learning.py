@@ -155,7 +155,7 @@ class LearningSolver:
 
         # Extract features
         # -------------------------------------------------------
-        if instance.features is None:
+        if instance.features.instance is None:
             logger.info("Extracting features...")
             FeaturesExtractor(self.internal_solver).extract(instance)
 
