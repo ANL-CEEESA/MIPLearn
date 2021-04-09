@@ -5,9 +5,11 @@
 import logging
 import os
 import tempfile
+from typing import List, cast
 
 import dill
 
+from miplearn import Instance
 from miplearn.instance.picklegz import PickleGzInstance, write_pickle_gz, read_pickle_gz
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.learning import LearningSolver
@@ -87,7 +89,7 @@ def test_parallel_solve() -> None:
 def test_solve_fit_from_disk() -> None:
     for internal_solver in get_internal_solvers():
         # Create instances and pickle them
-        instances = []
+        instances: List[Instance] = []
         for k in range(3):
             instance = _get_knapsack_instance(internal_solver)
             with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as file:
@@ -97,7 +99,7 @@ def test_solve_fit_from_disk() -> None:
         # Test: solve
         solver = LearningSolver(solver=internal_solver)
         solver.solve(instances[0])
-        instance_loaded = read_pickle_gz(instances[0].filename)
+        instance_loaded = read_pickle_gz(cast(PickleGzInstance, instances[0]).filename)
         assert len(instance_loaded.training_data) > 0
         assert instance_loaded.features.instance is not None
         assert instance_loaded.features.variables is not None
@@ -106,7 +108,7 @@ def test_solve_fit_from_disk() -> None:
         # Test: parallel_solve
         solver.parallel_solve(instances)
         for instance in instances:
-            instance_loaded = read_pickle_gz(instance.filename)
+            instance_loaded = read_pickle_gz(cast(PickleGzInstance, instance).filename)
             assert len(instance_loaded.training_data) > 0
             assert instance_loaded.features.instance is not None
             assert instance_loaded.features.variables is not None
@@ -114,7 +116,7 @@ def test_solve_fit_from_disk() -> None:
 
         # Delete temporary files
         for instance in instances:
-            os.remove(instance.filename)
+            os.remove(cast(PickleGzInstance, instance).filename)
 
 
 def test_simulate_perfect() -> None:

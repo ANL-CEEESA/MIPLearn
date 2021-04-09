@@ -14,7 +14,7 @@ from tests.solvers import _is_subclass_or_instance
 
 
 def get_test_pyomo_instances() -> Tuple[List[Instance], List[Any]]:
-    instances = [
+    instances: List[Instance] = [
         KnapsackInstance(
             weights=[23.0, 26.0, 20.0, 18.0],
             prices=[505.0, 352.0, 458.0, 220.0],
