@@ -7,14 +7,13 @@ from typing import Any
 
 from miplearn import InternalSolver
 from miplearn.solvers.gurobi import GurobiSolver
-from . import _get_knapsack_instance
 
 logger = logging.getLogger(__name__)
 
 
 def test_lazy_cb() -> None:
     solver = GurobiSolver()
-    instance = _get_knapsack_instance(solver)
+    instance = solver.build_test_instance_knapsack()
     model = instance.to_model()
 
     def lazy_cb(cb_solver: InternalSolver, cb_model: Any) -> None:

@@ -5,11 +5,10 @@ import tempfile
 
 from miplearn.instance.picklegz import write_pickle_gz, PickleGzInstance
 from miplearn.solvers.gurobi import GurobiSolver
-from tests.fixtures.knapsack import get_knapsack_instance
 
 
 def test_usage() -> None:
-    original = get_knapsack_instance(GurobiSolver())
+    original = GurobiSolver().build_test_instance_knapsack()
     file = tempfile.NamedTemporaryFile()
     write_pickle_gz(original, file.name)
     pickled = PickleGzInstance(file.name)

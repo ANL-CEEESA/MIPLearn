@@ -9,13 +9,12 @@ from miplearn.features import (
     ConstraintFeatures,
 )
 from miplearn.solvers.gurobi import GurobiSolver
-from tests.fixtures.knapsack import get_knapsack_instance
 
 
 def test_knapsack() -> None:
     for solver_factory in [GurobiSolver]:
         solver = solver_factory()
-        instance = get_knapsack_instance(solver)
+        instance = solver.build_test_instance_knapsack()
         model = instance.to_model()
         solver.set_instance(instance, model)
         FeaturesExtractor(solver).extract(instance)

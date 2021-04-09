@@ -13,7 +13,6 @@ from miplearn import Instance, InternalSolver
 from miplearn.instance.picklegz import PickleGzInstance, write_pickle_gz, read_pickle_gz
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.learning import LearningSolver
-from . import _get_knapsack_instance
 
 # noinspection PyUnresolvedReferences
 from tests import internal_solvers
@@ -27,7 +26,7 @@ def test_learning_solver(
     for mode in ["exact", "heuristic"]:
         for internal_solver in internal_solvers:
             logger.info("Solver: %s" % internal_solver)
-            instance = _get_knapsack_instance(internal_solver)
+            instance = internal_solver.build_test_instance_knapsack()
             solver = LearningSolver(
                 solver=internal_solver,
                 mode=mode,
@@ -71,7 +70,7 @@ def test_solve_without_lp(
 ) -> None:
     for internal_solver in internal_solvers:
         logger.info("Solver: %s" % internal_solver)
-        instance = _get_knapsack_instance(internal_solver)
+        instance = internal_solver.build_test_instance_knapsack()
         solver = LearningSolver(
             solver=internal_solver,
             solve_lp=False,
@@ -85,7 +84,7 @@ def test_parallel_solve(
     internal_solvers: List[InternalSolver],
 ) -> None:
     for internal_solver in internal_solvers:
-        instances = [_get_knapsack_instance(internal_solver) for _ in range(10)]
+        instances = [internal_solver.build_test_instance_knapsack() for _ in range(10)]
         solver = LearningSolver(solver=internal_solver)
         results = solver.parallel_solve(instances, n_jobs=3)
         assert len(results) == 10
@@ -102,7 +101,7 @@ def test_solve_fit_from_disk(
         # Create instances and pickle them
         instances: List[Instance] = []
         for k in range(3):
-            instance = _get_knapsack_instance(internal_solver)
+            instance = internal_solver.build_test_instance_knapsack()
             with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as file:
                 instances += [PickleGzInstance(file.name)]
                 write_pickle_gz(instance, file.name)
@@ -132,7 +131,7 @@ def test_solve_fit_from_disk(
 
 def test_simulate_perfect() -> None:
     internal_solver = GurobiSolver()
-    instance = _get_knapsack_instance(internal_solver)
+    instance = internal_solver.build_test_instance_knapsack()
     with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as tmp:
         write_pickle_gz(instance, tmp.name)
         solver = LearningSolver(

@@ -14,7 +14,6 @@ from miplearn.features import TrainingSample, InstanceFeatures, Features
 from miplearn.instance.base import Instance
 from miplearn.solvers.learning import LearningSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
-from tests.fixtures.knapsack import get_knapsack_instance
 
 
 @pytest.fixture
@@ -252,7 +251,7 @@ def test_sample_evaluate(instance: Instance, sample: TrainingSample) -> None:
 
 def test_usage() -> None:
     solver = LearningSolver(components=[ObjectiveValueComponent()])
-    instance = get_knapsack_instance(GurobiPyomoSolver())
+    instance = GurobiPyomoSolver().build_test_instance_knapsack()
     solver.solve(instance)
     solver.fit([instance])
     stats = solver.solve(instance)

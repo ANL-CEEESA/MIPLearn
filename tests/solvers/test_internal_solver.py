@@ -13,11 +13,9 @@ from miplearn import InternalSolver
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
-from . import _get_knapsack_instance
 
 # noinspection PyUnresolvedReferences
 from .. import internal_solvers
-from ..fixtures.infeasible import get_infeasible_instance
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +36,7 @@ def test_internal_solver_warm_starts(
 ) -> None:
     for solver in internal_solvers:
         logger.info("Solver: %s" % solver)
-        instance = _get_knapsack_instance(solver)
+        instance = solver.build_test_instance_knapsack()
         model = instance.to_model()
         solver.set_instance(instance, model)
         solver.set_warm_start({"x[0]": 1.0, "x[1]": 0.0, "x[2]": 0.0, "x[3]": 1.0})
@@ -64,7 +62,7 @@ def test_internal_solver(
     for solver in internal_solvers:
         logger.info("Solver: %s" % solver)
 
-        instance = _get_knapsack_instance(solver)
+        instance = solver.build_test_instance_knapsack()
         model = instance.to_model()
         solver.set_instance(instance, model)
 
@@ -169,7 +167,7 @@ def test_relax(
     internal_solvers: List[InternalSolver],
 ) -> None:
     for solver in internal_solvers:
-        instance = _get_knapsack_instance(solver)
+        instance = solver.build_test_instance_knapsack()
         solver.set_instance(instance)
         solver.relax()
         stats = solver.solve()
@@ -181,7 +179,7 @@ def test_infeasible_instance(
     internal_solvers: List[InternalSolver],
 ) -> None:
     for solver in internal_solvers:
-        instance = get_infeasible_instance(solver)
+        instance = solver.build_test_instance_infeasible()
         solver.set_instance(instance)
         mip_stats = solver.solve()
 
@@ -200,7 +198,7 @@ def test_iteration_cb(
 ) -> None:
     for solver in internal_solvers:
         logger.info("Solver: %s" % solver)
-        instance = _get_knapsack_instance(solver)
+        instance = solver.build_test_instance_knapsack()
         solver.set_instance(instance)
         count = 0
 

@@ -19,6 +19,7 @@ from miplearn.solvers.internal import (
     LazyCallback,
     MIPSolveStats,
 )
+from miplearn.solvers.pyomo.base import PyomoTestInstanceKnapsack
 from miplearn.types import (
     SolverParams,
     UserCutCallback,
@@ -442,3 +443,77 @@ class GurobiSolver(InternalSolver):
             params=self.params,
             lazy_cb_frequency=self.lazy_cb_frequency,
         )
+
+    @overrides
+    def build_test_instance_infeasible(self) -> Instance:
+        return GurobiTestInstanceInfeasible()
+
+    @overrides
+    def build_test_instance_redundancy(self) -> Instance:
+        return GurobiTestInstanceRedundancy()
+
+    @overrides
+    def build_test_instance_knapsack(self) -> Instance:
+        return GurobiTestInstanceKnapsack(
+            weights=[23.0, 26.0, 20.0, 18.0],
+            prices=[505.0, 352.0, 458.0, 220.0],
+            capacity=67.0,
+        )
+
+
+class GurobiTestInstanceInfeasible(Instance):
+    @overrides
+    def to_model(self) -> Any:
+        import gurobipy as gp
+        from gurobipy import GRB
+
+        model = gp.Model()
+        x = model.addVars(1, vtype=GRB.BINARY, name="x")
+        model.addConstr(x[0] >= 2)
+        model.setObjective(x[0])
+        return model
+
+
+class GurobiTestInstanceRedundancy(Instance):
+    def to_model(self) -> Any:
+        import gurobipy as gp
+        from gurobipy import GRB
+
+        model = gp.Model()
+        x = model.addVars(2, vtype=GRB.BINARY, name="x")
+        model.addConstr(x[0] + x[1] <= 1)
+        model.addConstr(x[0] + x[1] <= 2)
+        model.setObjective(x[0] + x[1], GRB.MAXIMIZE)
+        return model
+
+
+class GurobiTestInstanceKnapsack(PyomoTestInstanceKnapsack):
+    """
+    Simpler (one-dimensional) knapsack instance, implemented directly in Gurobi
+    instead of Pyomo, used for testing.
+    """
+
+    def __init__(
+        self,
+        weights: List[float],
+        prices: List[float],
+        capacity: float,
+    ) -> None:
+        super().__init__(weights, prices, capacity)
+
+    @overrides
+    def to_model(self) -> Any:
+        import gurobipy as gp
+        from gurobipy import GRB
+
+        model = gp.Model("Knapsack")
+        n = len(self.weights)
+        x = model.addVars(n, vtype=GRB.BINARY, name="x")
+        model.addConstr(
+            gp.quicksum(x[i] * self.weights[i] for i in range(n)) <= self.capacity,
+            "eq_capacity",
+        )
+        model.setObjective(
+            gp.quicksum(x[i] * self.prices[i] for i in range(n)), GRB.MAXIMIZE
+        )
+        return model

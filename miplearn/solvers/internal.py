@@ -292,3 +292,15 @@ class InternalSolver(ABC):
         completely unitialized.
         """
         pass
+
+    @abstractmethod
+    def build_test_instance_infeasible(self) -> Instance:
+        pass
+
+    @abstractmethod
+    def build_test_instance_redundancy(self) -> Instance:
+        pass
+
+    @abstractmethod
+    def build_test_instance_knapsack(self) -> Instance:
+        pass

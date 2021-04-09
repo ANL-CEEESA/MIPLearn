@@ -29,7 +29,9 @@ from miplearn.types import (
     UserCutCallback,
     Solution,
     VariableName,
+    Category,
 )
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -338,3 +340,88 @@ class BasePyomoSolver(InternalSolver):
     @overrides
     def get_sense(self) -> str:
         return self._obj_sense
+
+    @overrides
+    def build_test_instance_infeasible(self) -> Instance:
+        return PyomoTestInstanceInfeasible()
+
+    @overrides
+    def build_test_instance_redundancy(self) -> Instance:
+        return PyomoTestInstanceRedundancy()
+
+    @overrides
+    def build_test_instance_knapsack(self) -> Instance:
+        return PyomoTestInstanceKnapsack(
+            weights=[23.0, 26.0, 20.0, 18.0],
+            prices=[505.0, 352.0, 458.0, 220.0],
+            capacity=67.0,
+        )
+
+
+class PyomoTestInstanceInfeasible(Instance):
+    @overrides
+    def to_model(self) -> pe.ConcreteModel:
+        model = pe.ConcreteModel()
+        model.x = pe.Var([0], domain=pe.Binary)
+        model.OBJ = pe.Objective(expr=model.x[0], sense=pe.maximize)
+        model.eq = pe.Constraint(expr=model.x[0] >= 2)
+        return model
+
+
+class PyomoTestInstanceRedundancy(Instance):
+    def to_model(self) -> pe.ConcreteModel:
+        model = pe.ConcreteModel()
+        model.x = pe.Var([0, 1], domain=pe.Binary)
+        model.OBJ = pe.Objective(expr=model.x[0] + model.x[1], sense=pe.maximize)
+        model.eq1 = pe.Constraint(expr=model.x[0] + model.x[1] <= 1)
+        model.eq2 = pe.Constraint(expr=model.x[0] + model.x[1] <= 2)
+        return model
+
+
+class PyomoTestInstanceKnapsack(Instance):
+    """
+    Simpler (one-dimensional) Knapsack Problem, used for testing.
+    """
+
+    def __init__(
+        self,
+        weights: List[float],
+        prices: List[float],
+        capacity: float,
+    ) -> None:
+        super().__init__()
+        self.weights = weights
+        self.prices = prices
+        self.capacity = capacity
+        self.varname_to_item: Dict[VariableName, int] = {
+            f"x[{i}]": i for i in range(len(self.weights))
+        }
+
+    @overrides
+    def to_model(self) -> pe.ConcreteModel:
+        model = pe.ConcreteModel()
+        items = range(len(self.weights))
+        model.x = pe.Var(items, domain=pe.Binary)
+        model.OBJ = pe.Objective(
+            expr=sum(model.x[v] * self.prices[v] for v in items),
+            sense=pe.maximize,
+        )
+        model.eq_capacity = pe.Constraint(
+            expr=sum(model.x[v] * self.weights[v] for v in items) <= self.capacity
+        )
+        return model
+
+    @overrides
+    def get_instance_features(self) -> List[float]:
+        return [
+            self.capacity,
+            np.average(self.weights),
+        ]
+
+    @overrides
+    def get_variable_features(self, var_name: VariableName) -> List[Category]:
+        item = self.varname_to_item[var_name]
+        return [
+            self.weights[item],
+            self.prices[item],
+        ]
