@@ -8,7 +8,7 @@ VERSION     := 0.2
 all: docs test
 
 clean:
-	rm -rf build
+	rm -rf build/* dist/*
 
 develop:
 	$(PYTHON) setup.py develop
