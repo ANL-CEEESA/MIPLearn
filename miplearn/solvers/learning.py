@@ -155,8 +155,9 @@ class LearningSolver:
 
         # Extract features
         # -------------------------------------------------------
-        logger.info("Extracting features...")
-        FeaturesExtractor(self.internal_solver).extract(instance)
+        if instance.features is None:
+            logger.info("Extracting features...")
+            FeaturesExtractor(self.internal_solver).extract(instance)
 
         callback_args = (
             self,
@@ -381,10 +382,11 @@ class LearningSolver:
             return stats
 
     def fit(self, training_instances: List[Instance]) -> None:
-        logger.debug("Fitting...")
         if len(training_instances) == 0:
+            logger.warn("Empty list of training instances provided. Skipping.")
             return
         for component in self.components.values():
+            logger.info(f"Fitting {component.__class__.__name__}...")
             component.fit(training_instances)
 
     def _add_component(self, component: Component) -> None:
