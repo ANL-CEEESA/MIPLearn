@@ -42,6 +42,7 @@ reformat:
 	$(PYTHON) -m black .
 
 test:
+	rm -rf .mypy_cache
 	$(MYPY) -p miplearn
 	$(MYPY) -p tests
 	$(MYPY) -p benchmark

@@ -20,7 +20,7 @@ def test_benchmark() -> None:
 
         # Solve training instances
         training_solver = LearningSolver()
-        training_solver.parallel_solve(train_instances, n_jobs=n_jobs)
+        training_solver.parallel_solve(train_instances, n_jobs=n_jobs)  # type: ignore
 
         # Benchmark
         test_solvers = {
@@ -28,8 +28,12 @@ def test_benchmark() -> None:
             "Strategy B": LearningSolver(),
         }
         benchmark = BenchmarkRunner(test_solvers)
-        benchmark.fit(train_instances)
-        benchmark.parallel_solve(test_instances, n_jobs=n_jobs, n_trials=2)
+        benchmark.fit(train_instances)  # type: ignore
+        benchmark.parallel_solve(
+            test_instances,  # type: ignore
+            n_jobs=n_jobs,
+            n_trials=2,
+        )
         assert benchmark.results.values.shape == (12, 20)
 
         benchmark.write_csv("/tmp/benchmark.csv")

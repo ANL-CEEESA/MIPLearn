@@ -24,7 +24,7 @@ import importlib
 import logging
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -39,6 +39,7 @@ from miplearn import (
     setup_logger,
     PickleGzInstance,
     write_pickle_gz_multiple,
+    Instance,
 )
 
 setup_logger()
@@ -59,7 +60,7 @@ def train(args: Dict) -> None:
 
     done_filename = f"{basepath}/train/done"
     if not os.path.isfile(done_filename):
-        train_instances = [
+        train_instances: List[Instance] = [
             PickleGzInstance(f) for f in glob.glob(f"{basepath}/train/*.gz")
         ]
         solver = LearningSolver(
@@ -79,7 +80,9 @@ def train(args: Dict) -> None:
 
 def test_baseline(args: Dict) -> None:
     basepath = args["<challenge>"]
-    test_instances = [PickleGzInstance(f) for f in glob.glob(f"{basepath}/test/*.gz")]
+    test_instances: List[Instance] = [
+        PickleGzInstance(f) for f in glob.glob(f"{basepath}/test/*.gz")
+    ]
     csv_filename = f"{basepath}/benchmark_baseline.csv"
     if not os.path.isfile(csv_filename):
         solvers = {
@@ -102,8 +105,12 @@ def test_baseline(args: Dict) -> None:
 
 def test_ml(args: Dict) -> None:
     basepath = args["<challenge>"]
-    test_instances = [PickleGzInstance(f) for f in glob.glob(f"{basepath}/test/*.gz")]
-    train_instances = [PickleGzInstance(f) for f in glob.glob(f"{basepath}/train/*.gz")]
+    test_instances: List[Instance] = [
+        PickleGzInstance(f) for f in glob.glob(f"{basepath}/test/*.gz")
+    ]
+    train_instances: List[Instance] = [
+        PickleGzInstance(f) for f in glob.glob(f"{basepath}/train/*.gz")
+    ]
     csv_filename = f"{basepath}/benchmark_ml.csv"
     if not os.path.isfile(csv_filename):
         solvers = {
