@@ -76,6 +76,7 @@ class DynamicLazyConstraintsComponent(Component):
         instance: Instance,
         model: Any,
     ) -> bool:
+        assert solver.internal_solver is not None
         logger.debug("Finding violated lazy constraints...")
         cids = instance.find_violated_lazy_constraints(solver.internal_solver, model)
         if len(cids) == 0:

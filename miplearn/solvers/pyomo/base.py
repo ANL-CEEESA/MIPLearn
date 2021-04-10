@@ -6,14 +6,15 @@ import logging
 import re
 import sys
 from io import StringIO
-from typing import Any, List, Dict, Optional, Hashable
+from typing import Any, List, Dict, Optional
 
+import numpy as np
 import pyomo
 from overrides import overrides
 from pyomo import environ as pe
 from pyomo.core import Var
 from pyomo.core.base import _GeneralVarData
-from pyomo.core.base.constraint import SimpleConstraint, ConstraintList
+from pyomo.core.base.constraint import ConstraintList
 from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
 from pyomo.opt import TerminationCondition
 from pyomo.opt.base.solvers import SolverFactory
@@ -35,7 +36,6 @@ from miplearn.types import (
     VariableName,
     Category,
 )
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -215,7 +215,7 @@ class BasePyomoSolver(InternalSolver):
 
     def _update_constrs(self) -> None:
         assert self.model is not None
-        self._cname_to_constr = {}
+        self._cname_to_constr.clear()
         for constr in self.model.component_objects(pyomo.core.Constraint):
             if isinstance(constr, pe.ConstraintList):
                 for idx in constr:
@@ -233,24 +233,50 @@ class BasePyomoSolver(InternalSolver):
             self._pyomo_solver.update_var(var)
 
     @overrides
-    def add_constraint(self, cobj: Any, name: str = "") -> Any:
+    def add_constraint(
+        self,
+        constr: Any,
+        name: str,
+    ) -> None:
         assert self.model is not None
-        if isinstance(cobj, Constraint):
+        if isinstance(constr, Constraint):
             lhs = 0.0
-            for (varname, coeff) in cobj.lhs.items():
+            for (varname, coeff) in constr.lhs.items():
                 var = self._varname_to_var[varname]
                 lhs += var * coeff
-            if cobj.sense == "=":
-                expr = lhs == cobj.rhs
-            elif cobj.sense == "<":
-                expr = lhs <= cobj.rhs
+            if constr.sense == "=":
+                expr = lhs == constr.rhs
+            elif constr.sense == "<":
+                expr = lhs <= constr.rhs
             else:
-                expr = lhs >= cobj.rhs
-            cl = self.model.extra_constraints
-            self._pyomo_solver.add_constraint(cl.add(expr))
+                expr = lhs >= constr.rhs
+            cl = pe.Constraint(expr=expr, name=name)
+            self.model.add_component(name, cl)
+            self._pyomo_solver.add_constraint(cl)
+            self._cname_to_constr[name] = cl
         else:
-            self._pyomo_solver.add_constraint(cobj)
-        self._update_constrs()
+            self._pyomo_solver.add_constraint(constr)
+
+    @overrides
+    def remove_constraint(self, name: str) -> None:
+        assert self.model is not None
+        constr = self._cname_to_constr[name]
+        del self._cname_to_constr[name]
+        self.model.del_component(constr)
+        self._pyomo_solver.remove_constraint(constr)
+
+    @overrides
+    def is_constraint_satisfied(self, constr: Constraint, tol: float = 1e-6) -> bool:
+        lhs = 0.0
+        for (varname, coeff) in constr.lhs.items():
+            var = self._varname_to_var[varname]
+            lhs += var.value * coeff
+        if constr.sense == "<":
+            return lhs <= constr.rhs + tol
+        elif constr.sense == ">":
+            return lhs >= constr.rhs - tol
+        else:
+            return abs(constr.rhs - lhs) < abs(tol)
 
     @staticmethod
     def __extract(
@@ -303,27 +329,6 @@ class BasePyomoSolver(InternalSolver):
                 continue
             result[cname] = cobj.slack()
         return result
-
-    @overrides
-    def extract_constraint(self, cid: str) -> Any:
-        cobj = self._cname_to_constr[cid]
-        constr = self._parse_pyomo_constraint(cobj)
-        self._pyomo_solver.remove_constraint(cobj)
-        return constr
-
-    @overrides
-    def is_constraint_satisfied(self, cobj: Any, tol: float = 1e-6) -> bool:
-        assert isinstance(cobj, Constraint)
-        lhs_value = 0.0
-        for (varname, coeff) in cobj.lhs.items():
-            var = self._varname_to_var[varname]
-            lhs_value += var.value * coeff
-        if cobj.sense == "=":
-            return (lhs_value <= cobj.rhs + tol) and (lhs_value >= cobj.rhs - tol)
-        elif cobj.sense == "<":
-            return lhs_value <= cobj.rhs + tol
-        else:
-            return lhs_value >= cobj.rhs - tol
 
     @overrides
     def is_infeasible(self) -> bool:
@@ -411,6 +416,7 @@ class BasePyomoSolver(InternalSolver):
             sense=sense,
         )
 
+    @overrides
     def are_callbacks_supported(self) -> bool:
         return False
 
@@ -483,13 +489,3 @@ class PyomoTestInstanceKnapsack(Instance):
             self.weights[item],
             self.prices[item],
         ]
-
-    @overrides
-    def enforce_lazy_constraint(
-        self,
-        solver: InternalSolver,
-        model: Any,
-        violation: Hashable,
-    ) -> None:
-        model.cut = pe.Constraint(expr=model.x[0] <= 0.0, name="cut")
-        solver.add_constraint(model.cut)

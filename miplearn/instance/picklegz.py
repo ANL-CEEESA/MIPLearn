@@ -106,9 +106,14 @@ class PickleGzInstance(Instance):
         return self.instance.find_violated_user_cuts(model)
 
     @overrides
-    def build_user_cut(self, model: Any, violation: Hashable) -> None:
+    def enforce_user_cut(
+        self,
+        solver: "InternalSolver",
+        model: Any,
+        violation: Hashable,
+    ) -> None:
         assert self.instance is not None
-        self.instance.build_user_cut(model, violation)
+        self.instance.enforce_user_cut(solver, model, violation)
 
     @overrides
     def load(self) -> None:

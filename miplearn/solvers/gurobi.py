@@ -32,14 +32,6 @@ from miplearn.types import (
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class ExtractedGurobiConstraint:
-    lhs: Any
-    rhs: float
-    sense: str
-    name: str
-
-
 class GurobiSolver(InternalSolver):
     """
     An InternalSolver backed by Gurobi's Python API (without Pyomo).
@@ -72,10 +64,10 @@ class GurobiSolver(InternalSolver):
         self.instance: Optional[Instance] = None
         self.model: Optional["gurobipy.Model"] = None
         self.params: SolverParams = params
-        self.varname_to_var: Dict[str, "gurobipy.Var"] = {}
-        self.bin_vars: List["gurobipy.Var"] = []
         self.cb_where: Optional[int] = None
         self.lazy_cb_frequency = lazy_cb_frequency
+        self._bin_vars: List["gurobipy.Var"] = []
+        self._varname_to_var: Dict[str, "gurobipy.Var"] = {}
 
         if self.lazy_cb_frequency == 1:
             self.lazy_cb_where = [self.gp.GRB.Callback.MIPSOL]
@@ -106,20 +98,20 @@ class GurobiSolver(InternalSolver):
 
     def _update_vars(self) -> None:
         assert self.model is not None
-        self.varname_to_var.clear()
-        self.bin_vars.clear()
+        self._varname_to_var.clear()
+        self._bin_vars.clear()
         for var in self.model.getVars():
-            assert var.varName not in self.varname_to_var, (
+            assert var.varName not in self._varname_to_var, (
                 f"Duplicated variable name detected: {var.varName}. "
                 f"Unique variable names are currently required."
             )
-            self.varname_to_var[var.varName] = var
+            self._varname_to_var[var.varName] = var
             assert var.vtype in ["B", "C"], (
                 "Only binary and continuous variables are currently supported. "
                 "Variable {var.varName} has type {var.vtype}."
             )
             if var.vtype == "B":
-                self.bin_vars.append(var)
+                self._bin_vars.append(var)
 
     def _apply_params(self, streams: List[Any]) -> None:
         assert self.model is not None
@@ -138,13 +130,13 @@ class GurobiSolver(InternalSolver):
             streams += [sys.stdout]
         self._apply_params(streams)
         assert self.model is not None
-        for var in self.bin_vars:
+        for var in self._bin_vars:
             var.vtype = self.gp.GRB.CONTINUOUS
             var.lb = 0.0
             var.ub = 1.0
         with _RedirectOutput(streams):
             self.model.optimize()
-        for var in self.bin_vars:
+        for var in self._bin_vars:
             var.vtype = self.gp.GRB.BINARY
         log = streams[0].getvalue()
         opt_value = None
@@ -262,7 +254,7 @@ class GurobiSolver(InternalSolver):
         self._raise_if_callback()
         self._clear_warm_start()
         for (var_name, value) in solution.items():
-            var = self.varname_to_var[var_name]
+            var = self._varname_to_var[var_name]
             if value is not None:
                 var.start = value
 
@@ -288,52 +280,54 @@ class GurobiSolver(InternalSolver):
         else:
             return c.pi
 
-    def _get_value(self, var: Any) -> Optional[float]:
+    def _get_value(self, var: Any) -> float:
         assert self.model is not None
         if self.cb_where == self.gp.GRB.Callback.MIPSOL:
             return self.model.cbGetSolution(var)
         elif self.cb_where == self.gp.GRB.Callback.MIPNODE:
             return self.model.cbGetNodeRel(var)
         elif self.cb_where is None:
-            if self.is_infeasible():
-                return None
-            else:
-                return var.x
+            return var.x
         else:
             raise Exception(
                 "get_value cannot be called from cb_where=%s" % self.cb_where
             )
 
     @overrides
-    def add_constraint(self, cobj: Any, name: str = "") -> None:
+    def add_constraint(self, constr: Constraint, name: str) -> None:
         assert self.model is not None
-        if isinstance(cobj, ExtractedGurobiConstraint):
-            if self.cb_where in [
-                self.gp.GRB.Callback.MIPSOL,
-                self.gp.GRB.Callback.MIPNODE,
-            ]:
-                self.model.cbLazy(cobj.lhs, cobj.sense, cobj.rhs)
-            else:
-                self.model.addConstr(cobj.lhs, cobj.sense, cobj.rhs, cobj.name)
-        elif isinstance(cobj, self.gp.TempConstr):
-            if self.cb_where in [
-                self.gp.GRB.Callback.MIPSOL,
-                self.gp.GRB.Callback.MIPNODE,
-            ]:
-                self.model.cbLazy(cobj)
-            else:
-                self.model.addConstr(cobj, name=name)
+        lhs = self.gp.quicksum(
+            self._varname_to_var[varname] * coeff
+            for (varname, coeff) in constr.lhs.items()
+        )
+        if constr.sense == "=":
+            self.model.addConstr(lhs == constr.rhs, name=name)
+        elif constr.sense == "<":
+            self.model.addConstr(lhs <= constr.rhs, name=name)
         else:
-            raise Exception(f"unknown constraint type: {cobj.__class__.__name__}")
+            self.model.addConstr(lhs >= constr.rhs, name=name)
 
     @overrides
-    def add_cut(self, cobj: Any) -> None:
+    def remove_constraint(self, name: str) -> None:
         assert self.model is not None
-        assert self.cb_where == self.gp.GRB.Callback.MIPNODE
-        self.model.cbCut(cobj)
+        constr = self.model.getConstrByName(name)
+        self.model.remove(constr)
+
+    @overrides
+    def is_constraint_satisfied(self, constr: Constraint, tol: float = 1e-6) -> bool:
+        lhs = 0.0
+        for (varname, coeff) in constr.lhs.items():
+            var = self._varname_to_var[varname]
+            lhs += self._get_value(var) * coeff
+        if constr.sense == "<":
+            return lhs <= constr.rhs + tol
+        elif constr.sense == ">":
+            return lhs >= constr.rhs - tol
+        else:
+            return abs(constr.rhs - lhs) < abs(tol)
 
     def _clear_warm_start(self) -> None:
-        for var in self.varname_to_var.values():
+        for var in self._varname_to_var.values():
             var.start = self.gp.GRB.UNDEFINED
 
     @overrides
@@ -342,49 +336,10 @@ class GurobiSolver(InternalSolver):
         for (varname, value) in solution.items():
             if value is None:
                 continue
-            var = self.varname_to_var[varname]
+            var = self._varname_to_var[varname]
             var.vtype = self.gp.GRB.CONTINUOUS
             var.lb = value
             var.ub = value
-
-    @overrides
-    def extract_constraint(self, cid: str) -> ExtractedGurobiConstraint:
-        self._raise_if_callback()
-        assert self.model is not None
-        constr = self.model.getConstrByName(cid)
-        cobj = ExtractedGurobiConstraint(
-            lhs=self.model.getRow(constr),
-            sense=constr.sense,
-            rhs=constr.RHS,
-            name=constr.ConstrName,
-        )
-        self.model.remove(constr)
-        return cobj
-
-    @overrides
-    def is_constraint_satisfied(
-        self,
-        cobj: ExtractedGurobiConstraint,
-        tol: float = 1e-6,
-    ) -> bool:
-        assert isinstance(cobj, ExtractedGurobiConstraint)
-        lhs, sense, rhs, _ = cobj.lhs, cobj.sense, cobj.rhs, cobj.name
-        if self.cb_where is not None:
-            lhs_value = lhs.getConstant()
-            for i in range(lhs.size()):
-                var = lhs.getVar(i)
-                coeff = lhs.getCoeff(i)
-                lhs_value += self._get_value(var) * coeff
-        else:
-            lhs_value = lhs.getValue()
-        if sense == "<":
-            return lhs_value <= rhs + tol
-        elif sense == ">":
-            return lhs_value >= rhs - tol
-        elif sense == "=":
-            return abs(rhs - lhs_value) < abs(tol)
-        else:
-            raise Exception("Unknown sense: %s" % sense)
 
     @overrides
     def get_inequality_slacks(self) -> Dict[str, float]:
@@ -545,4 +500,5 @@ class GurobiTestInstanceKnapsack(PyomoTestInstanceKnapsack):
         model: Any,
         violation: Hashable,
     ) -> None:
-        solver.add_constraint(model.getVarByName("x[0]") <= 0, name="cut")
+        x0 = model.getVarByName("x[0]")
+        model.cbLazy(x0 <= 0)

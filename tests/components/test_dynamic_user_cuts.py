@@ -12,6 +12,7 @@ from gurobipy import GRB
 from networkx import Graph
 from overrides import overrides
 
+from miplearn import InternalSolver
 from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.instance.base import Instance
 from miplearn.solvers.gurobi import GurobiSolver
@@ -49,10 +50,15 @@ class GurobiStableSetProblem(Instance):
         return violations
 
     @overrides
-    def build_user_cut(self, model: Any, cid: Hashable) -> Any:
+    def enforce_user_cut(
+        self,
+        solver: InternalSolver,
+        model: Any,
+        cid: Hashable,
+    ) -> Any:
         assert isinstance(cid, FrozenSet)
         x = model.getVars()
-        return gp.quicksum([x[i] for i in cid]) <= 1
+        model.addConstr(gp.quicksum([x[i] for i in cid]) <= 1)
 
 
 @pytest.fixture

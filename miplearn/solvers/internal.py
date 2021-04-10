@@ -6,6 +6,8 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
+from overrides import EnforceOverrides
+
 from miplearn.features import Constraint
 from miplearn.instance.base import Instance
 from miplearn.types import (
@@ -22,7 +24,7 @@ from miplearn.types import (
 logger = logging.getLogger(__name__)
 
 
-class InternalSolver(ABC):
+class InternalSolver(ABC, EnforceOverrides):
     """
     Abstract class representing the MIP solver used internally by LearningSolver.
     """
@@ -155,31 +157,21 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def add_constraint(self, cobj: Any, name: str = "") -> None:
+    def add_constraint(self, constr: Constraint, name: str) -> None:
         """
-        Adds a single constraint to the model.
-        """
-        pass
-
-    def add_cut(self, cobj: Any) -> None:
-        """
-        Adds a cutting plane to the model. This function can only be called from a user
-        cut callback.
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def extract_constraint(self, cid: str) -> Any:
-        """
-        Removes a given constraint from the model and returns an object `cobj` which
-        can be used to verify if the removed constraint is still satisfied by
-        the current solution, using `is_constraint_satisfied(cobj)`, and can potentially
-        be re-added to the model using `add_constraint(cobj)`.
+        Adds a given constraint to the model.
         """
         pass
 
     @abstractmethod
-    def is_constraint_satisfied(self, cobj: Any, tol: float = 1e-6) -> bool:
+    def remove_constraint(self, name: str) -> None:
+        """
+        Removes the constraint that has a given name from the model.
+        """
+        pass
+
+    @abstractmethod
+    def is_constraint_satisfied(self, constr: Constraint, tol: float = 1e-6) -> bool:
         """
         Returns True if the current solution satisfies the given constraint.
         """

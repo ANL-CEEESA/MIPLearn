@@ -11,7 +11,7 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
-from miplearn import InternalSolver
+from miplearn import InternalSolver, BasePyomoSolver
 from miplearn.instance.base import Instance
 from miplearn.types import VariableName, Category
 
@@ -108,14 +108,15 @@ class TravelingSalesmanInstance(Instance):
         model: Any,
         component: FrozenSet,
     ) -> None:
+        assert isinstance(solver, BasePyomoSolver)
         cut_edges = [
             e
             for e in self.edges
             if (e[0] in component and e[1] not in component)
             or (e[0] not in component and e[1] in component)
         ]
-        constr = model.eq_subtour.add(sum(model.x[e] for e in cut_edges) >= 2)
-        solver.add_constraint(constr)
+        constr = model.eq_subtour.add(expr=sum(model.x[e] for e in cut_edges) >= 2)
+        solver.add_constraint(constr, name="")
 
 
 class TravelingSalesmanGenerator:

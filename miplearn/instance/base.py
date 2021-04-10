@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 if TYPE_CHECKING:
     from miplearn.solvers.learning import InternalSolver
 
+
 # noinspection PyMethodMayBeStatic
 class Instance(ABC, EnforceOverrides):
     """
@@ -170,7 +171,12 @@ class Instance(ABC, EnforceOverrides):
     def find_violated_user_cuts(self, model: Any) -> List[Hashable]:
         return []
 
-    def build_user_cut(self, model: Any, violation: Hashable) -> Any:
+    def enforce_user_cut(
+        self,
+        solver: "InternalSolver",
+        model: Any,
+        violation: Hashable,
+    ) -> Any:
         return None
 
     def load(self) -> None:

@@ -75,39 +75,29 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         solver.get_constraints(),
         {
             "eq_capacity": Constraint(
-                lhs={
-                    "x[0]": 23.0,
-                    "x[1]": 26.0,
-                    "x[2]": 20.0,
-                    "x[3]": 18.0,
-                },
+                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0},
                 rhs=67.0,
                 sense="<",
             ),
         },
     )
 
-    # Add a brand new constraint
-    instance.enforce_lazy_constraint(solver, model, "cut")
+    # Build a new constraint
+    cut = Constraint(lhs={"x[0]": 1.0}, sense="<", rhs=0.0)
+    assert not solver.is_constraint_satisfied(cut)
 
-    # New constraint should be listed
+    # Add new constraint and verify that it is listed
+    solver.add_constraint(cut, "cut")
     assert_equals(
         solver.get_constraints(),
         {
             "eq_capacity": Constraint(
-                lhs={
-                    "x[0]": 23.0,
-                    "x[1]": 26.0,
-                    "x[2]": 20.0,
-                    "x[3]": 18.0,
-                },
+                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0},
                 rhs=67.0,
                 sense="<",
             ),
             "cut": Constraint(
-                lhs={
-                    "x[0]": 1.0,
-                },
+                lhs={"x[0]": 1.0},
                 rhs=0.0,
                 sense="<",
             ),
@@ -117,35 +107,23 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # New constraint should affect the solution
     stats = solver.solve()
     assert_equals(stats["Lower bound"], 1030.0)
+    assert solver.is_constraint_satisfied(cut)
 
     # Verify slacks
     assert_equals(
         solver.get_inequality_slacks(),
-        {
-            "cut": 0.0,
-            "eq_capacity": 3.0,
-        },
+        {"cut": 0.0, "eq_capacity": 3.0},
     )
 
-    # # Extract the new constraint
-    cobj = solver.extract_constraint("cut")
+    # Remove the new constraint
+    solver.remove_constraint("cut")
 
     # New constraint should no longer affect solution
     stats = solver.solve()
     assert_equals(stats["Lower bound"], 1183.0)
 
-    # New constraint should not be satisfied by current solution
-    assert not solver.is_constraint_satisfied(cobj)
-
-    # Re-add constraint
-    solver.add_constraint(cobj)
-
-    # Constraint should affect solution again
-    stats = solver.solve()
-    assert_equals(stats["Lower bound"], 1030.0)
-
-    # New constraint should now be satisfied
-    assert solver.is_constraint_satisfied(cobj)
+    # Constraint should not be satisfied by current solution
+    assert not solver.is_constraint_satisfied(cut)
 
 
 def run_warm_start_tests(solver: InternalSolver) -> None:

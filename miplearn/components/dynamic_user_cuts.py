@@ -53,8 +53,7 @@ class UserCutsComponent(Component):
         cids = self.dynamic.sample_predict(instance, training_data)
         logger.info("Enforcing %d user cuts ahead-of-time..." % len(cids))
         for cid in cids:
-            cobj = instance.build_user_cut(model, cid)
-            solver.internal_solver.add_constraint(cobj)
+            instance.enforce_user_cut(solver.internal_solver, model, cid)
         stats["UserCuts: Added ahead-of-time"] = len(cids)
 
     @overrides
@@ -73,9 +72,7 @@ class UserCutsComponent(Component):
             if cid in self.enforced:
                 continue
             assert isinstance(cid, Hashable)
-            cobj = instance.build_user_cut(model, cid)
-            assert cobj is not None
-            solver.internal_solver.add_cut(cobj)
+            instance.enforce_user_cut(solver.internal_solver, model, cid)
             self.enforced.add(cid)
             self.n_added_in_callback += 1
         if len(cids) > 0:
