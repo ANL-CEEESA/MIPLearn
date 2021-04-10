@@ -19,6 +19,7 @@ from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
 from pyomo.opt import TerminationCondition
 from pyomo.opt.base.solvers import SolverFactory
 
+from miplearn.features import Variable
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
@@ -364,6 +365,19 @@ class BasePyomoSolver(InternalSolver):
         )
 
     @overrides
+    def get_variables(self) -> Dict[str, Variable]:
+        assert self.model is not None
+        variables = {}
+        for var in self.model.component_objects(pyomo.core.Var):
+            for idx in var:
+                varname = f"{var}[{idx}]"
+                variables[varname] = self._parse_pyomo_variable(var[idx])
+        return variables
+
+    def _parse_pyomo_variable(self, var: pyomo.core.Var) -> Variable:
+        return Variable()
+
+    @overrides
     def get_constraints(self) -> Dict[str, Constraint]:
         assert self.model is not None
 
@@ -385,6 +399,7 @@ class BasePyomoSolver(InternalSolver):
         self,
         pyomo_constr: pyomo.core.Constraint,
     ) -> Constraint:
+        assert self.model is not None
         constr = Constraint()
 
         # Extract RHS and sense
@@ -446,6 +461,26 @@ class BasePyomoSolver(InternalSolver):
             "sense",
             "slack",
             "user_features",
+        ]
+
+    @overrides
+    def get_variable_attrs(self) -> List[str]:
+        return [
+            # "basis_status",
+            # "category",
+            # "lower_bound",
+            # "obj_coeff",
+            # "reduced_cost",
+            # "sa_lb_down",
+            # "sa_lb_up",
+            # "sa_obj_down",
+            # "sa_obj_up",
+            # "sa_ub_down",
+            # "sa_ub_up",
+            # "type",
+            # "upper_bound",
+            # "user_features",
+            # "value",
         ]
 
 

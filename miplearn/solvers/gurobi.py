@@ -10,7 +10,7 @@ from typing import List, Any, Dict, Optional, Hashable
 
 from overrides import overrides
 
-from miplearn.features import Constraint
+from miplearn.features import Constraint, Variable
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
@@ -416,6 +416,49 @@ class GurobiSolver(InternalSolver):
         )
 
     @overrides
+    def get_variables(self) -> Dict[str, Variable]:
+        assert self.model is not None
+        variables = {}
+        for gp_var in self.model.getVars():
+            name = gp_var.varName
+            assert len(name) > 0, f"empty variable name detected"
+            assert name not in variables, f"duplicated variable name detected: {name}"
+            var = self._parse_gurobi_var(gp_var)
+            variables[name] = var
+        return variables
+
+    def _parse_gurobi_var(self, gp_var: Any) -> Variable:
+        assert self.model is not None
+        var = Variable()
+        var.lower_bound = gp_var.lb
+        var.upper_bound = gp_var.ub
+        var.obj_coeff = gp_var.obj
+        var.type = gp_var.vtype
+
+        if self._has_lp_solution:
+            var.reduced_cost = gp_var.rc
+            var.sa_obj_up = gp_var.saobjUp
+            var.sa_obj_down = gp_var.saobjLow
+            var.sa_ub_up = gp_var.saubUp
+            var.sa_ub_down = gp_var.saubLow
+            var.sa_lb_up = gp_var.salbUp
+            var.sa_lb_down = gp_var.salbLow
+            vbasis = gp_var.vbasis
+            if vbasis == 0:
+                var.basis_status = "B"
+            elif vbasis == -1:
+                var.basis_status = "L"
+            elif vbasis == -2:
+                var.basis_status = "U"
+            elif vbasis == -3:
+                var.basis_status = "S"
+            else:
+                raise Exception(f"unknown vbasis: {vbasis}")
+        if self._has_lp_solution or self._has_mip_solution:
+            var.value = gp_var.x
+        return var
+
+    @overrides
     def get_constraints(self) -> Dict[str, Constraint]:
         assert self.model is not None
         self._raise_if_callback()
@@ -443,11 +486,11 @@ class GurobiSolver(InternalSolver):
         if self._has_lp_solution:
             constr.dual_value = gp_constr.pi
             constr.sa_rhs_up = gp_constr.sarhsup
-            constr.sa_rhs_low = gp_constr.sarhslow
+            constr.sa_rhs_down = gp_constr.sarhslow
             if gp_constr.cbasis == 0:
-                constr.basis_status = "b"
+                constr.basis_status = "B"
             elif gp_constr.cbasis == -1:
-                constr.basis_status = "n"
+                constr.basis_status = "N"
             else:
                 raise Exception(f"unknown cbasis: {gp_constr.cbasis}")
         if self._has_lp_solution or self._has_mip_solution:
@@ -472,6 +515,26 @@ class GurobiSolver(InternalSolver):
             "sense",
             "slack",
             "user_features",
+        ]
+
+    @overrides
+    def get_variable_attrs(self) -> List[str]:
+        return [
+            "basis_status",
+            "category",
+            "lower_bound",
+            "obj_coeff",
+            "reduced_cost",
+            "sa_lb_down",
+            "sa_lb_up",
+            "sa_obj_down",
+            "sa_obj_up",
+            "sa_ub_down",
+            "sa_ub_up",
+            "type",
+            "upper_bound",
+            "user_features",
+            "value",
         ]
 
 

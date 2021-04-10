@@ -4,9 +4,10 @@
 
 from typing import Any, Dict
 
-from miplearn.features import Constraint
+from miplearn.features import Constraint, Variable
 from miplearn.solvers.internal import InternalSolver
 
+inf = float("inf")
 
 # NOTE:
 # This file is in the main source folder, so that it can be called from Julia.
@@ -20,10 +21,30 @@ def _round_constraints(constraints: Dict[str, Constraint]) -> Dict[str, Constrai
     return constraints
 
 
+def _round_variables(vars: Dict[str, Variable]) -> Dict[str, Variable]:
+    for (cname, c) in vars.items():
+        for attr in [
+            "upper_bound",
+            "lower_bound",
+            "obj_coeff",
+            "value",
+            "reduced_cost",
+            "sa_obj_up",
+            "sa_obj_down",
+            "sa_ub_up",
+            "sa_ub_down",
+            "sa_lb_up",
+            "sa_lb_down",
+        ]:
+            if getattr(c, attr) is not None:
+                setattr(c, attr, round(getattr(c, attr), 6))
+    return vars
+
+
 def _remove_unsupported_constr_attrs(
     solver: InternalSolver,
     constraints: Dict[str, Constraint],
-):
+) -> Dict[str, Constraint]:
     for (cname, c) in constraints.items():
         to_remove = []
         for k in c.__dict__.keys():
@@ -32,6 +53,20 @@ def _remove_unsupported_constr_attrs(
         for k in to_remove:
             setattr(c, k, None)
     return constraints
+
+
+def _remove_unsupported_var_attrs(
+    solver: InternalSolver,
+    variables: Dict[str, Variable],
+) -> Dict[str, Variable]:
+    for (cname, c) in variables.items():
+        to_remove = []
+        for k in c.__dict__.keys():
+            if k not in solver.get_variable_attrs():
+                to_remove.append(k)
+        for k in to_remove:
+            setattr(c, k, None)
+    return variables
 
 
 def run_internal_solver_tests(solver: InternalSolver) -> None:
@@ -51,8 +86,36 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # Fetch variables (after-load)
     assert_equals(
-        solver.get_variable_names(),
-        ["x[0]", "x[1]", "x[2]", "x[3]"],
+        _round_variables(solver.get_variables()),
+        _remove_unsupported_var_attrs(
+            solver,
+            {
+                "x[0]": Variable(
+                    lower_bound=0.0,
+                    obj_coeff=505.0,
+                    type="B",
+                    upper_bound=1.0,
+                ),
+                "x[1]": Variable(
+                    lower_bound=0.0,
+                    obj_coeff=352.0,
+                    type="B",
+                    upper_bound=1.0,
+                ),
+                "x[2]": Variable(
+                    lower_bound=0.0,
+                    obj_coeff=458.0,
+                    type="B",
+                    upper_bound=1.0,
+                ),
+                "x[3]": Variable(
+                    lower_bound=0.0,
+                    obj_coeff=220.0,
+                    type="B",
+                    upper_bound=1.0,
+                ),
+            },
+        ),
     )
 
     # Fetch constraints (after-load)
@@ -75,17 +138,75 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     assert_equals(round(lp_stats["LP value"], 3), 1287.923)
     assert len(lp_stats["LP log"]) > 100
 
-    # Fetch variables (after-lp)
-    solution = solver.get_solution()
-    assert solution is not None
-    assert solution["x[0]"] is not None
-    assert solution["x[1]"] is not None
-    assert solution["x[2]"] is not None
-    assert solution["x[3]"] is not None
-    assert_equals(round(solution["x[0]"], 3), 1.000)
-    assert_equals(round(solution["x[1]"], 3), 0.923)
-    assert_equals(round(solution["x[2]"], 3), 1.000)
-    assert_equals(round(solution["x[3]"], 3), 0.000)
+    # Fetch variables (after-load)
+    assert_equals(
+        _round_variables(solver.get_variables()),
+        _remove_unsupported_var_attrs(
+            solver,
+            {
+                "x[0]": Variable(
+                    basis_status="U",
+                    lower_bound=0.0,
+                    obj_coeff=505.0,
+                    reduced_cost=193.615385,
+                    sa_lb_down=-inf,
+                    sa_lb_up=1.0,
+                    sa_obj_down=311.384615,
+                    sa_obj_up=inf,
+                    sa_ub_down=0.913043,
+                    sa_ub_up=2.043478,
+                    type="C",
+                    upper_bound=1.0,
+                    value=1.0,
+                ),
+                "x[1]": Variable(
+                    basis_status="B",
+                    lower_bound=0.0,
+                    obj_coeff=352.0,
+                    reduced_cost=0.0,
+                    sa_lb_down=-inf,
+                    sa_lb_up=0.923077,
+                    sa_obj_down=317.777778,
+                    sa_obj_up=570.869565,
+                    sa_ub_down=0.923077,
+                    sa_ub_up=inf,
+                    type="C",
+                    upper_bound=1.0,
+                    value=0.923077,
+                ),
+                "x[2]": Variable(
+                    basis_status="U",
+                    lower_bound=0.0,
+                    obj_coeff=458.0,
+                    reduced_cost=187.230769,
+                    sa_lb_down=-inf,
+                    sa_lb_up=1.0,
+                    sa_obj_down=270.769231,
+                    sa_obj_up=inf,
+                    sa_ub_down=0.9,
+                    sa_ub_up=2.2,
+                    type="C",
+                    upper_bound=1.0,
+                    value=1.0,
+                ),
+                "x[3]": Variable(
+                    basis_status="L",
+                    lower_bound=0.0,
+                    obj_coeff=220.0,
+                    reduced_cost=-23.692308,
+                    sa_lb_down=-0.111111,
+                    sa_lb_up=1.0,
+                    sa_obj_down=-inf,
+                    sa_obj_up=243.692308,
+                    sa_ub_down=0.0,
+                    sa_ub_up=inf,
+                    type="C",
+                    upper_bound=1.0,
+                    value=0.0,
+                ),
+            },
+        ),
+    )
 
     # Fetch constraints (after-lp)
     assert_equals(
@@ -100,9 +221,9 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
                     sense="<",
                     slack=0.0,
                     dual_value=13.538462,
-                    sa_rhs_down=None,
+                    sa_rhs_down=43.0,
                     sa_rhs_up=69.0,
-                    basis_status="n",
+                    basis_status="N",
                 )
             },
         ),
@@ -122,17 +243,43 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     assert_equals(mip_stats["Sense"], "max")
     assert isinstance(mip_stats["Wallclock time"], float)
 
-    # Fetch variables (after-mip)
-    solution = solver.get_solution()
-    assert solution is not None
-    assert solution["x[0]"] is not None
-    assert solution["x[1]"] is not None
-    assert solution["x[2]"] is not None
-    assert solution["x[3]"] is not None
-    assert_equals(solution["x[0]"], 1.0)
-    assert_equals(solution["x[1]"], 0.0)
-    assert_equals(solution["x[2]"], 1.0)
-    assert_equals(solution["x[3]"], 1.0)
+    # Fetch variables (after-load)
+    assert_equals(
+        _round_variables(solver.get_variables()),
+        _remove_unsupported_var_attrs(
+            solver,
+            {
+                "x[0]": Variable(
+                    lower_bound=0.0,
+                    obj_coeff=505.0,
+                    type="B",
+                    upper_bound=1.0,
+                    value=1.0,
+                ),
+                "x[1]": Variable(
+                    lower_bound=0.0,
+                    obj_coeff=352.0,
+                    type="B",
+                    upper_bound=1.0,
+                    value=0.0,
+                ),
+                "x[2]": Variable(
+                    lower_bound=0.0,
+                    obj_coeff=458.0,
+                    type="B",
+                    upper_bound=1.0,
+                    value=1.0,
+                ),
+                "x[3]": Variable(
+                    lower_bound=0.0,
+                    obj_coeff=220.0,
+                    type="B",
+                    upper_bound=1.0,
+                    value=1.0,
+                ),
+            },
+        ),
+    )
 
     # Fetch constraints (after-mip)
     assert_equals(

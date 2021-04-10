@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 
 from overrides import EnforceOverrides
 
-from miplearn.features import Constraint
+from miplearn.features import Constraint, Variable
 from miplearn.instance.base import Instance
 from miplearn.types import (
     LPSolveStats,
@@ -248,8 +248,20 @@ class InternalSolver(ABC, EnforceOverrides):
         return False
 
     @abstractmethod
+    def get_variables(self) -> Dict[str, Variable]:
+        pass
+
+    @abstractmethod
     def get_constraint_attrs(self) -> List[str]:
         """
         Returns a list of constraint attributes supported by this solver.
+        """
+
+        pass
+
+    @abstractmethod
+    def get_variable_attrs(self) -> List[str]:
+        """
+        Returns a list of variable attributes supported by this solver.
         """
         pass

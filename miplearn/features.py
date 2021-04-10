@@ -36,9 +36,22 @@ class InstanceFeatures:
 
 
 @dataclass
-class VariableFeatures:
+class Variable:
+    basis_status: Optional[str] = None
     category: Optional[Hashable] = None
+    lower_bound: Optional[float] = None
+    obj_coeff: Optional[float] = None
+    reduced_cost: Optional[float] = None
+    sa_lb_down: Optional[float] = None
+    sa_lb_up: Optional[float] = None
+    sa_obj_down: Optional[float] = None
+    sa_obj_up: Optional[float] = None
+    sa_ub_down: Optional[float] = None
+    sa_ub_up: Optional[float] = None
+    type: Optional[str] = None
+    upper_bound: Optional[float] = None
     user_features: Optional[List[float]] = None
+    value: Optional[float] = None
 
 
 @dataclass
@@ -59,7 +72,7 @@ class Constraint:
 @dataclass
 class Features:
     instance: Optional[InstanceFeatures] = None
-    variables: Optional[Dict[str, VariableFeatures]] = None
+    variables: Optional[Dict[str, Variable]] = None
     constraints: Optional[Dict[str, Constraint]] = None
 
 
@@ -78,8 +91,8 @@ class FeaturesExtractor:
     def _extract_variables(
         self,
         instance: "Instance",
-    ) -> Dict[VariableName, VariableFeatures]:
-        result: Dict[VariableName, VariableFeatures] = {}
+    ) -> Dict[VariableName, Variable]:
+        result: Dict[VariableName, Variable] = {}
         for var_name in self.solver.get_variable_names():
             user_features: Optional[List[float]] = None
             category: Category = instance.get_variable_category(var_name)
@@ -102,7 +115,7 @@ class FeaturesExtractor:
                         f"Found {type(v).__name__} instead "
                         f"for var={var_name}."
                     )
-            result[var_name] = VariableFeatures(
+            result[var_name] = Variable(
                 category=category,
                 user_features=user_features,
             )

@@ -12,7 +12,7 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.primal import PrimalSolutionComponent
-from miplearn.features import TrainingSample, VariableFeatures, Features
+from miplearn.features import TrainingSample, Variable, Features
 from miplearn.instance.base import Instance
 from miplearn.problems.tsp import TravelingSalesmanGenerator
 from miplearn.solvers.learning import LearningSolver
@@ -21,18 +21,18 @@ from miplearn.solvers.learning import LearningSolver
 def test_xy() -> None:
     features = Features(
         variables={
-            "x[0]": VariableFeatures(
+            "x[0]": Variable(
                 category="default",
                 user_features=[0.0, 0.0],
             ),
-            "x[1]": VariableFeatures(
+            "x[1]": Variable(
                 category=None,
             ),
-            "x[2]": VariableFeatures(
+            "x[2]": Variable(
                 category="default",
                 user_features=[1.0, 0.0],
             ),
-            "x[3]": VariableFeatures(
+            "x[3]": Variable(
                 category="default",
                 user_features=[1.0, 1.0],
             ),
@@ -78,18 +78,18 @@ def test_xy() -> None:
 def test_xy_without_lp_solution() -> None:
     features = Features(
         variables={
-            "x[0]": VariableFeatures(
+            "x[0]": Variable(
                 category="default",
                 user_features=[0.0, 0.0],
             ),
-            "x[1]": VariableFeatures(
+            "x[1]": Variable(
                 category=None,
             ),
-            "x[2]": VariableFeatures(
+            "x[2]": Variable(
                 category="default",
                 user_features=[1.0, 0.0],
             ),
-            "x[3]": VariableFeatures(
+            "x[3]": Variable(
                 category="default",
                 user_features=[1.0, 1.0],
             ),
@@ -141,15 +141,15 @@ def test_predict() -> None:
     thr.predict = Mock(return_value=[0.75, 0.75])
     features = Features(
         variables={
-            "x[0]": VariableFeatures(
+            "x[0]": Variable(
                 category="default",
                 user_features=[0.0, 0.0],
             ),
-            "x[1]": VariableFeatures(
+            "x[1]": Variable(
                 category="default",
                 user_features=[0.0, 2.0],
             ),
-            "x[2]": VariableFeatures(
+            "x[2]": Variable(
                 category="default",
                 user_features=[2.0, 0.0],
             ),
@@ -235,11 +235,11 @@ def test_evaluate() -> None:
     }
     features: Features = Features(
         variables={
-            "x[0]": VariableFeatures(),
-            "x[1]": VariableFeatures(),
-            "x[2]": VariableFeatures(),
-            "x[3]": VariableFeatures(),
-            "x[4]": VariableFeatures(),
+            "x[0]": Variable(),
+            "x[1]": Variable(),
+            "x[2]": Variable(),
+            "x[3]": Variable(),
+            "x[4]": Variable(),
         }
     )
     instance = Mock(spec=Instance)

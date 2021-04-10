@@ -16,7 +16,7 @@ from .components.static_lazy import StaticLazyConstraintsComponent
 from .features import (
     Features,
     TrainingSample,
-    VariableFeatures,
+    Variable,
     InstanceFeatures,
 )
 from .instance.base import Instance
