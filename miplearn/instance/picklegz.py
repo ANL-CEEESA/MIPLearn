@@ -6,12 +6,15 @@ import gc
 import gzip
 import os
 import pickle
-from typing import Optional, Any, List, Hashable, cast, IO
+from typing import Optional, Any, List, Hashable, cast, IO, TYPE_CHECKING
 
 from overrides import overrides
 
 from miplearn.instance.base import logger, Instance
 from miplearn.types import VariableName, Category
+
+if TYPE_CHECKING:
+    from miplearn.solvers.learning import InternalSolver
 
 
 class PickleGzInstance(Instance):
@@ -79,14 +82,23 @@ class PickleGzInstance(Instance):
         return self.instance.is_constraint_lazy(cid)
 
     @overrides
-    def find_violated_lazy_constraints(self, model: Any) -> List[Hashable]:
+    def find_violated_lazy_constraints(
+        self,
+        solver: "InternalSolver",
+        model: Any,
+    ) -> List[Hashable]:
         assert self.instance is not None
-        return self.instance.find_violated_lazy_constraints(model)
+        return self.instance.find_violated_lazy_constraints(solver, model)
 
     @overrides
-    def build_lazy_constraint(self, model: Any, violation: Hashable) -> Any:
+    def enforce_lazy_constraint(
+        self,
+        solver: "InternalSolver",
+        model: Any,
+        violation: Hashable,
+    ) -> None:
         assert self.instance is not None
-        return self.instance.build_lazy_constraint(model, violation)
+        self.instance.enforce_lazy_constraint(solver, model, violation)
 
     @overrides
     def find_violated_user_cuts(self, model: Any) -> List[Hashable]:
@@ -94,9 +106,9 @@ class PickleGzInstance(Instance):
         return self.instance.find_violated_user_cuts(model)
 
     @overrides
-    def build_user_cut(self, model: Any, violation: Hashable) -> Any:
+    def build_user_cut(self, model: Any, violation: Hashable) -> None:
         assert self.instance is not None
-        return self.instance.build_user_cut(model, violation)
+        self.instance.build_user_cut(model, violation)
 
     @overrides
     def load(self) -> None:

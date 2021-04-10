@@ -4,7 +4,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional, Hashable
+from typing import Any, List, Optional, Hashable, TYPE_CHECKING
 
 from overrides import EnforceOverrides
 
@@ -13,9 +13,11 @@ from miplearn.types import VariableName, Category
 
 logger = logging.getLogger(__name__)
 
+if TYPE_CHECKING:
+    from miplearn.solvers.learning import InternalSolver
 
 # noinspection PyMethodMayBeStatic
-class Instance(ABC):
+class Instance(ABC, EnforceOverrides):
     """
     Abstract class holding all the data necessary to generate a concrete model of the
     proble.
@@ -109,28 +111,40 @@ class Instance(ABC):
     def is_constraint_lazy(self, cid: str) -> bool:
         return False
 
-    def find_violated_lazy_constraints(self, model: Any) -> List[Hashable]:
+    def find_violated_lazy_constraints(
+        self,
+        solver: "InternalSolver",
+        model: Any,
+    ) -> List[Hashable]:
         """
         Returns lazy constraint violations found for the current solution.
 
         After solving a model, LearningSolver will ask the instance to identify which
         lazy constraints are violated by the current solution. For each identified
-        violation, LearningSolver will then call the build_lazy_constraint, add the
-        generated Pyomo constraint to the model, then resolve the problem. The
-        process repeats until no further lazy constraint violations are found.
+        violation, LearningSolver will then call the enforce_lazy_constraint and
+        resolve the problem. The process repeats until no further lazy constraint
+        violations are found.
 
         Each "violation" is simply a string, a tuple or any other hashable type which
         allows the instance to identify unambiguously which lazy constraint should be
         generated. In the Traveling Salesman Problem, for example, a subtour
         violation could be a frozen set containing the cities in the subtour.
 
+        The current solution can be queried with `solver.get_solution()`. If the solver
+        is configured to use lazy callbacks, this solution may be non-integer.
+
         For a concrete example, see TravelingSalesmanInstance.
         """
         return []
 
-    def build_lazy_constraint(self, model: Any, violation: Hashable) -> Any:
+    def enforce_lazy_constraint(
+        self,
+        solver: "InternalSolver",
+        model: Any,
+        violation: Hashable,
+    ) -> None:
         """
-        Returns a Pyomo constraint which fixes a given violation.
+        Adds constraints to the model to ensure that the given violation is fixed.
 
         This method is typically called immediately after
         find_violated_lazy_constraints. The violation object provided to this method
@@ -138,11 +152,13 @@ class Instance(ABC):
         find_violated_lazy_constraints. After some training, LearningSolver may
         decide to proactively build some lazy constraints at the beginning of the
         optimization process, before a solution is even available. In this case,
-        build_lazy_constraints will be called without a corresponding call to
+        enforce_lazy_constraints will be called without a corresponding call to
         find_violated_lazy_constraints.
 
-        The implementation should not directly add the constraint to the model. The
-        constraint will be added by LearningSolver after the method returns.
+        Note that this method can be called either before the optimization starts or
+        from within a callback. To ensure that constraints are added correctly in
+        either case, it is recommended to use `solver.add_constraint`, instead of
+        modifying the `model` object directly.
 
         For a concrete example, see TravelingSalesmanInstance.
         """

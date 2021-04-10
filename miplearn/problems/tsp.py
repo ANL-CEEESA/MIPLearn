@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List, Tuple, FrozenSet, Any, Optional
+from typing import List, Tuple, FrozenSet, Any, Optional, Hashable
 
 import networkx as nx
 import numpy as np
@@ -11,6 +11,7 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
+from miplearn import InternalSolver
 from miplearn.instance.base import Instance
 from miplearn.types import VariableName, Category
 
@@ -85,7 +86,11 @@ class TravelingSalesmanInstance(Instance):
         return self.varname_to_index[var_name]
 
     @overrides
-    def find_violated_lazy_constraints(self, model: Any) -> List[FrozenSet]:
+    def find_violated_lazy_constraints(
+        self,
+        solver: InternalSolver,
+        model: Any,
+    ) -> List[FrozenSet]:
         selected_edges = [e for e in self.edges if model.x[e].value > 0.5]
         graph = nx.Graph()
         graph.add_edges_from(selected_edges)
@@ -97,14 +102,20 @@ class TravelingSalesmanInstance(Instance):
         return violations
 
     @overrides
-    def build_lazy_constraint(self, model: Any, component: FrozenSet) -> Any:
+    def enforce_lazy_constraint(
+        self,
+        solver: InternalSolver,
+        model: Any,
+        component: FrozenSet,
+    ) -> None:
         cut_edges = [
             e
             for e in self.edges
             if (e[0] in component and e[1] not in component)
             or (e[0] not in component and e[1] in component)
         ]
-        return model.eq_subtour.add(sum(model.x[e] for e in cut_edges) >= 2)
+        constr = model.eq_subtour.add(sum(model.x[e] for e in cut_edges) >= 2)
+        solver.add_constraint(constr)
 
 
 class TravelingSalesmanGenerator:

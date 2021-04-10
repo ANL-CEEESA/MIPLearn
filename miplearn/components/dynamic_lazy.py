@@ -51,8 +51,7 @@ class DynamicLazyConstraintsComponent(Component):
     ) -> None:
         assert solver.internal_solver is not None
         for cid in cids:
-            cobj = instance.build_lazy_constraint(model, cid)
-            solver.internal_solver.add_constraint(cobj)
+            instance.enforce_lazy_constraint(solver.internal_solver, model, cid)
 
     @overrides
     def before_solve_mip(
@@ -78,7 +77,7 @@ class DynamicLazyConstraintsComponent(Component):
         model: Any,
     ) -> bool:
         logger.debug("Finding violated lazy constraints...")
-        cids = instance.find_violated_lazy_constraints(model)
+        cids = instance.find_violated_lazy_constraints(solver.internal_solver, model)
         if len(cids) == 0:
             logger.debug("No violations found")
             return False

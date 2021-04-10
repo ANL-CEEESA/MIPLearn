@@ -426,6 +426,7 @@ class PyomoTestInstanceInfeasible(Instance):
 
 
 class PyomoTestInstanceRedundancy(Instance):
+    @overrides
     def to_model(self) -> pe.ConcreteModel:
         model = pe.ConcreteModel()
         model.x = pe.Var([0, 1], domain=pe.Binary)
@@ -484,6 +485,11 @@ class PyomoTestInstanceKnapsack(Instance):
         ]
 
     @overrides
-    def build_lazy_constraint(self, model: Any, violation: Hashable) -> Any:
+    def enforce_lazy_constraint(
+        self,
+        solver: InternalSolver,
+        model: Any,
+        violation: Hashable,
+    ) -> None:
         model.cut = pe.Constraint(expr=model.x[0] <= 0.0, name="cut")
-        return model.cut
+        solver.add_constraint(model.cut)

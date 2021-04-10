@@ -232,8 +232,21 @@ class GurobiSolver(InternalSolver):
 
     @overrides
     def get_solution(self) -> Optional[Solution]:
-        self._raise_if_callback()
         assert self.model is not None
+        if self.cb_where is not None:
+            if self.cb_where == self.gp.GRB.Callback.MIPNODE:
+                return {
+                    v.varName: self.model.cbGetNodeRel(v) for v in self.model.getVars()
+                }
+            elif self.cb_where == self.gp.GRB.Callback.MIPSOL:
+                return {
+                    v.varName: self.model.cbGetSolution(v) for v in self.model.getVars()
+                }
+            else:
+                raise Exception(
+                    f"get_solution can only be called from a callback "
+                    f"when cb_where is either MIPNODE or MIPSOL"
+                )
         if self.model.solCount == 0:
             return None
         return {v.varName: v.x for v in self.model.getVars()}
@@ -481,6 +494,7 @@ class GurobiTestInstanceInfeasible(Instance):
 
 
 class GurobiTestInstanceRedundancy(Instance):
+    @overrides
     def to_model(self) -> Any:
         import gurobipy as gp
         from gurobipy import GRB
@@ -525,11 +539,10 @@ class GurobiTestInstanceKnapsack(PyomoTestInstanceKnapsack):
         return model
 
     @overrides
-    def build_lazy_constraint(self, model: Any, violation: Hashable) -> Any:
-        # TODO: Replace by plain constraint
-        return ExtractedGurobiConstraint(
-            lhs=1.0 * model.getVarByName("x[0]"),
-            sense="<",
-            rhs=0.0,
-            name="cut",
-        )
+    def enforce_lazy_constraint(
+        self,
+        solver: InternalSolver,
+        model: Any,
+        violation: Hashable,
+    ) -> None:
+        solver.add_constraint(model.getVarByName("x[0]") <= 0, name="cut")

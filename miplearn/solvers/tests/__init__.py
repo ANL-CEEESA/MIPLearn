@@ -88,9 +88,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     )
 
     # Add a brand new constraint
-    cut = instance.build_lazy_constraint(model, "cut")
-    assert cut is not None
-    solver.add_constraint(cut, name="cut")
+    instance.enforce_lazy_constraint(solver, model, "cut")
 
     # New constraint should be listed
     assert_equals(
@@ -199,18 +197,16 @@ def run_iteration_cb_tests(solver: InternalSolver) -> None:
 def run_lazy_cb_tests(solver: InternalSolver) -> None:
     instance = solver.build_test_instance_knapsack()
     model = instance.to_model()
-    lazy_cb_count = 0
 
     def lazy_cb(cb_solver: InternalSolver, cb_model: Any) -> None:
-        nonlocal lazy_cb_count
-        lazy_cb_count += 1
-        cobj = instance.build_lazy_constraint(model, "cut")
-        if not cb_solver.is_constraint_satisfied(cobj):
-            cb_solver.add_constraint(cobj)
+        relsol = cb_solver.get_solution()
+        assert relsol is not None
+        assert relsol["x[0]"] is not None
+        if relsol["x[0]"] > 0:
+            instance.enforce_lazy_constraint(cb_solver, cb_model, "cut")
 
     solver.set_instance(instance, model)
     solver.solve(lazy_cb=lazy_cb)
-    assert lazy_cb_count > 0
     solution = solver.get_solution()
     assert solution is not None
     assert_equals(solution["x[0]"], 0.0)
