@@ -4,8 +4,6 @@
 import logging
 import re
 import sys
-from dataclasses import dataclass
-from enum import Enum
 from io import StringIO
 from random import randint
 from typing import List, Any, Dict, Optional, Hashable
@@ -444,6 +442,14 @@ class GurobiSolver(InternalSolver):
         )
         if self._has_lp_solution:
             constr.dual_value = gp_constr.pi
+            constr.sa_rhs_up = gp_constr.sarhsup
+            constr.sa_rhs_low = gp_constr.sarhslow
+            if gp_constr.cbasis == 0:
+                constr.basis_status = "b"
+            elif gp_constr.cbasis == -1:
+                constr.basis_status = "n"
+            else:
+                raise Exception(f"unknown cbasis: {gp_constr.cbasis}")
         if self._has_lp_solution or self._has_mip_solution:
             constr.slack = gp_constr.slack
         return constr
@@ -451,6 +457,22 @@ class GurobiSolver(InternalSolver):
     @overrides
     def are_callbacks_supported(self) -> bool:
         return True
+
+    @overrides
+    def get_constraint_attrs(self) -> List[str]:
+        return [
+            "basis_status",
+            "category",
+            "dual_value",
+            "lazy",
+            "lhs",
+            "rhs",
+            "sa_rhs_down",
+            "sa_rhs_up",
+            "sense",
+            "slack",
+            "user_features",
+        ]
 
 
 class GurobiTestInstanceInfeasible(Instance):

@@ -246,3 +246,10 @@ class InternalSolver(ABC, EnforceOverrides):
         callback or user cuts callback.
         """
         return False
+
+    @abstractmethod
+    def get_constraint_attrs(self) -> List[str]:
+        """
+        Returns a list of constraint attributes supported by this solver.
+        """
+        pass

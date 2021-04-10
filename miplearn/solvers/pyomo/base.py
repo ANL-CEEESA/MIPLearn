@@ -435,6 +435,19 @@ class BasePyomoSolver(InternalSolver):
     def are_callbacks_supported(self) -> bool:
         return False
 
+    @overrides
+    def get_constraint_attrs(self) -> List[str]:
+        return [
+            "category",
+            "dual_value",
+            "lazy",
+            "lhs",
+            "rhs",
+            "sense",
+            "slack",
+            "user_features",
+        ]
+
 
 class PyomoTestInstanceInfeasible(Instance):
     @overrides

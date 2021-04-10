@@ -2,7 +2,7 @@
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Any
+from typing import Any, Dict
 
 from miplearn.features import Constraint
 from miplearn.solvers.internal import InternalSolver
@@ -12,11 +12,25 @@ from miplearn.solvers.internal import InternalSolver
 # This file is in the main source folder, so that it can be called from Julia.
 
 
-def _round_constraints(constraints):
+def _round_constraints(constraints: Dict[str, Constraint]) -> Dict[str, Constraint]:
     for (cname, c) in constraints.items():
         for attr in ["slack", "dual_value"]:
             if getattr(c, attr) is not None:
                 setattr(c, attr, round(getattr(c, attr), 6))
+    return constraints
+
+
+def _remove_unsupported_constr_attrs(
+    solver: InternalSolver,
+    constraints: Dict[str, Constraint],
+):
+    for (cname, c) in constraints.items():
+        to_remove = []
+        for k in c.__dict__.keys():
+            if k not in solver.get_constraint_attrs():
+                to_remove.append(k)
+        for k in to_remove:
+            setattr(c, k, None)
     return constraints
 
 
@@ -76,16 +90,22 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # Fetch constraints (after-lp)
     assert_equals(
         _round_constraints(solver.get_constraints()),
-        {
-            "eq_capacity": Constraint(
-                lazy=False,
-                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0},
-                rhs=67.0,
-                sense="<",
-                slack=0.0,
-                dual_value=13.538462,
-            )
-        },
+        _remove_unsupported_constr_attrs(
+            solver,
+            {
+                "eq_capacity": Constraint(
+                    lazy=False,
+                    lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0},
+                    rhs=67.0,
+                    sense="<",
+                    slack=0.0,
+                    dual_value=13.538462,
+                    sa_rhs_down=None,
+                    sa_rhs_up=69.0,
+                    basis_status="n",
+                )
+            },
+        ),
     )
 
     # Solve MIP
