@@ -6,7 +6,7 @@ import logging
 import re
 import sys
 from io import StringIO
-from typing import Any, List, Dict, Optional
+from typing import Any, List, Dict, Optional, Hashable
 
 import pyomo
 from overrides import overrides
@@ -230,7 +230,7 @@ class BasePyomoSolver(InternalSolver):
             self._pyomo_solver.update_var(var)
 
     @overrides
-    def add_constraint(self, constraint: Any) -> Any:
+    def add_constraint(self, constraint: Any, name: str = "") -> Any:
         self._pyomo_solver.add_constraint(constraint)
         self._update_constrs()
 
@@ -425,3 +425,8 @@ class PyomoTestInstanceKnapsack(Instance):
             self.weights[item],
             self.prices[item],
         ]
+
+    @overrides
+    def build_lazy_constraint(self, model: Any, violation: Hashable) -> Any:
+        model.cut = pe.Constraint(expr=model.x[0] <= 0.0, name="cut")
+        return model.cut

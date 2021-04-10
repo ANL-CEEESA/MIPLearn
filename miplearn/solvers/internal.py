@@ -6,8 +6,6 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-from overrides import EnforceOverrides
-
 from miplearn.instance.base import Instance
 from miplearn.types import (
     LPSolveStats,
@@ -178,7 +176,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def add_constraint(self, cobj: Constraint) -> None:
+    def add_constraint(self, cobj: Constraint, name: str = "") -> None:
         """
         Adds a single constraint to the model.
         """

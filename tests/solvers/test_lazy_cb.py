@@ -5,8 +5,8 @@
 import logging
 from typing import Any
 
-from miplearn import InternalSolver
 from miplearn.solvers.gurobi import GurobiSolver
+from miplearn.solvers.internal import InternalSolver
 
 logger = logging.getLogger(__name__)
 

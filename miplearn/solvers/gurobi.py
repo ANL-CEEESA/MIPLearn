@@ -6,7 +6,7 @@ import re
 import sys
 from io import StringIO
 from random import randint
-from typing import List, Any, Dict, Optional
+from typing import List, Any, Dict, Optional, Hashable
 
 from overrides import overrides
 
@@ -517,3 +517,8 @@ class GurobiTestInstanceKnapsack(PyomoTestInstanceKnapsack):
             gp.quicksum(x[i] * self.prices[i] for i in range(n)), GRB.MAXIMIZE
         )
         return model
+
+    @overrides
+    def build_lazy_constraint(self, model: Any, violation: Hashable) -> Any:
+        x = model.getVarByName("x[0]")
+        return x <= 0.0

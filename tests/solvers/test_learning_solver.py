@@ -9,13 +9,14 @@ from typing import List, cast
 
 import dill
 
-from miplearn import Instance, InternalSolver
+from miplearn.instance.base import Instance
 from miplearn.instance.picklegz import PickleGzInstance, write_pickle_gz, read_pickle_gz
 from miplearn.solvers.gurobi import GurobiSolver
+from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.learning import LearningSolver
 
 # noinspection PyUnresolvedReferences
-from tests import internal_solvers
+from tests.solvers.test_internal_solver import internal_solvers
 
 logger = logging.getLogger(__name__)
 
