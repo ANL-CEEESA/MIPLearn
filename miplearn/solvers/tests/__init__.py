@@ -16,6 +16,9 @@ def run_internal_solver_tests(solver: InternalSolver) -> None:
     run_basic_usage_tests(solver.clone())
     run_warm_start_tests(solver.clone())
     run_infeasibility_tests(solver.clone())
+    run_iteration_cb_tests(solver.clone())
+    if solver.are_callbacks_supported():
+        run_lazy_cb_tests(solver.clone())
 
 
 def run_basic_usage_tests(solver: InternalSolver) -> None:
@@ -191,6 +194,26 @@ def run_iteration_cb_tests(solver: InternalSolver) -> None:
 
     solver.solve(iteration_cb=custom_iteration_cb)
     assert_equals(count, 5)
+
+
+def run_lazy_cb_tests(solver: InternalSolver) -> None:
+    instance = solver.build_test_instance_knapsack()
+    model = instance.to_model()
+    lazy_cb_count = 0
+
+    def lazy_cb(cb_solver: InternalSolver, cb_model: Any) -> None:
+        nonlocal lazy_cb_count
+        lazy_cb_count += 1
+        cobj = instance.build_lazy_constraint(model, "cut")
+        if not cb_solver.is_constraint_satisfied(cobj):
+            cb_solver.add_constraint(cobj)
+
+    solver.set_instance(instance, model)
+    solver.solve(lazy_cb=lazy_cb)
+    assert lazy_cb_count > 0
+    solution = solver.get_solution()
+    assert solution is not None
+    assert_equals(solution["x[0]"], 0.0)
 
 
 def assert_equals(left: Any, right: Any) -> None:

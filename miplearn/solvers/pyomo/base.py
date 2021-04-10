@@ -98,10 +98,8 @@ class BasePyomoSolver(InternalSolver):
         lazy_cb: Optional[LazyCallback] = None,
         user_cut_cb: Optional[UserCutCallback] = None,
     ) -> MIPSolveStats:
-        if lazy_cb is not None:
-            raise Exception("lazy callback not currently supported")
-        if user_cut_cb is not None:
-            raise Exception("user cut callback not currently supported")
+        assert lazy_cb is None, "callbacks are not currently supported"
+        assert user_cut_cb is None, "callbacks are not currently supported"
         total_wallclock_time = 0
         streams: List[Any] = [StringIO()]
         if tee:
@@ -412,6 +410,9 @@ class BasePyomoSolver(InternalSolver):
             rhs=rhs,
             sense=sense,
         )
+
+    def are_callbacks_supported(self) -> bool:
+        return False
 
 
 class PyomoTestInstanceInfeasible(Instance):

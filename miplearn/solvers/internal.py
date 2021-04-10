@@ -255,3 +255,10 @@ class InternalSolver(ABC):
     @abstractmethod
     def build_test_instance_knapsack(self) -> Instance:
         pass
+
+    def are_callbacks_supported(self) -> bool:
+        """
+        Returns True if this solver supports native callbacks, such as lazy constraints
+        callback or user cuts callback.
+        """
+        return False
