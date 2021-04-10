@@ -12,7 +12,7 @@ import numpy as np
 import pyomo
 from overrides import overrides
 from pyomo import environ as pe
-from pyomo.core import Var
+from pyomo.core import Var, Suffix
 from pyomo.core.base import _GeneralVarData
 from pyomo.core.base.constraint import ConstraintList
 from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
@@ -61,6 +61,8 @@ class BasePyomoSolver(InternalSolver):
         self._varname_to_var: Dict[str, pe.Var] = {}
         self._cname_to_constr: Dict[str, pe.Constraint] = {}
         self._termination_condition: str = ""
+        self._has_lp_solution = False
+        self._has_mip_solution = False
 
         for (key, value) in params.items():
             self._pyomo_solver.options[key] = value
@@ -76,10 +78,14 @@ class BasePyomoSolver(InternalSolver):
             streams += [sys.stdout]
         with _RedirectOutput(streams):
             results = self._pyomo_solver.solve(tee=True)
+        self._termination_condition = results["Solver"][0]["Termination condition"]
         self._restore_integrality()
         opt_value = None
+        self._has_lp_solution = False
+        self._has_mip_solution = False
         if not self.is_infeasible():
             opt_value = results["Problem"][0]["Lower bound"]
+            self._has_lp_solution = True
         return {
             "LP value": opt_value,
             "LP log": streams[0].getvalue(),
@@ -122,7 +128,10 @@ class BasePyomoSolver(InternalSolver):
         ws_value = self._extract_warm_start_value(log)
         self._termination_condition = results["Solver"][0]["Termination condition"]
         lb, ub = None, None
+        self._has_mip_solution = False
+        self._has_lp_solution = False
         if not self.is_infeasible():
+            self._has_mip_solution = True
             lb = results["Problem"][0]["Lower bound"]
             ub = results["Problem"][0]["Upper bound"]
         stats: MIPSolveStats = {
@@ -185,6 +194,7 @@ class BasePyomoSolver(InternalSolver):
         self.instance = instance
         self.model = model
         self.model.extra_constraints = ConstraintList()
+        self.model.dual = Suffix(direction=Suffix.IMPORT)
         self._pyomo_solver.set_instance(model)
         self._update_obj()
         self._update_vars()
@@ -256,6 +266,9 @@ class BasePyomoSolver(InternalSolver):
             self._cname_to_constr[name] = cl
         else:
             self._pyomo_solver.add_constraint(constr)
+        self._termination_condition = ""
+        self._has_lp_solution = False
+        self._has_mip_solution = False
 
     @overrides
     def remove_constraint(self, name: str) -> None:
@@ -322,21 +335,13 @@ class BasePyomoSolver(InternalSolver):
             self._pyomo_solver.update_var(var)
 
     @overrides
-    def get_inequality_slacks(self) -> Dict[str, float]:
-        result: Dict[str, float] = {}
-        for (cname, cobj) in self._cname_to_constr.items():
-            if cobj.equality:
-                continue
-            result[cname] = cobj.slack()
-        return result
-
-    @overrides
     def is_infeasible(self) -> bool:
         return self._termination_condition == TerminationCondition.infeasible
 
     @overrides
     def get_dual(self, cid: str) -> float:
-        raise NotImplementedError()
+        constr = self._cname_to_constr[cid]
+        return self._pyomo_solver.dual[constr]
 
     @overrides
     def get_sense(self) -> str:
@@ -376,45 +381,55 @@ class BasePyomoSolver(InternalSolver):
 
         return constraints
 
-    @staticmethod
-    def _parse_pyomo_constraint(c: pyomo.core.Constraint) -> Constraint:
+    def _parse_pyomo_constraint(
+        self,
+        pyomo_constr: pyomo.core.Constraint,
+    ) -> Constraint:
+        constr = Constraint()
+
         # Extract RHS and sense
-        has_ub = c.has_ub()
-        has_lb = c.has_lb()
+        has_ub = pyomo_constr.has_ub()
+        has_lb = pyomo_constr.has_lb()
         assert (
-            (not has_lb) or (not has_ub) or c.upper() == c.lower()
+            (not has_lb) or (not has_ub) or pyomo_constr.upper() == pyomo_constr.lower()
         ), "range constraints not supported"
         if has_lb:
-            sense = ">"
-            rhs = c.lower()
+            constr.sense = ">"
+            constr.rhs = pyomo_constr.lower()
         elif has_ub:
-            sense = "<"
-            rhs = c.upper()
+            constr.sense = "<"
+            constr.rhs = pyomo_constr.upper()
         else:
-            sense = "="
-            rhs = c.upper()
+            constr.sense = "="
+            constr.rhs = pyomo_constr.upper()
 
         # Extract LHS
         lhs = {}
-        if isinstance(c.body, SumExpression):
-            for term in c.body._args_:
+        if isinstance(pyomo_constr.body, SumExpression):
+            for term in pyomo_constr.body._args_:
                 if isinstance(term, MonomialTermExpression):
                     lhs[term._args_[1].name] = term._args_[0]
                 elif isinstance(term, _GeneralVarData):
                     lhs[term.name] = 1.0
                 else:
                     raise Exception(f"Unknown term type: {term.__class__.__name__}")
-        elif isinstance(c.body, _GeneralVarData):
-            lhs[c.body.name] = 1.0
+        elif isinstance(pyomo_constr.body, _GeneralVarData):
+            lhs[pyomo_constr.body.name] = 1.0
         else:
-            raise Exception(f"Unknown expression type: {c.body.__class__.__name__}")
+            raise Exception(
+                f"Unknown expression type: {pyomo_constr.body.__class__.__name__}"
+            )
+        constr.lhs = lhs
+
+        # Extract solution attributes
+        if self._has_lp_solution:
+            constr.dual_value = self.model.dual[pyomo_constr]
+
+        if self._has_mip_solution or self._has_lp_solution:
+            constr.slack = pyomo_constr.slack()
 
         # Build constraint
-        return Constraint(
-            lhs=lhs,
-            rhs=rhs,
-            sense=sense,
-        )
+        return constr
 
     @overrides
     def are_callbacks_supported(self) -> bool:

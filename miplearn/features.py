@@ -43,12 +43,17 @@ class VariableFeatures:
 
 @dataclass
 class Constraint:
-    rhs: float = 0.0
-    lhs: Dict[str, float] = lambda: {}  # type: ignore
-    sense: str = "<"
-    user_features: Optional[List[float]] = None
+    basis_status: Optional[str] = None
+    category: Optional[Hashable] = None
+    dual_value: Optional[float] = None
     lazy: bool = False
-    category: Hashable = None
+    lhs: Dict[str, float] = lambda: {}  # type: ignore
+    rhs: float = 0.0
+    sa_rhs_down: Optional[float] = None
+    sa_rhs_up: Optional[float] = None
+    sense: str = "<"
+    slack: Optional[float] = None
+    user_features: Optional[List[float]] = None
 
 
 @dataclass

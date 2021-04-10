@@ -12,6 +12,14 @@ from miplearn.solvers.internal import InternalSolver
 # This file is in the main source folder, so that it can be called from Julia.
 
 
+def _round_constraints(constraints):
+    for (cname, c) in constraints.items():
+        for attr in ["slack", "dual_value"]:
+            if getattr(c, attr) is not None:
+                setattr(c, attr, round(getattr(c, attr), 6))
+    return constraints
+
+
 def run_internal_solver_tests(solver: InternalSolver) -> None:
     run_basic_usage_tests(solver.clone())
     run_warm_start_tests(solver.clone())
@@ -22,20 +30,38 @@ def run_internal_solver_tests(solver: InternalSolver) -> None:
 
 
 def run_basic_usage_tests(solver: InternalSolver) -> None:
+    # Create and set instance
     instance = solver.build_test_instance_knapsack()
     model = instance.to_model()
     solver.set_instance(instance, model)
+
+    # Fetch variables (after-load)
     assert_equals(
         solver.get_variable_names(),
         ["x[0]", "x[1]", "x[2]", "x[3]"],
     )
 
+    # Fetch constraints (after-load)
+    assert_equals(
+        _round_constraints(solver.get_constraints()),
+        {
+            "eq_capacity": Constraint(
+                lazy=False,
+                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0},
+                rhs=67.0,
+                sense="<",
+            )
+        },
+    )
+
+    # Solve linear programming relaxation
     lp_stats = solver.solve_lp()
     assert not solver.is_infeasible()
     assert lp_stats["LP value"] is not None
     assert_equals(round(lp_stats["LP value"], 3), 1287.923)
     assert len(lp_stats["LP log"]) > 100
 
+    # Fetch variables (after-lp)
     solution = solver.get_solution()
     assert solution is not None
     assert solution["x[0]"] is not None
@@ -47,6 +73,22 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     assert_equals(round(solution["x[2]"], 3), 1.000)
     assert_equals(round(solution["x[3]"], 3), 0.000)
 
+    # Fetch constraints (after-lp)
+    assert_equals(
+        _round_constraints(solver.get_constraints()),
+        {
+            "eq_capacity": Constraint(
+                lazy=False,
+                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0},
+                rhs=67.0,
+                sense="<",
+                slack=0.0,
+                dual_value=13.538462,
+            )
+        },
+    )
+
+    # Solve MIP
     mip_stats = solver.solve(
         tee=True,
         iteration_cb=None,
@@ -60,6 +102,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     assert_equals(mip_stats["Sense"], "max")
     assert isinstance(mip_stats["Wallclock time"], float)
 
+    # Fetch variables (after-mip)
     solution = solver.get_solution()
     assert solution is not None
     assert solution["x[0]"] is not None
@@ -71,13 +114,15 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     assert_equals(solution["x[2]"], 1.0)
     assert_equals(solution["x[3]"], 1.0)
 
+    # Fetch constraints (after-mip)
     assert_equals(
-        solver.get_constraints(),
+        _round_constraints(solver.get_constraints()),
         {
             "eq_capacity": Constraint(
                 lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0},
                 rhs=67.0,
                 sense="<",
+                slack=6.0,
             ),
         },
     )
@@ -86,10 +131,11 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     cut = Constraint(lhs={"x[0]": 1.0}, sense="<", rhs=0.0)
     assert not solver.is_constraint_satisfied(cut)
 
-    # Add new constraint and verify that it is listed
+    # Add new constraint and verify that it is listed. Modifying the model should
+    # also clear the current solution.
     solver.add_constraint(cut, "cut")
     assert_equals(
-        solver.get_constraints(),
+        _round_constraints(solver.get_constraints()),
         {
             "eq_capacity": Constraint(
                 lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0},
@@ -104,16 +150,10 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         },
     )
 
-    # New constraint should affect the solution
+    # Re-solve MIP and verify that constraint affects the solution
     stats = solver.solve()
     assert_equals(stats["Lower bound"], 1030.0)
     assert solver.is_constraint_satisfied(cut)
-
-    # Verify slacks
-    assert_equals(
-        solver.get_inequality_slacks(),
-        {"cut": 0.0, "eq_capacity": 3.0},
-    )
 
     # Remove the new constraint
     solver.remove_constraint("cut")
@@ -121,9 +161,6 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # New constraint should no longer affect solution
     stats = solver.solve()
     assert_equals(stats["Lower bound"], 1183.0)
-
-    # Constraint should not be satisfied by current solution
-    assert not solver.is_constraint_satisfied(cut)
 
 
 def run_warm_start_tests(solver: InternalSolver) -> None:

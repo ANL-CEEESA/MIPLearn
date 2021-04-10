@@ -5,6 +5,7 @@ import logging
 import re
 import sys
 from dataclasses import dataclass
+from enum import Enum
 from io import StringIO
 from random import randint
 from typing import List, Any, Dict, Optional, Hashable
@@ -68,6 +69,9 @@ class GurobiSolver(InternalSolver):
         self.lazy_cb_frequency = lazy_cb_frequency
         self._bin_vars: List["gurobipy.Var"] = []
         self._varname_to_var: Dict[str, "gurobipy.Var"] = {}
+        self._dirty = True
+        self._has_lp_solution = False
+        self._has_mip_solution = False
 
         if self.lazy_cb_frequency == 1:
             self.lazy_cb_where = [self.gp.GRB.Callback.MIPSOL]
@@ -136,9 +140,12 @@ class GurobiSolver(InternalSolver):
             var.ub = 1.0
         with _RedirectOutput(streams):
             self.model.optimize()
+            self._dirty = False
         for var in self._bin_vars:
             var.vtype = self.gp.GRB.BINARY
         log = streams[0].getvalue()
+        self._has_lp_solution = self.model.solCount > 0
+        self._has_mip_solution = False
         opt_value = None
         if not self.is_infeasible():
             opt_value = self.model.objVal
@@ -191,6 +198,7 @@ class GurobiSolver(InternalSolver):
         while True:
             with _RedirectOutput(streams):
                 self.model.optimize(cb_wrapper)
+                self._dirty = False
             if len(callback_exceptions) > 0:
                 raise callback_exceptions[0]
             total_wallclock_time += self.model.runtime
@@ -198,6 +206,8 @@ class GurobiSolver(InternalSolver):
             should_repeat = iteration_cb()
             if not should_repeat:
                 break
+        self._has_lp_solution = False
+        self._has_mip_solution = self.model.solCount > 0
 
         # Fetch results and stats
         log = streams[0].getvalue()
@@ -306,6 +316,9 @@ class GurobiSolver(InternalSolver):
             self.model.addConstr(lhs <= constr.rhs, name=name)
         else:
             self.model.addConstr(lhs >= constr.rhs, name=name)
+        self._dirty = True
+        self._has_lp_solution = False
+        self._has_mip_solution = False
 
     @overrides
     def remove_constraint(self, name: str) -> None:
@@ -340,12 +353,6 @@ class GurobiSolver(InternalSolver):
             var.vtype = self.gp.GRB.CONTINUOUS
             var.lb = value
             var.ub = value
-
-    @overrides
-    def get_inequality_slacks(self) -> Dict[str, float]:
-        assert self.model is not None
-        ineqs = [c for c in self.model.getConstrs() if c.sense != "="]
-        return {c.ConstrName: c.Slack for c in ineqs}
 
     @overrides
     def relax(self) -> None:
@@ -414,7 +421,9 @@ class GurobiSolver(InternalSolver):
     def get_constraints(self) -> Dict[str, Constraint]:
         assert self.model is not None
         self._raise_if_callback()
-        self.model.update()
+        if self._dirty:
+            self.model.update()
+            self._dirty = False
         constraints: Dict[str, Constraint] = {}
         for c in self.model.getConstrs():
             constr = self._parse_gurobi_constraint(c)
@@ -422,13 +431,22 @@ class GurobiSolver(InternalSolver):
             constraints[c.constrName] = constr
         return constraints
 
-    def _parse_gurobi_constraint(self, c: Any) -> Constraint:
+    def _parse_gurobi_constraint(self, gp_constr: Any) -> Constraint:
         assert self.model is not None
-        expr = self.model.getRow(c)
+        expr = self.model.getRow(gp_constr)
         lhs: Dict[str, float] = {}
         for i in range(expr.size()):
             lhs[expr.getVar(i).varName] = expr.getCoeff(i)
-        return Constraint(rhs=c.rhs, lhs=lhs, sense=c.sense)
+        constr = Constraint(
+            rhs=gp_constr.rhs,
+            lhs=lhs,
+            sense=gp_constr.sense,
+        )
+        if self._has_lp_solution:
+            constr.dual_value = gp_constr.pi
+        if self._has_lp_solution or self._has_mip_solution:
+            constr.slack = gp_constr.slack
+        return constr
 
     @overrides
     def are_callbacks_supported(self) -> bool:

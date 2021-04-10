@@ -185,14 +185,6 @@ class InternalSolver(ABC, EnforceOverrides):
         pass
 
     @abstractmethod
-    def get_inequality_slacks(self) -> Dict[str, float]:
-        """
-        Returns a dictionary mapping constraint name to the constraint slack
-        in the current solution.
-        """
-        pass
-
-    @abstractmethod
     def is_infeasible(self) -> bool:
         """
         Returns True if the model has been proved to be infeasible.
