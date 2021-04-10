@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 
 BranchPriorities = Dict[str, Optional[float]]
 Category = Hashable
-Constraint = Any
 IterationCallback = Callable[[], bool]
 LazyCallback = Callable[[Any, Any], None]
 SolverParams = Dict[str, Any]

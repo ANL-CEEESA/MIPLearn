@@ -6,7 +6,7 @@ from miplearn.features import (
     FeaturesExtractor,
     InstanceFeatures,
     VariableFeatures,
-    ConstraintFeatures,
+    Constraint,
 )
 from miplearn.solvers.gurobi import GurobiSolver
 
@@ -37,7 +37,7 @@ def test_knapsack() -> None:
             ),
         }
         assert instance.features.constraints == {
-            "eq_capacity": ConstraintFeatures(
+            "eq_capacity": Constraint(
                 lhs={
                     "x[0]": 23.0,
                     "x[1]": 26.0,

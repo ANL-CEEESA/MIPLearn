@@ -6,6 +6,9 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
+from overrides import EnforceOverrides
+
+from miplearn.features import Constraint
 from miplearn.instance.base import Instance
 from miplearn.types import (
     LPSolveStats,
@@ -13,7 +16,6 @@ from miplearn.types import (
     LazyCallback,
     MIPSolveStats,
     BranchPriorities,
-    Constraint,
     UserCutCallback,
     Solution,
     VariableName,
@@ -151,32 +153,11 @@ class InternalSolver(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_constraint_ids(self) -> List[str]:
-        """
-        Returns a list of ids which uniquely identify each constraint in the model.
-        """
+    def get_constraints(self) -> Dict[str, Constraint]:
         pass
 
     @abstractmethod
-    def get_constraint_rhs(self, cid: str) -> float:
-        """
-        Returns the right-hand side of a given constraint.
-        """
-        pass
-
-    @abstractmethod
-    def get_constraint_lhs(self, cid: str) -> Dict[str, float]:
-        """
-        Returns a list of tuples encoding the left-hand side of the constraint.
-
-        The first element of the tuple is the name of the variable and the second
-        element is the coefficient. For example, the left-hand side of "2 x1 + x2 <= 3"
-        is encoded as [{"x1": 2, "x2": 1}].
-        """
-        pass
-
-    @abstractmethod
-    def add_constraint(self, cobj: Constraint, name: str = "") -> None:
+    def add_constraint(self, cobj: Any, name: str = "") -> None:
         """
         Adds a single constraint to the model.
         """
@@ -190,7 +171,7 @@ class InternalSolver(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def extract_constraint(self, cid: str) -> Constraint:
+    def extract_constraint(self, cid: str) -> Any:
         """
         Removes a given constraint from the model and returns an object `cobj` which
         can be used to verify if the removed constraint is still satisfied by
@@ -200,35 +181,9 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def is_constraint_satisfied(self, cobj: Constraint, tol: float = 1e-6) -> bool:
+    def is_constraint_satisfied(self, cobj: Any, tol: float = 1e-6) -> bool:
         """
         Returns True if the current solution satisfies the given constraint.
-        """
-        pass
-
-    @abstractmethod
-    def set_constraint_sense(self, cid: str, sense: str) -> None:
-        """
-        Modifies the sense of a given constraint.
-
-        Parameters
-        ----------
-        cid: str
-            The name of the constraint.
-        sense: str
-            The new sense (either "<", ">" or "=").
-        """
-        pass
-
-    @abstractmethod
-    def get_constraint_sense(self, cid: str) -> str:
-        """
-        Returns the sense of a given constraint (either "<", ">" or "=").
-
-        Parameters
-        ----------
-        cid: str
-            The name of the constraint.
         """
         pass
 

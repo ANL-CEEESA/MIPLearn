@@ -4,7 +4,9 @@
 
 from typing import Any
 
+from miplearn.features import Constraint
 from miplearn.solvers.internal import InternalSolver
+
 
 # NOTE:
 # This file is in the main source folder, so that it can be called from Julia.
@@ -66,6 +68,22 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     assert_equals(solution["x[2]"], 1.0)
     assert_equals(solution["x[3]"], 1.0)
 
+    assert_equals(
+        solver.get_constraints(),
+        {
+            "eq_capacity": Constraint(
+                lhs={
+                    "x[0]": 23.0,
+                    "x[1]": 26.0,
+                    "x[2]": 20.0,
+                    "x[3]": 18.0,
+                },
+                rhs=67.0,
+                sense="<",
+            ),
+        },
+    )
+
     # assert_equals(solver.get_constraint_ids(), ["eq_capacity"])
     # assert_equals(
     #     solver.get_constraint_rhs("eq_capacity"),
@@ -96,15 +114,33 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     assert cut is not None
     solver.add_constraint(cut, name="cut")
 
-    # New constraint should affect solution and should be listed in
-    # constraint ids
-    assert solver.get_constraint_ids() == ["eq_capacity", "cut"]
+    # New constraint should be listed
+    assert_equals(
+        solver.get_constraints(),
+        {
+            "eq_capacity": Constraint(
+                lhs={
+                    "x[0]": 23.0,
+                    "x[1]": 26.0,
+                    "x[2]": 20.0,
+                    "x[3]": 18.0,
+                },
+                rhs=67.0,
+                sense="<",
+            ),
+            "cut": Constraint(
+                lhs={
+                    "x[0]": 1.0,
+                },
+                rhs=0.0,
+                sense="<",
+            ),
+        },
+    )
+
+    # New constraint should affect the solution
     stats = solver.solve()
     assert stats["Lower bound"] == 1030.0
-
-    assert solver.get_sense() == "max"
-    assert solver.get_constraint_sense("cut") == "<"
-    assert solver.get_constraint_sense("eq_capacity") == "<"
 
     # Verify slacks
     assert solver.get_inequality_slacks() == {

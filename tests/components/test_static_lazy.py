@@ -14,8 +14,8 @@ from miplearn.components.static_lazy import StaticLazyConstraintsComponent
 from miplearn.features import (
     TrainingSample,
     InstanceFeatures,
-    ConstraintFeatures,
     Features,
+    Constraint,
 )
 from miplearn.instance.base import Instance
 from miplearn.solvers.internal import InternalSolver
@@ -48,27 +48,27 @@ def features() -> Features:
             lazy_constraint_count=4,
         ),
         constraints={
-            "c1": ConstraintFeatures(
+            "c1": Constraint(
                 category="type-a",
                 user_features=[1.0, 1.0],
                 lazy=True,
             ),
-            "c2": ConstraintFeatures(
+            "c2": Constraint(
                 category="type-a",
                 user_features=[1.0, 2.0],
                 lazy=True,
             ),
-            "c3": ConstraintFeatures(
+            "c3": Constraint(
                 category="type-a",
                 user_features=[1.0, 3.0],
                 lazy=True,
             ),
-            "c4": ConstraintFeatures(
+            "c4": Constraint(
                 category="type-b",
                 user_features=[1.0, 4.0, 0.0],
                 lazy=True,
             ),
-            "c5": ConstraintFeatures(
+            "c5": Constraint(
                 category="type-b",
                 user_features=[1.0, 5.0, 0.0],
                 lazy=False,

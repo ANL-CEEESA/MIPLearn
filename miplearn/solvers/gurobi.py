@@ -10,6 +10,7 @@ from typing import List, Any, Dict, Optional, Hashable
 
 from overrides import overrides
 
+from miplearn.features import Constraint
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
@@ -25,7 +26,6 @@ from miplearn.types import (
     UserCutCallback,
     Solution,
     VariableName,
-    Constraint,
 )
 
 logger = logging.getLogger(__name__)
@@ -325,29 +325,7 @@ class GurobiSolver(InternalSolver):
             var.ub = value
 
     @overrides
-    def get_constraint_ids(self) -> List[str]:
-        assert self.model is not None
-        self._raise_if_callback()
-        self.model.update()
-        return [c.ConstrName for c in self.model.getConstrs()]
-
-    @overrides
-    def get_constraint_rhs(self, cid: str) -> float:
-        assert self.model is not None
-        return self.model.getConstrByName(cid).rhs
-
-    @overrides
-    def get_constraint_lhs(self, cid: str) -> Dict[str, float]:
-        assert self.model is not None
-        constr = self.model.getConstrByName(cid)
-        expr = self.model.getRow(constr)
-        lhs: Dict[str, float] = {}
-        for i in range(expr.size()):
-            lhs[expr.getVar(i).varName] = expr.getCoeff(i)
-        return lhs
-
-    @overrides
-    def extract_constraint(self, cid: str) -> Constraint:
+    def extract_constraint(self, cid: str) -> Any:
         self._raise_if_callback()
         assert self.model is not None
         constr = self.model.getConstrByName(cid)
@@ -358,7 +336,7 @@ class GurobiSolver(InternalSolver):
     @overrides
     def is_constraint_satisfied(
         self,
-        cobj: Constraint,
+        cobj: Any,
         tol: float = 1e-6,
     ) -> bool:
         lhs, sense, rhs, name = cobj
@@ -384,18 +362,6 @@ class GurobiSolver(InternalSolver):
         assert self.model is not None
         ineqs = [c for c in self.model.getConstrs() if c.sense != "="]
         return {c.ConstrName: c.Slack for c in ineqs}
-
-    @overrides
-    def set_constraint_sense(self, cid: str, sense: str) -> None:
-        assert self.model is not None
-        c = self.model.getConstrByName(cid)
-        c.Sense = sense
-
-    @overrides
-    def get_constraint_sense(self, cid: str) -> str:
-        assert self.model is not None
-        c = self.model.getConstrByName(cid)
-        return c.Sense
 
     @overrides
     def relax(self) -> None:
@@ -459,6 +425,26 @@ class GurobiSolver(InternalSolver):
             prices=[505.0, 352.0, 458.0, 220.0],
             capacity=67.0,
         )
+
+    @overrides
+    def get_constraints(self) -> Dict[str, Constraint]:
+        assert self.model is not None
+        self._raise_if_callback()
+        self.model.update()
+        constraints: Dict[str, Constraint] = {}
+        for c in self.model.getConstrs():
+            expr = self.model.getRow(c)
+            lhs: Dict[str, float] = {}
+            for i in range(expr.size()):
+                lhs[expr.getVar(i).varName] = expr.getCoeff(i)
+            assert c.constrName not in constraints
+            constraints[c.constrName] = Constraint(
+                rhs=c.rhs,
+                lhs=lhs,
+                sense=c.sense,
+            )
+
+        return constraints
 
 
 class GurobiTestInstanceInfeasible(Instance):

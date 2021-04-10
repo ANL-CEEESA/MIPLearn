@@ -42,20 +42,20 @@ class VariableFeatures:
 
 
 @dataclass
-class ConstraintFeatures:
-    rhs: Optional[float] = None
-    lhs: Optional[Dict[str, float]] = None
-    sense: Optional[str] = None
-    category: Optional[Hashable] = None
+class Constraint:
+    rhs: float = 0.0
+    lhs: Dict[str, float] = lambda: {}  # type: ignore
+    sense: str = "<"
     user_features: Optional[List[float]] = None
     lazy: bool = False
+    category: Hashable = None
 
 
 @dataclass
 class Features:
     instance: Optional[InstanceFeatures] = None
     variables: Optional[Dict[str, VariableFeatures]] = None
-    constraints: Optional[Dict[str, ConstraintFeatures]] = None
+    constraints: Optional[Dict[str, Constraint]] = None
 
 
 class FeaturesExtractor:
@@ -106,10 +106,11 @@ class FeaturesExtractor:
     def _extract_constraints(
         self,
         instance: "Instance",
-    ) -> Dict[str, ConstraintFeatures]:
+    ) -> Dict[str, Constraint]:
         has_static_lazy = instance.has_static_lazy_constraints()
-        constraints: Dict[str, ConstraintFeatures] = {}
-        for cid in self.solver.get_constraint_ids():
+        constraints = self.solver.get_constraints()
+
+        for (cid, constr) in constraints.items():
             user_features = None
             category = instance.get_constraint_category(cid)
             if category is not None:
@@ -128,13 +129,8 @@ class FeaturesExtractor:
                     f"Constraint features must be a list of floats. "
                     f"Found {type(user_features[0]).__name__} instead for cid={cid}."
                 )
-            constraints[cid] = ConstraintFeatures(
-                rhs=self.solver.get_constraint_rhs(cid),
-                lhs=self.solver.get_constraint_lhs(cid),
-                sense=self.solver.get_constraint_sense(cid),
-                category=category,
-                user_features=user_features,
-            )
+            constraints[cid].category = category
+            constraints[cid].user_features = user_features
             if has_static_lazy:
                 constraints[cid].lazy = instance.is_constraint_lazy(cid)
         return constraints
