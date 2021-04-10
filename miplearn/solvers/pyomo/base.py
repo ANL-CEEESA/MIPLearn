@@ -13,7 +13,7 @@ from overrides import overrides
 from pyomo import environ as pe
 from pyomo.core import Var
 from pyomo.core.base import _GeneralVarData
-from pyomo.core.base.constraint import SimpleConstraint
+from pyomo.core.base.constraint import SimpleConstraint, ConstraintList
 from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
 from pyomo.opt import TerminationCondition
 from pyomo.opt.base.solvers import SolverFactory
@@ -186,6 +186,7 @@ class BasePyomoSolver(InternalSolver):
         assert isinstance(model, pe.ConcreteModel)
         self.instance = instance
         self.model = model
+        self.model.extra_constraints = ConstraintList()
         self._pyomo_solver.set_instance(model)
         self._update_obj()
         self._update_vars()
@@ -234,8 +235,23 @@ class BasePyomoSolver(InternalSolver):
             self._pyomo_solver.update_var(var)
 
     @overrides
-    def add_constraint(self, constraint: Any, name: str = "") -> Any:
-        self._pyomo_solver.add_constraint(constraint)
+    def add_constraint(self, cobj: Any, name: str = "") -> Any:
+        assert self.model is not None
+        if isinstance(cobj, Constraint):
+            lhs = 0.0
+            for (varname, coeff) in cobj.lhs.items():
+                var = self._varname_to_var[varname]
+                lhs += var * coeff
+            if cobj.sense == "=":
+                expr = lhs == cobj.rhs
+            elif cobj.sense == "<":
+                expr = lhs <= cobj.rhs
+            else:
+                expr = lhs >= cobj.rhs
+            cl = self.model.extra_constraints
+            self._pyomo_solver.add_constraint(cl.add(expr))
+        else:
+            self._pyomo_solver.add_constraint(cobj)
         self._update_constrs()
 
     @staticmethod
@@ -291,12 +307,25 @@ class BasePyomoSolver(InternalSolver):
         return result
 
     @overrides
-    def extract_constraint(self, cid: str) -> Constraint:
-        raise NotImplementedError()
+    def extract_constraint(self, cid: str) -> Any:
+        cobj = self._cname_to_constr[cid]
+        constr = self._parse_pyomo_constraint(cobj)
+        self._pyomo_solver.remove_constraint(cobj)
+        return constr
 
     @overrides
-    def is_constraint_satisfied(self, cobj: Constraint, tol: float = 1e-6) -> bool:
-        raise NotImplementedError()
+    def is_constraint_satisfied(self, cobj: Any, tol: float = 1e-6) -> bool:
+        assert isinstance(cobj, Constraint)
+        lhs_value = 0.0
+        for (varname, coeff) in cobj.lhs.items():
+            var = self._varname_to_var[varname]
+            lhs_value += var.value * coeff
+        if cobj.sense == "=":
+            return (lhs_value <= cobj.rhs + tol) and (lhs_value >= cobj.rhs - tol)
+        elif cobj.sense == "<":
+            return lhs_value <= cobj.rhs + tol
+        else:
+            return lhs_value >= cobj.rhs - tol
 
     @overrides
     def is_infeasible(self) -> bool:
@@ -330,58 +359,59 @@ class BasePyomoSolver(InternalSolver):
     def get_constraints(self) -> Dict[str, Constraint]:
         assert self.model is not None
 
-        def _get(c: pyomo.core.Constraint, name: str) -> Constraint:
-            # Extract RHS and sense
-            has_ub = c.has_ub()
-            has_lb = c.has_lb()
-            assert (
-                (not has_lb) or (not has_ub) or c.upper() == c.lower()
-            ), "range constraints not supported"
-            if has_lb:
-                sense = ">"
-                rhs = c.lower()
-            elif has_ub:
-                sense = "<"
-                rhs = c.upper()
-            else:
-                sense = "="
-                rhs = c.upper()
-
-            # Extract LHS
-            lhs = {}
-            if isinstance(c.body, SumExpression):
-                for term in c.body._args_:
-                    if isinstance(term, MonomialTermExpression):
-                        lhs[term._args_[1].name] = term._args_[0]
-                    elif isinstance(term, _GeneralVarData):
-                        lhs[term.name] = 1.0
-                    else:
-                        raise Exception(f"Unknown term type: {term.__class__.__name__}")
-            elif isinstance(c.body, _GeneralVarData):
-                lhs[c.body.name] = 1.0
-            else:
-                raise Exception(f"Unknown expression type: {c.body.__class__.__name__}")
-
-            # Build constraint
-            return Constraint(
-                lhs=lhs,
-                rhs=rhs,
-                sense=sense,
-            )
-
         constraints = {}
         for constr in self.model.component_objects(pyomo.core.Constraint):
             if isinstance(constr, pe.ConstraintList):
                 for idx in constr:
                     name = f"{constr.name}[{idx}]"
                     assert name not in constraints
-                    constraints[name] = _get(constr[idx], name=name)
+                    constraints[name] = self._parse_pyomo_constraint(constr[idx])
             else:
                 name = constr.name
                 assert name not in constraints
-                constraints[name] = _get(constr, name=name)
+                constraints[name] = self._parse_pyomo_constraint(constr)
 
         return constraints
+
+    @staticmethod
+    def _parse_pyomo_constraint(c: pyomo.core.Constraint) -> Constraint:
+        # Extract RHS and sense
+        has_ub = c.has_ub()
+        has_lb = c.has_lb()
+        assert (
+            (not has_lb) or (not has_ub) or c.upper() == c.lower()
+        ), "range constraints not supported"
+        if has_lb:
+            sense = ">"
+            rhs = c.lower()
+        elif has_ub:
+            sense = "<"
+            rhs = c.upper()
+        else:
+            sense = "="
+            rhs = c.upper()
+
+        # Extract LHS
+        lhs = {}
+        if isinstance(c.body, SumExpression):
+            for term in c.body._args_:
+                if isinstance(term, MonomialTermExpression):
+                    lhs[term._args_[1].name] = term._args_[0]
+                elif isinstance(term, _GeneralVarData):
+                    lhs[term.name] = 1.0
+                else:
+                    raise Exception(f"Unknown term type: {term.__class__.__name__}")
+        elif isinstance(c.body, _GeneralVarData):
+            lhs[c.body.name] = 1.0
+        else:
+            raise Exception(f"Unknown expression type: {c.body.__class__.__name__}")
+
+        # Build constraint
+        return Constraint(
+            lhs=lhs,
+            rhs=rhs,
+            sense=sense,
+        )
 
 
 class PyomoTestInstanceInfeasible(Instance):

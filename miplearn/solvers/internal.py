@@ -6,8 +6,6 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-from overrides import EnforceOverrides
-
 from miplearn.features import Constraint
 from miplearn.instance.base import Instance
 from miplearn.types import (

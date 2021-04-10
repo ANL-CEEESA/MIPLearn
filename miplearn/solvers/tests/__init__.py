@@ -84,32 +84,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         },
     )
 
-    # assert_equals(solver.get_constraint_ids(), ["eq_capacity"])
-    # assert_equals(
-    #     solver.get_constraint_rhs("eq_capacity"),
-    #     67.0,
-    # )
-    # assert_equals(
-    #     solver.get_constraint_lhs("eq_capacity"),
-    #     {
-    #         "x[0]": 23.0,
-    #         "x[1]": 26.0,
-    #         "x[2]": 20.0,
-    #         "x[3]": 18.0,
-    #     },
-    # )
-    # assert_equals(solver.get_constraint_sense("eq_capacity"), "<")
-
-    # if isinstance(solver, BasePyomoSolver):
-    #     model.cut = pe.Constraint(expr=model.x[0] <= 0.0, name="cut")
-    #     solver.add_constraint(model.cut)
-    # elif isinstance(solver, GurobiSolver):
-    #     x = model.getVarByName("x[0]")
-    #     solver.add_constraint(x <= 0.0, name="cut")
-    # else:
-    #     raise Exception("Illegal state")
-
-    # # Add a brand new constraint
+    # Add a brand new constraint
     cut = instance.build_lazy_constraint(model, "cut")
     assert cut is not None
     solver.add_constraint(cut, name="cut")
@@ -140,44 +115,36 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # New constraint should affect the solution
     stats = solver.solve()
-    assert stats["Lower bound"] == 1030.0
+    assert_equals(stats["Lower bound"], 1030.0)
 
     # Verify slacks
-    assert solver.get_inequality_slacks() == {
-        "cut": 0.0,
-        "eq_capacity": 3.0,
-    }
+    assert_equals(
+        solver.get_inequality_slacks(),
+        {
+            "cut": 0.0,
+            "eq_capacity": 3.0,
+        },
+    )
 
     # # Extract the new constraint
-    # cobj = solver.extract_constraint("cut")
-    #
-    # # New constraint should no longer affect solution and should no longer
-    # # be listed in constraint ids
-    # assert solver.get_constraint_ids() == ["eq_capacity"]
-    # stats = solver.solve()
-    # assert stats["Lower bound"] == 1183.0
-    #
-    # # New constraint should not be satisfied by current solution
-    # assert not solver.is_constraint_satisfied(cobj)
-    #
-    # # Re-add constraint
-    # solver.add_constraint(cobj)
-    #
-    # # Constraint should affect solution again
-    # assert solver.get_constraint_ids() == ["eq_capacity", "cut"]
-    # stats = solver.solve()
-    # assert stats["Lower bound"] == 1030.0
-    #
-    # # New constraint should now be satisfied
-    # assert solver.is_constraint_satisfied(cobj)
-    #
-    # # Relax problem and make cut into an equality constraint
-    # solver.relax()
-    # solver.set_constraint_sense("cut", "=")
-    # stats = solver.solve()
-    # assert stats["Lower bound"] is not None
-    # assert round(stats["Lower bound"]) == 1030.0
-    # assert round(solver.get_dual("eq_capacity")) == 0.0
+    cobj = solver.extract_constraint("cut")
+
+    # New constraint should no longer affect solution
+    stats = solver.solve()
+    assert_equals(stats["Lower bound"], 1183.0)
+
+    # New constraint should not be satisfied by current solution
+    assert not solver.is_constraint_satisfied(cobj)
+
+    # Re-add constraint
+    solver.add_constraint(cobj)
+
+    # Constraint should affect solution again
+    stats = solver.solve()
+    assert_equals(stats["Lower bound"], 1030.0)
+
+    # New constraint should now be satisfied
+    assert solver.is_constraint_satisfied(cobj)
 
 
 def run_warm_start_tests(solver: InternalSolver) -> None:
@@ -195,8 +162,8 @@ def run_warm_start_tests(solver: InternalSolver) -> None:
 
     solver.fix({"x[0]": 1.0, "x[1]": 0.0, "x[2]": 0.0, "x[3]": 1.0})
     stats = solver.solve(tee=True)
-    assert stats["Lower bound"] == 725.0
-    assert stats["Upper bound"] == 725.0
+    assert_equals(stats["Lower bound"], 725.0)
+    assert_equals(stats["Upper bound"], 725.0)
 
 
 def run_infeasibility_tests(solver: InternalSolver) -> None:
@@ -223,7 +190,7 @@ def run_iteration_cb_tests(solver: InternalSolver) -> None:
         return count < 5
 
     solver.solve(iteration_cb=custom_iteration_cb)
-    assert count == 5
+    assert_equals(count, 5)
 
 
 def assert_equals(left: Any, right: Any) -> None:
