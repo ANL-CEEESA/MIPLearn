@@ -3,6 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from typing import Any, Dict
+import numpy as np
 
 from miplearn.features import Constraint, Variable
 from miplearn.solvers.internal import InternalSolver
@@ -38,6 +39,8 @@ def _round_variables(vars: Dict[str, Variable]) -> Dict[str, Variable]:
         ]:
             if getattr(c, attr) is not None:
                 setattr(c, attr, round(getattr(c, attr), 6))
+        if c.alvarez_2017 is not None:
+            c.alvarez_2017 = list(np.round(c.alvarez_2017, 6))
     return vars
 
 
@@ -395,4 +398,4 @@ def run_lazy_cb_tests(solver: InternalSolver) -> None:
 
 
 def assert_equals(left: Any, right: Any) -> None:
-    assert left == right, f"{left} != {right}"
+    assert left == right, f"left:\n{left}\nright:\n{right}"

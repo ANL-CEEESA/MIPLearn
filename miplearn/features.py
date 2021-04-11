@@ -5,6 +5,7 @@
 import collections
 import numbers
 from dataclasses import dataclass
+from math import log, isfinite
 from typing import TYPE_CHECKING, Dict, Optional, Set, List, Hashable
 
 from miplearn.types import Solution, VariableName, Category
@@ -53,6 +54,10 @@ class Variable:
     user_features: Optional[List[float]] = None
     value: Optional[float] = None
 
+    # Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
+    # approximation of strong branching. INFORMS Journal on Computing, 29(1), 185-195.
+    alvarez_2017: Optional[List[float]] = None
+
 
 @dataclass
 class Constraint:
@@ -89,6 +94,7 @@ class FeaturesExtractor:
         self._extract_user_features_vars(instance)
         self._extract_user_features_constrs(instance)
         self._extract_user_features_instance(instance)
+        self._extract_alvarez_2017(instance)
 
     def _extract_user_features_vars(self, instance: "Instance"):
         for (var_name, var) in instance.features.variables.items():
@@ -164,3 +170,68 @@ class FeaturesExtractor:
             user_features=user_features,
             lazy_constraint_count=lazy_count,
         )
+
+    def _extract_alvarez_2017(self, instance: "Instance"):
+        assert instance.features is not None
+        assert instance.features.variables is not None
+
+        pos_obj_coeff_sum = 0.0
+        neg_obj_coeff_sum = 0.0
+        for (varname, var) in instance.features.variables.items():
+            if var.obj_coeff is not None:
+                if var.obj_coeff > 0:
+                    pos_obj_coeff_sum += var.obj_coeff
+                if var.obj_coeff < 0:
+                    neg_obj_coeff_sum += -var.obj_coeff
+
+        for (varname, var) in instance.features.variables.items():
+            assert isinstance(var, Variable)
+            features = []
+            if var.obj_coeff is not None:
+                # Feature 1
+                features.append(np.sign(var.obj_coeff))
+
+                # Feature 2
+                if pos_obj_coeff_sum > 0:
+                    features.append(abs(var.obj_coeff) / pos_obj_coeff_sum)
+                else:
+                    features.append(0.0)
+
+                # Feature 3
+                if neg_obj_coeff_sum > 0:
+                    features.append(abs(var.obj_coeff) / neg_obj_coeff_sum)
+                else:
+                    features.append(0.0)
+
+            if var.value is not None:
+                # Feature 37
+                features.append(
+                    min(
+                        var.value - np.floor(var.value),
+                        np.ceil(var.value) - var.value,
+                    )
+                )
+
+            if var.sa_obj_up is not None:
+                assert var.sa_obj_down is not None
+                csign = np.sign(var.obj_coeff)
+
+                # Features 44 and 46
+                features.append(np.sign(var.sa_obj_up))
+                features.append(np.sign(var.sa_obj_down))
+
+                # Feature 47
+                f47 = log((var.obj_coeff - var.sa_obj_down) / csign)
+                if isfinite(f47):
+                    features.append(f47)
+                else:
+                    features.append(0.0)
+
+                # Feature 48
+                f48 = log((var.sa_obj_up - var.obj_coeff) / csign)
+                if isfinite(f48):
+                    features.append(f48)
+                else:
+                    features.append(0.0)
+
+            var.alvarez_2017 = features
