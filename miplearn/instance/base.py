@@ -33,6 +33,9 @@ class Instance(ABC, EnforceOverrides):
     def __init__(self) -> None:
         self.training_data: List[TrainingSample] = []
         self.features: Features = Features()
+        self.features_after_load: List[Features] = []
+        self.features_after_lp: List[Features] = []
+        self.features_after_mip: List[Features] = []
 
     @abstractmethod
     def to_model(self) -> Any:

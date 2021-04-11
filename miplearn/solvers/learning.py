@@ -153,11 +153,12 @@ class LearningSolver:
         assert isinstance(self.internal_solver, InternalSolver)
         self.internal_solver.set_instance(instance, model)
 
-        # Extract features
+        # Extract features (after-load)
         # -------------------------------------------------------
-        if instance.features.instance is None:
-            logger.info("Extracting features...")
-            FeaturesExtractor(self.internal_solver).extract(instance)
+        logger.info("Extracting features (after-load)...")
+        features = FeaturesExtractor(self.internal_solver).extract(instance)
+        instance.features.__dict__ = features.__dict__
+        instance.features_after_load.append(features)
 
         callback_args = (
             self,
@@ -185,6 +186,12 @@ class LearningSolver:
             logger.debug("Running after_solve_lp callbacks...")
             for component in self.components.values():
                 component.after_solve_lp(*callback_args)
+
+            # Extract features (after-lp)
+            # -------------------------------------------------------
+            logger.info("Extracting features (after-lp)...")
+            features = FeaturesExtractor(self.internal_solver).extract(instance)
+            instance.features_after_lp.append(features)
 
         # Callback wrappers
         # -------------------------------------------------------
@@ -241,6 +248,12 @@ class LearningSolver:
             lb=stats["Lower bound"],
         )
         stats["Mode"] = self.mode
+
+        # Extract features (after-mip)
+        # -------------------------------------------------------
+        logger.info("Extracting features (after-mip)...")
+        features = FeaturesExtractor(self.internal_solver).extract(instance)
+        instance.features_after_mip.append(features)
 
         # Add some information to training_sample
         # -------------------------------------------------------

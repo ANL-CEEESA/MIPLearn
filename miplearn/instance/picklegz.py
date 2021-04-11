@@ -123,6 +123,9 @@ class PickleGzInstance(Instance):
             self.instance = obj
             self.features = self.instance.features
             self.training_data = self.instance.training_data
+            self.features_after_load = self.instance.features_after_load
+            self.features_after_lp = self.instance.features_after_lp
+            self.features_after_mip = self.instance.features_after_mip
 
     @overrides
     def free(self) -> None:
