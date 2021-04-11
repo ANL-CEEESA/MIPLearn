@@ -84,16 +84,14 @@ class FeaturesExtractor:
         self.solver = internal_solver
 
     def extract(self, instance: "Instance") -> None:
-        instance.features.variables = self._extract_variables(instance)
-        instance.features.constraints = self._extract_constraints(instance)
-        instance.features.instance = self._extract_instance(instance, instance.features)
+        instance.features.variables = self.solver.get_variables()
+        instance.features.constraints = self.solver.get_constraints()
+        self._extract_user_features_vars(instance)
+        self._extract_user_features_constrs(instance)
+        self._extract_user_features_instance(instance)
 
-    def _extract_variables(
-        self,
-        instance: "Instance",
-    ) -> Dict[VariableName, Variable]:
-        result: Dict[VariableName, Variable] = {}
-        for var_name in self.solver.get_variable_names():
+    def _extract_user_features_vars(self, instance: "Instance"):
+        for (var_name, var) in instance.features.variables.items():
             user_features: Optional[List[float]] = None
             category: Category = instance.get_variable_category(var_name)
             if category is not None:
@@ -115,20 +113,12 @@ class FeaturesExtractor:
                         f"Found {type(v).__name__} instead "
                         f"for var={var_name}."
                     )
-            result[var_name] = Variable(
-                category=category,
-                user_features=user_features,
-            )
-        return result
+            var.category = category
+            var.user_features = user_features
 
-    def _extract_constraints(
-        self,
-        instance: "Instance",
-    ) -> Dict[str, Constraint]:
+    def _extract_user_features_constrs(self, instance: "Instance"):
         has_static_lazy = instance.has_static_lazy_constraints()
-        constraints = self.solver.get_constraints()
-
-        for (cid, constr) in constraints.items():
+        for (cid, constr) in instance.features.constraints.items():
             user_features = None
             category = instance.get_constraint_category(cid)
             if category is not None:
@@ -147,18 +137,13 @@ class FeaturesExtractor:
                     f"Constraint features must be a list of floats. "
                     f"Found {type(user_features[0]).__name__} instead for cid={cid}."
                 )
-            constraints[cid].category = category
-            constraints[cid].user_features = user_features
             if has_static_lazy:
-                constraints[cid].lazy = instance.is_constraint_lazy(cid)
-        return constraints
+                constr.lazy = instance.is_constraint_lazy(cid)
+            constr.category = category
+            constr.user_features = user_features
 
-    @staticmethod
-    def _extract_instance(
-        instance: "Instance",
-        features: Features,
-    ) -> InstanceFeatures:
-        assert features.constraints is not None
+    def _extract_user_features_instance(self, instance: "Instance"):
+        assert instance.features.constraints is not None
         user_features = instance.get_instance_features()
         if isinstance(user_features, np.ndarray):
             user_features = user_features.tolist()
@@ -172,10 +157,10 @@ class FeaturesExtractor:
                 f"Found {type(v).__name__} instead."
             )
         lazy_count = 0
-        for (cid, cdict) in features.constraints.items():
+        for (cid, cdict) in instance.features.constraints.items():
             if cdict.lazy:
                 lazy_count += 1
-        return InstanceFeatures(
+        instance.features.instance = InstanceFeatures(
             user_features=user_features,
             lazy_constraint_count=lazy_count,
         )
