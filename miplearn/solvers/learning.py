@@ -139,8 +139,9 @@ class LearningSolver:
         # Initialize training sample
         # -------------------------------------------------------
         training_sample = TrainingSample()
-        instance.training_data += [training_sample]
         sample = Sample()
+        instance.training_data.append(training_sample)
+        instance.samples.append(sample)
 
         # Initialize stats
         # -------------------------------------------------------
