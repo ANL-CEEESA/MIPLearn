@@ -58,6 +58,28 @@ class Variable:
     # approximation of strong branching. INFORMS Journal on Computing, 29(1), 185-195.
     alvarez_2017: Optional[List[float]] = None
 
+    def to_list(self) -> List[float]:
+        features: List[float] = []
+        for attr in [
+            "lower_bound",
+            "obj_coeff",
+            "reduced_cost",
+            "sa_lb_down",
+            "sa_lb_up",
+            "sa_obj_down",
+            "sa_obj_up",
+            "sa_ub_down",
+            "sa_ub_up",
+            "upper_bound",
+            "value",
+        ]:
+            if getattr(self, attr) is not None:
+                features.append(getattr(self, attr))
+        for attr in ["user_features", "alvarez_2017"]:
+            if getattr(self, attr) is not None:
+                features.extend(getattr(self, attr))
+        return features
+
 
 @dataclass
 class Constraint:
@@ -88,16 +110,23 @@ class FeaturesExtractor:
     ) -> None:
         self.solver = internal_solver
 
-    def extract(self, instance: "Instance") -> None:
-        instance.features.variables = self.solver.get_variables()
-        instance.features.constraints = self.solver.get_constraints()
-        self._extract_user_features_vars(instance)
-        self._extract_user_features_constrs(instance)
-        self._extract_user_features_instance(instance)
-        self._extract_alvarez_2017(instance)
+    def extract(self, instance: "Instance") -> Features:
+        features = Features()
+        features.variables = self.solver.get_variables()
+        features.constraints = self.solver.get_constraints()
+        self._extract_user_features_vars(instance, features)
+        self._extract_user_features_constrs(instance, features)
+        self._extract_user_features_instance(instance, features)
+        self._extract_alvarez_2017(features)
+        return features
 
-    def _extract_user_features_vars(self, instance: "Instance"):
-        for (var_name, var) in instance.features.variables.items():
+    def _extract_user_features_vars(
+        self,
+        instance: "Instance",
+        features: Features,
+    ) -> None:
+        assert features.variables is not None
+        for (var_name, var) in features.variables.items():
             user_features: Optional[List[float]] = None
             category: Category = instance.get_variable_category(var_name)
             if category is not None:
@@ -122,9 +151,14 @@ class FeaturesExtractor:
             var.category = category
             var.user_features = user_features
 
-    def _extract_user_features_constrs(self, instance: "Instance"):
+    def _extract_user_features_constrs(
+        self,
+        instance: "Instance",
+        features: Features,
+    ) -> None:
+        assert features.constraints is not None
         has_static_lazy = instance.has_static_lazy_constraints()
-        for (cid, constr) in instance.features.constraints.items():
+        for (cid, constr) in features.constraints.items():
             user_features = None
             category = instance.get_constraint_category(cid)
             if category is not None:
@@ -148,8 +182,12 @@ class FeaturesExtractor:
             constr.category = category
             constr.user_features = user_features
 
-    def _extract_user_features_instance(self, instance: "Instance"):
-        assert instance.features.constraints is not None
+    def _extract_user_features_instance(
+        self,
+        instance: "Instance",
+        features: Features,
+    ) -> None:
+        assert features.constraints is not None
         user_features = instance.get_instance_features()
         if isinstance(user_features, np.ndarray):
             user_features = user_features.tolist()
@@ -163,49 +201,48 @@ class FeaturesExtractor:
                 f"Found {type(v).__name__} instead."
             )
         lazy_count = 0
-        for (cid, cdict) in instance.features.constraints.items():
+        for (cid, cdict) in features.constraints.items():
             if cdict.lazy:
                 lazy_count += 1
-        instance.features.instance = InstanceFeatures(
+        features.instance = InstanceFeatures(
             user_features=user_features,
             lazy_constraint_count=lazy_count,
         )
 
-    def _extract_alvarez_2017(self, instance: "Instance"):
-        assert instance.features is not None
-        assert instance.features.variables is not None
+    def _extract_alvarez_2017(self, features: Features) -> None:
+        assert features.variables is not None
 
         pos_obj_coeff_sum = 0.0
         neg_obj_coeff_sum = 0.0
-        for (varname, var) in instance.features.variables.items():
+        for (varname, var) in features.variables.items():
             if var.obj_coeff is not None:
                 if var.obj_coeff > 0:
                     pos_obj_coeff_sum += var.obj_coeff
                 if var.obj_coeff < 0:
                     neg_obj_coeff_sum += -var.obj_coeff
 
-        for (varname, var) in instance.features.variables.items():
+        for (varname, var) in features.variables.items():
             assert isinstance(var, Variable)
-            features = []
+            f: List[float] = []
             if var.obj_coeff is not None:
                 # Feature 1
-                features.append(np.sign(var.obj_coeff))
+                f.append(np.sign(var.obj_coeff))
 
                 # Feature 2
                 if pos_obj_coeff_sum > 0:
-                    features.append(abs(var.obj_coeff) / pos_obj_coeff_sum)
+                    f.append(abs(var.obj_coeff) / pos_obj_coeff_sum)
                 else:
-                    features.append(0.0)
+                    f.append(0.0)
 
                 # Feature 3
                 if neg_obj_coeff_sum > 0:
-                    features.append(abs(var.obj_coeff) / neg_obj_coeff_sum)
+                    f.append(abs(var.obj_coeff) / neg_obj_coeff_sum)
                 else:
-                    features.append(0.0)
+                    f.append(0.0)
 
             if var.value is not None:
                 # Feature 37
-                features.append(
+                f.append(
                     min(
                         var.value - np.floor(var.value),
                         np.ceil(var.value) - var.value,
@@ -213,25 +250,29 @@ class FeaturesExtractor:
                 )
 
             if var.sa_obj_up is not None:
+                assert var.obj_coeff is not None
                 assert var.sa_obj_down is not None
-                csign = np.sign(var.obj_coeff)
+                # Convert inf into large finite numbers
+                sa_obj_down = max(-1e20, var.sa_obj_down)
+                sa_obj_up = min(1e20, var.sa_obj_up)
 
                 # Features 44 and 46
-                features.append(np.sign(var.sa_obj_up))
-                features.append(np.sign(var.sa_obj_down))
+                f.append(np.sign(var.sa_obj_up))
+                f.append(np.sign(var.sa_obj_down))
 
                 # Feature 47
-                f47 = log((var.obj_coeff - var.sa_obj_down) / csign)
-                if isfinite(f47):
-                    features.append(f47)
+                csign = np.sign(var.obj_coeff)
+                if csign != 0 and ((var.obj_coeff - sa_obj_down) / csign) > 0.001:
+                    f.append(log((var.obj_coeff - sa_obj_down) / csign))
                 else:
-                    features.append(0.0)
+                    f.append(0.0)
 
                 # Feature 48
-                f48 = log((var.sa_obj_up - var.obj_coeff) / csign)
-                if isfinite(f48):
-                    features.append(f48)
+                if csign != 0 and ((sa_obj_up - var.obj_coeff) / csign) > 0.001:
+                    f.append(log((sa_obj_up - var.obj_coeff) / csign))
                 else:
-                    features.append(0.0)
+                    f.append(0.0)
 
-            var.alvarez_2017 = features
+            for v in f:
+                assert isfinite(v), f"non-finite elements detected: {f}"
+            var.alvarez_2017 = f

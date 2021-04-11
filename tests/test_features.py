@@ -21,9 +21,13 @@ def test_knapsack() -> None:
     solver.set_instance(instance, model)
     solver.solve_lp()
 
-    FeaturesExtractor(solver).extract(instance)
+    features = FeaturesExtractor(solver).extract(instance)
+    assert features.variables is not None
+    assert features.constraints is not None
+    assert features.instance is not None
+
     assert_equals(
-        _round_variables(instance.features.variables),
+        _round_variables(features.variables),
         {
             "x[0]": Variable(
                 basis_status="U",
@@ -41,7 +45,7 @@ def test_knapsack() -> None:
                 upper_bound=1.0,
                 user_features=[23.0, 505.0],
                 value=1.0,
-                alvarez_2017=[1.0, 0.32899, 0.0, 0.0, 1.0, 1.0, 5.265874, 0.0],
+                alvarez_2017=[1.0, 0.32899, 0.0, 0.0, 1.0, 1.0, 5.265874, 46.051702],
             ),
             "x[1]": Variable(
                 basis_status="B",
@@ -86,16 +90,7 @@ def test_knapsack() -> None:
                 upper_bound=1.0,
                 user_features=[20.0, 458.0],
                 value=1.0,
-                alvarez_2017=[
-                    1.0,
-                    0.298371,
-                    0.0,
-                    0.0,
-                    1.0,
-                    1.0,
-                    5.232342,
-                    0.0,
-                ],
+                alvarez_2017=[1.0, 0.298371, 0.0, 0.0, 1.0, 1.0, 5.232342, 46.051702],
             ),
             "x[3]": Variable(
                 basis_status="L",
@@ -113,21 +108,12 @@ def test_knapsack() -> None:
                 upper_bound=1.0,
                 user_features=[18.0, 220.0],
                 value=0.0,
-                alvarez_2017=[
-                    1.0,
-                    0.143322,
-                    0.0,
-                    0.0,
-                    1.0,
-                    -1.0,
-                    0.0,
-                    3.16515,
-                ],
+                alvarez_2017=[1.0, 0.143322, 0.0, 0.0, 1.0, -1.0, 46.051702, 3.16515],
             ),
         },
     )
     assert_equals(
-        _round_constraints(instance.features.constraints),
+        _round_constraints(features.constraints),
         {
             "eq_capacity": Constraint(
                 basis_status="N",
@@ -145,7 +131,7 @@ def test_knapsack() -> None:
         },
     )
     assert_equals(
-        instance.features.instance,
+        features.instance,
         InstanceFeatures(
             user_features=[67.0, 21.75],
             lazy_constraint_count=0,
