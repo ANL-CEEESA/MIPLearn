@@ -458,52 +458,31 @@ class GurobiSolver(InternalSolver):
         var.type = self._original_vtype[gp_var]
 
         if self._has_lp_solution:
-            var.reduced_cost = gp_var.rc
-            var.sa_obj_up = gp_var.saobjUp
-            var.sa_obj_down = gp_var.saobjLow
-            var.sa_ub_up = gp_var.saubUp
-            var.sa_ub_down = gp_var.saubLow
-            var.sa_lb_up = gp_var.salbUp
-            var.sa_lb_down = gp_var.salbLow
-            vbasis = gp_var.vbasis
-            if vbasis == 0:
-                var.basis_status = "B"
-            elif vbasis == -1:
-                var.basis_status = "L"
-            elif vbasis == -2:
-                var.basis_status = "U"
-            elif vbasis == -3:
-                var.basis_status = "S"
-            else:
-                raise Exception(f"unknown vbasis: {vbasis}")
+            self._parse_gurobi_var_lp(gp_var, var)
         if self._has_lp_solution or self._has_mip_solution:
             var.value = gp_var.x
         return var
 
-    def _parse_gurobi_constraint(self, gp_constr: Any) -> Constraint:
-        assert self.model is not None
-        expr = self.model.getRow(gp_constr)
-        lhs: Dict[str, float] = {}
-        for i in range(expr.size()):
-            lhs[expr.getVar(i).varName] = expr.getCoeff(i)
-        constr = Constraint(
-            rhs=gp_constr.rhs,
-            lhs=lhs,
-            sense=gp_constr.sense,
-        )
-        if self._has_lp_solution:
-            constr.dual_value = gp_constr.pi
-            constr.sa_rhs_up = gp_constr.sarhsup
-            constr.sa_rhs_down = gp_constr.sarhslow
-            if gp_constr.cbasis == 0:
-                constr.basis_status = "B"
-            elif gp_constr.cbasis == -1:
-                constr.basis_status = "N"
-            else:
-                raise Exception(f"unknown cbasis: {gp_constr.cbasis}")
-        if self._has_lp_solution or self._has_mip_solution:
-            constr.slack = gp_constr.slack
-        return constr
+    @staticmethod
+    def _parse_gurobi_var_lp(gp_var, var):
+        var.reduced_cost = gp_var.rc
+        var.sa_obj_up = gp_var.saobjUp
+        var.sa_obj_down = gp_var.saobjLow
+        var.sa_ub_up = gp_var.saubUp
+        var.sa_ub_down = gp_var.saubLow
+        var.sa_lb_up = gp_var.salbUp
+        var.sa_lb_down = gp_var.salbLow
+        vbasis = gp_var.vbasis
+        if vbasis == 0:
+            var.basis_status = "B"
+        elif vbasis == -1:
+            var.basis_status = "L"
+        elif vbasis == -2:
+            var.basis_status = "U"
+        elif vbasis == -3:
+            var.basis_status = "S"
+        else:
+            raise Exception(f"unknown vbasis: {vbasis}")
 
     def _raise_if_callback(self) -> None:
         if self.cb_where is not None:
@@ -540,6 +519,31 @@ class GurobiSolver(InternalSolver):
         self.instance = None
         self.model = None
         self.cb_where = None
+
+    def _parse_gurobi_constraint(self, gp_constr: Any) -> Constraint:
+        assert self.model is not None
+        expr = self.model.getRow(gp_constr)
+        lhs: Dict[str, float] = {}
+        for i in range(expr.size()):
+            lhs[expr.getVar(i).varName] = expr.getCoeff(i)
+        constr = Constraint(
+            rhs=gp_constr.rhs,
+            lhs=lhs,
+            sense=gp_constr.sense,
+        )
+        if self._has_lp_solution:
+            constr.dual_value = gp_constr.pi
+            constr.sa_rhs_up = gp_constr.sarhsup
+            constr.sa_rhs_down = gp_constr.sarhslow
+            if gp_constr.cbasis == 0:
+                constr.basis_status = "B"
+            elif gp_constr.cbasis == -1:
+                constr.basis_status = "N"
+            else:
+                raise Exception(f"unknown cbasis: {gp_constr.cbasis}")
+        if self._has_lp_solution or self._has_mip_solution:
+            constr.slack = gp_constr.slack
+        return constr
 
 
 class GurobiTestInstanceInfeasible(Instance):

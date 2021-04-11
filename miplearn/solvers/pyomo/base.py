@@ -505,7 +505,10 @@ class BasePyomoSolver(InternalSolver):
         self._varname_to_var = {}
         for var in self.model.component_objects(Var):
             for idx in var:
-                self._varname_to_var[f"{var.name}[{idx}]"] = var[idx]
+                varname = f"{var.name}[{idx}]"
+                if idx is None:
+                    varname = var.name
+                self._varname_to_var[varname] = var[idx]
                 self._all_vars += [var[idx]]
                 if var[idx].domain == pyomo.core.base.set_types.Binary:
                     self._bin_vars += [var[idx]]

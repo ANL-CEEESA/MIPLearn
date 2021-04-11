@@ -3,12 +3,14 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Optional
+from typing import Optional, List, Dict
 
 from overrides import overrides
 from pyomo import environ as pe
 from scipy.stats import randint
 
+from miplearn.features import Variable
+from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
 from miplearn.types import SolverParams, BranchPriorities
 
@@ -39,16 +41,8 @@ class GurobiPyomoSolver(BasePyomoSolver):
         )
 
     @overrides
-    def _extract_node_count(self, log: str) -> int:
-        return max(1, int(self._pyomo_solver._solver_model.getAttr("NodeCount")))
-
-    @overrides
-    def _get_warm_start_regexp(self) -> str:
-        return "MIP start with objective ([0-9.e+-]*)"
-
-    @overrides
-    def _get_node_count_regexp(self) -> Optional[str]:
-        return None
+    def clone(self) -> "GurobiPyomoSolver":
+        return GurobiPyomoSolver(params=self.params)
 
     @overrides
     def set_branching_priorities(self, priorities: BranchPriorities) -> None:
@@ -62,5 +56,44 @@ class GurobiPyomoSolver(BasePyomoSolver):
             gvar.setAttr(GRB.Attr.BranchPriority, int(round(priority)))
 
     @overrides
-    def clone(self) -> "GurobiPyomoSolver":
-        return GurobiPyomoSolver(params=self.params)
+    def get_variables(self) -> Dict[str, Variable]:
+        variables = super().get_variables()
+        if self._has_lp_solution:
+            for (varname, var) in variables.items():
+                pvar = self._varname_to_var[varname]
+                gvar = self._pyomo_solver._pyomo_var_to_solver_var_map[pvar]
+                GurobiSolver._parse_gurobi_var_lp(gvar, var)
+
+        return variables
+
+    @overrides
+    def get_variable_attrs(self) -> List[str]:
+        return [
+            "basis_status",
+            "category",
+            "lower_bound",
+            "obj_coeff",
+            "reduced_cost",
+            "sa_lb_down",
+            "sa_lb_up",
+            "sa_obj_down",
+            "sa_obj_up",
+            "sa_ub_down",
+            "sa_ub_up",
+            "type",
+            "upper_bound",
+            "user_features",
+            "value",
+        ]
+
+    @overrides
+    def _extract_node_count(self, log: str) -> int:
+        return max(1, int(self._pyomo_solver._solver_model.getAttr("NodeCount")))
+
+    @overrides
+    def _get_warm_start_regexp(self) -> str:
+        return "MIP start with objective ([0-9.e+-]*)"
+
+    @overrides
+    def _get_node_count_regexp(self) -> Optional[str]:
+        return None
