@@ -197,6 +197,8 @@ class BasePyomoSolver(InternalSolver):
         self.model = model
         self.model.extra_constraints = ConstraintList()
         self.model.dual = Suffix(direction=Suffix.IMPORT)
+        self.model.rc = Suffix(direction=Suffix.IMPORT)
+        self.model.slack = Suffix(direction=Suffix.IMPORT)
         self._pyomo_solver.set_instance(model)
         self._update_obj()
         self._update_vars()
@@ -399,6 +401,11 @@ class BasePyomoSolver(InternalSolver):
         # Bounds
         lb, ub = var.bounds
 
+        # Reduced costs
+        rc = None
+        if var in self.model.rc:
+            rc = self.model.rc[var]
+
         # Objective coefficient
         obj_coeff = 0.0
         if var.name in self._obj:
@@ -410,6 +417,7 @@ class BasePyomoSolver(InternalSolver):
             lower_bound=float(lb),
             upper_bound=float(ub),
             obj_coeff=obj_coeff,
+            reduced_cost=rc,
         )
 
     @overrides
@@ -461,7 +469,7 @@ class BasePyomoSolver(InternalSolver):
             constr.dual_value = self.model.dual[pyomo_constr]
 
         if self._has_mip_solution or self._has_lp_solution:
-            constr.slack = pyomo_constr.slack()
+            constr.slack = self.model.slack[pyomo_constr]
 
         # Build constraint
         return constr
@@ -503,7 +511,7 @@ class BasePyomoSolver(InternalSolver):
             # "basis_status",
             "lower_bound",
             "obj_coeff",
-            # "reduced_cost",
+            "reduced_cost",
             # "sa_lb_down",
             # "sa_lb_up",
             # "sa_obj_down",
