@@ -106,6 +106,13 @@ class Features:
     mip_solve: Optional["MIPSolveStats"] = None
 
 
+@dataclass
+class Sample:
+    after_load: Optional[Features] = None
+    after_lp: Optional[Features] = None
+    after_mip: Optional[Features] = None
+
+
 class FeaturesExtractor:
     def __init__(
         self,

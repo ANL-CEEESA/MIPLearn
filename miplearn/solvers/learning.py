@@ -13,7 +13,7 @@ from miplearn.components.dynamic_lazy import DynamicLazyConstraintsComponent
 from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
-from miplearn.features import FeaturesExtractor, TrainingSample
+from miplearn.features import FeaturesExtractor, TrainingSample, Sample
 from miplearn.instance.base import Instance
 from miplearn.instance.picklegz import PickleGzInstance
 from miplearn.solvers import _RedirectOutput
@@ -140,6 +140,7 @@ class LearningSolver:
         # -------------------------------------------------------
         training_sample = TrainingSample()
         instance.training_data += [training_sample]
+        sample = Sample()
 
         # Initialize stats
         # -------------------------------------------------------
@@ -158,7 +159,7 @@ class LearningSolver:
         logger.info("Extracting features (after-load)...")
         features = FeaturesExtractor(self.internal_solver).extract(instance)
         instance.features.__dict__ = features.__dict__
-        instance.features_after_load.append(features)
+        sample.after_load = features
 
         callback_args = (
             self,
@@ -193,7 +194,7 @@ class LearningSolver:
             logger.info("Extracting features (after-lp)...")
             features = FeaturesExtractor(self.internal_solver).extract(instance)
             features.lp_solve = lp_stats
-            instance.features_after_lp.append(features)
+            sample.after_lp = features
 
         # Callback wrappers
         # -------------------------------------------------------
@@ -254,7 +255,7 @@ class LearningSolver:
         logger.info("Extracting features (after-mip)...")
         features = FeaturesExtractor(self.internal_solver).extract(instance)
         features.mip_solve = mip_stats
-        instance.features_after_mip.append(features)
+        sample.after_mip = features
 
         # Add some information to training_sample
         # -------------------------------------------------------
