@@ -26,6 +26,7 @@ from miplearn.types import (
     UserCutCallback,
     Solution,
     VariableName,
+    Category,
 )
 
 logger = logging.getLogger(__name__)
@@ -67,6 +68,7 @@ class GurobiSolver(InternalSolver):
         self.lazy_cb_frequency = lazy_cb_frequency
         self._bin_vars: List["gurobipy.Var"] = []
         self._varname_to_var: Dict[str, "gurobipy.Var"] = {}
+        self._original_vtype: Dict["gurobipy.Var", str] = {}
         self._dirty = True
         self._has_lp_solution = False
         self._has_mip_solution = False
@@ -101,6 +103,7 @@ class GurobiSolver(InternalSolver):
     def _update_vars(self) -> None:
         assert self.model is not None
         self._varname_to_var.clear()
+        self._original_vtype = {}
         self._bin_vars.clear()
         for var in self.model.getVars():
             assert var.varName not in self._varname_to_var, (
@@ -112,6 +115,7 @@ class GurobiSolver(InternalSolver):
                 "Only binary and continuous variables are currently supported. "
                 "Variable {var.varName} has type {var.vtype}."
             )
+            self._original_vtype[var] = var.vtype
             if var.vtype == "B":
                 self._bin_vars.append(var)
 
@@ -433,7 +437,7 @@ class GurobiSolver(InternalSolver):
         var.lower_bound = gp_var.lb
         var.upper_bound = gp_var.ub
         var.obj_coeff = gp_var.obj
-        var.type = gp_var.vtype
+        var.type = self._original_vtype[gp_var]
 
         if self._has_lp_solution:
             var.reduced_cost = gp_var.rc
@@ -587,8 +591,9 @@ class GurobiTestInstanceKnapsack(PyomoTestInstanceKnapsack):
         model = gp.Model("Knapsack")
         n = len(self.weights)
         x = model.addVars(n, vtype=GRB.BINARY, name="x")
+        z = model.addVar(vtype=GRB.CONTINUOUS, name="z", ub=self.capacity)
         model.addConstr(
-            gp.quicksum(x[i] * self.weights[i] for i in range(n)) <= self.capacity,
+            gp.quicksum(x[i] * self.weights[i] for i in range(n)) == z,
             "eq_capacity",
         )
         model.setObjective(

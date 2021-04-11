@@ -117,6 +117,12 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
                     type="B",
                     upper_bound=1.0,
                 ),
+                "z": Variable(
+                    lower_bound=0.0,
+                    obj_coeff=0.0,
+                    type="C",
+                    upper_bound=67.0,
+                ),
             },
         ),
     )
@@ -127,9 +133,9 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         {
             "eq_capacity": Constraint(
                 lazy=False,
-                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0},
-                rhs=67.0,
-                sense="<",
+                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0, "z": -1.0},
+                rhs=0.0,
+                sense="=",
             )
         },
     )
@@ -161,7 +167,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
                     sa_obj_up=inf,
                     sa_ub_down=0.913043,
                     sa_ub_up=2.043478,
-                    type="C",
+                    type="B",
                     upper_bound=1.0,
                     value=1.0,
                 ),
@@ -176,7 +182,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
                     sa_obj_up=570.869565,
                     sa_ub_down=0.923077,
                     sa_ub_up=inf,
-                    type="C",
+                    type="B",
                     upper_bound=1.0,
                     value=0.923077,
                 ),
@@ -191,7 +197,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
                     sa_obj_up=inf,
                     sa_ub_down=0.9,
                     sa_ub_up=2.2,
-                    type="C",
+                    type="B",
                     upper_bound=1.0,
                     value=1.0,
                 ),
@@ -206,9 +212,24 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
                     sa_obj_up=243.692308,
                     sa_ub_down=0.0,
                     sa_ub_up=inf,
-                    type="C",
+                    type="B",
                     upper_bound=1.0,
                     value=0.0,
+                ),
+                "z": Variable(
+                    basis_status="U",
+                    lower_bound=0.0,
+                    obj_coeff=0.0,
+                    reduced_cost=13.538462,
+                    sa_lb_down=-inf,
+                    sa_lb_up=67.0,
+                    sa_obj_down=-13.538462,
+                    sa_obj_up=inf,
+                    sa_ub_down=43.0,
+                    sa_ub_up=69.0,
+                    type="C",
+                    upper_bound=67.0,
+                    value=67.0,
                 ),
             },
         ),
@@ -221,15 +242,21 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
             solver,
             {
                 "eq_capacity": Constraint(
-                    lazy=False,
-                    lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0},
-                    rhs=67.0,
-                    sense="<",
-                    slack=0.0,
-                    dual_value=13.538462,
-                    sa_rhs_down=43.0,
-                    sa_rhs_up=69.0,
                     basis_status="N",
+                    dual_value=13.538462,
+                    lazy=False,
+                    lhs={
+                        "x[0]": 23.0,
+                        "x[1]": 26.0,
+                        "x[2]": 20.0,
+                        "x[3]": 18.0,
+                        "z": -1.0,
+                    },
+                    rhs=0.0,
+                    sa_rhs_down=-24.0,
+                    sa_rhs_up=1.9999999999999987,
+                    sense="=",
+                    slack=0.0,
                 )
             },
         ),
@@ -238,9 +265,6 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # Solve MIP
     mip_stats = solver.solve(
         tee=True,
-        iteration_cb=None,
-        lazy_cb=None,
-        user_cut_cb=None,
     )
     assert not solver.is_infeasible()
     assert mip_stats.mip_log is not None
@@ -289,6 +313,13 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
                     upper_bound=1.0,
                     value=1.0,
                 ),
+                "z": Variable(
+                    lower_bound=0.0,
+                    obj_coeff=0.0,
+                    type="C",
+                    upper_bound=67.0,
+                    value=61.0,
+                ),
             },
         ),
     )
@@ -298,11 +329,12 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         _round_constraints(solver.get_constraints()),
         {
             "eq_capacity": Constraint(
-                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0},
-                rhs=67.0,
-                sense="<",
-                slack=6.0,
-            ),
+                lazy=False,
+                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0, "z": -1.0},
+                rhs=0.0,
+                sense="=",
+                slack=0.0,
+            )
         },
     )
 
@@ -317,11 +349,13 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         _round_constraints(solver.get_constraints()),
         {
             "eq_capacity": Constraint(
-                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0},
-                rhs=67.0,
-                sense="<",
+                lazy=False,
+                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0, "z": -1.0},
+                rhs=0.0,
+                sense="=",
             ),
             "cut": Constraint(
+                lazy=False,
                 lhs={"x[0]": 1.0},
                 rhs=0.0,
                 sense="<",

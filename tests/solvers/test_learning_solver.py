@@ -92,7 +92,7 @@ def test_parallel_solve(
         for instance in instances:
             data = instance.training_data[0]
             assert data.solution is not None
-            assert len(data.solution.keys()) == 4
+            assert len(data.solution.keys()) == 5
 
 
 def test_solve_fit_from_disk(

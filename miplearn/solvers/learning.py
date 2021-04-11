@@ -253,7 +253,6 @@ class LearningSolver:
         # -------------------------------------------------------
         logger.info("Extracting features (after-mip)...")
         features = FeaturesExtractor(self.internal_solver).extract(instance)
-        features.lp_solve = lp_stats
         features.mip_solve = mip_stats
         instance.features_after_mip.append(features)
 

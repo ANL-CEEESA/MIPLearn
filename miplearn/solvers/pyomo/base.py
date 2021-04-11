@@ -12,7 +12,7 @@ import numpy as np
 import pyomo
 from overrides import overrides
 from pyomo import environ as pe
-from pyomo.core import Var, Suffix
+from pyomo.core import Var, Suffix, Objective
 from pyomo.core.base import _GeneralVarData
 from pyomo.core.base.constraint import ConstraintList
 from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
@@ -64,6 +64,7 @@ class BasePyomoSolver(InternalSolver):
         self._termination_condition: str = ""
         self._has_lp_solution = False
         self._has_mip_solution = False
+        self._obj: Dict[str, float] = {}
 
         for (key, value) in params.items():
             self._pyomo_solver.options[key] = value
@@ -223,6 +224,9 @@ class BasePyomoSolver(InternalSolver):
                 self._all_vars += [var[idx]]
                 if var[idx].domain == pyomo.core.base.set_types.Binary:
                     self._bin_vars += [var[idx]]
+        for obj in self.model.component_objects(Objective):
+            self._obj = self._parse_pyomo_expr(obj.expr)
+            break
 
     def _update_constrs(self) -> None:
         assert self.model is not None
@@ -371,11 +375,42 @@ class BasePyomoSolver(InternalSolver):
         for var in self.model.component_objects(pyomo.core.Var):
             for idx in var:
                 varname = f"{var}[{idx}]"
+                if idx is None:
+                    varname = str(var)
                 variables[varname] = self._parse_pyomo_variable(var[idx])
         return variables
 
     def _parse_pyomo_variable(self, var: pyomo.core.Var) -> Variable:
-        return Variable()
+        # Variable type
+        vtype: Optional[str] = None
+        if var.domain == pyomo.core.Binary:
+            vtype = "B"
+        elif var.domain in [
+            pyomo.core.Reals,
+            pyomo.core.NonNegativeReals,
+            pyomo.core.NonPositiveReals,
+            pyomo.core.NegativeReals,
+            pyomo.core.PositiveReals,
+        ]:
+            vtype = "C"
+        if vtype is None:
+            raise Exception(f"unknown variable domain: {var.domain}")
+
+        # Bounds
+        lb, ub = var.bounds
+
+        # Objective coefficient
+        obj_coeff = 0.0
+        if var.name in self._obj:
+            obj_coeff = self._obj[var.name]
+
+        return Variable(
+            value=var.value,
+            type=vtype,
+            lower_bound=float(lb),
+            upper_bound=float(ub),
+            obj_coeff=obj_coeff,
+        )
 
     @overrides
     def get_constraints(self) -> Dict[str, Constraint]:
@@ -408,10 +443,10 @@ class BasePyomoSolver(InternalSolver):
         assert (
             (not has_lb) or (not has_ub) or pyomo_constr.upper() == pyomo_constr.lower()
         ), "range constraints not supported"
-        if has_lb:
+        if not has_ub:
             constr.sense = ">"
             constr.rhs = pyomo_constr.lower()
-        elif has_ub:
+        elif not has_lb:
             constr.sense = "<"
             constr.rhs = pyomo_constr.upper()
         else:
@@ -419,22 +454,7 @@ class BasePyomoSolver(InternalSolver):
             constr.rhs = pyomo_constr.upper()
 
         # Extract LHS
-        lhs = {}
-        if isinstance(pyomo_constr.body, SumExpression):
-            for term in pyomo_constr.body._args_:
-                if isinstance(term, MonomialTermExpression):
-                    lhs[term._args_[1].name] = term._args_[0]
-                elif isinstance(term, _GeneralVarData):
-                    lhs[term.name] = 1.0
-                else:
-                    raise Exception(f"Unknown term type: {term.__class__.__name__}")
-        elif isinstance(pyomo_constr.body, _GeneralVarData):
-            lhs[pyomo_constr.body.name] = 1.0
-        else:
-            raise Exception(
-                f"Unknown expression type: {pyomo_constr.body.__class__.__name__}"
-            )
-        constr.lhs = lhs
+        constr.lhs = self._parse_pyomo_expr(pyomo_constr.body)
 
         # Extract solution attributes
         if self._has_lp_solution:
@@ -446,6 +466,22 @@ class BasePyomoSolver(InternalSolver):
         # Build constraint
         return constr
 
+    def _parse_pyomo_expr(self, expr):
+        lhs = {}
+        if isinstance(expr, SumExpression):
+            for term in expr._args_:
+                if isinstance(term, MonomialTermExpression):
+                    lhs[term._args_[1].name] = float(term._args_[0])
+                elif isinstance(term, _GeneralVarData):
+                    lhs[term.name] = 1.0
+                else:
+                    raise Exception(f"Unknown term type: {term.__class__.__name__}")
+        elif isinstance(expr, _GeneralVarData):
+            lhs[expr.name] = 1.0
+        else:
+            raise Exception(f"Unknown expression type: {expr.__class__.__name__}")
+        return lhs
+
     @overrides
     def are_callbacks_supported(self) -> bool:
         return False
@@ -453,23 +489,20 @@ class BasePyomoSolver(InternalSolver):
     @overrides
     def get_constraint_attrs(self) -> List[str]:
         return [
-            "category",
             "dual_value",
             "lazy",
             "lhs",
             "rhs",
             "sense",
             "slack",
-            "user_features",
         ]
 
     @overrides
     def get_variable_attrs(self) -> List[str]:
         return [
             # "basis_status",
-            # "category",
-            # "lower_bound",
-            # "obj_coeff",
+            "lower_bound",
+            "obj_coeff",
             # "reduced_cost",
             # "sa_lb_down",
             # "sa_lb_up",
@@ -477,10 +510,9 @@ class BasePyomoSolver(InternalSolver):
             # "sa_obj_up",
             # "sa_ub_down",
             # "sa_ub_up",
-            # "type",
-            # "upper_bound",
-            # "user_features",
-            # "value",
+            "type",
+            "upper_bound",
+            "value",
         ]
 
 
@@ -529,12 +561,13 @@ class PyomoTestInstanceKnapsack(Instance):
         model = pe.ConcreteModel()
         items = range(len(self.weights))
         model.x = pe.Var(items, domain=pe.Binary)
+        model.z = pe.Var(domain=pe.Reals, bounds=(0, self.capacity))
         model.OBJ = pe.Objective(
             expr=sum(model.x[v] * self.prices[v] for v in items),
             sense=pe.maximize,
         )
         model.eq_capacity = pe.Constraint(
-            expr=sum(model.x[v] * self.weights[v] for v in items) <= self.capacity
+            expr=sum(model.x[v] * self.weights[v] for v in items) == model.z
         )
         return model
 
@@ -552,3 +585,9 @@ class PyomoTestInstanceKnapsack(Instance):
             self.weights[item],
             self.prices[item],
         ]
+
+    @overrides
+    def get_variable_category(self, var_name: VariableName) -> Optional[Category]:
+        if var_name.startswith("x"):
+            return "default"
+        return None
