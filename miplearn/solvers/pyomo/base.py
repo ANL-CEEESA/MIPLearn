@@ -399,6 +399,8 @@ class BasePyomoSolver(InternalSolver):
         return None
 
     def _parse_pyomo_variable(self, var: pyomo.core.Var) -> Variable:
+        assert self.model is not None
+
         # Variable type
         vtype: Optional[str] = None
         if var.domain == pyomo.core.Binary:
@@ -472,7 +474,7 @@ class BasePyomoSolver(InternalSolver):
         # Build constraint
         return constr
 
-    def _parse_pyomo_expr(self, expr):
+    def _parse_pyomo_expr(self, expr: Any) -> Dict[str, float]:
         lhs = {}
         if isinstance(expr, SumExpression):
             for term in expr._args_:

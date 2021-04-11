@@ -464,7 +464,7 @@ class GurobiSolver(InternalSolver):
         return var
 
     @staticmethod
-    def _parse_gurobi_var_lp(gp_var, var):
+    def _parse_gurobi_var_lp(gp_var: Any, var: Variable) -> None:
         var.reduced_cost = gp_var.rc
         var.sa_obj_up = gp_var.saobjUp
         var.sa_obj_down = gp_var.saobjLow
