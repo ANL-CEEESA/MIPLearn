@@ -82,6 +82,191 @@ class GurobiSolver(InternalSolver):
             ]
 
     @overrides
+    def add_constraint(self, constr: Constraint, name: str) -> None:
+        assert self.model is not None
+        lhs = self.gp.quicksum(
+            self._varname_to_var[varname] * coeff
+            for (varname, coeff) in constr.lhs.items()
+        )
+        if constr.sense == "=":
+            self.model.addConstr(lhs == constr.rhs, name=name)
+        elif constr.sense == "<":
+            self.model.addConstr(lhs <= constr.rhs, name=name)
+        else:
+            self.model.addConstr(lhs >= constr.rhs, name=name)
+        self._dirty = True
+        self._has_lp_solution = False
+        self._has_mip_solution = False
+
+    @overrides
+    def are_callbacks_supported(self) -> bool:
+        return True
+
+    @overrides
+    def build_test_instance_infeasible(self) -> Instance:
+        return GurobiTestInstanceInfeasible()
+
+    @overrides
+    def build_test_instance_knapsack(self) -> Instance:
+        return GurobiTestInstanceKnapsack(
+            weights=[23.0, 26.0, 20.0, 18.0],
+            prices=[505.0, 352.0, 458.0, 220.0],
+            capacity=67.0,
+        )
+
+    @overrides
+    def build_test_instance_redundancy(self) -> Instance:
+        return GurobiTestInstanceRedundancy()
+
+    @overrides
+    def clone(self) -> "GurobiSolver":
+        return GurobiSolver(
+            params=self.params,
+            lazy_cb_frequency=self.lazy_cb_frequency,
+        )
+
+    @overrides
+    def fix(self, solution: Solution) -> None:
+        self._raise_if_callback()
+        for (varname, value) in solution.items():
+            if value is None:
+                continue
+            var = self._varname_to_var[varname]
+            var.vtype = self.gp.GRB.CONTINUOUS
+            var.lb = value
+            var.ub = value
+
+    @overrides
+    def get_dual(self, cid: str) -> float:
+        assert self.model is not None
+        c = self.model.getConstrByName(cid)
+        if self.is_infeasible():
+            return c.farkasDual
+        else:
+            return c.pi
+
+    @overrides
+    def get_constraint_attrs(self) -> List[str]:
+        return [
+            "basis_status",
+            "category",
+            "dual_value",
+            "lazy",
+            "lhs",
+            "rhs",
+            "sa_rhs_down",
+            "sa_rhs_up",
+            "sense",
+            "slack",
+            "user_features",
+        ]
+
+    @overrides
+    def get_constraints(self) -> Dict[str, Constraint]:
+        assert self.model is not None
+        self._raise_if_callback()
+        if self._dirty:
+            self.model.update()
+            self._dirty = False
+        constraints: Dict[str, Constraint] = {}
+        for c in self.model.getConstrs():
+            constr = self._parse_gurobi_constraint(c)
+            assert c.constrName not in constraints
+            constraints[c.constrName] = constr
+        return constraints
+
+    @overrides
+    def get_sense(self) -> str:
+        assert self.model is not None
+        if self.model.modelSense == 1:
+            return "min"
+        else:
+            return "max"
+
+    @overrides
+    def get_solution(self) -> Optional[Solution]:
+        assert self.model is not None
+        if self.cb_where is not None:
+            if self.cb_where == self.gp.GRB.Callback.MIPNODE:
+                return {
+                    v.varName: self.model.cbGetNodeRel(v) for v in self.model.getVars()
+                }
+            elif self.cb_where == self.gp.GRB.Callback.MIPSOL:
+                return {
+                    v.varName: self.model.cbGetSolution(v) for v in self.model.getVars()
+                }
+            else:
+                raise Exception(
+                    f"get_solution can only be called from a callback "
+                    f"when cb_where is either MIPNODE or MIPSOL"
+                )
+        if self.model.solCount == 0:
+            return None
+        return {v.varName: v.x for v in self.model.getVars()}
+
+    @overrides
+    def get_variable_attrs(self) -> List[str]:
+        return [
+            "basis_status",
+            "category",
+            "lower_bound",
+            "obj_coeff",
+            "reduced_cost",
+            "sa_lb_down",
+            "sa_lb_up",
+            "sa_obj_down",
+            "sa_obj_up",
+            "sa_ub_down",
+            "sa_ub_up",
+            "type",
+            "upper_bound",
+            "user_features",
+            "value",
+        ]
+
+    @overrides
+    def get_variable_names(self) -> List[VariableName]:
+        self._raise_if_callback()
+        assert self.model is not None
+        return [v.varName for v in self.model.getVars()]
+
+    @overrides
+    def get_variables(self) -> Dict[str, Variable]:
+        assert self.model is not None
+        variables = {}
+        for gp_var in self.model.getVars():
+            name = gp_var.varName
+            assert len(name) > 0, f"empty variable name detected"
+            assert name not in variables, f"duplicated variable name detected: {name}"
+            var = self._parse_gurobi_var(gp_var)
+            variables[name] = var
+        return variables
+
+    @overrides
+    def is_constraint_satisfied(self, constr: Constraint, tol: float = 1e-6) -> bool:
+        lhs = 0.0
+        for (varname, coeff) in constr.lhs.items():
+            var = self._varname_to_var[varname]
+            lhs += self._get_value(var) * coeff
+        if constr.sense == "<":
+            return lhs <= constr.rhs + tol
+        elif constr.sense == ">":
+            return lhs >= constr.rhs - tol
+        else:
+            return abs(constr.rhs - lhs) < abs(tol)
+
+    @overrides
+    def is_infeasible(self) -> bool:
+        assert self.model is not None
+        return self.model.status in [self.gp.GRB.INFEASIBLE, self.gp.GRB.INF_OR_UNBD]
+
+    @overrides
+    def remove_constraint(self, name: str) -> None:
+        assert self.model is not None
+        constr = self.model.getConstrByName(name)
+        self.model.remove(constr)
+
+    @overrides
     def set_instance(
         self,
         instance: Instance,
@@ -96,66 +281,14 @@ class GurobiSolver(InternalSolver):
         self.model.update()
         self._update_vars()
 
-    def _raise_if_callback(self) -> None:
-        if self.cb_where is not None:
-            raise Exception("method cannot be called from a callback")
-
-    def _update_vars(self) -> None:
-        assert self.model is not None
-        self._varname_to_var.clear()
-        self._original_vtype = {}
-        self._bin_vars.clear()
-        for var in self.model.getVars():
-            assert var.varName not in self._varname_to_var, (
-                f"Duplicated variable name detected: {var.varName}. "
-                f"Unique variable names are currently required."
-            )
-            self._varname_to_var[var.varName] = var
-            assert var.vtype in ["B", "C"], (
-                "Only binary and continuous variables are currently supported. "
-                "Variable {var.varName} has type {var.vtype}."
-            )
-            self._original_vtype[var] = var.vtype
-            if var.vtype == "B":
-                self._bin_vars.append(var)
-
-    def _apply_params(self, streams: List[Any]) -> None:
-        assert self.model is not None
-        with _RedirectOutput(streams):
-            for (name, value) in self.params.items():
-                self.model.setParam(name, value)
-
     @overrides
-    def solve_lp(
-        self,
-        tee: bool = False,
-    ) -> LPSolveStats:
+    def set_warm_start(self, solution: Solution) -> None:
         self._raise_if_callback()
-        streams: List[Any] = [StringIO()]
-        if tee:
-            streams += [sys.stdout]
-        self._apply_params(streams)
-        assert self.model is not None
-        for var in self._bin_vars:
-            var.vtype = self.gp.GRB.CONTINUOUS
-            var.lb = 0.0
-            var.ub = 1.0
-        with _RedirectOutput(streams):
-            self.model.optimize()
-            self._dirty = False
-        for var in self._bin_vars:
-            var.vtype = self.gp.GRB.BINARY
-        log = streams[0].getvalue()
-        self._has_lp_solution = self.model.solCount > 0
-        self._has_mip_solution = False
-        opt_value = None
-        if not self.is_infeasible():
-            opt_value = self.model.objVal
-        return LPSolveStats(
-            lp_value=opt_value,
-            lp_log=log,
-            lp_wallclock_time=self.model.runtime,
-        )
+        self._clear_warm_start()
+        for (var_name, value) in solution.items():
+            var = self._varname_to_var[var_name]
+            if value is not None:
+                var.start = value
 
     @overrides
     def solve(
@@ -235,62 +368,73 @@ class GurobiSolver(InternalSolver):
         )
 
     @overrides
-    def get_solution(self) -> Optional[Solution]:
+    def solve_lp(
+        self,
+        tee: bool = False,
+    ) -> LPSolveStats:
+        self._raise_if_callback()
+        streams: List[Any] = [StringIO()]
+        if tee:
+            streams += [sys.stdout]
+        self._apply_params(streams)
         assert self.model is not None
-        if self.cb_where is not None:
-            if self.cb_where == self.gp.GRB.Callback.MIPNODE:
-                return {
-                    v.varName: self.model.cbGetNodeRel(v) for v in self.model.getVars()
-                }
-            elif self.cb_where == self.gp.GRB.Callback.MIPSOL:
-                return {
-                    v.varName: self.model.cbGetSolution(v) for v in self.model.getVars()
-                }
-            else:
-                raise Exception(
-                    f"get_solution can only be called from a callback "
-                    f"when cb_where is either MIPNODE or MIPSOL"
-                )
-        if self.model.solCount == 0:
+        for var in self._bin_vars:
+            var.vtype = self.gp.GRB.CONTINUOUS
+            var.lb = 0.0
+            var.ub = 1.0
+        with _RedirectOutput(streams):
+            self.model.optimize()
+            self._dirty = False
+        for var in self._bin_vars:
+            var.vtype = self.gp.GRB.BINARY
+        log = streams[0].getvalue()
+        self._has_lp_solution = self.model.solCount > 0
+        self._has_mip_solution = False
+        opt_value = None
+        if not self.is_infeasible():
+            opt_value = self.model.objVal
+        return LPSolveStats(
+            lp_value=opt_value,
+            lp_log=log,
+            lp_wallclock_time=self.model.runtime,
+        )
+
+    @overrides
+    def relax(self) -> None:
+        assert self.model is not None
+        self.model.update()
+        self.model = self.model.relax()
+        self._update_vars()
+
+    def _apply_params(self, streams: List[Any]) -> None:
+        assert self.model is not None
+        with _RedirectOutput(streams):
+            for (name, value) in self.params.items():
+                self.model.setParam(name, value)
+
+    def _clear_warm_start(self) -> None:
+        for var in self._varname_to_var.values():
+            var.start = self.gp.GRB.UNDEFINED
+
+    @staticmethod
+    def _extract(
+        log: str,
+        regexp: str,
+        default: Optional[str] = None,
+    ) -> Optional[str]:
+        value = default
+        for line in log.splitlines():
+            matches = re.findall(regexp, line)
+            if len(matches) == 0:
+                continue
+            value = matches[0]
+        return value
+
+    def _extract_warm_start_value(self, log: str) -> Optional[float]:
+        ws = self._extract(log, "MIP start with objective ([0-9.e+-]*)")
+        if ws is None:
             return None
-        return {v.varName: v.x for v in self.model.getVars()}
-
-    @overrides
-    def get_variable_names(self) -> List[VariableName]:
-        self._raise_if_callback()
-        assert self.model is not None
-        return [v.varName for v in self.model.getVars()]
-
-    @overrides
-    def set_warm_start(self, solution: Solution) -> None:
-        self._raise_if_callback()
-        self._clear_warm_start()
-        for (var_name, value) in solution.items():
-            var = self._varname_to_var[var_name]
-            if value is not None:
-                var.start = value
-
-    @overrides
-    def get_sense(self) -> str:
-        assert self.model is not None
-        if self.model.modelSense == 1:
-            return "min"
-        else:
-            return "max"
-
-    @overrides
-    def is_infeasible(self) -> bool:
-        assert self.model is not None
-        return self.model.status in [self.gp.GRB.INFEASIBLE, self.gp.GRB.INF_OR_UNBD]
-
-    @overrides
-    def get_dual(self, cid: str) -> float:
-        assert self.model is not None
-        c = self.model.getConstrByName(cid)
-        if self.is_infeasible():
-            return c.farkasDual
-        else:
-            return c.pi
+        return float(ws)
 
     def _get_value(self, var: Any) -> float:
         assert self.model is not None
@@ -304,132 +448,6 @@ class GurobiSolver(InternalSolver):
             raise Exception(
                 "get_value cannot be called from cb_where=%s" % self.cb_where
             )
-
-    @overrides
-    def add_constraint(self, constr: Constraint, name: str) -> None:
-        assert self.model is not None
-        lhs = self.gp.quicksum(
-            self._varname_to_var[varname] * coeff
-            for (varname, coeff) in constr.lhs.items()
-        )
-        if constr.sense == "=":
-            self.model.addConstr(lhs == constr.rhs, name=name)
-        elif constr.sense == "<":
-            self.model.addConstr(lhs <= constr.rhs, name=name)
-        else:
-            self.model.addConstr(lhs >= constr.rhs, name=name)
-        self._dirty = True
-        self._has_lp_solution = False
-        self._has_mip_solution = False
-
-    @overrides
-    def remove_constraint(self, name: str) -> None:
-        assert self.model is not None
-        constr = self.model.getConstrByName(name)
-        self.model.remove(constr)
-
-    @overrides
-    def is_constraint_satisfied(self, constr: Constraint, tol: float = 1e-6) -> bool:
-        lhs = 0.0
-        for (varname, coeff) in constr.lhs.items():
-            var = self._varname_to_var[varname]
-            lhs += self._get_value(var) * coeff
-        if constr.sense == "<":
-            return lhs <= constr.rhs + tol
-        elif constr.sense == ">":
-            return lhs >= constr.rhs - tol
-        else:
-            return abs(constr.rhs - lhs) < abs(tol)
-
-    def _clear_warm_start(self) -> None:
-        for var in self._varname_to_var.values():
-            var.start = self.gp.GRB.UNDEFINED
-
-    @overrides
-    def fix(self, solution: Solution) -> None:
-        self._raise_if_callback()
-        for (varname, value) in solution.items():
-            if value is None:
-                continue
-            var = self._varname_to_var[varname]
-            var.vtype = self.gp.GRB.CONTINUOUS
-            var.lb = value
-            var.ub = value
-
-    @overrides
-    def relax(self) -> None:
-        assert self.model is not None
-        self.model.update()
-        self.model = self.model.relax()
-        self._update_vars()
-
-    def _extract_warm_start_value(self, log: str) -> Optional[float]:
-        ws = self.__extract(log, "MIP start with objective ([0-9.e+-]*)")
-        if ws is None:
-            return None
-        return float(ws)
-
-    @staticmethod
-    def __extract(
-        log: str,
-        regexp: str,
-        default: Optional[str] = None,
-    ) -> Optional[str]:
-        value = default
-        for line in log.splitlines():
-            matches = re.findall(regexp, line)
-            if len(matches) == 0:
-                continue
-            value = matches[0]
-        return value
-
-    def __getstate__(self) -> Dict:
-        return {
-            "params": self.params,
-            "lazy_cb_where": self.lazy_cb_where,
-        }
-
-    def __setstate__(self, state: Dict) -> None:
-        self.params = state["params"]
-        self.lazy_cb_where = state["lazy_cb_where"]
-        self.instance = None
-        self.model = None
-        self.cb_where = None
-
-    @overrides
-    def clone(self) -> "GurobiSolver":
-        return GurobiSolver(
-            params=self.params,
-            lazy_cb_frequency=self.lazy_cb_frequency,
-        )
-
-    @overrides
-    def build_test_instance_infeasible(self) -> Instance:
-        return GurobiTestInstanceInfeasible()
-
-    @overrides
-    def build_test_instance_redundancy(self) -> Instance:
-        return GurobiTestInstanceRedundancy()
-
-    @overrides
-    def build_test_instance_knapsack(self) -> Instance:
-        return GurobiTestInstanceKnapsack(
-            weights=[23.0, 26.0, 20.0, 18.0],
-            prices=[505.0, 352.0, 458.0, 220.0],
-            capacity=67.0,
-        )
-
-    @overrides
-    def get_variables(self) -> Dict[str, Variable]:
-        assert self.model is not None
-        variables = {}
-        for gp_var in self.model.getVars():
-            name = gp_var.varName
-            assert len(name) > 0, f"empty variable name detected"
-            assert name not in variables, f"duplicated variable name detected: {name}"
-            var = self._parse_gurobi_var(gp_var)
-            variables[name] = var
-        return variables
 
     def _parse_gurobi_var(self, gp_var: Any) -> Variable:
         assert self.model is not None
@@ -462,20 +480,6 @@ class GurobiSolver(InternalSolver):
             var.value = gp_var.x
         return var
 
-    @overrides
-    def get_constraints(self) -> Dict[str, Constraint]:
-        assert self.model is not None
-        self._raise_if_callback()
-        if self._dirty:
-            self.model.update()
-            self._dirty = False
-        constraints: Dict[str, Constraint] = {}
-        for c in self.model.getConstrs():
-            constr = self._parse_gurobi_constraint(c)
-            assert c.constrName not in constraints
-            constraints[c.constrName] = constr
-        return constraints
-
     def _parse_gurobi_constraint(self, gp_constr: Any) -> Constraint:
         assert self.model is not None
         expr = self.model.getRow(gp_constr)
@@ -501,45 +505,41 @@ class GurobiSolver(InternalSolver):
             constr.slack = gp_constr.slack
         return constr
 
-    @overrides
-    def are_callbacks_supported(self) -> bool:
-        return True
+    def _raise_if_callback(self) -> None:
+        if self.cb_where is not None:
+            raise Exception("method cannot be called from a callback")
 
-    @overrides
-    def get_constraint_attrs(self) -> List[str]:
-        return [
-            "basis_status",
-            "category",
-            "dual_value",
-            "lazy",
-            "lhs",
-            "rhs",
-            "sa_rhs_down",
-            "sa_rhs_up",
-            "sense",
-            "slack",
-            "user_features",
-        ]
+    def _update_vars(self) -> None:
+        assert self.model is not None
+        self._varname_to_var.clear()
+        self._original_vtype = {}
+        self._bin_vars.clear()
+        for var in self.model.getVars():
+            assert var.varName not in self._varname_to_var, (
+                f"Duplicated variable name detected: {var.varName}. "
+                f"Unique variable names are currently required."
+            )
+            self._varname_to_var[var.varName] = var
+            assert var.vtype in ["B", "C"], (
+                "Only binary and continuous variables are currently supported. "
+                "Variable {var.varName} has type {var.vtype}."
+            )
+            self._original_vtype[var] = var.vtype
+            if var.vtype == "B":
+                self._bin_vars.append(var)
 
-    @overrides
-    def get_variable_attrs(self) -> List[str]:
-        return [
-            "basis_status",
-            "category",
-            "lower_bound",
-            "obj_coeff",
-            "reduced_cost",
-            "sa_lb_down",
-            "sa_lb_up",
-            "sa_obj_down",
-            "sa_obj_up",
-            "sa_ub_down",
-            "sa_ub_up",
-            "type",
-            "upper_bound",
-            "user_features",
-            "value",
-        ]
+    def __getstate__(self) -> Dict:
+        return {
+            "params": self.params,
+            "lazy_cb_where": self.lazy_cb_where,
+        }
+
+    def __setstate__(self, state: Dict) -> None:
+        self.params = state["params"]
+        self.lazy_cb_where = state["lazy_cb_where"]
+        self.instance = None
+        self.model = None
+        self.cb_where = None
 
 
 class GurobiTestInstanceInfeasible(Instance):
