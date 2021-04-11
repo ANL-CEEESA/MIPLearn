@@ -147,10 +147,10 @@ class GurobiSolver(InternalSolver):
         opt_value = None
         if not self.is_infeasible():
             opt_value = self.model.objVal
-        return {
-            "LP value": opt_value,
-            "LP log": log,
-        }
+        return LPSolveStats(
+            lp_value=opt_value,
+            lp_log=log,
+        )
 
     @overrides
     def solve(

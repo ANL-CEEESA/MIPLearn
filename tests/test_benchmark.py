@@ -34,7 +34,6 @@ def test_benchmark() -> None:
             n_jobs=n_jobs,
             n_trials=2,
         )
-        assert benchmark.results.values.shape == (12, 20)
-
         benchmark.write_csv("/tmp/benchmark.csv")
         assert os.path.isfile("/tmp/benchmark.csv")
+        assert benchmark.results.values.shape == (12, 20)

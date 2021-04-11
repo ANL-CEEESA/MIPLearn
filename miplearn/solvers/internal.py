@@ -4,6 +4,7 @@
 
 import logging
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from overrides import EnforceOverrides
@@ -11,7 +12,6 @@ from overrides import EnforceOverrides
 from miplearn.features import Constraint, Variable
 from miplearn.instance.base import Instance
 from miplearn.types import (
-    LPSolveStats,
     IterationCallback,
     LazyCallback,
     MIPSolveStats,
@@ -22,6 +22,12 @@ from miplearn.types import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class LPSolveStats:
+    lp_log: Optional[str] = None
+    lp_value: Optional[float] = None
 
 
 class InternalSolver(ABC, EnforceOverrides):

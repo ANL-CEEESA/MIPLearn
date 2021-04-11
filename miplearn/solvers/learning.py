@@ -178,10 +178,10 @@ class LearningSolver:
 
             logger.info("Solving root LP relaxation...")
             lp_stats = self.internal_solver.solve_lp(tee=tee)
-            stats.update(cast(LearningSolveStats, lp_stats))
+            stats.update(cast(LearningSolveStats, lp_stats.__dict__))
             training_sample.lp_solution = self.internal_solver.get_solution()
-            training_sample.lp_value = lp_stats["LP value"]
-            training_sample.lp_log = lp_stats["LP log"]
+            training_sample.lp_value = lp_stats.lp_value
+            training_sample.lp_log = lp_stats.lp_log
 
             logger.debug("Running after_solve_lp callbacks...")
             for component in self.components.values():
@@ -240,8 +240,6 @@ class LearningSolver:
             lazy_cb=lazy_cb,
         )
         stats.update(cast(LearningSolveStats, mip_stats))
-        if training_sample.lp_value is not None:
-            stats["LP value"] = training_sample.lp_value
         stats["Solver"] = "default"
         stats["Gap"] = self._compute_gap(
             ub=stats["Upper bound"],

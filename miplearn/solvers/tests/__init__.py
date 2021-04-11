@@ -137,9 +137,10 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # Solve linear programming relaxation
     lp_stats = solver.solve_lp()
     assert not solver.is_infeasible()
-    assert lp_stats["LP value"] is not None
-    assert_equals(round(lp_stats["LP value"], 3), 1287.923)
-    assert len(lp_stats["LP log"]) > 100
+    assert lp_stats.lp_value is not None
+    assert lp_stats.lp_log is not None
+    assert_equals(round(lp_stats.lp_value, 3), 1287.923)
+    assert len(lp_stats.lp_log) > 100
 
     # Fetch variables (after-load)
     assert_equals(
@@ -362,7 +363,7 @@ def run_infeasibility_tests(solver: InternalSolver) -> None:
     assert mip_stats["Lower bound"] is None
     lp_stats = solver.solve_lp()
     assert solver.get_solution() is None
-    assert lp_stats["LP value"] is None
+    assert lp_stats.lp_value is None
 
 
 def run_iteration_cb_tests(solver: InternalSolver) -> None:

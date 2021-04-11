@@ -19,14 +19,6 @@ UserCutCallback = Callable[["InternalSolver", Any], None]
 VariableName = str
 Solution = Dict[VariableName, Optional[float]]
 
-LPSolveStats = TypedDict(
-    "LPSolveStats",
-    {
-        "LP log": str,
-        "LP value": Optional[float],
-    },
-)
-
 MIPSolveStats = TypedDict(
     "MIPSolveStats",
     {

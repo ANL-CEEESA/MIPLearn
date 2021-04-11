@@ -87,10 +87,10 @@ class BasePyomoSolver(InternalSolver):
         if not self.is_infeasible():
             opt_value = results["Problem"][0]["Lower bound"]
             self._has_lp_solution = True
-        return {
-            "LP value": opt_value,
-            "LP log": streams[0].getvalue(),
-        }
+        return LPSolveStats(
+            lp_value=opt_value,
+            lp_log=streams[0].getvalue(),
+        )
 
     def _restore_integrality(self) -> None:
         for var in self._bin_vars:
