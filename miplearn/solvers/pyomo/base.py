@@ -90,6 +90,7 @@ class BasePyomoSolver(InternalSolver):
         return LPSolveStats(
             lp_value=opt_value,
             lp_log=streams[0].getvalue(),
+            lp_wallclock_time=results["Solver"][0]["Wallclock time"],
         )
 
     def _restore_integrality(self) -> None:

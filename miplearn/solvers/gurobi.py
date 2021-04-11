@@ -150,6 +150,7 @@ class GurobiSolver(InternalSolver):
         return LPSolveStats(
             lp_value=opt_value,
             lp_log=log,
+            lp_wallclock_time=self.model.runtime,
         )
 
     @overrides

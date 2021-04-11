@@ -8,11 +8,12 @@ from dataclasses import dataclass
 from math import log, isfinite
 from typing import TYPE_CHECKING, Dict, Optional, Set, List, Hashable
 
-from miplearn.types import Solution, VariableName, Category
 import numpy as np
 
+from miplearn.types import Solution, Category
+
 if TYPE_CHECKING:
-    from miplearn.solvers.internal import InternalSolver
+    from miplearn.solvers.internal import InternalSolver, LPSolveStats
     from miplearn.instance.base import Instance
 
 
@@ -101,6 +102,7 @@ class Features:
     instance: Optional[InstanceFeatures] = None
     variables: Optional[Dict[str, Variable]] = None
     constraints: Optional[Dict[str, Constraint]] = None
+    lp_solve: Optional["LPSolveStats"] = None
 
 
 class FeaturesExtractor:

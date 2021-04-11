@@ -138,9 +138,11 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     lp_stats = solver.solve_lp()
     assert not solver.is_infeasible()
     assert lp_stats.lp_value is not None
-    assert lp_stats.lp_log is not None
     assert_equals(round(lp_stats.lp_value, 3), 1287.923)
+    assert lp_stats.lp_log is not None
     assert len(lp_stats.lp_log) > 100
+    assert lp_stats.lp_wallclock_time is not None
+    assert lp_stats.lp_wallclock_time > 0
 
     # Fetch variables (after-load)
     assert_equals(

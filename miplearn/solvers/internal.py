@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 class LPSolveStats:
     lp_log: Optional[str] = None
     lp_value: Optional[float] = None
+    lp_wallclock_time: Optional[float] = None
 
 
 class InternalSolver(ABC, EnforceOverrides):

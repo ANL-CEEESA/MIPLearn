@@ -191,6 +191,7 @@ class LearningSolver:
             # -------------------------------------------------------
             logger.info("Extracting features (after-lp)...")
             features = FeaturesExtractor(self.internal_solver).extract(instance)
+            features.lp_solve = lp_stats
             instance.features_after_lp.append(features)
 
         # Callback wrappers
