@@ -220,16 +220,15 @@ class GurobiSolver(InternalSolver):
                 lb = self.model.objVal
                 ub = self.model.objBound
         ws_value = self._extract_warm_start_value(log)
-        stats: MIPSolveStats = {
-            "Lower bound": lb,
-            "Upper bound": ub,
-            "Wallclock time": total_wallclock_time,
-            "Nodes": total_nodes,
-            "Sense": sense,
-            "MIP log": log,
-            "Warm start value": ws_value,
-        }
-        return stats
+        return MIPSolveStats(
+            mip_lower_bound=lb,
+            mip_upper_bound=ub,
+            mip_wallclock_time=total_wallclock_time,
+            mip_nodes=total_nodes,
+            mip_sense=sense,
+            mip_log=log,
+            mip_warm_start_value=ws_value,
+        )
 
     @overrides
     def get_solution(self) -> Optional[Solution]:

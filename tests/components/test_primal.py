@@ -221,7 +221,7 @@ def test_usage() -> None:
     stats = solver.solve(instance)
     assert stats["Primal: Free"] == 0
     assert stats["Primal: One"] + stats["Primal: Zero"] == 10
-    assert stats["Lower bound"] == stats["Warm start value"]
+    assert stats["mip_lower_bound"] == stats["mip_warm_start_value"]
 
 
 def test_evaluate() -> None:

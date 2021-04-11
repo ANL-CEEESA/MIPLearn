@@ -240,11 +240,11 @@ class LearningSolver:
             user_cut_cb=user_cut_cb,
             lazy_cb=lazy_cb,
         )
-        stats.update(cast(LearningSolveStats, mip_stats))
+        stats.update(cast(LearningSolveStats, mip_stats.__dict__))
         stats["Solver"] = "default"
         stats["Gap"] = self._compute_gap(
-            ub=stats["Upper bound"],
-            lb=stats["Lower bound"],
+            ub=mip_stats.mip_upper_bound,
+            lb=mip_stats.mip_lower_bound,
         )
         stats["Mode"] = self.mode
 
@@ -256,9 +256,9 @@ class LearningSolver:
 
         # Add some information to training_sample
         # -------------------------------------------------------
-        training_sample.lower_bound = stats["Lower bound"]
-        training_sample.upper_bound = stats["Upper bound"]
-        training_sample.mip_log = stats["MIP log"]
+        training_sample.lower_bound = mip_stats.mip_lower_bound
+        training_sample.upper_bound = mip_stats.mip_upper_bound
+        training_sample.mip_log = mip_stats.mip_log
         training_sample.solution = self.internal_solver.get_solution()
 
         # After-solve callbacks

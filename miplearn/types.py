@@ -19,30 +19,18 @@ UserCutCallback = Callable[["InternalSolver", Any], None]
 VariableName = str
 Solution = Dict[VariableName, Optional[float]]
 
-MIPSolveStats = TypedDict(
-    "MIPSolveStats",
-    {
-        "Lower bound": Optional[float],
-        "MIP log": str,
-        "Nodes": Optional[int],
-        "Sense": str,
-        "Upper bound": Optional[float],
-        "Wallclock time": float,
-        "Warm start value": Optional[float],
-    },
-)
-
 LearningSolveStats = TypedDict(
     "LearningSolveStats",
     {
         "Gap": Optional[float],
         "Instance": Union[str, int],
-        "LP log": str,
-        "LP value": Optional[float],
-        "Lower bound": Optional[float],
-        "MIP log": str,
+        "lp_log": str,
+        "lp_value": Optional[float],
+        "lp_wallclock_time": Optional[float],
+        "mip_lower_bound": Optional[float],
+        "mip_log": str,
         "Mode": str,
-        "Nodes": Optional[int],
+        "mip_nodes": Optional[int],
         "Objective: Predicted lower bound": float,
         "Objective: Predicted upper bound": float,
         "Primal: Free": int,
@@ -50,9 +38,9 @@ LearningSolveStats = TypedDict(
         "Primal: Zero": int,
         "Sense": str,
         "Solver": str,
-        "Upper bound": Optional[float],
-        "Wallclock time": float,
-        "Warm start value": Optional[float],
+        "mip_upper_bound": Optional[float],
+        "mip_wallclock_time": float,
+        "mip_warm_start_value": Optional[float],
         "LazyStatic: Removed": int,
         "LazyStatic: Kept": int,
         "LazyStatic: Restored": int,

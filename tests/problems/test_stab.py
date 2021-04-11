@@ -16,7 +16,7 @@ def test_stab() -> None:
     instance = MaxWeightStableSetInstance(graph, weights)
     solver = LearningSolver()
     stats = solver.solve(instance)
-    assert stats["Lower bound"] == 2.0
+    assert stats["mip_lower_bound"] == 2.0
 
 
 def test_stab_generator_fixed_graph() -> None:

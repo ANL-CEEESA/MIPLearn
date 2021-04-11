@@ -14,7 +14,6 @@ from miplearn.instance.base import Instance
 from miplearn.types import (
     IterationCallback,
     LazyCallback,
-    MIPSolveStats,
     BranchPriorities,
     UserCutCallback,
     Solution,
@@ -29,6 +28,17 @@ class LPSolveStats:
     lp_log: Optional[str] = None
     lp_value: Optional[float] = None
     lp_wallclock_time: Optional[float] = None
+
+
+@dataclass
+class MIPSolveStats:
+    mip_lower_bound: Optional[float]
+    mip_log: str
+    mip_nodes: Optional[int]
+    mip_sense: str
+    mip_upper_bound: Optional[float]
+    mip_wallclock_time: float
+    mip_warm_start_value: Optional[float]
 
 
 class InternalSolver(ABC, EnforceOverrides):

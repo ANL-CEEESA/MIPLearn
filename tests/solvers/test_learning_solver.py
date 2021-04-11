@@ -140,7 +140,7 @@ def test_simulate_perfect() -> None:
             simulate_perfect=True,
         )
         stats = solver.solve(PickleGzInstance(tmp.name))
-        assert stats["Lower bound"] == stats["Objective: Predicted lower bound"]
+        assert stats["mip_lower_bound"] == stats["Objective: Predicted lower bound"]
 
 
 def test_gap() -> None:

@@ -47,8 +47,8 @@ def test_instance() -> None:
     assert solution["x[(1, 2)]"] == 1.0
     assert solution["x[(1, 3)]"] == 0.0
     assert solution["x[(2, 3)]"] == 1.0
-    assert stats["Lower bound"] == 4.0
-    assert stats["Upper bound"] == 4.0
+    assert stats["mip_lower_bound"] == 4.0
+    assert stats["mip_upper_bound"] == 4.0
 
 
 def test_subtour() -> None:

@@ -255,5 +255,5 @@ def test_usage() -> None:
     solver.solve(instance)
     solver.fit([instance])
     stats = solver.solve(instance)
-    assert stats["Lower bound"] == stats["Objective: Predicted lower bound"]
-    assert stats["Upper bound"] == stats["Objective: Predicted upper bound"]
+    assert stats["mip_lower_bound"] == stats["Objective: Predicted lower bound"]
+    assert stats["mip_upper_bound"] == stats["Objective: Predicted upper bound"]

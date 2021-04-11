@@ -243,11 +243,17 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         user_cut_cb=None,
     )
     assert not solver.is_infeasible()
-    assert len(mip_stats["MIP log"]) > 100
-    assert_equals(mip_stats["Lower bound"], 1183.0)
-    assert_equals(mip_stats["Upper bound"], 1183.0)
-    assert_equals(mip_stats["Sense"], "max")
-    assert isinstance(mip_stats["Wallclock time"], float)
+    assert mip_stats.mip_log is not None
+    assert len(mip_stats.mip_log) > 100
+    assert mip_stats.mip_lower_bound is not None
+    assert_equals(mip_stats.mip_lower_bound, 1183.0)
+    assert mip_stats.mip_upper_bound is not None
+    assert_equals(mip_stats.mip_upper_bound, 1183.0)
+    assert mip_stats.mip_sense is not None
+    assert_equals(mip_stats.mip_sense, "max")
+    assert mip_stats.mip_wallclock_time is not None
+    assert isinstance(mip_stats.mip_wallclock_time, float)
+    assert mip_stats.mip_wallclock_time > 0
 
     # Fetch variables (after-load)
     assert_equals(
@@ -325,7 +331,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # Re-solve MIP and verify that constraint affects the solution
     stats = solver.solve()
-    assert_equals(stats["Lower bound"], 1030.0)
+    assert_equals(stats.mip_lower_bound, 1030.0)
     assert solver.is_constraint_satisfied(cut)
 
     # Remove the new constraint
@@ -333,7 +339,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # New constraint should no longer affect solution
     stats = solver.solve()
-    assert_equals(stats["Lower bound"], 1183.0)
+    assert_equals(stats.mip_lower_bound, 1183.0)
 
 
 def run_warm_start_tests(solver: InternalSolver) -> None:
@@ -342,17 +348,17 @@ def run_warm_start_tests(solver: InternalSolver) -> None:
     solver.set_instance(instance, model)
     solver.set_warm_start({"x[0]": 1.0, "x[1]": 0.0, "x[2]": 0.0, "x[3]": 1.0})
     stats = solver.solve(tee=True)
-    if stats["Warm start value"] is not None:
-        assert_equals(stats["Warm start value"], 725.0)
+    if stats.mip_warm_start_value is not None:
+        assert_equals(stats.mip_warm_start_value, 725.0)
 
     solver.set_warm_start({"x[0]": 1.0, "x[1]": 1.0, "x[2]": 1.0, "x[3]": 1.0})
     stats = solver.solve(tee=True)
-    assert stats["Warm start value"] is None
+    assert stats.mip_warm_start_value is None
 
     solver.fix({"x[0]": 1.0, "x[1]": 0.0, "x[2]": 0.0, "x[3]": 1.0})
     stats = solver.solve(tee=True)
-    assert_equals(stats["Lower bound"], 725.0)
-    assert_equals(stats["Upper bound"], 725.0)
+    assert_equals(stats.mip_lower_bound, 725.0)
+    assert_equals(stats.mip_upper_bound, 725.0)
 
 
 def run_infeasibility_tests(solver: InternalSolver) -> None:
@@ -361,8 +367,8 @@ def run_infeasibility_tests(solver: InternalSolver) -> None:
     mip_stats = solver.solve()
     assert solver.is_infeasible()
     assert solver.get_solution() is None
-    assert mip_stats["Upper bound"] is None
-    assert mip_stats["Lower bound"] is None
+    assert mip_stats.mip_upper_bound is None
+    assert mip_stats.mip_lower_bound is None
     lp_stats = solver.solve_lp()
     assert solver.get_solution() is None
     assert lp_stats.lp_value is None

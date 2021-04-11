@@ -136,16 +136,15 @@ class BasePyomoSolver(InternalSolver):
             self._has_mip_solution = True
             lb = results["Problem"][0]["Lower bound"]
             ub = results["Problem"][0]["Upper bound"]
-        stats: MIPSolveStats = {
-            "Lower bound": lb,
-            "Upper bound": ub,
-            "Wallclock time": total_wallclock_time,
-            "Sense": self._obj_sense,
-            "MIP log": log,
-            "Nodes": node_count,
-            "Warm start value": ws_value,
-        }
-        return stats
+        return MIPSolveStats(
+            mip_lower_bound=lb,
+            mip_upper_bound=ub,
+            mip_wallclock_time=total_wallclock_time,
+            mip_sense=self._obj_sense,
+            mip_log=log,
+            mip_nodes=node_count,
+            mip_warm_start_value=ws_value,
+        )
 
     @overrides
     def get_solution(self) -> Optional[Solution]:
