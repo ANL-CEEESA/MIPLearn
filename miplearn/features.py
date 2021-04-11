@@ -13,7 +13,7 @@ import numpy as np
 from miplearn.types import Solution, Category
 
 if TYPE_CHECKING:
-    from miplearn.solvers.internal import InternalSolver, LPSolveStats
+    from miplearn.solvers.internal import InternalSolver, LPSolveStats, MIPSolveStats
     from miplearn.instance.base import Instance
 
 
@@ -103,6 +103,7 @@ class Features:
     variables: Optional[Dict[str, Variable]] = None
     constraints: Optional[Dict[str, Constraint]] = None
     lp_solve: Optional["LPSolveStats"] = None
+    mip_solve: Optional["MIPSolveStats"] = None
 
 
 class FeaturesExtractor:

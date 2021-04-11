@@ -171,6 +171,7 @@ class LearningSolver:
 
         # Solve root LP relaxation
         # -------------------------------------------------------
+        lp_stats = None
         if self.solve_lp:
             logger.debug("Running before_solve_lp callbacks...")
             for component in self.components.values():
@@ -252,6 +253,8 @@ class LearningSolver:
         # -------------------------------------------------------
         logger.info("Extracting features (after-mip)...")
         features = FeaturesExtractor(self.internal_solver).extract(instance)
+        features.lp_solve = lp_stats
+        features.mip_solve = mip_stats
         instance.features_after_mip.append(features)
 
         # Add some information to training_sample
