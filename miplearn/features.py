@@ -40,6 +40,7 @@ class InstanceFeatures:
         features: List[float] = []
         if self.user_features is not None:
             features.extend(self.user_features)
+        _clip(features)
         return features
 
 
@@ -85,6 +86,7 @@ class Variable:
         for attr in ["user_features", "alvarez_2017"]:
             if getattr(self, attr) is not None:
                 features.extend(getattr(self, attr))
+        _clip(features)
         return features
 
 
@@ -120,6 +122,7 @@ class Constraint:
             features.append(np.max(self.lhs.values()))
             features.append(np.average(self.lhs.values()))
             features.append(np.min(self.lhs.values()))
+        _clip(features)
         return features
 
 
@@ -313,3 +316,9 @@ class FeaturesExtractor:
             for v in f:
                 assert isfinite(v), f"non-finite elements detected: {f}"
             var.alvarez_2017 = f
+
+
+def _clip(v: List[float]) -> None:
+    for (i, vi) in enumerate(v):
+        if not isfinite(vi):
+            v[i] = max(min(vi, 1e20), -1e20)

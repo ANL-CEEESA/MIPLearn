@@ -154,3 +154,10 @@ class ObjectiveValueComponent(Component):
         if sample.lower_bound is not None:
             result["Lower bound"] = compare(pred["Lower bound"], sample.lower_bound)
         return result
+
+    @overrides
+    def fit(
+        self,
+        training_instances: List[Instance],
+    ) -> None:
+        return

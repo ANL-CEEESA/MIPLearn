@@ -279,3 +279,10 @@ class PrimalSolutionComponent(Component):
             thr.fit(clf, x[category], y[category])
             self.classifiers[category] = clf
             self.thresholds[category] = thr
+
+    @overrides
+    def fit(
+        self,
+        training_instances: List[Instance],
+    ) -> None:
+        return
