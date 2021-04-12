@@ -29,16 +29,23 @@ class LPSolveStats:
     lp_value: Optional[float] = None
     lp_wallclock_time: Optional[float] = None
 
+    def to_list(self) -> List[float]:
+        features: List[float] = []
+        for attr in ["lp_value", "lp_wallclock_time"]:
+            if getattr(self, attr) is not None:
+                features.append(getattr(self, attr))
+        return features
+
 
 @dataclass
 class MIPSolveStats:
-    mip_lower_bound: Optional[float]
-    mip_log: str
-    mip_nodes: Optional[int]
-    mip_sense: str
-    mip_upper_bound: Optional[float]
-    mip_wallclock_time: float
-    mip_warm_start_value: Optional[float]
+    mip_lower_bound: Optional[float] = None
+    mip_log: Optional[str] = None
+    mip_nodes: Optional[int] = None
+    mip_sense: Optional[str] = None
+    mip_upper_bound: Optional[float] = None
+    mip_wallclock_time: Optional[float] = None
+    mip_warm_start_value: Optional[float] = None
 
 
 class InternalSolver(ABC, EnforceOverrides):

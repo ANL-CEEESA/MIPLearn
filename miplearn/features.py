@@ -36,6 +36,12 @@ class InstanceFeatures:
     user_features: Optional[List[float]] = None
     lazy_constraint_count: int = 0
 
+    def to_list(self) -> List[float]:
+        features: List[float] = []
+        if self.user_features is not None:
+            features.extend(self.user_features)
+        return features
+
 
 @dataclass
 class Variable:
@@ -95,6 +101,26 @@ class Constraint:
     sense: str = "<"
     slack: Optional[float] = None
     user_features: Optional[List[float]] = None
+
+    def to_list(self) -> List[float]:
+        features: List[float] = []
+        for attr in [
+            "dual value",
+            "rhs",
+            "sa_rhs_down",
+            "sa_rhs_up",
+            "slack",
+        ]:
+            if getattr(self, attr) is not None:
+                features.append(getattr(self, attr))
+        for attr in ["user_features"]:
+            if getattr(self, attr) is not None:
+                features.extend(getattr(self, attr))
+        if self.lhs is not None and len(self.lhs) > 0:
+            features.append(np.max(self.lhs.values()))
+            features.append(np.average(self.lhs.values()))
+            features.append(np.min(self.lhs.values()))
+        return features
 
 
 @dataclass

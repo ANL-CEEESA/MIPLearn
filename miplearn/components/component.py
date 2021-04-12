@@ -7,7 +7,7 @@ from typing import Any, List, TYPE_CHECKING, Tuple, Dict, Hashable
 import numpy as np
 from overrides import EnforceOverrides
 
-from miplearn.features import TrainingSample, Features
+from miplearn.features import TrainingSample, Features, Sample
 from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats
 
@@ -112,6 +112,14 @@ class Component:
         instance: Instance,
         sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:
+        """
+        Returns a pair of x and y dictionaries containing, respectively, the matrices
+        of ML features and the labels for the sample. If the training sample does not
+        include label information, returns (x, {}).
+        """
+        pass
+
+    def sample_xy(self, sample: Sample) -> Tuple[Dict, Dict]:
         """
         Returns a pair of x and y dictionaries containing, respectively, the matrices
         of ML features and the labels for the sample. If the training sample does not
