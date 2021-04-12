@@ -146,7 +146,7 @@ def test_xy_old() -> None:
     assert y_actual == y_expected
 
 
-def test_xy_without_lp_solution() -> None:
+def test_xy_without_lp_solution_old() -> None:
     features = Features(
         variables={
             "x[0]": Variable(
@@ -197,7 +197,7 @@ def test_xy_without_lp_solution() -> None:
     assert y_actual == y_expected
 
 
-def test_predict() -> None:
+def test_predict_old() -> None:
     clf = Mock(spec=Classifier)
     clf.predict_proba = Mock(
         return_value=np.array(
@@ -295,7 +295,7 @@ def test_usage() -> None:
     assert stats["mip_lower_bound"] == stats["mip_warm_start_value"]
 
 
-def test_evaluate() -> None:
+def test_evaluate_old() -> None:
     comp = PrimalSolutionComponent()
     comp.sample_predict = lambda _, __: {  # type: ignore
         "x[0]": 1.0,

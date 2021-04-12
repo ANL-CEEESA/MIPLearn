@@ -71,7 +71,7 @@ def sample() -> Sample:
 
 
 @pytest.fixture
-def instance(features: Features) -> Instance:
+def instance_old(features: Features) -> Instance:
     instance = Mock(spec=Instance)
     instance.features = features
     instance.has_static_lazy_constraints = Mock(return_value=True)
@@ -79,7 +79,7 @@ def instance(features: Features) -> Instance:
 
 
 @pytest.fixture
-def sample2() -> TrainingSample:
+def sample_old() -> TrainingSample:
     return TrainingSample(
         lazy_enforced={"c1", "c2", "c4"},
     )
@@ -122,9 +122,9 @@ def features() -> Features:
     )
 
 
-def test_usage_with_solver(instance: Instance) -> None:
-    assert instance.features is not None
-    assert instance.features.constraints is not None
+def test_usage_with_solver(instance_old: Instance) -> None:
+    assert instance_old.features is not None
+    assert instance_old.features.constraints is not None
 
     solver = Mock(spec=LearningSolver)
     solver.use_lazy_cb = False
@@ -157,17 +157,17 @@ def test_usage_with_solver(instance: Instance) -> None:
         )
     )
 
-    sample2: TrainingSample = TrainingSample()
+    sample_old: TrainingSample = TrainingSample()
     stats: LearningSolveStats = {}
 
     # LearningSolver calls before_solve_mip
     component.before_solve_mip_old(
         solver=solver,
-        instance=instance,
+        instance=instance_old,
         model=None,
         stats=stats,
-        features=instance.features,
-        training_data=sample2,
+        features=instance_old.features,
+        training_data=sample_old,
     )
 
     # Should ask ML to predict whether each lazy constraint should be enforced
@@ -179,19 +179,19 @@ def test_usage_with_solver(instance: Instance) -> None:
     internal.remove_constraint.assert_has_calls([call("c3")])
 
     # LearningSolver calls after_iteration (first time)
-    should_repeat = component.iteration_cb(solver, instance, None)
+    should_repeat = component.iteration_cb(solver, instance_old, None)
     assert should_repeat
 
     # Should ask internal solver to verify if constraints in the pool are
     # satisfied and add the ones that are not
-    c3 = instance.features.constraints["c3"]
+    c3 = instance_old.features.constraints["c3"]
     internal.is_constraint_satisfied.assert_called_once_with(c3, tol=1.0)
     internal.is_constraint_satisfied.reset_mock()
     internal.add_constraint.assert_called_once_with(c3, name="c3")
     internal.add_constraint.reset_mock()
 
     # LearningSolver calls after_iteration (second time)
-    should_repeat = component.iteration_cb(solver, instance, None)
+    should_repeat = component.iteration_cb(solver, instance_old, None)
     assert not should_repeat
 
     # The lazy constraint pool should be empty by now, so no calls should be made
@@ -201,15 +201,15 @@ def test_usage_with_solver(instance: Instance) -> None:
     # LearningSolver calls after_solve_mip
     component.after_solve_mip_old(
         solver=solver,
-        instance=instance,
+        instance=instance_old,
         model=None,
         stats=stats,
-        features=instance.features,
-        training_data=sample2,
+        features=instance_old.features,
+        training_data=sample_old,
     )
 
     # Should update training sample
-    assert sample2.lazy_enforced == {"c1", "c2", "c3", "c4"}
+    assert sample_old.lazy_enforced == {"c1", "c2", "c3", "c4"}
 
     # Should update stats
     assert stats["LazyStatic: Removed"] == 1
@@ -219,8 +219,8 @@ def test_usage_with_solver(instance: Instance) -> None:
 
 
 def test_sample_predict(
-    instance: Instance,
-    sample2: TrainingSample,
+    instance_old: Instance,
+    sample_old: TrainingSample,
 ) -> None:
     comp = StaticLazyConstraintsComponent()
     comp.thresholds["type-a"] = MinProbabilityThreshold([0.5, 0.5])
@@ -239,7 +239,7 @@ def test_sample_predict(
             [0.0, 1.0],  # c4
         ]
     )
-    pred = comp.sample_predict(instance, sample2)
+    pred = comp.sample_predict(instance_old, sample_old)
     assert pred == ["c1", "c2", "c4"]
 
 

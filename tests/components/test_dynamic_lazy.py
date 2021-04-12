@@ -25,7 +25,7 @@ E = 0.1
 
 
 @pytest.fixture
-def training_instances2() -> List[Instance]:
+def training_instances_old() -> List[Instance]:
     instances = [cast(Instance, Mock(spec=Instance)) for _ in range(2)]
     instances[0].features = Features(
         instance=InstanceFeatures(
@@ -131,11 +131,11 @@ def test_sample_xy(training_instances: List[Instance]) -> None:
     assert_equals(y_actual, y_expected)
 
 
-def test_fit(training_instances2: List[Instance]) -> None:
+def test_fit_old(training_instances_old: List[Instance]) -> None:
     clf = Mock(spec=Classifier)
     clf.clone = Mock(side_effect=lambda: Mock(spec=Classifier))
     comp = DynamicLazyConstraintsComponent(classifier=clf)
-    comp.fit(training_instances2)
+    comp.fit_old(training_instances_old)
     assert clf.clone.call_count == 2
 
     assert "type-a" in comp.classifiers
@@ -197,7 +197,7 @@ def test_fit(training_instances2: List[Instance]) -> None:
     )
 
 
-def test_sample_predict_evaluate(training_instances2: List[Instance]) -> None:
+def test_sample_predict_evaluate_old(training_instances_old: List[Instance]) -> None:
     comp = DynamicLazyConstraintsComponent()
     comp.known_cids.extend(["c1", "c2", "c3", "c4"])
     comp.thresholds["type-a"] = MinProbabilityThreshold([0.5, 0.5])
@@ -211,13 +211,13 @@ def test_sample_predict_evaluate(training_instances2: List[Instance]) -> None:
         side_effect=lambda _: np.array([[0.9, 0.1], [0.1, 0.9]])
     )
     pred = comp.sample_predict(
-        training_instances2[0],
-        training_instances2[0].training_data[0],
+        training_instances_old[0],
+        training_instances_old[0].training_data[0],
     )
     assert pred == ["c1", "c4"]
     ev = comp.sample_evaluate_old(
-        training_instances2[0],
-        training_instances2[0].training_data[0],
+        training_instances_old[0],
+        training_instances_old[0].training_data[0],
     )
     print(ev)
     assert ev == {

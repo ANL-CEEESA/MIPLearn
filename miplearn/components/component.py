@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 # noinspection PyMethodMayBeStatic
-class Component:
+class Component(EnforceOverrides):
     """
     A Component is an object which adds functionality to a LearningSolver.
 
@@ -205,7 +205,7 @@ class Component:
         """
         pass
 
-    def xy_instances(
+    def xy_instances_old(
         self,
         instances: List[Instance],
     ) -> Tuple[Dict, Dict]:
@@ -227,11 +227,11 @@ class Component:
             instance.free()
         return x_combined, y_combined
 
-    def fit(
+    def fit_old(
         self,
         training_instances: List[Instance],
     ) -> None:
-        x, y = self.xy_instances(training_instances)
+        x, y = self.xy_instances_old(training_instances)
         for cat in x.keys():
             x[cat] = np.array(x[cat])
             y[cat] = np.array(y[cat])
@@ -294,7 +294,7 @@ class Component:
     ) -> None:
         return
 
-    def evaluate(self, instances: List[Instance]) -> List:
+    def evaluate_old(self, instances: List[Instance]) -> List:
         ev = []
         for instance in instances:
             instance.load()

@@ -415,7 +415,7 @@ class LearningSolver:
             return
         for component in self.components.values():
             logger.info(f"Fitting {component.__class__.__name__}...")
-            component.fit(training_instances)
+            component.fit_old(training_instances)
 
     def _add_component(self, component: Component) -> None:
         name = component.__class__.__name__

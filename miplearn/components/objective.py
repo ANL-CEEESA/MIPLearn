@@ -46,7 +46,7 @@ class ObjectiveValueComponent(Component):
         training_data: TrainingSample,
     ) -> None:
         logger.info("Predicting optimal value...")
-        pred = self.sample_predict(instance, training_data)
+        pred = self.sample_predict_old(instance, training_data)
         for (c, v) in pred.items():
             logger.info(f"Predicted {c.lower()}: %.6e" % v)
             stats[f"Objective: Predicted {c.lower()}"] = v  # type: ignore
@@ -62,7 +62,7 @@ class ObjectiveValueComponent(Component):
                 self.regressors[c] = self.regressor_prototype.clone()
                 self.regressors[c].fit(x[c], y[c])
 
-    def sample_predict(
+    def sample_predict_old(
         self,
         instance: Instance,
         sample: TrainingSample,
@@ -148,7 +148,7 @@ class ObjectiveValueComponent(Component):
             }
 
         result: Dict[Hashable, Dict[str, float]] = {}
-        pred = self.sample_predict(instance, sample)
+        pred = self.sample_predict_old(instance, sample)
         if sample.upper_bound is not None:
             result["Upper bound"] = compare(pred["Upper bound"], sample.upper_bound)
         if sample.lower_bound is not None:

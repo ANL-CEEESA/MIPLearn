@@ -5,11 +5,11 @@ from typing import Dict, Tuple
 from unittest.mock import Mock
 
 from miplearn.components.component import Component
-from miplearn.features import Features, TrainingSample
+from miplearn.features import Features
 from miplearn.instance.base import Instance
 
 
-def test_xy_instance() -> None:
+def test_xy_instance_old() -> None:
     def _sample_xy_old(features: Features, sample: str) -> Tuple[Dict, Dict]:
         x = {
             "s1": {
@@ -96,6 +96,6 @@ def test_xy_instance() -> None:
             [11],
         ],
     }
-    x_actual, y_actual = comp.xy_instances([instance_1, instance_2])
+    x_actual, y_actual = comp.xy_instances_old([instance_1, instance_2])
     assert x_actual == x_expected
     assert y_actual == y_expected

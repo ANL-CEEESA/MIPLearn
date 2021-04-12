@@ -116,8 +116,8 @@ class DynamicLazyConstraintsComponent(Component):
         return self.dynamic.sample_predict(instance, sample)
 
     @overrides
-    def fit(self, training_instances: List[Instance]) -> None:
-        self.dynamic.fit(training_instances)
+    def fit_old(self, training_instances: List[Instance]) -> None:
+        self.dynamic.fit_old(training_instances)
 
     @overrides
     def fit_xy(

@@ -161,7 +161,7 @@ class DynamicConstraintsComponent(Component):
         return pred
 
     @overrides
-    def fit(self, training_instances: List[Instance]) -> None:
+    def fit_old(self, training_instances: List[Instance]) -> None:
         collected_cids = set()
         for instance in training_instances:
             instance.load()
@@ -172,7 +172,7 @@ class DynamicConstraintsComponent(Component):
             instance.free()
         self.known_cids.clear()
         self.known_cids.extend(sorted(collected_cids))
-        super().fit(training_instances)
+        super().fit_old(training_instances)
 
     @overrides
     def fit_xy(

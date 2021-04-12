@@ -18,14 +18,14 @@ from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
 
 
 @pytest.fixture
-def instance(features: Features) -> Instance:
+def instance_old(features_old: Features) -> Instance:
     instance = Mock(spec=Instance)
-    instance.features = features
+    instance.features = features_old
     return instance
 
 
 @pytest.fixture
-def features() -> Features:
+def features_old() -> Features:
     return Features(
         instance=InstanceFeatures(
             user_features=[1.0, 2.0],
@@ -95,8 +95,8 @@ def test_sample_xy(sample: Sample) -> None:
     assert y_actual == y_expected
 
 
-def test_sample_xy_without_lp(
-    instance: Instance,
+def test_sample_xy_without_lp_old(
+    instance_old: Instance,
     sample_without_lp: TrainingSample,
 ) -> None:
     x_expected = {
@@ -107,15 +107,15 @@ def test_sample_xy_without_lp(
         "Lower bound": [[1.0]],
         "Upper bound": [[2.0]],
     }
-    xy = ObjectiveValueComponent().sample_xy_old(instance, sample_without_lp)
+    xy = ObjectiveValueComponent().sample_xy_old(instance_old, sample_without_lp)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected
     assert y_actual == y_expected
 
 
-def test_sample_xy_without_ub(
-    instance: Instance,
+def test_sample_xy_without_ub_old(
+    instance_old: Instance,
     sample_without_ub_old: TrainingSample,
 ) -> None:
     x_expected = {
@@ -123,7 +123,7 @@ def test_sample_xy_without_ub(
         "Upper bound": [[1.0, 2.0, 3.0]],
     }
     y_expected = {"Lower bound": [[1.0]]}
-    xy = ObjectiveValueComponent().sample_xy_old(instance, sample_without_ub_old)
+    xy = ObjectiveValueComponent().sample_xy_old(instance_old, sample_without_ub_old)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected
@@ -197,10 +197,10 @@ def test_fit_xy_without_ub() -> None:
 
 
 def test_sample_predict(
-    instance: Instance,
+    instance_old: Instance,
     sample_old: TrainingSample,
 ) -> None:
-    x, y = ObjectiveValueComponent().sample_xy_old(instance, sample_old)
+    x, y = ObjectiveValueComponent().sample_xy_old(instance_old, sample_old)
     comp = ObjectiveValueComponent()
     comp.regressors["Lower bound"] = Mock(spec=Regressor)
     comp.regressors["Upper bound"] = Mock(spec=Regressor)
@@ -210,7 +210,7 @@ def test_sample_predict(
     comp.regressors["Upper bound"].predict = Mock(  # type: ignore
         side_effect=lambda _: np.array([[60.0]])
     )
-    pred = comp.sample_predict(instance, sample_old)
+    pred = comp.sample_predict_old(instance_old, sample_old)
     assert pred == {
         "Lower bound": 50.0,
         "Upper bound": 60.0,
@@ -225,17 +225,17 @@ def test_sample_predict(
     )
 
 
-def test_sample_predict_without_ub(
-    instance: Instance,
+def test_sample_predict_without_ub_old(
+    instance_old: Instance,
     sample_without_ub_old: TrainingSample,
 ) -> None:
-    x, y = ObjectiveValueComponent().sample_xy_old(instance, sample_without_ub_old)
+    x, y = ObjectiveValueComponent().sample_xy_old(instance_old, sample_without_ub_old)
     comp = ObjectiveValueComponent()
     comp.regressors["Lower bound"] = Mock(spec=Regressor)
     comp.regressors["Lower bound"].predict = Mock(  # type: ignore
         side_effect=lambda _: np.array([[50.0]])
     )
-    pred = comp.sample_predict(instance, sample_without_ub_old)
+    pred = comp.sample_predict_old(instance_old, sample_without_ub_old)
     assert pred == {
         "Lower bound": 50.0,
     }
@@ -245,13 +245,16 @@ def test_sample_predict_without_ub(
     )
 
 
-def test_sample_evaluate(instance: Instance, sample_old: TrainingSample) -> None:
+def test_sample_evaluate_old(
+    instance_old: Instance,
+    sample_old: TrainingSample,
+) -> None:
     comp = ObjectiveValueComponent()
     comp.regressors["Lower bound"] = Mock(spec=Regressor)
     comp.regressors["Lower bound"].predict = lambda _: np.array([[1.05]])  # type: ignore
     comp.regressors["Upper bound"] = Mock(spec=Regressor)
     comp.regressors["Upper bound"].predict = lambda _: np.array([[2.50]])  # type: ignore
-    ev = comp.sample_evaluate_old(instance, sample_old)
+    ev = comp.sample_evaluate_old(instance_old, sample_old)
     assert ev == {
         "Lower bound": {
             "Actual value": 1.0,
