@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Dict, List, TYPE_CHECKING, Hashable, Tuple, Any
+from typing import Dict, List, TYPE_CHECKING, Hashable, Tuple, Any, Optional
 
 import numpy as np
 from overrides import overrides
@@ -14,7 +14,7 @@ from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold, Threshold
 from miplearn.components.component import Component
 from miplearn.components.dynamic_common import DynamicConstraintsComponent
-from miplearn.features import TrainingSample, Features
+from miplearn.features import TrainingSample, Features, Sample
 from miplearn.types import LearningSolveStats
 
 logger = logging.getLogger(__name__)
@@ -95,20 +95,28 @@ class DynamicLazyConstraintsComponent(Component):
     @overrides
     def sample_xy_old(
         self,
-        instance: "Instance",
+        instance: Instance,
         sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:
         return self.dynamic.sample_xy_old(instance, sample)
 
+    @overrides
+    def sample_xy(
+        self,
+        instance: Optional[Instance],
+        sample: Sample,
+    ) -> Tuple[Dict, Dict]:
+        return self.dynamic.sample_xy(instance, sample)
+
     def sample_predict(
         self,
-        instance: "Instance",
+        instance: Instance,
         sample: TrainingSample,
     ) -> List[Hashable]:
         return self.dynamic.sample_predict(instance, sample)
 
     @overrides
-    def fit(self, training_instances: List["Instance"]) -> None:
+    def fit(self, training_instances: List[Instance]) -> None:
         self.dynamic.fit(training_instances)
 
     @overrides
@@ -122,7 +130,7 @@ class DynamicLazyConstraintsComponent(Component):
     @overrides
     def sample_evaluate_old(
         self,
-        instance: "Instance",
+        instance: Instance,
         sample: TrainingSample,
     ) -> Dict[Hashable, Dict[str, float]]:
         return self.dynamic.sample_evaluate_old(instance, sample)

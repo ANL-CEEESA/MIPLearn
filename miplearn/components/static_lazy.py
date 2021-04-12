@@ -3,11 +3,12 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Dict, Tuple, List, Hashable, Any, TYPE_CHECKING, Set
+from typing import Dict, Tuple, List, Hashable, Any, TYPE_CHECKING, Set, Optional
 
 import numpy as np
 from overrides import overrides
 
+from miplearn.instance.base import Instance
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold, Threshold
@@ -18,7 +19,7 @@ from miplearn.types import LearningSolveStats
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from miplearn.solvers.learning import LearningSolver, Instance
+    from miplearn.solvers.learning import LearningSolver
 
 
 class LazyConstraint:
@@ -202,6 +203,7 @@ class StaticLazyConstraintsComponent(Component):
     @overrides
     def sample_xy(
         self,
+        _: Optional[Instance],
         sample: Sample,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
         x: Dict = {}

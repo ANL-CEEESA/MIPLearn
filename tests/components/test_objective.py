@@ -88,7 +88,7 @@ def test_sample_xy(sample: Sample) -> None:
         "Lower bound": [[1.0]],
         "Upper bound": [[2.0]],
     }
-    xy = ObjectiveValueComponent().sample_xy(sample)
+    xy = ObjectiveValueComponent().sample_xy(None, sample)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected

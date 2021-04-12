@@ -3,23 +3,24 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Any, TYPE_CHECKING, Hashable, Set, Tuple, Dict, List
+from typing import Any, TYPE_CHECKING, Hashable, Set, Tuple, Dict, List, Optional
 
 import numpy as np
 from overrides import overrides
 
+from miplearn.instance.base import Instance
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import Threshold, MinProbabilityThreshold
 from miplearn.components.component import Component
 from miplearn.components.dynamic_common import DynamicConstraintsComponent
-from miplearn.features import Features, TrainingSample
+from miplearn.features import Features, TrainingSample, Sample
 from miplearn.types import LearningSolveStats
 
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from miplearn.solvers.learning import LearningSolver, Instance
+    from miplearn.solvers.learning import LearningSolver
 
 
 class UserCutsComponent(Component):
@@ -102,6 +103,14 @@ class UserCutsComponent(Component):
         sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:
         return self.dynamic.sample_xy_old(instance, sample)
+
+    @overrides
+    def sample_xy(
+        self,
+        instance: Optional[Instance],
+        sample: Sample,
+    ) -> Tuple[Dict, Dict]:
+        return self.dynamic.sample_xy(instance, sample)
 
     def sample_predict(
         self,

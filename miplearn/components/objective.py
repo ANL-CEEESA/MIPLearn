@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import List, Dict, Any, TYPE_CHECKING, Tuple, Hashable
+from typing import List, Dict, Any, TYPE_CHECKING, Tuple, Hashable, Optional
 
 import numpy as np
 from overrides import overrides
@@ -101,6 +101,7 @@ class ObjectiveValueComponent(Component):
     @overrides
     def sample_xy(
         self,
+        _: Optional[Instance],
         sample: Sample,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
         # Instance features

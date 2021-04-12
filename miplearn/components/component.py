@@ -2,7 +2,7 @@
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Any, List, TYPE_CHECKING, Tuple, Dict, Hashable
+from typing import Any, List, TYPE_CHECKING, Tuple, Dict, Hashable, Optional
 
 import numpy as np
 from overrides import EnforceOverrides
@@ -119,7 +119,11 @@ class Component:
         """
         pass
 
-    def sample_xy(self, sample: Sample) -> Tuple[Dict, Dict]:
+    def sample_xy(
+        self,
+        instance: Optional[Instance],
+        sample: Sample,
+    ) -> Tuple[Dict, Dict]:
         """
         Returns a pair of x and y dictionaries containing, respectively, the matrices
         of ML features and the labels for the sample. If the training sample does not

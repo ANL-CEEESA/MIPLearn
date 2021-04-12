@@ -82,7 +82,7 @@ def test_xy(sample: Sample) -> None:
             [True, False],
         ]
     }
-    xy = PrimalSolutionComponent().sample_xy(sample)
+    xy = PrimalSolutionComponent().sample_xy(None, sample)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected

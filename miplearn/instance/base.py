@@ -98,7 +98,7 @@ class Instance(ABC, EnforceOverrides):
         """
         return "default"
 
-    def get_constraint_features(self, cid: str) -> Optional[List[float]]:
+    def get_constraint_features(self, cid: str) -> List[float]:
         return [0.0]
 
     def get_constraint_category(self, cid: str) -> Optional[Hashable]:

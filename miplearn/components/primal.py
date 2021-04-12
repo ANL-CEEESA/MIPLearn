@@ -10,6 +10,7 @@ from typing import (
     Any,
     TYPE_CHECKING,
     Tuple,
+    Optional,
 )
 
 import numpy as np
@@ -182,6 +183,7 @@ class PrimalSolutionComponent(Component):
     @overrides
     def sample_xy(
         self,
+        _: Optional[Instance],
         sample: Sample,
     ) -> Tuple[Dict[Category, List[List[float]]], Dict[Category, List[List[float]]]]:
         x: Dict = {}
