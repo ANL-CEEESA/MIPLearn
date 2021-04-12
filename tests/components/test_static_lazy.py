@@ -12,7 +12,6 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold, MinProbabilityThreshold
 from miplearn.components.static_lazy import StaticLazyConstraintsComponent
 from miplearn.features import (
-    TrainingSample,
     InstanceFeatures,
     Features,
     Constraint,
@@ -30,13 +29,16 @@ from miplearn.types import (
 def sample() -> Sample:
     sample = Sample(
         after_load=Features(
+            instance=InstanceFeatures(
+                lazy_constraint_count=4,
+            ),
             constraints={
                 "c1": Constraint(category="type-a", lazy=True),
                 "c2": Constraint(category="type-a", lazy=True),
                 "c3": Constraint(category="type-a", lazy=True),
                 "c4": Constraint(category="type-b", lazy=True),
                 "c5": Constraint(category="type-b", lazy=False),
-            }
+            },
         ),
         after_lp=Features(
             instance=InstanceFeatures(),
@@ -71,61 +73,14 @@ def sample() -> Sample:
 
 
 @pytest.fixture
-def instance_old(features: Features) -> Instance:
+def instance(sample: Sample) -> Instance:
     instance = Mock(spec=Instance)
-    instance.features = features
+    instance.samples = [sample]
     instance.has_static_lazy_constraints = Mock(return_value=True)
     return instance
 
 
-@pytest.fixture
-def sample_old() -> TrainingSample:
-    return TrainingSample(
-        lazy_enforced={"c1", "c2", "c4"},
-    )
-
-
-@pytest.fixture
-def features() -> Features:
-    return Features(
-        instance=InstanceFeatures(
-            user_features=[0],
-            lazy_constraint_count=4,
-        ),
-        constraints={
-            "c1": Constraint(
-                category="type-a",
-                user_features=[1.0, 1.0],
-                lazy=True,
-            ),
-            "c2": Constraint(
-                category="type-a",
-                user_features=[1.0, 2.0],
-                lazy=True,
-            ),
-            "c3": Constraint(
-                category="type-a",
-                user_features=[1.0, 3.0],
-                lazy=True,
-            ),
-            "c4": Constraint(
-                category="type-b",
-                user_features=[1.0, 4.0, 0.0],
-                lazy=True,
-            ),
-            "c5": Constraint(
-                category="type-b",
-                user_features=[1.0, 5.0, 0.0],
-                lazy=False,
-            ),
-        },
-    )
-
-
-def test_usage_with_solver(instance_old: Instance) -> None:
-    assert instance_old.features is not None
-    assert instance_old.features.constraints is not None
-
+def test_usage_with_solver(instance: Instance) -> None:
     solver = Mock(spec=LearningSolver)
     solver.use_lazy_cb = False
     solver.gap_tolerance = 1e-4
@@ -157,17 +112,17 @@ def test_usage_with_solver(instance_old: Instance) -> None:
         )
     )
 
-    sample_old: TrainingSample = TrainingSample()
     stats: LearningSolveStats = {}
+    sample = instance.samples[0]
+    del sample.after_mip.extra["lazy_enforced"]
 
     # LearningSolver calls before_solve_mip
-    component.before_solve_mip_old(
+    component.before_solve_mip(
         solver=solver,
-        instance=instance_old,
+        instance=instance,
         model=None,
         stats=stats,
-        features=instance_old.features,
-        training_data=sample_old,
+        sample=sample,
     )
 
     # Should ask ML to predict whether each lazy constraint should be enforced
@@ -179,19 +134,19 @@ def test_usage_with_solver(instance_old: Instance) -> None:
     internal.remove_constraint.assert_has_calls([call("c3")])
 
     # LearningSolver calls after_iteration (first time)
-    should_repeat = component.iteration_cb(solver, instance_old, None)
+    should_repeat = component.iteration_cb(solver, instance, None)
     assert should_repeat
 
     # Should ask internal solver to verify if constraints in the pool are
     # satisfied and add the ones that are not
-    c3 = instance_old.features.constraints["c3"]
+    c3 = sample.after_load.constraints["c3"]
     internal.is_constraint_satisfied.assert_called_once_with(c3, tol=1.0)
     internal.is_constraint_satisfied.reset_mock()
     internal.add_constraint.assert_called_once_with(c3, name="c3")
     internal.add_constraint.reset_mock()
 
     # LearningSolver calls after_iteration (second time)
-    should_repeat = component.iteration_cb(solver, instance_old, None)
+    should_repeat = component.iteration_cb(solver, instance, None)
     assert not should_repeat
 
     # The lazy constraint pool should be empty by now, so no calls should be made
@@ -199,18 +154,17 @@ def test_usage_with_solver(instance_old: Instance) -> None:
     internal.add_constraint.assert_not_called()
 
     # LearningSolver calls after_solve_mip
-    component.after_solve_mip_old(
+    component.after_solve_mip(
         solver=solver,
-        instance=instance_old,
+        instance=instance,
         model=None,
         stats=stats,
-        features=instance_old.features,
-        training_data=sample_old,
+        sample=sample,
     )
 
     # Should update training sample
-    assert sample_old.lazy_enforced == {"c1", "c2", "c3", "c4"}
-
+    assert sample.after_mip.extra["lazy_enforced"] == {"c1", "c2", "c3", "c4"}
+    #
     # Should update stats
     assert stats["LazyStatic: Removed"] == 1
     assert stats["LazyStatic: Kept"] == 3
@@ -218,10 +172,7 @@ def test_usage_with_solver(instance_old: Instance) -> None:
     assert stats["LazyStatic: Iterations"] == 1
 
 
-def test_sample_predict(
-    instance_old: Instance,
-    sample_old: TrainingSample,
-) -> None:
+def test_sample_predict(sample: Sample) -> None:
     comp = StaticLazyConstraintsComponent()
     comp.thresholds["type-a"] = MinProbabilityThreshold([0.5, 0.5])
     comp.thresholds["type-b"] = MinProbabilityThreshold([0.5, 0.5])
@@ -239,7 +190,7 @@ def test_sample_predict(
             [0.0, 1.0],  # c4
         ]
     )
-    pred = comp.sample_predict(instance_old, sample_old)
+    pred = comp.sample_predict(sample)
     assert pred == ["c1", "c2", "c4"]
 
 
