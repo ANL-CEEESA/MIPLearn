@@ -162,6 +162,14 @@ class LearningSolver:
         instance.features.__dict__ = features.__dict__
         sample.after_load = features
 
+        callback_args = (
+            self,
+            instance,
+            model,
+            stats,
+            sample,
+        )
+
         callback_args_old = (
             self,
             instance,
@@ -177,6 +185,7 @@ class LearningSolver:
         if self.solve_lp:
             logger.debug("Running before_solve_lp callbacks...")
             for component in self.components.values():
+                component.before_solve_lp(*callback_args)
                 component.before_solve_lp_old(*callback_args_old)
 
             logger.info("Solving root LP relaxation...")
@@ -188,6 +197,7 @@ class LearningSolver:
 
             logger.debug("Running after_solve_lp callbacks...")
             for component in self.components.values():
+                component.after_solve_lp(*callback_args)
                 component.after_solve_lp_old(*callback_args_old)
 
             # Extract features (after-lp)
@@ -232,6 +242,7 @@ class LearningSolver:
         # -------------------------------------------------------
         logger.debug("Running before_solve_mip callbacks...")
         for component in self.components.values():
+            component.before_solve_mip(*callback_args)
             component.before_solve_mip_old(*callback_args_old)
 
         # Solve MIP
@@ -269,6 +280,7 @@ class LearningSolver:
         # -------------------------------------------------------
         logger.debug("Calling after_solve_mip callbacks...")
         for component in self.components.values():
+            component.after_solve_mip(*callback_args)
             component.after_solve_mip_old(*callback_args_old)
 
         # Flush

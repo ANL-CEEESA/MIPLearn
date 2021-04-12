@@ -62,6 +62,38 @@ class Component:
         """
         return
 
+    def before_solve_lp(
+        self,
+        solver: "LearningSolver",
+        instance: Instance,
+        model: Any,
+        stats: LearningSolveStats,
+        sample: Sample,
+    ) -> None:
+        """
+        Method called by LearningSolver before the root LP relaxation is solved.
+
+        Parameters
+        ----------
+        solver: LearningSolver
+            The solver calling this method.
+        instance: Instance
+            The instance being solved.
+        model
+            The concrete optimization model being solved.
+        stats: LearningSolveStats
+            A dictionary containing statistics about the solution process, such as
+            number of nodes explored and running time. Components are free to add
+            their own statistics here. For example, PrimalSolutionComponent adds
+            statistics regarding the number of predicted variables. All statistics in
+            this dictionary are exported to the benchmark CSV file.
+        sample: miplearn.features.Sample
+            An object containing data that may be useful for training machine
+            learning models and accelerating the solution process. Components are
+            free to add their own training data here.
+        """
+        return
+
     def after_solve_lp_old(
         self,
         solver: "LearningSolver",
@@ -70,6 +102,20 @@ class Component:
         stats: LearningSolveStats,
         features: Features,
         training_data: TrainingSample,
+    ) -> None:
+        """
+        Method called by LearningSolver after the root LP relaxation is solved.
+        See before_solve_lp for a description of the parameters.
+        """
+        return
+
+    def after_solve_lp(
+        self,
+        solver: "LearningSolver",
+        instance: Instance,
+        model: Any,
+        stats: LearningSolveStats,
+        sample: Sample,
     ) -> None:
         """
         Method called by LearningSolver after the root LP relaxation is solved.
@@ -92,6 +138,20 @@ class Component:
         """
         return
 
+    def before_solve_mip(
+        self,
+        solver: "LearningSolver",
+        instance: Instance,
+        model: Any,
+        stats: LearningSolveStats,
+        sample: Sample,
+    ) -> None:
+        """
+        Method called by LearningSolver before the MIP is solved.
+        See before_solve_lp for a description of the parameters.
+        """
+        return
+
     def after_solve_mip_old(
         self,
         solver: "LearningSolver",
@@ -100,6 +160,20 @@ class Component:
         stats: LearningSolveStats,
         features: Features,
         training_data: TrainingSample,
+    ) -> None:
+        """
+        Method called by LearningSolver after the MIP is solved.
+        See before_solve_lp for a description of the parameters.
+        """
+        return
+
+    def after_solve_mip(
+        self,
+        solver: "LearningSolver",
+        instance: Instance,
+        model: Any,
+        stats: LearningSolveStats,
+        sample: Sample,
     ) -> None:
         """
         Method called by LearningSolver after the MIP is solved.
