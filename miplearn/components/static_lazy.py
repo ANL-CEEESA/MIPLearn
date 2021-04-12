@@ -51,7 +51,7 @@ class StaticLazyConstraintsComponent(Component):
         self.n_iterations: int = 0
 
     @overrides
-    def before_solve_mip(
+    def before_solve_mip_old(
         self,
         solver: "LearningSolver",
         instance: "Instance",
@@ -85,7 +85,7 @@ class StaticLazyConstraintsComponent(Component):
         self.n_iterations = 0
 
     @overrides
-    def after_solve_mip(
+    def after_solve_mip_old(
         self,
         solver: "LearningSolver",
         instance: "Instance",
@@ -151,7 +151,7 @@ class StaticLazyConstraintsComponent(Component):
     ) -> List[Hashable]:
         assert instance.features.constraints is not None
 
-        x, y = self.sample_xy(instance, sample)
+        x, y = self.sample_xy_old(instance, sample)
         category_to_cids: Dict[Hashable, List[Hashable]] = {}
         for (cid, cfeatures) in instance.features.constraints.items():
             if cfeatures.category is None:
@@ -174,7 +174,7 @@ class StaticLazyConstraintsComponent(Component):
         return enforced_cids
 
     @overrides
-    def sample_xy(
+    def sample_xy_old(
         self,
         instance: "Instance",
         sample: TrainingSample,

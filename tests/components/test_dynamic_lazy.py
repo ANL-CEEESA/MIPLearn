@@ -160,7 +160,7 @@ def test_sample_predict_evaluate(training_instances: List[Instance]) -> None:
         training_instances[0].training_data[0],
     )
     assert pred == ["c1", "c4"]
-    ev = comp.sample_evaluate(
+    ev = comp.sample_evaluate_old(
         training_instances[0],
         training_instances[0].training_data[0],
     )

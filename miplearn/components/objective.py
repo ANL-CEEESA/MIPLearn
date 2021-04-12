@@ -36,7 +36,7 @@ class ObjectiveValueComponent(Component):
         self.regressor_prototype = regressor
 
     @overrides
-    def before_solve_mip(
+    def before_solve_mip_old(
         self,
         solver: "LearningSolver",
         instance: Instance,
@@ -68,7 +68,7 @@ class ObjectiveValueComponent(Component):
         sample: TrainingSample,
     ) -> Dict[str, float]:
         pred: Dict[str, float] = {}
-        x, _ = self.sample_xy(instance, sample)
+        x, _ = self.sample_xy_old(instance, sample)
         for c in ["Upper bound", "Lower bound"]:
             if c in self.regressors is not None:
                 pred[c] = self.regressors[c].predict(np.array(x[c]))[0, 0]
@@ -77,7 +77,7 @@ class ObjectiveValueComponent(Component):
         return pred
 
     @overrides
-    def sample_xy(
+    def sample_xy_old(
         self,
         instance: Instance,
         sample: TrainingSample,
@@ -99,7 +99,7 @@ class ObjectiveValueComponent(Component):
         return x, y
 
     @overrides
-    def sample_evaluate(
+    def sample_evaluate_old(
         self,
         instance: Instance,
         sample: TrainingSample,

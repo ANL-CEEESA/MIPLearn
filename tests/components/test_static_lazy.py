@@ -116,7 +116,7 @@ def test_usage_with_solver(instance: Instance) -> None:
     stats: LearningSolveStats = {}
 
     # LearningSolver calls before_solve_mip
-    component.before_solve_mip(
+    component.before_solve_mip_old(
         solver=solver,
         instance=instance,
         model=None,
@@ -154,7 +154,7 @@ def test_usage_with_solver(instance: Instance) -> None:
     internal.add_constraint.assert_not_called()
 
     # LearningSolver calls after_solve_mip
-    component.after_solve_mip(
+    component.after_solve_mip_old(
         solver=solver,
         instance=instance,
         model=None,
@@ -250,7 +250,7 @@ def test_sample_xy(
         "type-a": [[False, True], [False, True], [True, False]],
         "type-b": [[False, True]],
     }
-    xy = StaticLazyConstraintsComponent().sample_xy(instance, sample)
+    xy = StaticLazyConstraintsComponent().sample_xy_old(instance, sample)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected

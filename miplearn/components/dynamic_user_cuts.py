@@ -37,7 +37,7 @@ class UserCutsComponent(Component):
         self.n_added_in_callback = 0
 
     @overrides
-    def before_solve_mip(
+    def before_solve_mip_old(
         self,
         solver: "LearningSolver",
         instance: "Instance",
@@ -79,7 +79,7 @@ class UserCutsComponent(Component):
             logger.debug(f"Added {len(cids)} violated user cuts")
 
     @overrides
-    def after_solve_mip(
+    def after_solve_mip_old(
         self,
         solver: "LearningSolver",
         instance: "Instance",
@@ -96,12 +96,12 @@ class UserCutsComponent(Component):
     # Delegate ML methods to self.dynamic
     # -------------------------------------------------------------------
     @overrides
-    def sample_xy(
+    def sample_xy_old(
         self,
         instance: "Instance",
         sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:
-        return self.dynamic.sample_xy(instance, sample)
+        return self.dynamic.sample_xy_old(instance, sample)
 
     def sample_predict(
         self,
@@ -123,9 +123,9 @@ class UserCutsComponent(Component):
         self.dynamic.fit_xy(x, y)
 
     @overrides
-    def sample_evaluate(
+    def sample_evaluate_old(
         self,
         instance: "Instance",
         sample: TrainingSample,
     ) -> Dict[Hashable, Dict[str, float]]:
-        return self.dynamic.sample_evaluate(instance, sample)
+        return self.dynamic.sample_evaluate_old(instance, sample)

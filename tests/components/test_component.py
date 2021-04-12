@@ -10,7 +10,7 @@ from miplearn.instance.base import Instance
 
 
 def test_xy_instance() -> None:
-    def _sample_xy(features: Features, sample: str) -> Tuple[Dict, Dict]:
+    def _sample_xy_old(features: Features, sample: str) -> Tuple[Dict, Dict]:
         x = {
             "s1": {
                 "category_a": [
@@ -60,7 +60,7 @@ def test_xy_instance() -> None:
     instance_2 = Mock(spec=Instance)
     instance_2.training_data = ["s3"]
     instance_2.features = {}
-    comp.sample_xy = _sample_xy  # type: ignore
+    comp.sample_xy_old = _sample_xy_old  # type: ignore
     x_expected = {
         "category_a": [
             [1, 2, 3],

@@ -54,7 +54,7 @@ class DynamicLazyConstraintsComponent(Component):
             instance.enforce_lazy_constraint(solver.internal_solver, model, cid)
 
     @overrides
-    def before_solve_mip(
+    def before_solve_mip_old(
         self,
         solver: "LearningSolver",
         instance: Instance,
@@ -93,12 +93,12 @@ class DynamicLazyConstraintsComponent(Component):
     # Delegate ML methods to self.dynamic
     # -------------------------------------------------------------------
     @overrides
-    def sample_xy(
+    def sample_xy_old(
         self,
         instance: "Instance",
         sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:
-        return self.dynamic.sample_xy(instance, sample)
+        return self.dynamic.sample_xy_old(instance, sample)
 
     def sample_predict(
         self,
@@ -120,9 +120,9 @@ class DynamicLazyConstraintsComponent(Component):
         self.dynamic.fit_xy(x, y)
 
     @overrides
-    def sample_evaluate(
+    def sample_evaluate_old(
         self,
         instance: "Instance",
         sample: TrainingSample,
     ) -> Dict[Hashable, Dict[str, float]]:
-        return self.dynamic.sample_evaluate(instance, sample)
+        return self.dynamic.sample_evaluate_old(instance, sample)

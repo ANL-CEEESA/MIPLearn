@@ -60,7 +60,7 @@ class PrimalSolutionComponent(Component):
         self.classifier_prototype = classifier
 
     @overrides
-    def before_solve_mip(
+    def before_solve_mip_old(
         self,
         solver: "LearningSolver",
         instance: Instance,
@@ -110,7 +110,7 @@ class PrimalSolutionComponent(Component):
         assert instance.features.variables is not None
 
         # Compute y_pred
-        x, _ = self.sample_xy(instance, sample)
+        x, _ = self.sample_xy_old(instance, sample)
         y_pred = {}
         for category in x.keys():
             assert category in self.classifiers, (
@@ -144,7 +144,7 @@ class PrimalSolutionComponent(Component):
         return solution
 
     @overrides
-    def sample_xy(
+    def sample_xy_old(
         self,
         instance: Instance,
         sample: TrainingSample,
@@ -180,7 +180,7 @@ class PrimalSolutionComponent(Component):
         return x, y
 
     @overrides
-    def sample_evaluate(
+    def sample_evaluate_old(
         self,
         instance: Instance,
         sample: TrainingSample,

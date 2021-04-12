@@ -25,7 +25,7 @@ class Component:
     strategy.
     """
 
-    def before_solve_lp(
+    def before_solve_lp_old(
         self,
         solver: "LearningSolver",
         instance: Instance,
@@ -62,7 +62,7 @@ class Component:
         """
         return
 
-    def after_solve_lp(
+    def after_solve_lp_old(
         self,
         solver: "LearningSolver",
         instance: Instance,
@@ -77,7 +77,7 @@ class Component:
         """
         return
 
-    def before_solve_mip(
+    def before_solve_mip_old(
         self,
         solver: "LearningSolver",
         instance: Instance,
@@ -92,7 +92,7 @@ class Component:
         """
         return
 
-    def after_solve_mip(
+    def after_solve_mip_old(
         self,
         solver: "LearningSolver",
         instance: Instance,
@@ -107,7 +107,7 @@ class Component:
         """
         return
 
-    def sample_xy(
+    def sample_xy_old(
         self,
         instance: Instance,
         sample: TrainingSample,
@@ -128,7 +128,7 @@ class Component:
         for instance in instances:
             instance.load()
             for sample in instance.training_data:
-                xy = self.sample_xy(instance, sample)
+                xy = self.sample_xy_old(instance, sample)
                 if xy is None:
                     continue
                 x_sample, y_sample = xy
@@ -213,11 +213,11 @@ class Component:
         for instance in instances:
             instance.load()
             for sample in instance.training_data:
-                ev += [self.sample_evaluate(instance, sample)]
+                ev += [self.sample_evaluate_old(instance, sample)]
             instance.free()
         return ev
 
-    def sample_evaluate(
+    def sample_evaluate_old(
         self,
         instance: Instance,
         sample: TrainingSample,

@@ -68,7 +68,7 @@ def test_xy() -> None:
             [True, False],
         ]
     }
-    xy = PrimalSolutionComponent().sample_xy(instance, sample)
+    xy = PrimalSolutionComponent().sample_xy_old(instance, sample)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected
@@ -119,7 +119,7 @@ def test_xy_without_lp_solution() -> None:
             [True, False],
         ]
     }
-    xy = PrimalSolutionComponent().sample_xy(instance, sample)
+    xy = PrimalSolutionComponent().sample_xy_old(instance, sample)
     assert xy is not None
     x_actual, y_actual = xy
     assert x_actual == x_expected
@@ -164,7 +164,7 @@ def test_predict() -> None:
             "x[2]": 0.9,
         }
     )
-    x, _ = PrimalSolutionComponent().sample_xy(instance, sample)
+    x, _ = PrimalSolutionComponent().sample_xy_old(instance, sample)
     comp = PrimalSolutionComponent()
     comp.classifiers = {"default": clf}
     comp.thresholds = {"default": thr}
@@ -253,7 +253,7 @@ def test_evaluate() -> None:
             "x[4]": 1.0,
         }
     )
-    ev = comp.sample_evaluate(instance, sample)
+    ev = comp.sample_evaluate_old(instance, sample)
     assert ev == {
         0: classifier_evaluation_dict(tp=1, fp=1, tn=3, fn=0),
         1: classifier_evaluation_dict(tp=2, fp=0, tn=1, fn=2),

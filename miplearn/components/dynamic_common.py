@@ -79,7 +79,7 @@ class DynamicConstraintsComponent(Component):
         return x, y, cids
 
     @overrides
-    def sample_xy(
+    def sample_xy_old(
         self,
         instance: "Instance",
         sample: TrainingSample,
@@ -139,7 +139,7 @@ class DynamicConstraintsComponent(Component):
             self.thresholds[category].fit(self.classifiers[category], npx, npy)
 
     @overrides
-    def sample_evaluate(
+    def sample_evaluate_old(
         self,
         instance: "Instance",
         sample: TrainingSample,
