@@ -130,6 +130,7 @@ class Features:
     constraints: Optional[Dict[str, Constraint]] = None
     lp_solve: Optional["LPSolveStats"] = None
     mip_solve: Optional["MIPSolveStats"] = None
+    extra: Optional[Dict] = None
 
 
 @dataclass
