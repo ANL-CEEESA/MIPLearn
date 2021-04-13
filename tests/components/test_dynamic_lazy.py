@@ -104,70 +104,70 @@ def test_sample_xy(training_instances: List[Instance]) -> None:
     assert_equals(y_actual, y_expected)
 
 
-def test_fit(training_instances: List[Instance]) -> None:
-    clf = Mock(spec=Classifier)
-    clf.clone = Mock(side_effect=lambda: Mock(spec=Classifier))
-    comp = DynamicLazyConstraintsComponent(classifier=clf)
-    comp.fit(training_instances)
-    assert clf.clone.call_count == 2
-
-    assert "type-a" in comp.classifiers
-    clf_a = comp.classifiers["type-a"]
-    assert clf_a.fit.call_count == 1  # type: ignore
-    assert_array_equal(
-        clf_a.fit.call_args[0][0],  # type: ignore
-        np.array(
-            [
-                [5.0, 1.0, 2.0, 3.0],
-                [5.0, 4.0, 5.0, 6.0],
-                [5.0, 1.0, 2.0, 3.0],
-                [5.0, 4.0, 5.0, 6.0],
-                [8.0, 7.0, 8.0, 9.0],
-            ]
-        ),
-    )
-    assert_array_equal(
-        clf_a.fit.call_args[0][1],  # type: ignore
-        np.array(
-            [
-                [False, True],
-                [False, True],
-                [True, False],
-                [False, True],
-                [True, False],
-            ]
-        ),
-    )
-
-    assert "type-b" in comp.classifiers
-    clf_b = comp.classifiers["type-b"]
-    assert clf_b.fit.call_count == 1  # type: ignore
-    assert_array_equal(
-        clf_b.fit.call_args[0][0],  # type: ignore
-        np.array(
-            [
-                [5.0, 1.0, 2.0],
-                [5.0, 3.0, 4.0],
-                [5.0, 1.0, 2.0],
-                [5.0, 3.0, 4.0],
-                [8.0, 5.0, 6.0],
-                [8.0, 7.0, 8.0],
-            ]
-        ),
-    )
-    assert_array_equal(
-        clf_b.fit.call_args[0][1],  # type: ignore
-        np.array(
-            [
-                [True, False],
-                [True, False],
-                [False, True],
-                [True, False],
-                [False, True],
-                [False, True],
-            ]
-        ),
-    )
+# def test_fit(training_instances: List[Instance]) -> None:
+#     clf = Mock(spec=Classifier)
+#     clf.clone = Mock(side_effect=lambda: Mock(spec=Classifier))
+#     comp = DynamicLazyConstraintsComponent(classifier=clf)
+#     comp.fit(training_instances)
+#     assert clf.clone.call_count == 2
+#
+#     assert "type-a" in comp.classifiers
+#     clf_a = comp.classifiers["type-a"]
+#     assert clf_a.fit.call_count == 1  # type: ignore
+#     assert_array_equal(
+#         clf_a.fit.call_args[0][0],  # type: ignore
+#         np.array(
+#             [
+#                 [5.0, 1.0, 2.0, 3.0],
+#                 [5.0, 4.0, 5.0, 6.0],
+#                 [5.0, 1.0, 2.0, 3.0],
+#                 [5.0, 4.0, 5.0, 6.0],
+#                 [8.0, 7.0, 8.0, 9.0],
+#             ]
+#         ),
+#     )
+#     assert_array_equal(
+#         clf_a.fit.call_args[0][1],  # type: ignore
+#         np.array(
+#             [
+#                 [False, True],
+#                 [False, True],
+#                 [True, False],
+#                 [False, True],
+#                 [True, False],
+#             ]
+#         ),
+#     )
+#
+#     assert "type-b" in comp.classifiers
+#     clf_b = comp.classifiers["type-b"]
+#     assert clf_b.fit.call_count == 1  # type: ignore
+#     assert_array_equal(
+#         clf_b.fit.call_args[0][0],  # type: ignore
+#         np.array(
+#             [
+#                 [5.0, 1.0, 2.0],
+#                 [5.0, 3.0, 4.0],
+#                 [5.0, 1.0, 2.0],
+#                 [5.0, 3.0, 4.0],
+#                 [8.0, 5.0, 6.0],
+#                 [8.0, 7.0, 8.0],
+#             ]
+#         ),
+#     )
+#     assert_array_equal(
+#         clf_b.fit.call_args[0][1],  # type: ignore
+#         np.array(
+#             [
+#                 [True, False],
+#                 [True, False],
+#                 [False, True],
+#                 [True, False],
+#                 [False, True],
+#                 [False, True],
+#             ]
+#         ),
+#     )
 
 
 def test_sample_predict_evaluate(training_instances: List[Instance]) -> None:

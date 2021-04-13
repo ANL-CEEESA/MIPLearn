@@ -325,7 +325,6 @@ class LearningSolver:
                 instance=instance,
                 model=model,
                 tee=tee,
-                discard_output=True,
             )
             self.fit([instance])
             instance.instance = None
@@ -396,9 +395,7 @@ class LearningSolver:
         if len(training_instances) == 0:
             logger.warning("Empty list of training instances provided. Skipping.")
             return
-        for component in self.components.values():
-            logger.info(f"Fitting {component.__class__.__name__}...")
-            component.fit(training_instances)
+        Component.fit_multiple(self.components, training_instances)
 
     def _add_component(self, component: Component) -> None:
         name = component.__class__.__name__

@@ -112,8 +112,8 @@ class UserCutsComponent(Component):
         return self.dynamic.sample_predict(instance, sample)
 
     @overrides
-    def fit(self, training_instances: List["Instance"]) -> None:
-        self.dynamic.fit(training_instances)
+    def pre_sample_xy(self, instance: Instance, sample: Sample) -> None:
+        self.dynamic.pre_sample_xy(instance, sample)
 
     @overrides
     def fit_xy(
