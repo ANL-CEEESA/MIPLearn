@@ -61,14 +61,13 @@ class PrimalSolutionComponent(Component):
         self.classifier_prototype = classifier
 
     @overrides
-    def before_solve_mip_old(
+    def before_solve_mip(
         self,
         solver: "LearningSolver",
         instance: Instance,
         model: Any,
         stats: LearningSolveStats,
-        features: Features,
-        training_data: TrainingSample,
+        sample: Sample,
     ) -> None:
         logger.info("Predicting primal solution...")
 
@@ -78,7 +77,7 @@ class PrimalSolutionComponent(Component):
             return
 
         # Predict solution and provide it to the solver
-        solution = self.sample_predict(instance, training_data)
+        solution = self.sample_predict(sample)
         assert solver.internal_solver is not None
         if self.mode == "heuristic":
             solver.internal_solver.fix(solution)
@@ -103,15 +102,12 @@ class PrimalSolutionComponent(Component):
             f"one: {stats['Primal: One']}"
         )
 
-    def sample_predict(
-        self,
-        instance: Instance,
-        sample: TrainingSample,
-    ) -> Solution:
-        assert instance.features.variables is not None
+    def sample_predict(self, sample: Sample) -> Solution:
+        assert sample.after_load is not None
+        assert sample.after_load.variables is not None
 
         # Compute y_pred
-        x, _ = self.sample_xy_old(instance, sample)
+        x, _ = self.sample_xy(None, sample)
         y_pred = {}
         for category in x.keys():
             assert category in self.classifiers, (
@@ -129,9 +125,9 @@ class PrimalSolutionComponent(Component):
             ).T
 
         # Convert y_pred into solution
-        solution: Solution = {v: None for v in instance.features.variables.keys()}
+        solution: Solution = {v: None for v in sample.after_load.variables.keys()}
         category_offset: Dict[Hashable, int] = {cat: 0 for cat in x.keys()}
-        for (var_name, var_features) in instance.features.variables.items():
+        for (var_name, var_features) in sample.after_load.variables.items():
             category = var_features.category
             if category not in category_offset:
                 continue
@@ -143,42 +139,6 @@ class PrimalSolutionComponent(Component):
                 solution[var_name] = 1.0
 
         return solution
-
-    @overrides
-    def sample_xy_old(
-        self,
-        instance: Instance,
-        sample: TrainingSample,
-    ) -> Tuple[Dict[Category, List[List[float]]], Dict[Category, List[List[float]]]]:
-        assert instance.features.variables is not None
-        x: Dict = {}
-        y: Dict = {}
-        for (var_name, var_features) in instance.features.variables.items():
-            category = var_features.category
-            if category is None:
-                continue
-            if category not in x.keys():
-                x[category] = []
-                y[category] = []
-            f: List[float] = []
-            assert var_features.user_features is not None
-            f += var_features.user_features
-            if sample.lp_solution is not None:
-                lp_value = sample.lp_solution[var_name]
-                if lp_value is not None:
-                    f += [lp_value]
-            x[category] += [f]
-            if sample.solution is not None:
-                opt_value = sample.solution[var_name]
-                assert opt_value is not None
-                assert 0.0 - 1e-5 <= opt_value <= 1.0 + 1e-5, (
-                    f"Variable {var_name} has non-binary value {opt_value} in the "
-                    "optimal solution. Predicting values of non-binary "
-                    "variables is not currently supported. Please set its "
-                    "category to None."
-                )
-                y[category] += [[opt_value < 0.5, opt_value >= 0.5]]
-        return x, y
 
     @overrides
     def sample_xy(
@@ -226,18 +186,21 @@ class PrimalSolutionComponent(Component):
         return x, y
 
     @overrides
-    def sample_evaluate_old(
+    def sample_evaluate(
         self,
-        instance: Instance,
-        sample: TrainingSample,
+        _: Optional[Instance],
+        sample: Sample,
     ) -> Dict[Hashable, Dict[str, float]]:
-        solution_actual = sample.solution
-        assert solution_actual is not None
-        solution_pred = self.sample_predict(instance, sample)
+        assert sample.after_mip is not None
+        assert sample.after_mip.variables is not None
+
+        solution_actual = sample.after_mip.variables
+        solution_pred = self.sample_predict(sample)
         vars_all, vars_one, vars_zero = set(), set(), set()
         pred_one_positive, pred_zero_positive = set(), set()
-        for (var_name, value_actual) in solution_actual.items():
-            assert value_actual is not None
+        for (var_name, var) in solution_actual.items():
+            assert var.value is not None
+            value_actual = var.value
             vars_all.add(var_name)
             if value_actual > 0.5:
                 vars_one.add(var_name)
@@ -279,10 +242,3 @@ class PrimalSolutionComponent(Component):
             thr.fit(clf, x[category], y[category])
             self.classifiers[category] = clf
             self.thresholds[category] = thr
-
-    @overrides
-    def fit(
-        self,
-        training_instances: List[Instance],
-    ) -> None:
-        return

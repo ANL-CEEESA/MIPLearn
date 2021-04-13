@@ -266,6 +266,13 @@ class Component(EnforceOverrides):
     ) -> Dict[Hashable, Dict[str, float]]:
         return {}
 
+    def sample_evaluate(
+        self,
+        instance: Optional[Instance],
+        sample: Sample,
+    ) -> Dict[Hashable, Dict[str, float]]:
+        return {}
+
     def sample_xy(
         self,
         instance: Optional[Instance],

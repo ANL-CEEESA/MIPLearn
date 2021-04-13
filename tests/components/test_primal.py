@@ -1,7 +1,6 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import cast
 from unittest.mock import Mock
 
 import numpy as np
@@ -14,15 +13,14 @@ from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.features import (
-    TrainingSample,
     Variable,
     Features,
     Sample,
     InstanceFeatures,
 )
-from miplearn.instance.base import Instance
 from miplearn.problems.tsp import TravelingSalesmanGenerator
 from miplearn.solvers.learning import LearningSolver
+from miplearn.solvers.tests import assert_equals
 
 
 @pytest.fixture
@@ -48,7 +46,7 @@ def sample() -> Sample:
         after_mip=Features(
             variables={
                 "x[0]": Variable(value=0.0),
-                "x[1]": Variable(value=0.0),
+                "x[1]": Variable(value=1.0),
                 "x[2]": Variable(value=1.0),
                 "x[3]": Variable(value=0.0),
             }
@@ -87,168 +85,6 @@ def test_xy(sample: Sample) -> None:
     x_actual, y_actual = xy
     assert x_actual == x_expected
     assert y_actual == y_expected
-
-
-def test_xy_old() -> None:
-    features = Features(
-        variables={
-            "x[0]": Variable(
-                category="default",
-                user_features=[0.0, 0.0],
-            ),
-            "x[1]": Variable(
-                category=None,
-            ),
-            "x[2]": Variable(
-                category="default",
-                user_features=[1.0, 0.0],
-            ),
-            "x[3]": Variable(
-                category="default",
-                user_features=[1.0, 1.0],
-            ),
-        }
-    )
-    instance = Mock(spec=Instance)
-    instance.features = features
-    sample = TrainingSample(
-        solution={
-            "x[0]": 0.0,
-            "x[1]": 1.0,
-            "x[2]": 1.0,
-            "x[3]": 0.0,
-        },
-        lp_solution={
-            "x[0]": 0.1,
-            "x[1]": 0.1,
-            "x[2]": 0.1,
-            "x[3]": 0.1,
-        },
-    )
-    x_expected = {
-        "default": [
-            [0.0, 0.0, 0.1],
-            [1.0, 0.0, 0.1],
-            [1.0, 1.0, 0.1],
-        ]
-    }
-    y_expected = {
-        "default": [
-            [True, False],
-            [False, True],
-            [True, False],
-        ]
-    }
-    xy = PrimalSolutionComponent().sample_xy_old(instance, sample)
-    assert xy is not None
-    x_actual, y_actual = xy
-    assert x_actual == x_expected
-    assert y_actual == y_expected
-
-
-def test_xy_without_lp_solution_old() -> None:
-    features = Features(
-        variables={
-            "x[0]": Variable(
-                category="default",
-                user_features=[0.0, 0.0],
-            ),
-            "x[1]": Variable(
-                category=None,
-            ),
-            "x[2]": Variable(
-                category="default",
-                user_features=[1.0, 0.0],
-            ),
-            "x[3]": Variable(
-                category="default",
-                user_features=[1.0, 1.0],
-            ),
-        }
-    )
-    instance = Mock(spec=Instance)
-    instance.features = features
-    sample = TrainingSample(
-        solution={
-            "x[0]": 0.0,
-            "x[1]": 1.0,
-            "x[2]": 1.0,
-            "x[3]": 0.0,
-        },
-    )
-    x_expected = {
-        "default": [
-            [0.0, 0.0],
-            [1.0, 0.0],
-            [1.0, 1.0],
-        ]
-    }
-    y_expected = {
-        "default": [
-            [True, False],
-            [False, True],
-            [True, False],
-        ]
-    }
-    xy = PrimalSolutionComponent().sample_xy_old(instance, sample)
-    assert xy is not None
-    x_actual, y_actual = xy
-    assert x_actual == x_expected
-    assert y_actual == y_expected
-
-
-def test_predict_old() -> None:
-    clf = Mock(spec=Classifier)
-    clf.predict_proba = Mock(
-        return_value=np.array(
-            [
-                [0.9, 0.1],
-                [0.5, 0.5],
-                [0.1, 0.9],
-            ]
-        )
-    )
-    thr = Mock(spec=Threshold)
-    thr.predict = Mock(return_value=[0.75, 0.75])
-    features = Features(
-        variables={
-            "x[0]": Variable(
-                category="default",
-                user_features=[0.0, 0.0],
-            ),
-            "x[1]": Variable(
-                category="default",
-                user_features=[0.0, 2.0],
-            ),
-            "x[2]": Variable(
-                category="default",
-                user_features=[2.0, 0.0],
-            ),
-        }
-    )
-    instance = Mock(spec=Instance)
-    instance.features = features
-    sample = TrainingSample(
-        lp_solution={
-            "x[0]": 0.1,
-            "x[1]": 0.5,
-            "x[2]": 0.9,
-        }
-    )
-    x, _ = PrimalSolutionComponent().sample_xy_old(instance, sample)
-    comp = PrimalSolutionComponent()
-    comp.classifiers = {"default": clf}
-    comp.thresholds = {"default": thr}
-    pred = comp.sample_predict(instance, sample)
-    clf.predict_proba.assert_called_once()
-    assert_array_equal(x["default"], clf.predict_proba.call_args[0][0])
-    thr.predict.assert_called_once()
-    assert_array_equal(x["default"], thr.predict.call_args[0][0])
-    assert pred == {
-        "x[0]": 0.0,
-        "x[1]": None,
-        "x[2]": 1.0,
-    }
 
 
 def test_fit_xy() -> None:
@@ -295,37 +131,49 @@ def test_usage() -> None:
     assert stats["mip_lower_bound"] == stats["mip_warm_start_value"]
 
 
-def test_evaluate_old() -> None:
+def test_evaluate(sample: Sample) -> None:
     comp = PrimalSolutionComponent()
-    comp.sample_predict = lambda _, __: {  # type: ignore
+    comp.sample_predict = lambda _: {  # type: ignore
         "x[0]": 1.0,
-        "x[1]": 0.0,
+        "x[1]": 1.0,
         "x[2]": 0.0,
         "x[3]": None,
-        "x[4]": 1.0,
     }
-    features: Features = Features(
-        variables={
-            "x[0]": Variable(),
-            "x[1]": Variable(),
-            "x[2]": Variable(),
-            "x[3]": Variable(),
-            "x[4]": Variable(),
-        }
+    ev = comp.sample_evaluate(None, sample)
+    assert_equals(
+        ev,
+        {
+            0: classifier_evaluation_dict(tp=0, fp=1, tn=1, fn=2),
+            1: classifier_evaluation_dict(tp=1, fp=1, tn=1, fn=1),
+        },
     )
-    instance = Mock(spec=Instance)
-    instance.features = features
-    sample: TrainingSample = TrainingSample(
-        solution={
-            "x[0]": 1.0,
-            "x[1]": 1.0,
-            "x[2]": 0.0,
-            "x[3]": 1.0,
-            "x[4]": 1.0,
-        }
+
+
+def test_predict(sample: Sample) -> None:
+    clf = Mock(spec=Classifier)
+    clf.predict_proba = Mock(
+        return_value=np.array(
+            [
+                [0.9, 0.1],
+                [0.5, 0.5],
+                [0.1, 0.9],
+            ]
+        )
     )
-    ev = comp.sample_evaluate_old(instance, sample)
-    assert ev == {
-        0: classifier_evaluation_dict(tp=1, fp=1, tn=3, fn=0),
-        1: classifier_evaluation_dict(tp=2, fp=0, tn=1, fn=2),
+    thr = Mock(spec=Threshold)
+    thr.predict = Mock(return_value=[0.75, 0.75])
+    comp = PrimalSolutionComponent()
+    x, _ = comp.sample_xy(None, sample)
+    comp.classifiers = {"default": clf}
+    comp.thresholds = {"default": thr}
+    pred = comp.sample_predict(sample)
+    clf.predict_proba.assert_called_once()
+    thr.predict.assert_called_once()
+    assert_array_equal(x["default"], clf.predict_proba.call_args[0][0])
+    assert_array_equal(x["default"], thr.predict.call_args[0][0])
+    assert pred == {
+        "x[0]": 0.0,
+        "x[1]": None,
+        "x[2]": None,
+        "x[3]": 1.0,
     }
