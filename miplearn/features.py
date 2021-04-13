@@ -6,29 +6,15 @@ import collections
 import numbers
 from dataclasses import dataclass
 from math import log, isfinite
-from typing import TYPE_CHECKING, Dict, Optional, Set, List, Hashable
+from typing import TYPE_CHECKING, Dict, Optional, List, Hashable
 
 import numpy as np
 
-from miplearn.types import Solution, Category
+from miplearn.types import Category
 
 if TYPE_CHECKING:
     from miplearn.solvers.internal import InternalSolver, LPSolveStats, MIPSolveStats
     from miplearn.instance.base import Instance
-
-
-@dataclass
-class TrainingSample:
-    lp_log: Optional[str] = None
-    lp_solution: Optional[Solution] = None
-    lp_value: Optional[float] = None
-    lazy_enforced: Optional[Set[Hashable]] = None
-    lower_bound: Optional[float] = None
-    mip_log: Optional[str] = None
-    solution: Optional[Solution] = None
-    upper_bound: Optional[float] = None
-    slacks: Optional[Dict[str, float]] = None
-    user_cuts_enforced: Optional[Set[Hashable]] = None
 
 
 @dataclass

@@ -11,7 +11,8 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
-from miplearn import InternalSolver, BasePyomoSolver
+from miplearn.solvers.learning import InternalSolver
+from miplearn.solvers.pyomo.base import BasePyomoSolver
 from miplearn.instance.base import Instance
 from miplearn.types import VariableName, Category
 

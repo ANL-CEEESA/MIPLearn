@@ -8,7 +8,7 @@ from typing import Any, List, Optional, Hashable, TYPE_CHECKING
 
 from overrides import EnforceOverrides
 
-from miplearn.features import TrainingSample, Features, Sample
+from miplearn.features import Sample
 from miplearn.types import VariableName, Category
 
 logger = logging.getLogger(__name__)
@@ -31,8 +31,6 @@ class Instance(ABC, EnforceOverrides):
     """
 
     def __init__(self) -> None:
-        self.training_data: List[TrainingSample] = []
-        self.features: Features = Features()
         self.samples: List[Sample] = []
 
     @abstractmethod

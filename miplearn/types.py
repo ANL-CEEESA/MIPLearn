@@ -2,7 +2,7 @@
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Optional, Dict, Callable, Any, Union, Tuple, TYPE_CHECKING, Hashable
+from typing import Optional, Dict, Callable, Any, Union, TYPE_CHECKING, Hashable
 
 from mypy_extensions import TypedDict
 

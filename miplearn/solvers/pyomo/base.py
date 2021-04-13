@@ -156,11 +156,6 @@ class BasePyomoSolver(InternalSolver):
         ]
 
     @overrides
-    def get_dual(self, cid: str) -> float:
-        constr = self._cname_to_constr[cid]
-        return self._pyomo_solver.dual[constr]
-
-    @overrides
     def get_solution(self) -> Optional[Solution]:
         assert self.model is not None
         if self.is_infeasible():
@@ -172,21 +167,6 @@ class BasePyomoSolver(InternalSolver):
                     continue
                 solution[f"{var}[{index}]"] = var[index].value
         return solution
-
-    @overrides
-    def get_variable_names(self) -> List[VariableName]:
-        assert self.model is not None
-        variables: List[VariableName] = []
-        for var in self.model.component_objects(Var):
-            for index in var:
-                if var[index].fixed:
-                    continue
-                variables += [f"{var}[{index}]"]
-        return variables
-
-    @overrides
-    def get_sense(self) -> str:
-        return self._obj_sense
 
     @overrides
     def get_variables(self) -> Dict[str, Variable]:

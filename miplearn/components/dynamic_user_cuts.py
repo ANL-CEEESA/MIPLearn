@@ -3,18 +3,18 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Any, TYPE_CHECKING, Hashable, Set, Tuple, Dict, List, Optional
+from typing import Any, TYPE_CHECKING, Hashable, Set, Tuple, Dict, List
 
 import numpy as np
 from overrides import overrides
 
-from miplearn.instance.base import Instance
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import Threshold, MinProbabilityThreshold
 from miplearn.components.component import Component
 from miplearn.components.dynamic_common import DynamicConstraintsComponent
-from miplearn.features import Features, TrainingSample, Sample
+from miplearn.features import Sample
+from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats
 
 logger = logging.getLogger(__name__)

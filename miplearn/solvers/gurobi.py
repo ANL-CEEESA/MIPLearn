@@ -137,15 +137,6 @@ class GurobiSolver(InternalSolver):
             var.ub = value
 
     @overrides
-    def get_dual(self, cid: str) -> float:
-        assert self.model is not None
-        c = self.model.getConstrByName(cid)
-        if self.is_infeasible():
-            return c.farkasDual
-        else:
-            return c.pi
-
-    @overrides
     def get_constraint_attrs(self) -> List[str]:
         return [
             "basis_status",
@@ -174,14 +165,6 @@ class GurobiSolver(InternalSolver):
             assert c.constrName not in constraints
             constraints[c.constrName] = constr
         return constraints
-
-    @overrides
-    def get_sense(self) -> str:
-        assert self.model is not None
-        if self.model.modelSense == 1:
-            return "min"
-        else:
-            return "max"
 
     @overrides
     def get_solution(self) -> Optional[Solution]:
@@ -223,12 +206,6 @@ class GurobiSolver(InternalSolver):
             "user_features",
             "value",
         ]
-
-    @overrides
-    def get_variable_names(self) -> List[VariableName]:
-        self._raise_if_callback()
-        assert self.model is not None
-        return [v.varName for v in self.model.getVars()]
 
     @overrides
     def get_variables(self) -> Dict[str, Variable]:

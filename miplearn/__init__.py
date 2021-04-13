@@ -13,12 +13,6 @@ from .components.dynamic_user_cuts import UserCutsComponent
 from .components.objective import ObjectiveValueComponent
 from .components.primal import PrimalSolutionComponent
 from .components.static_lazy import StaticLazyConstraintsComponent
-from .features import (
-    Features,
-    TrainingSample,
-    Variable,
-    InstanceFeatures,
-)
 from .instance.base import Instance
 from .instance.picklegz import (
     PickleGzInstance,

@@ -121,15 +121,11 @@ class PickleGzInstance(Instance):
             obj = read_pickle_gz(self.filename)
             assert isinstance(obj, Instance)
             self.instance = obj
-            self.features = self.instance.features
-            self.training_data = self.instance.training_data
             self.samples = self.instance.samples
 
     @overrides
     def free(self) -> None:
         self.instance = None  # type: ignore
-        self.features = None  # type: ignore
-        self.training_data = None  # type: ignore
         gc.collect()
 
     @overrides

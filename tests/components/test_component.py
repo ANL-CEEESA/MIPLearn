@@ -9,8 +9,8 @@ from miplearn.features import Features
 from miplearn.instance.base import Instance
 
 
-def test_xy_instance_old() -> None:
-    def _sample_xy_old(features: Features, sample: str) -> Tuple[Dict, Dict]:
+def test_xy_instance() -> None:
+    def _sample_xy(features: Features, sample: str) -> Tuple[Dict, Dict]:
         x = {
             "s1": {
                 "category_a": [
@@ -55,12 +55,10 @@ def test_xy_instance_old() -> None:
 
     comp = Component()
     instance_1 = Mock(spec=Instance)
-    instance_1.training_data = ["s1", "s2"]
-    instance_1.features = {}
+    instance_1.samples = ["s1", "s2"]
     instance_2 = Mock(spec=Instance)
-    instance_2.training_data = ["s3"]
-    instance_2.features = {}
-    comp.sample_xy_old = _sample_xy_old  # type: ignore
+    instance_2.samples = ["s3"]
+    comp.sample_xy = _sample_xy  # type: ignore
     x_expected = {
         "category_a": [
             [1, 2, 3],
@@ -96,6 +94,6 @@ def test_xy_instance_old() -> None:
             [11],
         ],
     }
-    x_actual, y_actual = comp.xy_instances_old([instance_1, instance_2])
+    x_actual, y_actual = comp.xy_instances([instance_1, instance_2])
     assert x_actual == x_expected
     assert y_actual == y_expected

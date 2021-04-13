@@ -34,29 +34,38 @@ def test_learning_solver(
             )
 
             solver.solve(instance)
-            assert hasattr(instance, "features")
+            assert len(instance.samples) > 0
+            sample = instance.samples[0]
 
-            sample = instance.training_data[0]
-            assert sample.solution is not None
-            assert sample.solution["x[0]"] == 1.0
-            assert sample.solution["x[1]"] == 0.0
-            assert sample.solution["x[2]"] == 1.0
-            assert sample.solution["x[3]"] == 1.0
-            assert sample.lower_bound == 1183.0
-            assert sample.upper_bound == 1183.0
-            assert sample.lp_solution is not None
-            assert sample.lp_solution["x[0]"] is not None
-            assert sample.lp_solution["x[1]"] is not None
-            assert sample.lp_solution["x[2]"] is not None
-            assert sample.lp_solution["x[3]"] is not None
-            assert round(sample.lp_solution["x[0]"], 3) == 1.000
-            assert round(sample.lp_solution["x[1]"], 3) == 0.923
-            assert round(sample.lp_solution["x[2]"], 3) == 1.000
-            assert round(sample.lp_solution["x[3]"], 3) == 0.000
-            assert sample.lp_value is not None
-            assert round(sample.lp_value, 3) == 1287.923
-            assert sample.mip_log is not None
-            assert len(sample.mip_log) > 100
+            after_mip = sample.after_mip
+            assert after_mip is not None
+            assert after_mip.variables is not None
+            assert after_mip.mip_solve is not None
+            assert after_mip.variables["x[0]"].value == 1.0
+            assert after_mip.variables["x[1]"].value == 0.0
+            assert after_mip.variables["x[2]"].value == 1.0
+            assert after_mip.variables["x[3]"].value == 1.0
+            assert after_mip.mip_solve.mip_lower_bound == 1183.0
+            assert after_mip.mip_solve.mip_upper_bound == 1183.0
+            assert after_mip.mip_solve.mip_log is not None
+            assert len(after_mip.mip_solve.mip_log) > 100
+
+            after_lp = sample.after_lp
+            assert after_lp is not None
+            assert after_lp.variables is not None
+            assert after_lp.lp_solve is not None
+            assert after_lp.variables["x[0]"].value is not None
+            assert after_lp.variables["x[1]"].value is not None
+            assert after_lp.variables["x[2]"].value is not None
+            assert after_lp.variables["x[3]"].value is not None
+            assert round(after_lp.variables["x[0]"].value, 3) == 1.000
+            assert round(after_lp.variables["x[1]"].value, 3) == 0.923
+            assert round(after_lp.variables["x[2]"].value, 3) == 1.000
+            assert round(after_lp.variables["x[3]"].value, 3) == 0.000
+            assert after_lp.lp_solve.lp_value is not None
+            assert round(after_lp.lp_solve.lp_value, 3) == 1287.923
+            assert after_lp.lp_solve.lp_log is not None
+            assert len(after_lp.lp_solve.lp_log) > 100
 
             solver.fit([instance])
             solver.solve(instance)
@@ -90,9 +99,7 @@ def test_parallel_solve(
         results = solver.parallel_solve(instances, n_jobs=3)
         assert len(results) == 10
         for instance in instances:
-            data = instance.training_data[0]
-            assert data.solution is not None
-            assert len(data.solution.keys()) == 5
+            assert len(instance.samples) == 1
 
 
 def test_solve_fit_from_disk(
@@ -111,19 +118,13 @@ def test_solve_fit_from_disk(
         solver = LearningSolver(solver=internal_solver)
         solver.solve(instances[0])
         instance_loaded = read_pickle_gz(cast(PickleGzInstance, instances[0]).filename)
-        assert len(instance_loaded.training_data) > 0
-        assert instance_loaded.features.instance is not None
-        assert instance_loaded.features.variables is not None
-        assert instance_loaded.features.constraints is not None
+        assert len(instance_loaded.samples) > 0
 
         # Test: parallel_solve
         solver.parallel_solve(instances)
         for instance in instances:
             instance_loaded = read_pickle_gz(cast(PickleGzInstance, instance).filename)
-            assert len(instance_loaded.training_data) > 0
-            assert instance_loaded.features.instance is not None
-            assert instance_loaded.features.variables is not None
-            assert instance_loaded.features.constraints is not None
+            assert len(instance_loaded.samples) > 0
 
         # Delete temporary files
         for instance in instances:

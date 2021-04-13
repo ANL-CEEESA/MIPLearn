@@ -7,7 +7,7 @@ from typing import Any, List, TYPE_CHECKING, Tuple, Dict, Hashable, Optional
 import numpy as np
 from overrides import EnforceOverrides
 
-from miplearn.features import TrainingSample, Features, Sample
+from miplearn.features import Sample
 from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats
 
@@ -39,21 +39,6 @@ class Component(EnforceOverrides):
         """
         return
 
-    def after_solve_lp_old(
-        self,
-        solver: "LearningSolver",
-        instance: Instance,
-        model: Any,
-        stats: LearningSolveStats,
-        features: Features,
-        training_data: TrainingSample,
-    ) -> None:
-        """
-        Method called by LearningSolver after the root LP relaxation is solved.
-        See before_solve_lp for a description of the parameters.
-        """
-        return
-
     def after_solve_mip(
         self,
         solver: "LearningSolver",
@@ -61,21 +46,6 @@ class Component(EnforceOverrides):
         model: Any,
         stats: LearningSolveStats,
         sample: Sample,
-    ) -> None:
-        """
-        Method called by LearningSolver after the MIP is solved.
-        See before_solve_lp for a description of the parameters.
-        """
-        return
-
-    def after_solve_mip_old(
-        self,
-        solver: "LearningSolver",
-        instance: Instance,
-        model: Any,
-        stats: LearningSolveStats,
-        features: Features,
-        training_data: TrainingSample,
     ) -> None:
         """
         Method called by LearningSolver after the MIP is solved.
@@ -115,43 +85,6 @@ class Component(EnforceOverrides):
         """
         return
 
-    def before_solve_lp_old(
-        self,
-        solver: "LearningSolver",
-        instance: Instance,
-        model: Any,
-        stats: LearningSolveStats,
-        features: Features,
-        training_data: TrainingSample,
-    ) -> None:
-        """
-        Method called by LearningSolver before the root LP relaxation is solved.
-
-        Parameters
-        ----------
-        solver: LearningSolver
-            The solver calling this method.
-        instance: Instance
-            The instance being solved.
-        model
-            The concrete optimization model being solved.
-        stats: LearningSolveStats
-            A dictionary containing statistics about the solution process, such as
-            number of nodes explored and running time. Components are free to add
-            their own statistics here. For example, PrimalSolutionComponent adds
-            statistics regarding the number of predicted variables. All statistics in
-            this dictionary are exported to the benchmark CSV file.
-        features: miplearn.features.Features
-            Features describing the model.
-        training_data: TrainingSample
-            A dictionary containing data that may be useful for training machine
-            learning models and accelerating the solution process. Components are
-            free to add their own training data here. For example,
-            PrimalSolutionComponent adds the current primal solution. The data must
-            be pickable.
-        """
-        return
-
     def before_solve_mip(
         self,
         solver: "LearningSolver",
@@ -166,30 +99,6 @@ class Component(EnforceOverrides):
         """
         return
 
-    def before_solve_mip_old(
-        self,
-        solver: "LearningSolver",
-        instance: Instance,
-        model: Any,
-        stats: LearningSolveStats,
-        features: Features,
-        training_data: TrainingSample,
-    ) -> None:
-        """
-        Method called by LearningSolver before the MIP is solved.
-        See before_solve_lp for a description of the parameters.
-        """
-        return
-
-    def evaluate_old(self, instances: List[Instance]) -> List:
-        ev = []
-        for instance in instances:
-            instance.load()
-            for sample in instance.training_data:
-                ev += [self.sample_evaluate_old(instance, sample)]
-            instance.free()
-        return ev
-
     def fit(
         self,
         training_instances: List[Instance],
@@ -197,16 +106,6 @@ class Component(EnforceOverrides):
         x, y = self.xy_instances(training_instances)
         for cat in x.keys():
             x[cat] = np.array(x[cat], dtype=np.float32)
-            y[cat] = np.array(y[cat])
-        self.fit_xy(x, y)
-
-    def fit_old(
-        self,
-        training_instances: List[Instance],
-    ) -> None:
-        x, y = self.xy_instances_old(training_instances)
-        for cat in x.keys():
-            x[cat] = np.array(x[cat])
             y[cat] = np.array(y[cat])
         self.fit_xy(x, y)
 
@@ -259,13 +158,6 @@ class Component(EnforceOverrides):
     ) -> None:
         return
 
-    def sample_evaluate_old(
-        self,
-        instance: Instance,
-        sample: TrainingSample,
-    ) -> Dict[Hashable, Dict[str, float]]:
-        return {}
-
     def sample_evaluate(
         self,
         instance: Optional[Instance],
@@ -277,18 +169,6 @@ class Component(EnforceOverrides):
         self,
         instance: Optional[Instance],
         sample: Sample,
-    ) -> Tuple[Dict, Dict]:
-        """
-        Returns a pair of x and y dictionaries containing, respectively, the matrices
-        of ML features and the labels for the sample. If the training sample does not
-        include label information, returns (x, {}).
-        """
-        pass
-
-    def sample_xy_old(
-        self,
-        instance: Instance,
-        sample: TrainingSample,
     ) -> Tuple[Dict, Dict]:
         """
         Returns a pair of x and y dictionaries containing, respectively, the matrices
@@ -315,28 +195,6 @@ class Component(EnforceOverrides):
             instance.load()
             for sample in instance.samples:
                 x_sample, y_sample = self.sample_xy(instance, sample)
-                for cat in x_sample.keys():
-                    if cat not in x_combined:
-                        x_combined[cat] = []
-                        y_combined[cat] = []
-                    x_combined[cat] += x_sample[cat]
-                    y_combined[cat] += y_sample[cat]
-            instance.free()
-        return x_combined, y_combined
-
-    def xy_instances_old(
-        self,
-        instances: List[Instance],
-    ) -> Tuple[Dict, Dict]:
-        x_combined: Dict = {}
-        y_combined: Dict = {}
-        for instance in instances:
-            instance.load()
-            for sample in instance.training_data:
-                xy = self.sample_xy_old(instance, sample)
-                if xy is None:
-                    continue
-                x_sample, y_sample = xy
                 for cat in x_sample.keys():
                     if cat not in x_combined:
                         x_combined[cat] = []

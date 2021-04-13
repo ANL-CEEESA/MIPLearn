@@ -38,17 +38,21 @@ def test_instance() -> None:
     )
     instance = TravelingSalesmanInstance(n_cities, distances)
     solver = LearningSolver()
-    stats = solver.solve(instance)
-    solution = instance.training_data[0].solution
-    assert solution is not None
-    assert solution["x[(0, 1)]"] == 1.0
-    assert solution["x[(0, 2)]"] == 0.0
-    assert solution["x[(0, 3)]"] == 1.0
-    assert solution["x[(1, 2)]"] == 1.0
-    assert solution["x[(1, 3)]"] == 0.0
-    assert solution["x[(2, 3)]"] == 1.0
-    assert stats["mip_lower_bound"] == 4.0
-    assert stats["mip_upper_bound"] == 4.0
+    solver.solve(instance)
+    assert len(instance.samples) == 1
+    assert instance.samples[0].after_mip is not None
+    features = instance.samples[0].after_mip
+    assert features is not None
+    assert features.variables is not None
+    assert features.variables["x[(0, 1)]"].value == 1.0
+    assert features.variables["x[(0, 2)]"].value == 0.0
+    assert features.variables["x[(0, 3)]"].value == 1.0
+    assert features.variables["x[(1, 2)]"].value == 1.0
+    assert features.variables["x[(1, 3)]"].value == 0.0
+    assert features.variables["x[(2, 3)]"].value == 1.0
+    assert features.mip_solve is not None
+    assert features.mip_solve.mip_lower_bound == 4.0
+    assert features.mip_solve.mip_upper_bound == 4.0
 
 
 def test_subtour() -> None:
@@ -67,18 +71,20 @@ def test_subtour() -> None:
     instance = TravelingSalesmanInstance(n_cities, distances)
     solver = LearningSolver()
     solver.solve(instance)
+    assert len(instance.samples) == 1
     assert instance.samples[0].after_mip is not None
-    assert instance.samples[0].after_mip.extra is not None
-    lazy_enforced = instance.samples[0].after_mip.extra["lazy_enforced"]
+    features = instance.samples[0].after_mip
+    assert features.extra is not None
+    assert "lazy_enforced" in features.extra
+    lazy_enforced = features.extra["lazy_enforced"]
     assert lazy_enforced is not None
     assert len(lazy_enforced) > 0
-    solution = instance.training_data[0].solution
-    assert solution is not None
-    assert solution["x[(0, 1)]"] == 1.0
-    assert solution["x[(0, 4)]"] == 1.0
-    assert solution["x[(1, 2)]"] == 1.0
-    assert solution["x[(2, 3)]"] == 1.0
-    assert solution["x[(3, 5)]"] == 1.0
-    assert solution["x[(4, 5)]"] == 1.0
+    assert features.variables is not None
+    assert features.variables["x[(0, 1)]"].value == 1.0
+    assert features.variables["x[(0, 4)]"].value == 1.0
+    assert features.variables["x[(1, 2)]"].value == 1.0
+    assert features.variables["x[(2, 3)]"].value == 1.0
+    assert features.variables["x[(3, 5)]"].value == 1.0
+    assert features.variables["x[(4, 5)]"].value == 1.0
     solver.fit([instance])
     solver.solve(instance)

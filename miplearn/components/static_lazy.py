@@ -8,12 +8,12 @@ from typing import Dict, Tuple, List, Hashable, Any, TYPE_CHECKING, Set, Optiona
 import numpy as np
 from overrides import overrides
 
-from miplearn.instance.base import Instance
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold, Threshold
 from miplearn.components.component import Component
-from miplearn.features import TrainingSample, Features, Constraint, Sample
+from miplearn.features import Constraint, Sample
+from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats
 
 logger = logging.getLogger(__name__)

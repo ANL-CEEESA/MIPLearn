@@ -12,7 +12,7 @@ from gurobipy import GRB
 from networkx import Graph
 from overrides import overrides
 
-from miplearn import InternalSolver
+from miplearn.solvers.learning import InternalSolver
 from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.instance.base import Instance
 from miplearn.solvers.gurobi import GurobiSolver

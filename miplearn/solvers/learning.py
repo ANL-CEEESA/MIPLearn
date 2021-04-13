@@ -4,7 +4,7 @@
 
 import logging
 import traceback
-from typing import Optional, List, Any, cast, Callable, Dict, Tuple
+from typing import Optional, List, Any, cast, Dict, Tuple
 
 from p_tqdm import p_map
 
@@ -13,7 +13,7 @@ from miplearn.components.dynamic_lazy import DynamicLazyConstraintsComponent
 from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
-from miplearn.features import FeaturesExtractor, TrainingSample, Sample
+from miplearn.features import FeaturesExtractor, Sample
 from miplearn.instance.base import Instance
 from miplearn.instance.picklegz import PickleGzInstance
 from miplearn.solvers import _RedirectOutput
@@ -138,9 +138,7 @@ class LearningSolver:
 
         # Initialize training sample
         # -------------------------------------------------------
-        training_sample = TrainingSample()
         sample = Sample()
-        instance.training_data.append(training_sample)
         instance.samples.append(sample)
 
         # Initialize stats
@@ -160,7 +158,6 @@ class LearningSolver:
         logger.info("Extracting features (after-load)...")
         features = FeaturesExtractor(self.internal_solver).extract(instance)
         features.extra = {}
-        instance.features.__dict__ = features.__dict__
         sample.after_load = features
 
         callback_args = (
@@ -171,15 +168,6 @@ class LearningSolver:
             sample,
         )
 
-        callback_args_old = (
-            self,
-            instance,
-            model,
-            stats,
-            instance.features,
-            training_sample,
-        )
-
         # Solve root LP relaxation
         # -------------------------------------------------------
         lp_stats = None
@@ -187,19 +175,14 @@ class LearningSolver:
             logger.debug("Running before_solve_lp callbacks...")
             for component in self.components.values():
                 component.before_solve_lp(*callback_args)
-                component.before_solve_lp_old(*callback_args_old)
 
             logger.info("Solving root LP relaxation...")
             lp_stats = self.internal_solver.solve_lp(tee=tee)
             stats.update(cast(LearningSolveStats, lp_stats.__dict__))
-            training_sample.lp_solution = self.internal_solver.get_solution()
-            training_sample.lp_value = lp_stats.lp_value
-            training_sample.lp_log = lp_stats.lp_log
 
             logger.debug("Running after_solve_lp callbacks...")
             for component in self.components.values():
                 component.after_solve_lp(*callback_args)
-                component.after_solve_lp_old(*callback_args_old)
 
             # Extract features (after-lp)
             # -------------------------------------------------------
@@ -245,7 +228,6 @@ class LearningSolver:
         logger.debug("Running before_solve_mip callbacks...")
         for component in self.components.values():
             component.before_solve_mip(*callback_args)
-            component.before_solve_mip_old(*callback_args_old)
 
         # Solve MIP
         # -------------------------------------------------------
@@ -272,19 +254,11 @@ class LearningSolver:
         features.extra = {}
         sample.after_mip = features
 
-        # Add some information to training_sample
-        # -------------------------------------------------------
-        training_sample.lower_bound = mip_stats.mip_lower_bound
-        training_sample.upper_bound = mip_stats.mip_upper_bound
-        training_sample.mip_log = mip_stats.mip_log
-        training_sample.solution = self.internal_solver.get_solution()
-
         # After-solve callbacks
         # -------------------------------------------------------
         logger.debug("Calling after_solve_mip callbacks...")
         for component in self.components.values():
             component.after_solve_mip(*callback_args)
-            component.after_solve_mip_old(*callback_args_old)
 
         # Flush
         # -------------------------------------------------------
@@ -414,12 +388,11 @@ class LearningSolver:
 
     def fit(self, training_instances: List[Instance]) -> None:
         if len(training_instances) == 0:
-            logger.warn("Empty list of training instances provided. Skipping.")
+            logger.warning("Empty list of training instances provided. Skipping.")
             return
         for component in self.components.values():
             logger.info(f"Fitting {component.__class__.__name__}...")
             component.fit(training_instances)
-            component.fit_old(training_instances)
 
     def _add_component(self, component: Component) -> None:
         name = component.__class__.__name__
