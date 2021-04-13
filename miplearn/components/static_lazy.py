@@ -60,6 +60,8 @@ class StaticLazyConstraintsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
+        assert sample.after_mip is not None
+        assert sample.after_mip.extra is not None
         sample.after_mip.extra["lazy_enforced"] = self.enforced_cids
         stats["LazyStatic: Restored"] = self.n_restored
         stats["LazyStatic: Iterations"] = self.n_iterations
@@ -74,6 +76,10 @@ class StaticLazyConstraintsComponent(Component):
         sample: Sample,
     ) -> None:
         assert solver.internal_solver is not None
+        assert sample.after_load is not None
+        assert sample.after_load.instance is not None
+        assert sample.after_load.constraints is not None
+
         logger.info("Predicting violated (static) lazy constraints...")
         if sample.after_load.instance.lazy_constraint_count == 0:
             logger.info("Instance does not have static lazy constraints. Skipping.")
@@ -149,7 +155,7 @@ class StaticLazyConstraintsComponent(Component):
         _: Optional[Instance],
         sample: Sample,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
-        x, y, _ = self._sample_xy_with_cids(sample)
+        x, y, __ = self._sample_xy_with_cids(sample)
         return x, y
 
     def _check_and_add(self, solver: "LearningSolver") -> bool:

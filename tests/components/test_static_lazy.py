@@ -114,6 +114,10 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     stats: LearningSolveStats = {}
     sample = instance.samples[0]
+    assert sample.after_load is not None
+    assert sample.after_load.constraints is not None
+    assert sample.after_mip is not None
+    assert sample.after_mip.extra is not None
     del sample.after_mip.extra["lazy_enforced"]
 
     # LearningSolver calls before_solve_mip
