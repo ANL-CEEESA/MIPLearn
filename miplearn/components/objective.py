@@ -36,17 +36,16 @@ class ObjectiveValueComponent(Component):
         self.regressor_prototype = regressor
 
     @overrides
-    def before_solve_mip_old(
+    def before_solve_mip(
         self,
         solver: "LearningSolver",
         instance: Instance,
         model: Any,
         stats: LearningSolveStats,
-        features: Features,
-        training_data: TrainingSample,
+        sample: Sample,
     ) -> None:
         logger.info("Predicting optimal value...")
-        pred = self.sample_predict_old(instance, training_data)
+        pred = self.sample_predict(sample)
         for (c, v) in pred.items():
             logger.info(f"Predicted {c.lower()}: %.6e" % v)
             stats[f"Objective: Predicted {c.lower()}"] = v  # type: ignore
@@ -62,41 +61,15 @@ class ObjectiveValueComponent(Component):
                 self.regressors[c] = self.regressor_prototype.clone()
                 self.regressors[c].fit(x[c], y[c])
 
-    def sample_predict_old(
-        self,
-        instance: Instance,
-        sample: TrainingSample,
-    ) -> Dict[str, float]:
+    def sample_predict(self, sample: Sample) -> Dict[str, float]:
         pred: Dict[str, float] = {}
-        x, _ = self.sample_xy_old(instance, sample)
+        x, _ = self.sample_xy(None, sample)
         for c in ["Upper bound", "Lower bound"]:
             if c in self.regressors is not None:
                 pred[c] = self.regressors[c].predict(np.array(x[c]))[0, 0]
             else:
                 logger.info(f"{c} regressor not fitted. Skipping.")
         return pred
-
-    @overrides
-    def sample_xy_old(
-        self,
-        instance: Instance,
-        sample: TrainingSample,
-    ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
-        ifeatures = instance.features.instance
-        assert ifeatures is not None
-        assert ifeatures.user_features is not None
-        x: Dict[Hashable, List[List[float]]] = {}
-        y: Dict[Hashable, List[List[float]]] = {}
-        f = list(ifeatures.user_features)
-        if sample.lp_value is not None:
-            f += [sample.lp_value]
-        x["Upper bound"] = [f]
-        x["Lower bound"] = [f]
-        if sample.lower_bound is not None:
-            y["Lower bound"] = [[sample.lower_bound]]
-        if sample.upper_bound is not None:
-            y["Upper bound"] = [[sample.upper_bound]]
-        return x, y
 
     @overrides
     def sample_xy(
@@ -133,11 +106,14 @@ class ObjectiveValueComponent(Component):
         return x, y
 
     @overrides
-    def sample_evaluate_old(
+    def sample_evaluate(
         self,
         instance: Instance,
-        sample: TrainingSample,
+        sample: Sample,
     ) -> Dict[Hashable, Dict[str, float]]:
+        assert sample.after_mip is not None
+        assert sample.after_mip.mip_solve is not None
+
         def compare(y_pred: float, y_actual: float) -> Dict[str, float]:
             err = np.round(abs(y_pred - y_actual), 8)
             return {
@@ -148,16 +124,11 @@ class ObjectiveValueComponent(Component):
             }
 
         result: Dict[Hashable, Dict[str, float]] = {}
-        pred = self.sample_predict_old(instance, sample)
-        if sample.upper_bound is not None:
-            result["Upper bound"] = compare(pred["Upper bound"], sample.upper_bound)
-        if sample.lower_bound is not None:
-            result["Lower bound"] = compare(pred["Lower bound"], sample.lower_bound)
+        pred = self.sample_predict(sample)
+        actual_ub = sample.after_mip.mip_solve.mip_upper_bound
+        actual_lb = sample.after_mip.mip_solve.mip_lower_bound
+        if actual_ub is not None:
+            result["Upper bound"] = compare(pred["Upper bound"], actual_ub)
+        if actual_lb is not None:
+            result["Lower bound"] = compare(pred["Lower bound"], actual_lb)
         return result
-
-    @overrides
-    def fit(
-        self,
-        training_instances: List[Instance],
-    ) -> None:
-        return
