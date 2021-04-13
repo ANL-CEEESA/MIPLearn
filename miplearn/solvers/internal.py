@@ -170,7 +170,7 @@ class InternalSolver(ABC, EnforceOverrides):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_constraints(self) -> Dict[str, Constraint]:
+    def get_constraints(self, with_static: bool = True) -> Dict[str, Constraint]:
         pass
 
     @abstractmethod
@@ -237,7 +237,7 @@ class InternalSolver(ABC, EnforceOverrides):
         return False
 
     @abstractmethod
-    def get_variables(self) -> Dict[str, Variable]:
+    def get_variables(self, with_static: bool = True) -> Dict[str, Variable]:
         pass
 
     @abstractmethod

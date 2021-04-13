@@ -77,6 +77,7 @@ class BasePyomoSolver(InternalSolver):
     ) -> None:
         assert self.model is not None
         if isinstance(constr, Constraint):
+            assert constr.lhs is not None
             lhs = 0.0
             for (varname, coeff) in constr.lhs.items():
                 var = self._varname_to_var[varname]
@@ -127,7 +128,7 @@ class BasePyomoSolver(InternalSolver):
             self._pyomo_solver.update_var(var)
 
     @overrides
-    def get_constraints(self) -> Dict[str, Constraint]:
+    def get_constraints(self, with_static: bool = True) -> Dict[str, Constraint]:
         assert self.model is not None
 
         constraints = {}
@@ -136,11 +137,17 @@ class BasePyomoSolver(InternalSolver):
                 for idx in constr:
                     name = f"{constr.name}[{idx}]"
                     assert name not in constraints
-                    constraints[name] = self._parse_pyomo_constraint(constr[idx])
+                    constraints[name] = self._parse_pyomo_constraint(
+                        constr[idx],
+                        with_static=with_static,
+                    )
             else:
                 name = constr.name
                 assert name not in constraints
-                constraints[name] = self._parse_pyomo_constraint(constr)
+                constraints[name] = self._parse_pyomo_constraint(
+                    constr,
+                    with_static=with_static,
+                )
 
         return constraints
 
@@ -169,7 +176,7 @@ class BasePyomoSolver(InternalSolver):
         return solution
 
     @overrides
-    def get_variables(self) -> Dict[str, Variable]:
+    def get_variables(self, with_static: bool = True) -> Dict[str, Variable]:
         assert self.model is not None
         variables = {}
         for var in self.model.component_objects(pyomo.core.Var):
@@ -177,7 +184,10 @@ class BasePyomoSolver(InternalSolver):
                 varname = f"{var}[{idx}]"
                 if idx is None:
                     varname = str(var)
-                variables[varname] = self._parse_pyomo_variable(var[idx])
+                variables[varname] = self._parse_pyomo_variable(
+                    var[idx],
+                    with_static=with_static,
+                )
         return variables
 
     @overrides
@@ -201,6 +211,7 @@ class BasePyomoSolver(InternalSolver):
     @overrides
     def is_constraint_satisfied(self, constr: Constraint, tol: float = 1e-6) -> bool:
         lhs = 0.0
+        assert constr.lhs is not None
         for (varname, coeff) in constr.lhs.items():
             var = self._varname_to_var[varname]
             lhs += var.value * coeff
@@ -378,71 +389,78 @@ class BasePyomoSolver(InternalSolver):
     def _get_warm_start_regexp(self) -> Optional[str]:
         return None
 
-    def _parse_pyomo_variable(self, var: pyomo.core.Var) -> Variable:
+    def _parse_pyomo_variable(
+        self,
+        pyomo_var: pyomo.core.Var,
+        with_static: bool = True,
+    ) -> Variable:
         assert self.model is not None
+        variable = Variable()
 
-        # Variable type
-        vtype: Optional[str] = None
-        if var.domain == pyomo.core.Binary:
-            vtype = "B"
-        elif var.domain in [
-            pyomo.core.Reals,
-            pyomo.core.NonNegativeReals,
-            pyomo.core.NonPositiveReals,
-            pyomo.core.NegativeReals,
-            pyomo.core.PositiveReals,
-        ]:
-            vtype = "C"
-        if vtype is None:
-            raise Exception(f"unknown variable domain: {var.domain}")
+        if with_static:
+            # Variable type
+            vtype: Optional[str] = None
+            if pyomo_var.domain == pyomo.core.Binary:
+                vtype = "B"
+            elif pyomo_var.domain in [
+                pyomo.core.Reals,
+                pyomo.core.NonNegativeReals,
+                pyomo.core.NonPositiveReals,
+                pyomo.core.NegativeReals,
+                pyomo.core.PositiveReals,
+            ]:
+                vtype = "C"
+            if vtype is None:
+                raise Exception(f"unknown variable domain: {pyomo_var.domain}")
+            variable.type = vtype
 
-        # Bounds
-        lb, ub = var.bounds
+            # Bounds
+            lb, ub = pyomo_var.bounds
+            variable.upper_bound = float(ub)
+            variable.lower_bound = float(lb)
+
+            # Objective coefficient
+            obj_coeff = 0.0
+            if pyomo_var.name in self._obj:
+                obj_coeff = self._obj[pyomo_var.name]
+            variable.obj_coeff = obj_coeff
 
         # Reduced costs
-        rc = None
-        if var in self.model.rc:
-            rc = self.model.rc[var]
+        if pyomo_var in self.model.rc:
+            variable.reduced_cost = self.model.rc[pyomo_var]
 
-        # Objective coefficient
-        obj_coeff = 0.0
-        if var.name in self._obj:
-            obj_coeff = self._obj[var.name]
-
-        return Variable(
-            value=var.value,
-            type=vtype,
-            lower_bound=float(lb),
-            upper_bound=float(ub),
-            obj_coeff=obj_coeff,
-            reduced_cost=rc,
-        )
+        variable.value = pyomo_var.value
+        return variable
 
     def _parse_pyomo_constraint(
         self,
         pyomo_constr: pyomo.core.Constraint,
+        with_static: bool = True,
     ) -> Constraint:
         assert self.model is not None
         constr = Constraint()
 
-        # Extract RHS and sense
-        has_ub = pyomo_constr.has_ub()
-        has_lb = pyomo_constr.has_lb()
-        assert (
-            (not has_lb) or (not has_ub) or pyomo_constr.upper() == pyomo_constr.lower()
-        ), "range constraints not supported"
-        if not has_ub:
-            constr.sense = ">"
-            constr.rhs = pyomo_constr.lower()
-        elif not has_lb:
-            constr.sense = "<"
-            constr.rhs = pyomo_constr.upper()
-        else:
-            constr.sense = "="
-            constr.rhs = pyomo_constr.upper()
+        if with_static:
+            # Extract RHS and sense
+            has_ub = pyomo_constr.has_ub()
+            has_lb = pyomo_constr.has_lb()
+            assert (
+                (not has_lb)
+                or (not has_ub)
+                or pyomo_constr.upper() == pyomo_constr.lower()
+            ), "range constraints not supported"
+            if not has_ub:
+                constr.sense = ">"
+                constr.rhs = pyomo_constr.lower()
+            elif not has_lb:
+                constr.sense = "<"
+                constr.rhs = pyomo_constr.upper()
+            else:
+                constr.sense = "="
+                constr.rhs = pyomo_constr.upper()
 
-        # Extract LHS
-        constr.lhs = self._parse_pyomo_expr(pyomo_constr.body)
+            # Extract LHS
+            constr.lhs = self._parse_pyomo_expr(pyomo_constr.body)
 
         # Extract solution attributes
         if self._has_lp_solution:

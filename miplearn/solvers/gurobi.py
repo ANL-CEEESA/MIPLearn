@@ -84,6 +84,7 @@ class GurobiSolver(InternalSolver):
     @overrides
     def add_constraint(self, constr: Constraint, name: str) -> None:
         assert self.model is not None
+        assert constr.lhs is not None
         lhs = self.gp.quicksum(
             self._varname_to_var[varname] * coeff
             for (varname, coeff) in constr.lhs.items()
@@ -153,23 +154,36 @@ class GurobiSolver(InternalSolver):
         ]
 
     @overrides
-    def get_constraints(self) -> Dict[str, Constraint]:
+    def get_constraints(self, with_static: bool = True) -> Dict[str, Constraint]:
         model = self.model
         assert model is not None
         self._raise_if_callback()
         if self._dirty:
             model.update()
             self._dirty = False
+
         gp_constrs = model.getConstrs()
-        var_names = model.getAttr("varName", model.getVars())
         constr_names = model.getAttr("constrName", gp_constrs)
-        rhs = model.getAttr("rhs", gp_constrs)
-        sense = model.getAttr("sense", gp_constrs)
+        lhs: Optional[List[Dict]] = None
+        rhs = None
+        sense = None
         dual_value = None
         sa_rhs_up = None
         sa_rhs_down = None
         slack = None
         basis_status = None
+
+        if with_static:
+            var_names = model.getAttr("varName", model.getVars())
+            rhs = model.getAttr("rhs", gp_constrs)
+            sense = model.getAttr("sense", gp_constrs)
+            lhs = []
+            for (i, gp_constr) in enumerate(gp_constrs):
+                expr = model.getRow(gp_constr)
+                lhsi = {}
+                for j in range(expr.size()):
+                    lhsi[var_names[expr.getVar(j).index]] = expr.getCoeff(j)
+                lhs.append(lhsi)
         if self._has_lp_solution:
             dual_value = model.getAttr("pi", gp_constrs)
             sa_rhs_up = model.getAttr("saRhsUp", gp_constrs)
@@ -177,16 +191,20 @@ class GurobiSolver(InternalSolver):
             basis_status = model.getAttr("cbasis", gp_constrs)
         if self._has_lp_solution or self._has_mip_solution:
             slack = model.getAttr("slack", gp_constrs)
+
         constraints: Dict[str, Constraint] = {}
         for (i, gp_constr) in enumerate(gp_constrs):
-            expr = model.getRow(gp_constr)
-            lhs = {}
-            for j in range(expr.size()):
-                lhs[var_names[expr.getVar(j).index]] = expr.getCoeff(j)
             assert (
                 constr_names[i] not in constraints
             ), f"Duplicated constraint name detected: {constr_names[i]}"
-            constraint = Constraint(lhs=lhs, rhs=rhs[i], sense=sense[i])
+            constraint = Constraint()
+            if with_static:
+                assert lhs is not None
+                assert rhs is not None
+                assert sense is not None
+                constraint.lhs = lhs[i]
+                constraint.rhs = rhs[i]
+                constraint.sense = sense[i]
             if dual_value is not None:
                 assert sa_rhs_up is not None
                 assert sa_rhs_down is not None
@@ -247,13 +265,10 @@ class GurobiSolver(InternalSolver):
         ]
 
     @overrides
-    def get_variables(self) -> Dict[str, Variable]:
+    def get_variables(self, with_static: bool = True) -> Dict[str, Variable]:
         assert self.model is not None
         variables = {}
         gp_vars = self.model.getVars()
-        lb = self.model.getAttr("lb", gp_vars)
-        ub = self.model.getAttr("ub", gp_vars)
-        obj_coeff = self.model.getAttr("obj", gp_vars)
         names = self.model.getAttr("varName", gp_vars)
         values = None
         rc = None
@@ -264,6 +279,13 @@ class GurobiSolver(InternalSolver):
         sa_lb_up = None
         sa_lb_down = None
         vbasis = None
+        ub = None
+        lb = None
+        obj_coeff = None
+        if with_static:
+            lb = self.model.getAttr("lb", gp_vars)
+            ub = self.model.getAttr("ub", gp_vars)
+            obj_coeff = self.model.getAttr("obj", gp_vars)
         if self.model.solCount > 0:
             values = self.model.getAttr("x", gp_vars)
         if self._has_lp_solution:
@@ -281,12 +303,15 @@ class GurobiSolver(InternalSolver):
             assert (
                 names[i] not in variables
             ), f"Duplicated variable name detected: {names[i]}"
-            var = Variable(
-                lower_bound=lb[i],
-                upper_bound=ub[i],
-                obj_coeff=obj_coeff[i],
-                type=self._original_vtype[gp_var],
-            )
+            var = Variable()
+            if with_static:
+                assert lb is not None
+                assert ub is not None
+                assert obj_coeff is not None
+                var.lower_bound = lb[i]
+                var.upper_bound = ub[i]
+                var.obj_coeff = obj_coeff[i]
+                var.type = self._original_vtype[gp_var]
             if values is not None:
                 var.value = values[i]
             if rc is not None:
@@ -319,6 +344,7 @@ class GurobiSolver(InternalSolver):
 
     @overrides
     def is_constraint_satisfied(self, constr: Constraint, tol: float = 1e-6) -> bool:
+        assert constr.lhs is not None
         lhs = 0.0
         for (varname, coeff) in constr.lhs.items():
             var = self._varname_to_var[varname]

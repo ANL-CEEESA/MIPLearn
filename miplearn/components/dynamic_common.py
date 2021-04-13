@@ -62,9 +62,9 @@ class DynamicConstraintsComponent(Component):
 
             # Features
             features = []
-            assert sample.after_lp is not None
-            assert sample.after_lp.instance is not None
-            features.extend(sample.after_lp.instance.to_list())
+            assert sample.after_load is not None
+            assert sample.after_load.instance is not None
+            features.extend(sample.after_load.instance.to_list())
             features.extend(instance.get_constraint_features(cid))
             for ci in features:
                 assert isinstance(ci, float), (

@@ -28,18 +28,18 @@ def training_instances() -> List[Instance]:
     instances = [cast(Instance, Mock(spec=Instance)) for _ in range(2)]
     instances[0].samples = [
         Sample(
-            after_lp=Features(instance=InstanceFeatures()),
+            after_load=Features(instance=InstanceFeatures()),
             after_mip=Features(extra={"lazy_enforced": {"c1", "c2"}}),
         ),
         Sample(
-            after_lp=Features(instance=InstanceFeatures()),
+            after_load=Features(instance=InstanceFeatures()),
             after_mip=Features(extra={"lazy_enforced": {"c2", "c3"}}),
         ),
     ]
-    instances[0].samples[0].after_lp.instance.to_list = Mock(  # type: ignore
+    instances[0].samples[0].after_load.instance.to_list = Mock(  # type: ignore
         return_value=[5.0]
     )
-    instances[0].samples[1].after_lp.instance.to_list = Mock(  # type: ignore
+    instances[0].samples[1].after_load.instance.to_list = Mock(  # type: ignore
         return_value=[5.0]
     )
     instances[0].get_constraint_category = Mock(  # type: ignore
@@ -60,11 +60,11 @@ def training_instances() -> List[Instance]:
     )
     instances[1].samples = [
         Sample(
-            after_lp=Features(instance=InstanceFeatures()),
+            after_load=Features(instance=InstanceFeatures()),
             after_mip=Features(extra={"lazy_enforced": {"c3", "c4"}}),
         )
     ]
-    instances[1].samples[0].after_lp.instance.to_list = Mock(  # type: ignore
+    instances[1].samples[0].after_load.instance.to_list = Mock(  # type: ignore
         return_value=[8.0]
     )
     instances[1].get_constraint_category = Mock(  # type: ignore

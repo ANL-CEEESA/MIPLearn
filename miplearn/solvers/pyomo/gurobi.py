@@ -56,37 +56,6 @@ class GurobiPyomoSolver(BasePyomoSolver):
             gvar.setAttr(GRB.Attr.BranchPriority, int(round(priority)))
 
     @overrides
-    def get_variables(self) -> Dict[str, Variable]:
-        variables = super().get_variables()
-        if self._has_lp_solution:
-            for (varname, var) in variables.items():
-                pvar = self._varname_to_var[varname]
-                gvar = self._pyomo_solver._pyomo_var_to_solver_var_map[pvar]
-                GurobiSolver._parse_gurobi_var_lp(gvar, var)
-
-        return variables
-
-    @overrides
-    def get_variable_attrs(self) -> List[str]:
-        return [
-            "basis_status",
-            "category",
-            "lower_bound",
-            "obj_coeff",
-            "reduced_cost",
-            "sa_lb_down",
-            "sa_lb_up",
-            "sa_obj_down",
-            "sa_obj_up",
-            "sa_ub_down",
-            "sa_ub_up",
-            "type",
-            "upper_bound",
-            "user_features",
-            "value",
-        ]
-
-    @overrides
     def _extract_node_count(self, log: str) -> int:
         return max(1, int(self._pyomo_solver._solver_model.getAttr("NodeCount")))
 

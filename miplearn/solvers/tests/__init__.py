@@ -279,63 +279,25 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     assert isinstance(mip_stats.mip_wallclock_time, float)
     assert mip_stats.mip_wallclock_time > 0
 
-    # Fetch variables (after-load)
+    # Fetch variables (after-mip)
     assert_equals(
-        _round_variables(solver.get_variables()),
+        _round_variables(solver.get_variables(with_static=False)),
         _remove_unsupported_var_attrs(
             solver,
             {
-                "x[0]": Variable(
-                    lower_bound=0.0,
-                    obj_coeff=505.0,
-                    type="B",
-                    upper_bound=1.0,
-                    value=1.0,
-                ),
-                "x[1]": Variable(
-                    lower_bound=0.0,
-                    obj_coeff=352.0,
-                    type="B",
-                    upper_bound=1.0,
-                    value=0.0,
-                ),
-                "x[2]": Variable(
-                    lower_bound=0.0,
-                    obj_coeff=458.0,
-                    type="B",
-                    upper_bound=1.0,
-                    value=1.0,
-                ),
-                "x[3]": Variable(
-                    lower_bound=0.0,
-                    obj_coeff=220.0,
-                    type="B",
-                    upper_bound=1.0,
-                    value=1.0,
-                ),
-                "z": Variable(
-                    lower_bound=0.0,
-                    obj_coeff=0.0,
-                    type="C",
-                    upper_bound=67.0,
-                    value=61.0,
-                ),
+                "x[0]": Variable(value=1.0),
+                "x[1]": Variable(value=0.0),
+                "x[2]": Variable(value=1.0),
+                "x[3]": Variable(value=1.0),
+                "z": Variable(value=61.0),
             },
         ),
     )
 
     # Fetch constraints (after-mip)
     assert_equals(
-        _round_constraints(solver.get_constraints()),
-        {
-            "eq_capacity": Constraint(
-                lazy=False,
-                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0, "z": -1.0},
-                rhs=0.0,
-                sense="=",
-                slack=0.0,
-            )
-        },
+        _round_constraints(solver.get_constraints(with_static=False)),
+        {"eq_capacity": Constraint(slack=0.0)},
     )
 
     # Build a new constraint

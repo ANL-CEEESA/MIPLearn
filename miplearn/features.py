@@ -82,7 +82,7 @@ class Constraint:
     category: Optional[Hashable] = None
     dual_value: Optional[float] = None
     lazy: bool = False
-    lhs: Dict[str, float] = lambda: {}  # type: ignore
+    lhs: Optional[Dict[str, float]] = None
     rhs: float = 0.0
     sa_rhs_down: Optional[float] = None
     sa_rhs_up: Optional[float] = None
@@ -136,14 +136,23 @@ class FeaturesExtractor:
     ) -> None:
         self.solver = internal_solver
 
-    def extract(self, instance: "Instance") -> Features:
+    def extract(
+        self,
+        instance: "Instance",
+        with_static: bool = True,
+    ) -> Features:
         features = Features()
-        features.variables = self.solver.get_variables()
-        features.constraints = self.solver.get_constraints()
-        self._extract_user_features_vars(instance, features)
-        self._extract_user_features_constrs(instance, features)
-        self._extract_user_features_instance(instance, features)
-        self._extract_alvarez_2017(features)
+        features.variables = self.solver.get_variables(
+            with_static=with_static,
+        )
+        features.constraints = self.solver.get_constraints(
+            with_static=with_static,
+        )
+        if with_static:
+            self._extract_user_features_vars(instance, features)
+            self._extract_user_features_constrs(instance, features)
+            self._extract_user_features_instance(instance, features)
+            self._extract_alvarez_2017(features)
         return features
 
     def _extract_user_features_vars(

@@ -149,6 +149,7 @@ class PrimalSolutionComponent(Component):
         x: Dict = {}
         y: Dict = {}
         assert sample.after_load is not None
+        assert sample.after_load.instance is not None
         assert sample.after_load.variables is not None
         for (var_name, var) in sample.after_load.variables.items():
             # Initialize categories
@@ -160,14 +161,11 @@ class PrimalSolutionComponent(Component):
                 y[category] = []
 
             # Features
-            sf = sample.after_load
+            features = list(sample.after_load.instance.to_list())
+            features.extend(sample.after_load.variables[var_name].to_list())
             if sample.after_lp is not None:
-                sf = sample.after_lp
-            assert sf.instance is not None
-            features = list(sf.instance.to_list())
-            assert sf.variables is not None
-            assert sf.variables[var_name] is not None
-            features.extend(sf.variables[var_name].to_list())
+                assert sample.after_lp.variables is not None
+                features.extend(sample.after_lp.variables[var_name].to_list())
             x[category].append(features)
 
             # Labels

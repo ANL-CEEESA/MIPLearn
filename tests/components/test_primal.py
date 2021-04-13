@@ -27,6 +27,7 @@ from miplearn.solvers.tests import assert_equals
 def sample() -> Sample:
     sample = Sample(
         after_load=Features(
+            instance=InstanceFeatures(),
             variables={
                 "x[0]": Variable(category="default"),
                 "x[1]": Variable(category=None),
@@ -35,7 +36,6 @@ def sample() -> Sample:
             },
         ),
         after_lp=Features(
-            instance=InstanceFeatures(),
             variables={
                 "x[0]": Variable(),
                 "x[1]": Variable(),
@@ -52,7 +52,7 @@ def sample() -> Sample:
             }
         ),
     )
-    sample.after_lp.instance.to_list = Mock(return_value=[5.0])  # type: ignore
+    sample.after_load.instance.to_list = Mock(return_value=[5.0])  # type: ignore
     sample.after_lp.variables["x[0]"].to_list = Mock(  # type: ignore
         return_value=[0.0, 0.0]
     )
