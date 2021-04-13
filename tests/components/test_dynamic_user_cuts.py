@@ -80,9 +80,10 @@ def test_usage(
     solver: LearningSolver,
 ) -> None:
     stats_before = solver.solve(stab_instance)
-    sample = stab_instance.training_data[0]
-    assert sample.user_cuts_enforced is not None
-    assert len(sample.user_cuts_enforced) > 0
+    sample = stab_instance.samples[0]
+    assert sample.after_mip is not None
+    assert sample.after_mip.extra is not None
+    assert len(sample.after_mip.extra["user_cuts_enforced"]) > 0
     print(stats_before)
     assert stats_before["UserCuts: Added ahead-of-time"] == 0
     assert stats_before["UserCuts: Added in callback"] > 0

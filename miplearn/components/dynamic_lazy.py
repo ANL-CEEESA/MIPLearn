@@ -41,7 +41,7 @@ class DynamicLazyConstraintsComponent(Component):
         self.classifiers = self.dynamic.classifiers
         self.thresholds = self.dynamic.thresholds
         self.known_cids = self.dynamic.known_cids
-        self.lazy_enforced: Set[str] = set()
+        self.lazy_enforced: Set[Hashable] = set()
 
     @staticmethod
     def enforce(
