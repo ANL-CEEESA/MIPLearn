@@ -211,12 +211,64 @@ class GurobiSolver(InternalSolver):
     def get_variables(self) -> Dict[str, Variable]:
         assert self.model is not None
         variables = {}
-        for gp_var in self.model.getVars():
-            name = gp_var.varName
-            assert len(name) > 0, f"empty variable name detected"
-            assert name not in variables, f"duplicated variable name detected: {name}"
-            var = self._parse_gurobi_var(gp_var)
-            variables[name] = var
+        gp_vars = self.model.getVars()
+        lb = self.model.getAttr("lb", gp_vars)
+        ub = self.model.getAttr("ub", gp_vars)
+        obj_coeff = self.model.getAttr("obj", gp_vars)
+        names = self.model.getAttr("varName", gp_vars)
+        values = None
+        rc = None
+        sa_obj_up = None
+        sa_obj_down = None
+        sa_ub_up = None
+        sa_ub_down = None
+        sa_lb_up = None
+        sa_lb_down = None
+        vbasis = None
+        if self.model.solCount > 0:
+            values = self.model.getAttr("x", gp_vars)
+        if self._has_lp_solution:
+            rc = self.model.getAttr("rc", gp_vars)
+            sa_obj_up = self.model.getAttr("saobjUp", gp_vars)
+            sa_obj_down = self.model.getAttr("saobjLow", gp_vars)
+            sa_ub_up = self.model.getAttr("saubUp", gp_vars)
+            sa_ub_down = self.model.getAttr("saubLow", gp_vars)
+            sa_lb_up = self.model.getAttr("salbUp", gp_vars)
+            sa_lb_down = self.model.getAttr("salbLow", gp_vars)
+            vbasis = self.model.getAttr("vbasis", gp_vars)
+
+        for (i, gp_var) in enumerate(gp_vars):
+            assert len(names[i]) > 0, "Empty variable name detected."
+            assert (
+                names[i] not in variables
+            ), f"Duplicated variable name detected: {names[i]}"
+            var = Variable(
+                lower_bound=lb[i],
+                upper_bound=ub[i],
+                obj_coeff=obj_coeff[i],
+                type=self._original_vtype[gp_var],
+            )
+            if values is not None:
+                var.value = values[i]
+            if rc is not None:
+                var.reduced_cost = rc[i]
+                var.sa_obj_up = sa_obj_up[i]
+                var.sa_obj_down = sa_obj_down[i]
+                var.sa_ub_up = sa_ub_up[i]
+                var.sa_ub_down = sa_ub_down[i]
+                var.sa_lb_up = sa_lb_up[i]
+                var.sa_lb_down = sa_lb_down[i]
+                if vbasis[i] == 0:
+                    var.basis_status = "B"
+                elif vbasis[i] == -1:
+                    var.basis_status = "L"
+                elif vbasis[i] == -2:
+                    var.basis_status = "U"
+                elif vbasis[i] == -3:
+                    var.basis_status = "S"
+                else:
+                    raise Exception(f"unknown vbasis: {vbasis}")
+            variables[names[i]] = var
         return variables
 
     @overrides
@@ -425,20 +477,6 @@ class GurobiSolver(InternalSolver):
             raise Exception(
                 "get_value cannot be called from cb_where=%s" % self.cb_where
             )
-
-    def _parse_gurobi_var(self, gp_var: Any) -> Variable:
-        assert self.model is not None
-        var = Variable()
-        var.lower_bound = gp_var.lb
-        var.upper_bound = gp_var.ub
-        var.obj_coeff = gp_var.obj
-        var.type = self._original_vtype[gp_var]
-
-        if self._has_lp_solution:
-            self._parse_gurobi_var_lp(gp_var, var)
-        if self._has_lp_solution or self._has_mip_solution:
-            var.value = gp_var.x
-        return var
 
     @staticmethod
     def _parse_gurobi_var_lp(gp_var: Any, var: Variable) -> None:
