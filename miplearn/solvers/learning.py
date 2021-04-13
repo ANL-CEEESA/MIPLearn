@@ -159,6 +159,7 @@ class LearningSolver:
         # -------------------------------------------------------
         logger.info("Extracting features (after-load)...")
         features = FeaturesExtractor(self.internal_solver).extract(instance)
+        features.extra = {}
         instance.features.__dict__ = features.__dict__
         sample.after_load = features
 
@@ -204,6 +205,7 @@ class LearningSolver:
             # -------------------------------------------------------
             logger.info("Extracting features (after-lp)...")
             features = FeaturesExtractor(self.internal_solver).extract(instance)
+            features.extra = {}
             features.lp_solve = lp_stats
             sample.after_lp = features
 
@@ -267,6 +269,7 @@ class LearningSolver:
         logger.info("Extracting features (after-mip)...")
         features = FeaturesExtractor(self.internal_solver).extract(instance)
         features.mip_solve = mip_stats
+        features.extra = {}
         sample.after_mip = features
 
         # Add some information to training_sample

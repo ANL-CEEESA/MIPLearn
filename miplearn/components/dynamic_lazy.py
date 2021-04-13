@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Dict, List, TYPE_CHECKING, Hashable, Tuple, Any, Optional
+from typing import Dict, List, TYPE_CHECKING, Hashable, Tuple, Any, Optional, Set
 
 import numpy as np
 from overrides import overrides
@@ -41,6 +41,7 @@ class DynamicLazyConstraintsComponent(Component):
         self.classifiers = self.dynamic.classifiers
         self.thresholds = self.dynamic.thresholds
         self.known_cids = self.dynamic.known_cids
+        self.lazy_enforced: Set[str] = set()
 
     @staticmethod
     def enforce(
@@ -54,20 +55,32 @@ class DynamicLazyConstraintsComponent(Component):
             instance.enforce_lazy_constraint(solver.internal_solver, model, cid)
 
     @overrides
-    def before_solve_mip_old(
+    def before_solve_mip(
         self,
         solver: "LearningSolver",
         instance: Instance,
         model: Any,
         stats: LearningSolveStats,
-        features: Features,
-        training_data: TrainingSample,
+        sample: Sample,
     ) -> None:
-        training_data.lazy_enforced = set()
+        self.lazy_enforced.clear()
         logger.info("Predicting violated (dynamic) lazy constraints...")
-        cids = self.dynamic.sample_predict(instance, training_data)
+        cids = self.dynamic.sample_predict(instance, sample)
         logger.info("Enforcing %d lazy constraints..." % len(cids))
         self.enforce(cids, instance, model, solver)
+
+    @overrides
+    def after_solve_mip(
+        self,
+        solver: "LearningSolver",
+        instance: Instance,
+        model: Any,
+        stats: LearningSolveStats,
+        sample: Sample,
+    ) -> None:
+        assert sample.after_mip is not None
+        assert sample.after_mip.extra is not None
+        sample.after_mip.extra["lazy_enforced"] = set(self.lazy_enforced)
 
     @overrides
     def iteration_cb(
@@ -83,23 +96,13 @@ class DynamicLazyConstraintsComponent(Component):
             logger.debug("No violations found")
             return False
         else:
-            sample = instance.training_data[-1]
-            assert sample.lazy_enforced is not None
-            sample.lazy_enforced |= set(cids)
+            self.lazy_enforced |= set(cids)
             logger.debug("    %d violations found" % len(cids))
             self.enforce(cids, instance, model, solver)
             return True
 
     # Delegate ML methods to self.dynamic
     # -------------------------------------------------------------------
-    @overrides
-    def sample_xy_old(
-        self,
-        instance: Instance,
-        sample: TrainingSample,
-    ) -> Tuple[Dict, Dict]:
-        return self.dynamic.sample_xy_old(instance, sample)
-
     @overrides
     def sample_xy(
         self,
@@ -111,13 +114,13 @@ class DynamicLazyConstraintsComponent(Component):
     def sample_predict(
         self,
         instance: Instance,
-        sample: TrainingSample,
+        sample: Sample,
     ) -> List[Hashable]:
         return self.dynamic.sample_predict(instance, sample)
 
     @overrides
-    def fit_old(self, training_instances: List[Instance]) -> None:
-        self.dynamic.fit_old(training_instances)
+    def fit(self, training_instances: List[Instance]) -> None:
+        self.dynamic.fit(training_instances)
 
     @overrides
     def fit_xy(
@@ -128,9 +131,9 @@ class DynamicLazyConstraintsComponent(Component):
         self.dynamic.fit_xy(x, y)
 
     @overrides
-    def sample_evaluate_old(
+    def sample_evaluate(
         self,
         instance: Instance,
-        sample: TrainingSample,
+        sample: Sample,
     ) -> Dict[Hashable, Dict[str, float]]:
-        return self.dynamic.sample_evaluate_old(instance, sample)
+        return self.dynamic.sample_evaluate(instance, sample)

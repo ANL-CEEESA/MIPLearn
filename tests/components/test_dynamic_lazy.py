@@ -83,13 +83,18 @@ def training_instances() -> List[Instance]:
     instances = [cast(Instance, Mock(spec=Instance)) for _ in range(2)]
     instances[0].samples = [
         Sample(
-            after_lp=Features(
-                instance=InstanceFeatures(),
-            ),
+            after_lp=Features(instance=InstanceFeatures()),
             after_mip=Features(extra={"lazy_enforced": {"c1", "c2"}}),
-        )
+        ),
+        Sample(
+            after_lp=Features(instance=InstanceFeatures()),
+            after_mip=Features(extra={"lazy_enforced": {"c2", "c3"}}),
+        ),
     ]
     instances[0].samples[0].after_lp.instance.to_list = Mock(  # type: ignore
+        return_value=[5.0]
+    )
+    instances[0].samples[1].after_lp.instance.to_list = Mock(  # type: ignore
         return_value=[5.0]
     )
     instances[0].get_constraint_category = Mock(  # type: ignore
@@ -108,7 +113,30 @@ def training_instances() -> List[Instance]:
             "c4": [3.0, 4.0],
         }[cid]
     )
-
+    instances[1].samples = [
+        Sample(
+            after_lp=Features(instance=InstanceFeatures()),
+            after_mip=Features(extra={"lazy_enforced": {"c3", "c4"}}),
+        )
+    ]
+    instances[1].samples[0].after_lp.instance.to_list = Mock(  # type: ignore
+        return_value=[8.0]
+    )
+    instances[1].get_constraint_category = Mock(  # type: ignore
+        side_effect=lambda cid: {
+            "c1": None,
+            "c2": "type-a",
+            "c3": "type-b",
+            "c4": "type-b",
+        }[cid]
+    )
+    instances[1].get_constraint_features = Mock(  # type: ignore
+        side_effect=lambda cid: {
+            "c2": [7.0, 8.0, 9.0],
+            "c3": [5.0, 6.0],
+            "c4": [7.0, 8.0],
+        }[cid]
+    )
     return instances
 
 
@@ -131,11 +159,11 @@ def test_sample_xy(training_instances: List[Instance]) -> None:
     assert_equals(y_actual, y_expected)
 
 
-def test_fit_old(training_instances_old: List[Instance]) -> None:
+def test_fit(training_instances: List[Instance]) -> None:
     clf = Mock(spec=Classifier)
     clf.clone = Mock(side_effect=lambda: Mock(spec=Classifier))
     comp = DynamicLazyConstraintsComponent(classifier=clf)
-    comp.fit_old(training_instances_old)
+    comp.fit(training_instances)
     assert clf.clone.call_count == 2
 
     assert "type-a" in comp.classifiers
@@ -145,11 +173,11 @@ def test_fit_old(training_instances_old: List[Instance]) -> None:
         clf_a.fit.call_args[0][0],  # type: ignore
         np.array(
             [
-                [50.0, 1.0, 2.0, 3.0],
-                [50.0, 4.0, 5.0, 6.0],
-                [50.0, 1.0, 2.0, 3.0],
-                [50.0, 4.0, 5.0, 6.0],
-                [80.0, 7.0, 8.0, 9.0],
+                [5.0, 1.0, 2.0, 3.0],
+                [5.0, 4.0, 5.0, 6.0],
+                [5.0, 1.0, 2.0, 3.0],
+                [5.0, 4.0, 5.0, 6.0],
+                [8.0, 7.0, 8.0, 9.0],
             ]
         ),
     )
@@ -173,12 +201,12 @@ def test_fit_old(training_instances_old: List[Instance]) -> None:
         clf_b.fit.call_args[0][0],  # type: ignore
         np.array(
             [
-                [50.0, 1.0, 2.0],
-                [50.0, 3.0, 4.0],
-                [50.0, 1.0, 2.0],
-                [50.0, 3.0, 4.0],
-                [80.0, 5.0, 6.0],
-                [80.0, 7.0, 8.0],
+                [5.0, 1.0, 2.0],
+                [5.0, 3.0, 4.0],
+                [5.0, 1.0, 2.0],
+                [5.0, 3.0, 4.0],
+                [8.0, 5.0, 6.0],
+                [8.0, 7.0, 8.0],
             ]
         ),
     )
@@ -197,7 +225,7 @@ def test_fit_old(training_instances_old: List[Instance]) -> None:
     )
 
 
-def test_sample_predict_evaluate_old(training_instances_old: List[Instance]) -> None:
+def test_sample_predict_evaluate(training_instances: List[Instance]) -> None:
     comp = DynamicLazyConstraintsComponent()
     comp.known_cids.extend(["c1", "c2", "c3", "c4"])
     comp.thresholds["type-a"] = MinProbabilityThreshold([0.5, 0.5])
@@ -211,15 +239,14 @@ def test_sample_predict_evaluate_old(training_instances_old: List[Instance]) -> 
         side_effect=lambda _: np.array([[0.9, 0.1], [0.1, 0.9]])
     )
     pred = comp.sample_predict(
-        training_instances_old[0],
-        training_instances_old[0].training_data[0],
+        training_instances[0],
+        training_instances[0].samples[0],
     )
     assert pred == ["c1", "c4"]
-    ev = comp.sample_evaluate_old(
-        training_instances_old[0],
-        training_instances_old[0].training_data[0],
+    ev = comp.sample_evaluate(
+        training_instances[0],
+        training_instances[0].samples[0],
     )
-    print(ev)
     assert ev == {
         "type-a": classifier_evaluation_dict(tp=1, fp=0, tn=0, fn=1),
         "type-b": classifier_evaluation_dict(tp=0, fp=1, tn=1, fn=0),

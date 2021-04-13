@@ -67,8 +67,9 @@ def test_subtour() -> None:
     instance = TravelingSalesmanInstance(n_cities, distances)
     solver = LearningSolver()
     solver.solve(instance)
-    assert instance.training_data[0].lazy_enforced is not None
-    assert len(instance.training_data[0].lazy_enforced) > 0
+    lazy_enforced = instance.samples[0].after_mip.extra["lazy_enforced"]
+    assert lazy_enforced is not None
+    assert len(lazy_enforced) > 0
     solution = instance.training_data[0].solution
     assert solution is not None
     assert solution["x[(0, 1)]"] == 1.0

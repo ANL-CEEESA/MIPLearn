@@ -105,7 +105,10 @@ class DynamicConstraintsComponent(Component):
             features.extend(sample.after_lp.instance.to_list())
             features.extend(instance.get_constraint_features(cid))
             for ci in features:
-                assert isinstance(ci, float)
+                assert isinstance(ci, float), (
+                    f"Constraint features must be a list of floats. "
+                    f"Found {ci.__class__.__name__} instead."
+                )
             x[category].append(features)
             cids[category].append(cid)
 
@@ -137,7 +140,7 @@ class DynamicConstraintsComponent(Component):
         x, y, _ = self.sample_xy_with_cids(instance, sample)
         return x, y
 
-    def sample_predict(
+    def sample_predict_old(
         self,
         instance: Instance,
         sample: TrainingSample,
@@ -147,6 +150,29 @@ class DynamicConstraintsComponent(Component):
             logger.info("Classifiers not fitted. Skipping.")
             return pred
         x, _, cids = self.sample_xy_with_cids_old(instance, sample)
+        for category in x.keys():
+            assert category in self.classifiers
+            assert category in self.thresholds
+            clf = self.classifiers[category]
+            thr = self.thresholds[category]
+            nx = np.array(x[category])
+            proba = clf.predict_proba(nx)
+            t = thr.predict(nx)
+            for i in range(proba.shape[0]):
+                if proba[i][1] > t[1]:
+                    pred += [cids[category][i]]
+        return pred
+
+    def sample_predict(
+        self,
+        instance: Instance,
+        sample: Sample,
+    ) -> List[Hashable]:
+        pred: List[Hashable] = []
+        if len(self.known_cids) == 0:
+            logger.info("Classifiers not fitted. Skipping.")
+            return pred
+        x, _, cids = self.sample_xy_with_cids(instance, sample)
         for category in x.keys():
             assert category in self.classifiers
             assert category in self.thresholds
@@ -175,6 +201,24 @@ class DynamicConstraintsComponent(Component):
         super().fit_old(training_instances)
 
     @overrides
+    def fit(self, training_instances: List[Instance]) -> None:
+        collected_cids = set()
+        for instance in training_instances:
+            instance.load()
+            for sample in instance.samples:
+                if (
+                    sample.after_mip is None
+                    or sample.after_mip.extra is None
+                    or sample.after_mip.extra[self.attr] is None
+                ):
+                    continue
+                collected_cids |= sample.after_mip.extra[self.attr]
+            instance.free()
+        self.known_cids.clear()
+        self.known_cids.extend(sorted(collected_cids))
+        super().fit(training_instances)
+
+    @overrides
     def fit_xy(
         self,
         x: Dict[Hashable, np.ndarray],
@@ -189,12 +233,15 @@ class DynamicConstraintsComponent(Component):
             self.thresholds[category].fit(self.classifiers[category], npx, npy)
 
     @overrides
-    def sample_evaluate_old(
+    def sample_evaluate(
         self,
         instance: Instance,
-        sample: TrainingSample,
+        sample: Sample,
     ) -> Dict[Hashable, Dict[str, float]]:
-        assert getattr(sample, self.attr) is not None
+        assert sample.after_mip is not None
+        assert sample.after_mip.extra is not None
+        assert self.attr in sample.after_mip.extra
+        actual = sample.after_mip.extra[self.attr]
         pred = set(self.sample_predict(instance, sample))
         tp: Dict[Hashable, int] = {}
         tn: Dict[Hashable, int] = {}
@@ -210,12 +257,12 @@ class DynamicConstraintsComponent(Component):
                 fp[category] = 0
                 fn[category] = 0
             if cid in pred:
-                if cid in getattr(sample, self.attr):
+                if cid in actual:
                     tp[category] += 1
                 else:
                     fp[category] += 1
             else:
-                if cid in getattr(sample, self.attr):
+                if cid in actual:
                     fn[category] += 1
                 else:
                     tn[category] += 1

@@ -196,7 +196,7 @@ class Component(EnforceOverrides):
     ) -> None:
         x, y = self.xy_instances(training_instances)
         for cat in x.keys():
-            x[cat] = np.array(x[cat])
+            x[cat] = np.array(x[cat], dtype=np.float32)
             y[cat] = np.array(y[cat])
         self.fit_xy(x, y)
 

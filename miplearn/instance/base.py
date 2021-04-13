@@ -62,9 +62,9 @@ class Instance(ABC, EnforceOverrides):
         the problem. If two instances map into arrays of different lengths,
         they cannot be solved by the same LearningSolver object.
 
-        By default, returns [0].
+        By default, returns [0.0].
         """
-        return [0]
+        return [0.0]
 
     def get_variable_features(self, var_name: VariableName) -> List[float]:
         """
@@ -81,9 +81,9 @@ class Instance(ABC, EnforceOverrides):
         length for all variables within the same category, for all relevant instances
         of the problem.
 
-        By default, returns [0].
+        By default, returns [0.0].
         """
-        return [0]
+        return [0.0]
 
     def get_variable_category(self, var_name: VariableName) -> Optional[Category]:
         """

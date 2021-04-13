@@ -51,7 +51,7 @@ class UserCutsComponent(Component):
         self.enforced.clear()
         self.n_added_in_callback = 0
         logger.info("Predicting violated user cuts...")
-        cids = self.dynamic.sample_predict(instance, training_data)
+        cids = self.dynamic.sample_predict_old(instance, training_data)
         logger.info("Enforcing %d user cuts ahead-of-time..." % len(cids))
         for cid in cids:
             instance.enforce_user_cut(solver.internal_solver, model, cid)
