@@ -251,6 +251,13 @@ class GurobiSolver(InternalSolver):
             if values is not None:
                 var.value = values[i]
             if rc is not None:
+                assert sa_obj_up is not None
+                assert sa_obj_down is not None
+                assert sa_ub_up is not None
+                assert sa_ub_down is not None
+                assert sa_lb_up is not None
+                assert sa_lb_down is not None
+                assert vbasis is not None
                 var.reduced_cost = rc[i]
                 var.sa_obj_up = sa_obj_up[i]
                 var.sa_obj_down = sa_obj_down[i]
