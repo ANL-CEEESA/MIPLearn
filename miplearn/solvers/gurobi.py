@@ -476,12 +476,23 @@ class GurobiSolver(InternalSolver):
                 f"Unique variable names are currently required."
             )
             self._varname_to_var[var.varName] = var
-            assert var.vtype in ["B", "C"], (
+            vtype = var.vtype
+            if vtype == "I":
+                assert var.ub == 1.0, (
+                    "Only binary and continuous variables are currently supported. "
+                    "Integer variable {var.varName} has upper bound {var.ub}."
+                )
+                assert var.lb == 0.0, (
+                    "Only binary and continuous variables are currently supported. "
+                    "Integer variable {var.varName} has lower bound {var.ub}."
+                )
+                vtype = "B"
+            assert vtype in ["B", "C"], (
                 "Only binary and continuous variables are currently supported. "
-                "Variable {var.varName} has type {var.vtype}."
+                "Variable {var.varName} has type {vtype}."
             )
-            self._original_vtype[var] = var.vtype
-            if var.vtype == "B":
+            self._original_vtype[var] = vtype
+            if vtype == "B":
                 self._bin_vars.append(var)
 
     def __getstate__(self) -> Dict:
