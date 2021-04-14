@@ -98,7 +98,7 @@ class BenchmarkRunner:
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         self.results.to_csv(filename)
 
-    def fit(self, instances: List[Instance]) -> None:
+    def fit(self, instances: List[Instance], n_jobs: int = 1) -> None:
         """
         Trains all solvers with the provided training instances.
 
@@ -109,7 +109,7 @@ class BenchmarkRunner:
         """
         for (solver_name, solver) in self.solvers.items():
             logger.debug(f"Fitting {solver_name}...")
-            solver.fit(instances)
+            solver.fit(instances, n_jobs=n_jobs)
 
     def _silence_miplearn_logger(self) -> None:
         miplearn_logger = logging.getLogger("miplearn")
