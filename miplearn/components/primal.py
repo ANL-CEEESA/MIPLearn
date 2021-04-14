@@ -145,6 +145,7 @@ class PrimalSolutionComponent(Component):
         self,
         _: Optional[Instance],
         sample: Sample,
+        pre: Optional[List[Any]] = None,
     ) -> Tuple[Dict[Category, List[List[float]]], Dict[Category, List[List[float]]]]:
         x: Dict = {}
         y: Dict = {}

@@ -108,8 +108,9 @@ class DynamicLazyConstraintsComponent(Component):
         self,
         instance: Optional[Instance],
         sample: Sample,
+        pre: Optional[List[Any]] = None,
     ) -> Tuple[Dict, Dict]:
-        return self.dynamic.sample_xy(instance, sample)
+        return self.dynamic.sample_xy(instance, sample, pre=pre)
 
     def sample_predict(
         self,
@@ -119,8 +120,8 @@ class DynamicLazyConstraintsComponent(Component):
         return self.dynamic.sample_predict(instance, sample)
 
     @overrides
-    def pre_sample_xy(self, instance: Instance, sample: Sample) -> None:
-        self.dynamic.pre_sample_xy(instance, sample)
+    def pre_sample_xy(self, instance: Instance, sample: Sample) -> Any:
+        return self.dynamic.pre_sample_xy(instance, sample)
 
     @overrides
     def fit_xy(

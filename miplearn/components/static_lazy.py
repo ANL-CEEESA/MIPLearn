@@ -154,6 +154,7 @@ class StaticLazyConstraintsComponent(Component):
         self,
         _: Optional[Instance],
         sample: Sample,
+        pre: Optional[List[Any]] = None,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
         x, y, __ = self._sample_xy_with_cids(sample)
         return x, y
