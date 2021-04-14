@@ -108,9 +108,12 @@ class DynamicLazyConstraintsComponent(Component):
         self,
         instance: Optional[Instance],
         sample: Sample,
-        pre: Optional[List[Any]] = None,
     ) -> Tuple[Dict, Dict]:
-        return self.dynamic.sample_xy(instance, sample, pre=pre)
+        return self.dynamic.sample_xy(instance, sample)
+
+    @overrides
+    def pre_fit(self, pre: List[Any]) -> None:
+        self.dynamic.pre_fit(pre)
 
     def sample_predict(
         self,

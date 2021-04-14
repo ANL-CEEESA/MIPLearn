@@ -87,6 +87,7 @@ def training_instances() -> List[Instance]:
 
 def test_sample_xy(training_instances: List[Instance]) -> None:
     comp = DynamicLazyConstraintsComponent()
+    comp.pre_fit([{"c1", "c2", "c3", "c4"}])
     x_expected = {
         "type-a": [[5.0, 1.0, 2.0, 3.0], [5.0, 4.0, 5.0, 6.0]],
         "type-b": [[5.0, 1.0, 2.0], [5.0, 3.0, 4.0]],
@@ -98,7 +99,6 @@ def test_sample_xy(training_instances: List[Instance]) -> None:
     x_actual, y_actual = comp.sample_xy(
         training_instances[0],
         training_instances[0].samples[0],
-        pre=[{"c1", "c2", "c3", "c4"}],
     )
     assert_equals(x_actual, x_expected)
     assert_equals(y_actual, y_expected)

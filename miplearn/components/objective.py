@@ -76,7 +76,6 @@ class ObjectiveValueComponent(Component):
         self,
         _: Optional[Instance],
         sample: Sample,
-        pre: Optional[List[Any]] = None,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
         # Instance features
         assert sample.after_load is not None

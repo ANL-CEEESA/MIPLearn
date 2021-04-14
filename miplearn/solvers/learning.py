@@ -391,11 +391,19 @@ class LearningSolver:
             self._restore_miplearn_logger()
             return stats
 
-    def fit(self, training_instances: List[Instance]) -> None:
+    def fit(
+        self,
+        training_instances: List[Instance],
+        n_jobs: int = 1,
+    ) -> None:
         if len(training_instances) == 0:
             logger.warning("Empty list of training instances provided. Skipping.")
             return
-        Component.fit_multiple(self.components, training_instances)
+        Component.fit_multiple(
+            self.components,
+            training_instances,
+            n_jobs=n_jobs,
+        )
 
     def _add_component(self, component: Component) -> None:
         name = component.__class__.__name__

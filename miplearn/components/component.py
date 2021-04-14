@@ -11,6 +11,8 @@ from miplearn.features import Sample
 from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats
 
+from p_tqdm import p_umap
+
 if TYPE_CHECKING:
     from miplearn.solvers.learning import LearningSolver
 
@@ -159,13 +161,15 @@ class Component(EnforceOverrides):
         self,
         instance: Optional[Instance],
         sample: Sample,
-        pre: Optional[List[Any]] = None,
     ) -> Tuple[Dict, Dict]:
         """
         Returns a pair of x and y dictionaries containing, respectively, the matrices
         of ML features and the labels for the sample. If the training sample does not
         include label information, returns (x, {}).
         """
+        pass
+
+    def pre_fit(self, pre: List[Any]):
         pass
 
     def user_cut_cb(
@@ -183,6 +187,7 @@ class Component(EnforceOverrides):
     def fit_multiple(
         components: Dict[str, "Component"],
         instances: List[Instance],
+        n_jobs: int = 1,
     ) -> None:
         def _pre_sample_xy(instance: Instance) -> Dict:
             pre_instance: Dict = {}
@@ -195,7 +200,17 @@ class Component(EnforceOverrides):
             instance.free()
             return pre_instance
 
-        def _sample_xy(instance: Instance, pre: Dict) -> Tuple[Dict, Dict]:
+        pre = p_umap(_pre_sample_xy, instances, num_cpus=n_jobs)
+        pre_combined: Dict = {}
+        for (cname, comp) in components.items():
+            pre_combined[cname] = []
+            for p in pre:
+                pre_combined[cname].extend(p[cname])
+
+        for (cname, comp) in components.items():
+            comp.pre_fit(pre_combined[cname])
+
+        def _sample_xy(instance: Instance) -> Tuple[Dict, Dict]:
             x_instance: Dict = {}
             y_instance: Dict = {}
             for (cname, comp) in components.items():
@@ -206,7 +221,7 @@ class Component(EnforceOverrides):
                 for (cname, comp) in components.items():
                     x = x_instance[cname]
                     y = y_instance[cname]
-                    x_sample, y_sample = comp.sample_xy(instance, sample, pre[cname])
+                    x_sample, y_sample = comp.sample_xy(instance, sample)
                     for cat in x_sample.keys():
                         if cat not in x:
                             x[cat] = []
@@ -216,15 +231,7 @@ class Component(EnforceOverrides):
             instance.free()
             return x_instance, y_instance
 
-        pre = [_pre_sample_xy(instance) for instance in instances]
-
-        pre_combined: Dict = {}
-        for (cname, comp) in components.items():
-            pre_combined[cname] = []
-            for p in pre:
-                pre_combined[cname].extend(p[cname])
-
-        xy = [_sample_xy(instances, pre_combined) for instances in instances]
+        xy = p_umap(_sample_xy, instances)
 
         for (cname, comp) in components.items():
             x_comp: Dict = {}

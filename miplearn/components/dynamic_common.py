@@ -89,16 +89,18 @@ class DynamicConstraintsComponent(Component):
         self,
         instance: Optional[Instance],
         sample: Sample,
-        pre: Optional[List[Any]] = None,
     ) -> Tuple[Dict, Dict]:
+        x, y, _ = self.sample_xy_with_cids(instance, sample)
+        return x, y
+
+    @overrides
+    def pre_fit(self, pre: List[Any]) -> None:
         assert pre is not None
         known_cids: Set = set()
         for cids in pre:
             known_cids |= cids
         self.known_cids.clear()
         self.known_cids.extend(sorted(known_cids))
-        x, y, _ = self.sample_xy_with_cids(instance, sample)
-        return x, y
 
     def sample_predict(
         self,
