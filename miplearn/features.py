@@ -6,7 +6,7 @@ import collections
 import numbers
 from dataclasses import dataclass
 from math import log, isfinite
-from typing import TYPE_CHECKING, Dict, Optional, List, Hashable
+from typing import TYPE_CHECKING, Dict, Optional, List, Hashable, Tuple
 
 import numpy as np
 
@@ -28,6 +28,26 @@ class InstanceFeatures:
             features.extend(self.user_features)
         _clip(features)
         return features
+
+
+@dataclass
+class VariableFeatures:
+    names: Optional[Tuple[str, ...]] = None
+    basis_status: Optional[Tuple[str, ...]] = None
+    categories: Optional[Tuple[Hashable, ...]] = None
+    lower_bounds: Optional[Tuple[float, ...]] = None
+    obj_coeffs: Optional[Tuple[float, ...]] = None
+    reduced_costs: Optional[Tuple[float, ...]] = None
+    sa_lb_down: Optional[Tuple[float, ...]] = None
+    sa_lb_up: Optional[Tuple[float, ...]] = None
+    sa_obj_down: Optional[Tuple[float, ...]] = None
+    sa_obj_up: Optional[Tuple[float, ...]] = None
+    sa_ub_down: Optional[Tuple[float, ...]] = None
+    sa_ub_up: Optional[Tuple[float, ...]] = None
+    types: Optional[Tuple[str, ...]] = None
+    upper_bounds: Optional[Tuple[float, ...]] = None
+    user_features: Optional[Tuple[Tuple[float, ...]]] = None
+    values: Optional[Tuple[float, ...]] = None
 
 
 @dataclass
@@ -142,7 +162,7 @@ class FeaturesExtractor:
         with_static: bool = True,
     ) -> Features:
         features = Features()
-        features.variables = self.solver.get_variables(
+        features.variables = self.solver.get_variables_old(
             with_static=with_static,
         )
         features.constraints = self.solver.get_constraints(

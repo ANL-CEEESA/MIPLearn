@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 
 from overrides import EnforceOverrides
 
-from miplearn.features import Constraint, Variable
+from miplearn.features import Constraint, Variable, VariableFeatures
 from miplearn.instance.base import Instance
 from miplearn.types import (
     IterationCallback,
@@ -237,7 +237,15 @@ class InternalSolver(ABC, EnforceOverrides):
         return False
 
     @abstractmethod
-    def get_variables(self, with_static: bool = True) -> Dict[str, Variable]:
+    def get_variables_old(self, with_static: bool = True) -> Dict[str, Variable]:
+        pass
+
+    @abstractmethod
+    def get_variables(
+        self,
+        with_static: bool = True,
+        with_sa: bool = True,
+    ) -> VariableFeatures:
         pass
 
     @abstractmethod

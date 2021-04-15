@@ -6,7 +6,7 @@ import logging
 import re
 import sys
 from io import StringIO
-from typing import Any, List, Dict, Optional
+from typing import Any, List, Dict, Optional, Tuple
 
 import numpy as np
 import pyomo
@@ -19,7 +19,7 @@ from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
 from pyomo.opt import TerminationCondition
 from pyomo.opt.base.solvers import SolverFactory
 
-from miplearn.features import Variable
+from miplearn.features import Variable, VariableFeatures
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
@@ -176,7 +176,7 @@ class BasePyomoSolver(InternalSolver):
         return solution
 
     @overrides
-    def get_variables(self, with_static: bool = True) -> Dict[str, Variable]:
+    def get_variables_old(self, with_static: bool = True) -> Dict[str, Variable]:
         assert self.model is not None
         variables = {}
         for var in self.model.component_objects(pyomo.core.Var):
@@ -189,6 +189,97 @@ class BasePyomoSolver(InternalSolver):
                     with_static=with_static,
                 )
         return variables
+
+    @overrides
+    def get_variables(
+        self,
+        with_static: bool = True,
+        with_sa: bool = True,
+    ) -> VariableFeatures:
+        assert self.model is not None
+
+        names: List[str] = []
+        types: List[str] = []
+        upper_bounds: List[float] = []
+        lower_bounds: List[float] = []
+        obj_coeffs: List[float] = []
+        reduced_costs: List[float] = []
+        values: List[float] = []
+
+        for (i, var) in enumerate(self.model.component_objects(pyomo.core.Var)):
+            for idx in var:
+                v = var[idx]
+
+                if with_static:
+                    # Variable name
+                    if idx is None:
+                        names.append(str(var))
+                    else:
+                        names.append(f"{var}[{idx}]")
+
+                    # Variable type
+                    if v.domain == pyomo.core.Binary:
+                        types.append("B")
+                    elif v.domain in [
+                        pyomo.core.Reals,
+                        pyomo.core.NonNegativeReals,
+                        pyomo.core.NonPositiveReals,
+                        pyomo.core.NegativeReals,
+                        pyomo.core.PositiveReals,
+                    ]:
+                        types.append("C")
+                    else:
+                        raise Exception(f"unknown variable domain: {v.domain}")
+
+                    # Bounds
+                    lb, ub = v.bounds
+                    upper_bounds.append(float(ub))
+                    lower_bounds.append(float(lb))
+
+                    # Objective coefficient
+                    if v.name in self._obj:
+                        obj_coeffs.append(self._obj[v.name])
+                    else:
+                        obj_coeffs.append(0.0)
+
+                # Reduced costs
+                if self._has_lp_solution:
+                    reduced_costs.append(self.model.rc[v])
+
+                # Values
+                if self._has_lp_solution or self._has_mip_solution:
+                    values.append(v.value)
+
+        names_t: Optional[Tuple[str, ...]] = None
+        types_t: Optional[Tuple[str, ...]] = None
+        upper_bounds_t: Optional[Tuple[float, ...]] = None
+        lower_bounds_t: Optional[Tuple[float, ...]] = None
+        obj_coeffs_t: Optional[Tuple[float, ...]] = None
+        reduced_costs_t: Optional[Tuple[float, ...]] = None
+        values_t: Optional[Tuple[float, ...]] = None
+
+        if with_static:
+            names_t = tuple(names)
+            types_t = tuple(types)
+            upper_bounds_t = tuple(upper_bounds)
+            lower_bounds_t = tuple(lower_bounds)
+            obj_coeffs_t = tuple(obj_coeffs)
+
+        if self._has_lp_solution:
+            reduced_costs_t = tuple(reduced_costs)
+
+        if self._has_lp_solution or self._has_mip_solution:
+            values_t = tuple(values)
+
+        return VariableFeatures(
+            names=names_t,
+            types=types_t,
+            upper_bounds=upper_bounds_t,
+            lower_bounds=lower_bounds_t,
+            obj_coeffs=obj_coeffs_t,
+            reduced_costs=reduced_costs_t,
+            values=values_t,
+        )
 
     @overrides
     def get_variable_attrs(self) -> List[str]:
@@ -206,6 +297,23 @@ class BasePyomoSolver(InternalSolver):
             "type",
             "upper_bound",
             "value",
+            # new attributes
+            "names",
+            # "basis_status",
+            "categories",
+            "lower_bounds",
+            "obj_coeffs",
+            "reduced_costs",
+            # "sa_lb_down",
+            # "sa_lb_up",
+            # "sa_obj_down",
+            # "sa_obj_up",
+            # "sa_ub_down",
+            # "sa_ub_up",
+            "types",
+            "upper_bounds",
+            "user_features",
+            "values",
         ]
 
     @overrides
