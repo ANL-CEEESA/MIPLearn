@@ -25,7 +25,7 @@ def test_knapsack() -> None:
     solver.set_instance(instance, model)
     solver.solve_lp()
 
-    features = FeaturesExtractor(solver).extract(instance)
+    features = FeaturesExtractor().extract(instance, solver)
     assert features.variables is not None
     assert features.constraints is not None
     assert features.instance is not None
