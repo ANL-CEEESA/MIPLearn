@@ -169,7 +169,7 @@ class Component(EnforceOverrides):
         """
         pass
 
-    def pre_fit(self, pre: List[Any]):
+    def pre_fit(self, pre: List[Any]) -> None:
         pass
 
     def user_cut_cb(
