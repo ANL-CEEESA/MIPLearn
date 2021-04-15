@@ -116,7 +116,7 @@ class Constraint:
 class Features:
     instance: Optional[InstanceFeatures] = None
     variables: Optional[VariableFeatures] = None
-    constraints: Optional[Dict[str, Constraint]] = None
+    constraints_old: Optional[Dict[str, Constraint]] = None
     lp_solve: Optional["LPSolveStats"] = None
     mip_solve: Optional["MIPSolveStats"] = None
     extra: Optional[Dict] = None
@@ -147,7 +147,7 @@ class FeaturesExtractor:
             with_static=with_static,
             with_sa=self.with_sa,
         )
-        features.constraints = solver.get_constraints(
+        features.constraints_old = solver.get_constraints(
             with_static=with_static,
         )
         if with_static:
@@ -201,9 +201,9 @@ class FeaturesExtractor:
         instance: "Instance",
         features: Features,
     ) -> None:
-        assert features.constraints is not None
+        assert features.constraints_old is not None
         has_static_lazy = instance.has_static_lazy_constraints()
-        for (cid, constr) in features.constraints.items():
+        for (cid, constr) in features.constraints_old.items():
             user_features = None
             category = instance.get_constraint_category(cid)
             if category is not None:
@@ -232,7 +232,7 @@ class FeaturesExtractor:
         instance: "Instance",
         features: Features,
     ) -> None:
-        assert features.constraints is not None
+        assert features.constraints_old is not None
         user_features = instance.get_instance_features()
         if isinstance(user_features, np.ndarray):
             user_features = user_features.tolist()
@@ -246,7 +246,7 @@ class FeaturesExtractor:
                 f"Found {type(v).__name__} instead."
             )
         lazy_count = 0
-        for (cid, cdict) in features.constraints.items():
+        for (cid, cdict) in features.constraints_old.items():
             if cdict.lazy:
                 lazy_count += 1
         features.instance = InstanceFeatures(

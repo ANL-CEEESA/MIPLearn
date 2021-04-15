@@ -27,7 +27,7 @@ def test_knapsack() -> None:
 
     features = FeaturesExtractor().extract(instance, solver)
     assert features.variables is not None
-    assert features.constraints is not None
+    assert features.constraints_old is not None
     assert features.instance is not None
 
     assert_equals(
@@ -65,7 +65,7 @@ def test_knapsack() -> None:
         ),
     )
     assert_equals(
-        _round_constraints(features.constraints),
+        _round_constraints(features.constraints_old),
         {
             "eq_capacity": Constraint(
                 basis_status="N",

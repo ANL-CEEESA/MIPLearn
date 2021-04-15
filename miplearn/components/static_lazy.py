@@ -78,7 +78,7 @@ class StaticLazyConstraintsComponent(Component):
         assert solver.internal_solver is not None
         assert sample.after_load is not None
         assert sample.after_load.instance is not None
-        assert sample.after_load.constraints is not None
+        assert sample.after_load.constraints_old is not None
 
         logger.info("Predicting violated (static) lazy constraints...")
         if sample.after_load.instance.lazy_constraint_count == 0:
@@ -86,7 +86,7 @@ class StaticLazyConstraintsComponent(Component):
         self.enforced_cids = set(self.sample_predict(sample))
         logger.info("Moving lazy constraints to the pool...")
         self.pool = {}
-        for (cid, cdict) in sample.after_load.constraints.items():
+        for (cid, cdict) in sample.after_load.constraints_old.items():
             if cdict.lazy and cid not in self.enforced_cids:
                 self.pool[cid] = cdict
                 solver.internal_solver.remove_constraint(cid)
@@ -194,8 +194,8 @@ class StaticLazyConstraintsComponent(Component):
         y: Dict[Hashable, List[List[float]]] = {}
         cids: Dict[Hashable, List[str]] = {}
         assert sample.after_load is not None
-        assert sample.after_load.constraints is not None
-        for (cid, constr) in sample.after_load.constraints.items():
+        assert sample.after_load.constraints_old is not None
+        for (cid, constr) in sample.after_load.constraints_old.items():
             # Initialize categories
             if not constr.lazy:
                 continue
@@ -213,9 +213,9 @@ class StaticLazyConstraintsComponent(Component):
                 sf = sample.after_lp
             assert sf.instance is not None
             features = list(sf.instance.to_list())
-            assert sf.constraints is not None
-            assert sf.constraints[cid] is not None
-            features.extend(sf.constraints[cid].to_list())
+            assert sf.constraints_old is not None
+            assert sf.constraints_old[cid] is not None
+            features.extend(sf.constraints_old[cid].to_list())
             x[category].append(features)
             cids[category].append(cid)
 

@@ -32,7 +32,7 @@ def sample() -> Sample:
             instance=InstanceFeatures(
                 lazy_constraint_count=4,
             ),
-            constraints={
+            constraints_old={
                 "c1": Constraint(category="type-a", lazy=True),
                 "c2": Constraint(category="type-a", lazy=True),
                 "c3": Constraint(category="type-a", lazy=True),
@@ -42,7 +42,7 @@ def sample() -> Sample:
         ),
         after_lp=Features(
             instance=InstanceFeatures(),
-            constraints={
+            constraints_old={
                 "c1": Constraint(),
                 "c2": Constraint(),
                 "c3": Constraint(),
@@ -57,16 +57,16 @@ def sample() -> Sample:
         ),
     )
     sample.after_lp.instance.to_list = Mock(return_value=[5.0])  # type: ignore
-    sample.after_lp.constraints["c1"].to_list = Mock(  # type: ignore
+    sample.after_lp.constraints_old["c1"].to_list = Mock(  # type: ignore
         return_value=[1.0, 1.0]
     )
-    sample.after_lp.constraints["c2"].to_list = Mock(  # type: ignore
+    sample.after_lp.constraints_old["c2"].to_list = Mock(  # type: ignore
         return_value=[1.0, 2.0]
     )
-    sample.after_lp.constraints["c3"].to_list = Mock(  # type: ignore
+    sample.after_lp.constraints_old["c3"].to_list = Mock(  # type: ignore
         return_value=[1.0, 3.0]
     )
-    sample.after_lp.constraints["c4"].to_list = Mock(  # type: ignore
+    sample.after_lp.constraints_old["c4"].to_list = Mock(  # type: ignore
         return_value=[1.0, 4.0, 0.0]
     )
     return sample
@@ -115,7 +115,7 @@ def test_usage_with_solver(instance: Instance) -> None:
     stats: LearningSolveStats = {}
     sample = instance.samples[0]
     assert sample.after_load is not None
-    assert sample.after_load.constraints is not None
+    assert sample.after_load.constraints_old is not None
     assert sample.after_mip is not None
     assert sample.after_mip.extra is not None
     del sample.after_mip.extra["lazy_enforced"]
@@ -143,7 +143,7 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     # Should ask internal solver to verify if constraints in the pool are
     # satisfied and add the ones that are not
-    c3 = sample.after_load.constraints["c3"]
+    c3 = sample.after_load.constraints_old["c3"]
     internal.is_constraint_satisfied.assert_called_once_with(c3, tol=1.0)
     internal.is_constraint_satisfied.reset_mock()
     internal.add_constraint.assert_called_once_with(c3, name="c3")
