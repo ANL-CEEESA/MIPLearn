@@ -39,12 +39,12 @@ def test_learning_solver(
 
             after_mip = sample.after_mip
             assert after_mip is not None
-            assert after_mip.variables is not None
+            assert after_mip.variables_old is not None
             assert after_mip.mip_solve is not None
-            assert after_mip.variables["x[0]"].value == 1.0
-            assert after_mip.variables["x[1]"].value == 0.0
-            assert after_mip.variables["x[2]"].value == 1.0
-            assert after_mip.variables["x[3]"].value == 1.0
+            assert after_mip.variables_old["x[0]"].value == 1.0
+            assert after_mip.variables_old["x[1]"].value == 0.0
+            assert after_mip.variables_old["x[2]"].value == 1.0
+            assert after_mip.variables_old["x[3]"].value == 1.0
             assert after_mip.mip_solve.mip_lower_bound == 1183.0
             assert after_mip.mip_solve.mip_upper_bound == 1183.0
             assert after_mip.mip_solve.mip_log is not None
@@ -52,16 +52,16 @@ def test_learning_solver(
 
             after_lp = sample.after_lp
             assert after_lp is not None
-            assert after_lp.variables is not None
+            assert after_lp.variables_old is not None
             assert after_lp.lp_solve is not None
-            assert after_lp.variables["x[0]"].value is not None
-            assert after_lp.variables["x[1]"].value is not None
-            assert after_lp.variables["x[2]"].value is not None
-            assert after_lp.variables["x[3]"].value is not None
-            assert round(after_lp.variables["x[0]"].value, 3) == 1.000
-            assert round(after_lp.variables["x[1]"].value, 3) == 0.923
-            assert round(after_lp.variables["x[2]"].value, 3) == 1.000
-            assert round(after_lp.variables["x[3]"].value, 3) == 0.000
+            assert after_lp.variables_old["x[0]"].value is not None
+            assert after_lp.variables_old["x[1]"].value is not None
+            assert after_lp.variables_old["x[2]"].value is not None
+            assert after_lp.variables_old["x[3]"].value is not None
+            assert round(after_lp.variables_old["x[0]"].value, 3) == 1.000
+            assert round(after_lp.variables_old["x[1]"].value, 3) == 0.923
+            assert round(after_lp.variables_old["x[2]"].value, 3) == 1.000
+            assert round(after_lp.variables_old["x[3]"].value, 3) == 0.000
             assert after_lp.lp_solve.lp_value is not None
             assert round(after_lp.lp_solve.lp_value, 3) == 1287.923
             assert after_lp.lp_solve.lp_log is not None

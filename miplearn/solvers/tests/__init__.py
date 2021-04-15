@@ -138,6 +138,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         _filter_attrs(
             solver.get_variable_attrs(),
             VariableFeatures(
+                names=("x[0]", "x[1]", "x[2]", "x[3]", "z"),
                 basis_status=("U", "B", "U", "L", "U"),
                 reduced_costs=(193.615385, 0.0, 187.230769, -23.692308, 13.538462),
                 sa_lb_down=(-inf, -inf, -inf, -0.111111, -inf),
@@ -200,7 +201,10 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         _round(solver.get_variables(with_static=False)),
         _filter_attrs(
             solver.get_variable_attrs(),
-            VariableFeatures(values=(1.0, 0.0, 1.0, 1.0, 61.0)),
+            VariableFeatures(
+                names=("x[0]", "x[1]", "x[2]", "x[3]", "z"),
+                values=(1.0, 0.0, 1.0, 1.0, 61.0),
+            ),
         ),
     )
 

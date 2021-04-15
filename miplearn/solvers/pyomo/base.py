@@ -210,13 +210,13 @@ class BasePyomoSolver(InternalSolver):
             for idx in var:
                 v = var[idx]
 
-                if with_static:
-                    # Variable name
-                    if idx is None:
-                        names.append(str(var))
-                    else:
-                        names.append(f"{var}[{idx}]")
+                # Variable name
+                if idx is None:
+                    names.append(str(var))
+                else:
+                    names.append(f"{var}[{idx}]")
 
+                if with_static:
                     # Variable type
                     if v.domain == pyomo.core.Binary:
                         types.append("B")
@@ -250,7 +250,6 @@ class BasePyomoSolver(InternalSolver):
                 if self._has_lp_solution or self._has_mip_solution:
                     values.append(v.value)
 
-        names_t: Optional[Tuple[str, ...]] = None
         types_t: Optional[Tuple[str, ...]] = None
         upper_bounds_t: Optional[Tuple[float, ...]] = None
         lower_bounds_t: Optional[Tuple[float, ...]] = None
@@ -259,7 +258,6 @@ class BasePyomoSolver(InternalSolver):
         values_t: Optional[Tuple[float, ...]] = None
 
         if with_static:
-            names_t = tuple(names)
             types_t = tuple(types)
             upper_bounds_t = tuple(upper_bounds)
             lower_bounds_t = tuple(lower_bounds)
@@ -272,7 +270,7 @@ class BasePyomoSolver(InternalSolver):
             values_t = tuple(values)
 
         return VariableFeatures(
-            names=names_t,
+            names=tuple(names),
             types=types_t,
             upper_bounds=upper_bounds_t,
             lower_bounds=lower_bounds_t,

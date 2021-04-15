@@ -28,7 +28,7 @@ def sample() -> Sample:
     sample = Sample(
         after_load=Features(
             instance=InstanceFeatures(),
-            variables={
+            variables_old={
                 "x[0]": Variable(category="default"),
                 "x[1]": Variable(category=None),
                 "x[2]": Variable(category="default"),
@@ -36,7 +36,7 @@ def sample() -> Sample:
             },
         ),
         after_lp=Features(
-            variables={
+            variables_old={
                 "x[0]": Variable(),
                 "x[1]": Variable(),
                 "x[2]": Variable(),
@@ -44,7 +44,7 @@ def sample() -> Sample:
             },
         ),
         after_mip=Features(
-            variables={
+            variables_old={
                 "x[0]": Variable(value=0.0),
                 "x[1]": Variable(value=1.0),
                 "x[2]": Variable(value=1.0),
@@ -53,13 +53,13 @@ def sample() -> Sample:
         ),
     )
     sample.after_load.instance.to_list = Mock(return_value=[5.0])  # type: ignore
-    sample.after_lp.variables["x[0]"].to_list = Mock(  # type: ignore
+    sample.after_lp.variables_old["x[0]"].to_list = Mock(  # type: ignore
         return_value=[0.0, 0.0]
     )
-    sample.after_lp.variables["x[2]"].to_list = Mock(  # type: ignore
+    sample.after_lp.variables_old["x[2]"].to_list = Mock(  # type: ignore
         return_value=[1.0, 0.0]
     )
-    sample.after_lp.variables["x[3]"].to_list = Mock(  # type: ignore
+    sample.after_lp.variables_old["x[3]"].to_list = Mock(  # type: ignore
         return_value=[1.0, 1.0]
     )
     return sample

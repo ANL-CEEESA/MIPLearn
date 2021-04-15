@@ -393,13 +393,12 @@ class GurobiSolver(InternalSolver):
             else:
                 raise Exception(f"unknown vbasis: {basis_status}")
 
-        names, upper_bounds, lower_bounds, types, values = None, None, None, None, None
+        upper_bounds, lower_bounds, types, values = None, None, None, None
         obj_coeffs, reduced_costs, basis_status = None, None, None
         sa_obj_up, sa_ub_up, sa_lb_up = None, None, None
         sa_obj_down, sa_ub_down, sa_lb_down = None, None, None
 
         if with_static:
-            names = self._var_names
             upper_bounds = self._var_ubs
             lower_bounds = self._var_lbs
             types = self._var_types
@@ -426,7 +425,7 @@ class GurobiSolver(InternalSolver):
             values = tuple(model.getAttr("x", self._gp_vars))
 
         return VariableFeatures(
-            names=names,
+            names=self._var_names,
             upper_bounds=upper_bounds,
             lower_bounds=lower_bounds,
             types=types,

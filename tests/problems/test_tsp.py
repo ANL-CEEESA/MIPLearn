@@ -43,13 +43,13 @@ def test_instance() -> None:
     assert instance.samples[0].after_mip is not None
     features = instance.samples[0].after_mip
     assert features is not None
-    assert features.variables is not None
-    assert features.variables["x[(0, 1)]"].value == 1.0
-    assert features.variables["x[(0, 2)]"].value == 0.0
-    assert features.variables["x[(0, 3)]"].value == 1.0
-    assert features.variables["x[(1, 2)]"].value == 1.0
-    assert features.variables["x[(1, 3)]"].value == 0.0
-    assert features.variables["x[(2, 3)]"].value == 1.0
+    assert features.variables_old is not None
+    assert features.variables_old["x[(0, 1)]"].value == 1.0
+    assert features.variables_old["x[(0, 2)]"].value == 0.0
+    assert features.variables_old["x[(0, 3)]"].value == 1.0
+    assert features.variables_old["x[(1, 2)]"].value == 1.0
+    assert features.variables_old["x[(1, 3)]"].value == 0.0
+    assert features.variables_old["x[(2, 3)]"].value == 1.0
     assert features.mip_solve is not None
     assert features.mip_solve.mip_lower_bound == 4.0
     assert features.mip_solve.mip_upper_bound == 4.0
@@ -79,12 +79,12 @@ def test_subtour() -> None:
     lazy_enforced = features.extra["lazy_enforced"]
     assert lazy_enforced is not None
     assert len(lazy_enforced) > 0
-    assert features.variables is not None
-    assert features.variables["x[(0, 1)]"].value == 1.0
-    assert features.variables["x[(0, 4)]"].value == 1.0
-    assert features.variables["x[(1, 2)]"].value == 1.0
-    assert features.variables["x[(2, 3)]"].value == 1.0
-    assert features.variables["x[(3, 5)]"].value == 1.0
-    assert features.variables["x[(4, 5)]"].value == 1.0
+    assert features.variables_old is not None
+    assert features.variables_old["x[(0, 1)]"].value == 1.0
+    assert features.variables_old["x[(0, 4)]"].value == 1.0
+    assert features.variables_old["x[(1, 2)]"].value == 1.0
+    assert features.variables_old["x[(2, 3)]"].value == 1.0
+    assert features.variables_old["x[(3, 5)]"].value == 1.0
+    assert features.variables_old["x[(4, 5)]"].value == 1.0
     solver.fit([instance])
     solver.solve(instance)

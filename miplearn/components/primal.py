@@ -104,7 +104,7 @@ class PrimalSolutionComponent(Component):
 
     def sample_predict(self, sample: Sample) -> Solution:
         assert sample.after_load is not None
-        assert sample.after_load.variables is not None
+        assert sample.after_load.variables_old is not None
 
         # Compute y_pred
         x, _ = self.sample_xy(None, sample)
@@ -125,9 +125,9 @@ class PrimalSolutionComponent(Component):
             ).T
 
         # Convert y_pred into solution
-        solution: Solution = {v: None for v in sample.after_load.variables.keys()}
+        solution: Solution = {v: None for v in sample.after_load.variables_old.keys()}
         category_offset: Dict[Hashable, int] = {cat: 0 for cat in x.keys()}
-        for (var_name, var_features) in sample.after_load.variables.items():
+        for (var_name, var_features) in sample.after_load.variables_old.items():
             category = var_features.category
             if category not in category_offset:
                 continue
@@ -150,8 +150,8 @@ class PrimalSolutionComponent(Component):
         y: Dict = {}
         assert sample.after_load is not None
         assert sample.after_load.instance is not None
-        assert sample.after_load.variables is not None
-        for (var_name, var) in sample.after_load.variables.items():
+        assert sample.after_load.variables_old is not None
+        for (var_name, var) in sample.after_load.variables_old.items():
             # Initialize categories
             category = var.category
             if category is None:
@@ -162,17 +162,17 @@ class PrimalSolutionComponent(Component):
 
             # Features
             features = list(sample.after_load.instance.to_list())
-            features.extend(sample.after_load.variables[var_name].to_list())
+            features.extend(sample.after_load.variables_old[var_name].to_list())
             if sample.after_lp is not None:
-                assert sample.after_lp.variables is not None
-                features.extend(sample.after_lp.variables[var_name].to_list())
+                assert sample.after_lp.variables_old is not None
+                features.extend(sample.after_lp.variables_old[var_name].to_list())
             x[category].append(features)
 
             # Labels
             if sample.after_mip is not None:
-                assert sample.after_mip.variables is not None
-                assert sample.after_mip.variables[var_name] is not None
-                opt_value = sample.after_mip.variables[var_name].value
+                assert sample.after_mip.variables_old is not None
+                assert sample.after_mip.variables_old[var_name] is not None
+                opt_value = sample.after_mip.variables_old[var_name].value
                 assert opt_value is not None
                 assert 0.0 - 1e-5 <= opt_value <= 1.0 + 1e-5, (
                     f"Variable {var_name} has non-binary value {opt_value} in the "
@@ -190,9 +190,9 @@ class PrimalSolutionComponent(Component):
         sample: Sample,
     ) -> Dict[Hashable, Dict[str, float]]:
         assert sample.after_mip is not None
-        assert sample.after_mip.variables is not None
+        assert sample.after_mip.variables_old is not None
 
-        solution_actual = sample.after_mip.variables
+        solution_actual = sample.after_mip.variables_old
         solution_pred = self.sample_predict(sample)
         vars_all, vars_one, vars_zero = set(), set(), set()
         pred_one_positive, pred_zero_positive = set(), set()

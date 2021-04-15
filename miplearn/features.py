@@ -34,7 +34,7 @@ class InstanceFeatures:
 class VariableFeatures:
     names: Optional[Tuple[str, ...]] = None
     basis_status: Optional[Tuple[str, ...]] = None
-    categories: Optional[Tuple[Hashable, ...]] = None
+    categories: Optional[Tuple[Optional[Hashable], ...]] = None
     lower_bounds: Optional[Tuple[float, ...]] = None
     obj_coeffs: Optional[Tuple[float, ...]] = None
     reduced_costs: Optional[Tuple[float, ...]] = None
@@ -46,7 +46,7 @@ class VariableFeatures:
     sa_ub_up: Optional[Tuple[float, ...]] = None
     types: Optional[Tuple[str, ...]] = None
     upper_bounds: Optional[Tuple[float, ...]] = None
-    user_features: Optional[Tuple[Tuple[float, ...]]] = None
+    user_features: Optional[Tuple[Optional[Tuple[float, ...]], ...]] = None
     values: Optional[Tuple[float, ...]] = None
 
 
@@ -135,7 +135,8 @@ class Constraint:
 @dataclass
 class Features:
     instance: Optional[InstanceFeatures] = None
-    variables: Optional[Dict[str, Variable]] = None
+    variables: Optional[VariableFeatures] = None
+    variables_old: Optional[Dict[str, Variable]] = None
     constraints: Optional[Dict[str, Constraint]] = None
     lp_solve: Optional["LPSolveStats"] = None
     mip_solve: Optional["MIPSolveStats"] = None
@@ -153,8 +154,10 @@ class FeaturesExtractor:
     def __init__(
         self,
         internal_solver: "InternalSolver",
+        with_sa: bool = True,
     ) -> None:
         self.solver = internal_solver
+        self.with_sa = with_sa
 
     def extract(
         self,
@@ -162,7 +165,11 @@ class FeaturesExtractor:
         with_static: bool = True,
     ) -> Features:
         features = Features()
-        features.variables = self.solver.get_variables_old(
+        features.variables = self.solver.get_variables(
+            with_static=with_static,
+            with_sa=self.with_sa,
+        )
+        features.variables_old = self.solver.get_variables_old(
             with_static=with_static,
         )
         features.constraints = self.solver.get_constraints(
@@ -170,18 +177,19 @@ class FeaturesExtractor:
         )
         if with_static:
             self._extract_user_features_vars(instance, features)
+            self._extract_user_features_vars_old(instance, features)
             self._extract_user_features_constrs(instance, features)
             self._extract_user_features_instance(instance, features)
             self._extract_alvarez_2017(features)
         return features
 
-    def _extract_user_features_vars(
+    def _extract_user_features_vars_old(
         self,
         instance: "Instance",
         features: Features,
     ) -> None:
-        assert features.variables is not None
-        for (var_name, var) in features.variables.items():
+        assert features.variables_old is not None
+        for (var_name, var) in features.variables_old.items():
             user_features: Optional[List[float]] = None
             category: Category = instance.get_variable_category(var_name)
             if category is not None:
@@ -205,6 +213,45 @@ class FeaturesExtractor:
                     )
             var.category = category
             var.user_features = user_features
+
+    def _extract_user_features_vars(
+        self,
+        instance: "Instance",
+        features: Features,
+    ) -> None:
+        assert features.variables is not None
+        assert features.variables.names is not None
+        categories: List[Hashable] = []
+        user_features: List[Optional[Tuple[float, ...]]] = []
+        for (i, var_name) in enumerate(features.variables.names):
+            category: Hashable = instance.get_variable_category(var_name)
+            user_features_i: Optional[List[float]] = None
+            if category is not None:
+                assert isinstance(category, collections.Hashable), (
+                    f"Variable category must be be hashable. "
+                    f"Found {type(category).__name__} instead for var={var_name}."
+                )
+                user_features_i = instance.get_variable_features(var_name)
+                if isinstance(user_features_i, np.ndarray):
+                    user_features_i = user_features_i.tolist()
+                assert isinstance(user_features_i, list), (
+                    f"Variable features must be a list. "
+                    f"Found {type(user_features_i).__name__} instead for "
+                    f"var={var_name}."
+                )
+                for v in user_features_i:
+                    assert isinstance(v, numbers.Real), (
+                        f"Variable features must be a list of numbers. "
+                        f"Found {type(v).__name__} instead "
+                        f"for var={var_name}."
+                    )
+            categories.append(category)
+            if user_features_i is None:
+                user_features.append(None)
+            else:
+                user_features.append(tuple(user_features_i))
+        features.variables.categories = tuple(categories)
+        features.variables.user_features = tuple(user_features)
 
     def _extract_user_features_constrs(
         self,
@@ -265,18 +312,18 @@ class FeaturesExtractor:
         )
 
     def _extract_alvarez_2017(self, features: Features) -> None:
-        assert features.variables is not None
+        assert features.variables_old is not None
 
         pos_obj_coeff_sum = 0.0
         neg_obj_coeff_sum = 0.0
-        for (varname, var) in features.variables.items():
+        for (varname, var) in features.variables_old.items():
             if var.obj_coeff is not None:
                 if var.obj_coeff > 0:
                     pos_obj_coeff_sum += var.obj_coeff
                 if var.obj_coeff < 0:
                     neg_obj_coeff_sum += -var.obj_coeff
 
-        for (varname, var) in features.variables.items():
+        for (varname, var) in features.variables_old.items():
             assert isinstance(var, Variable)
             f: List[float] = []
             if var.obj_coeff is not None:
