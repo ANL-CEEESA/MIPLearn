@@ -149,29 +149,40 @@ class GurobiSolver(InternalSolver):
     def get_constraint_attrs(self) -> List[str]:
         return [
             "basis_status",
-            "category",
-            "dual_value",
+            "categories",
+            "dual_values",
             "lazy",
             "lhs",
+            "names",
             "rhs",
             "sa_rhs_down",
             "sa_rhs_up",
-            "sense",
-            "slack",
+            "senses",
+            "slacks",
             "user_features",
         ]
 
     @overrides
-    def get_constraints(self, with_static: bool = True) -> ConstraintFeatures:
+    def get_constraints(
+        self,
+        with_static: bool = True,
+        with_sa: bool = True,
+    ) -> ConstraintFeatures:
         model = self.model
         assert model is not None
         assert model.numVars == len(self._gp_vars)
 
+        def _parse_gurobi_cbasis(v: int) -> str:
+            if v == 0:
+                return "B"
+            if v == -1:
+                return "N"
+            raise Exception(f"unknown cbasis: {v}")
+
         gp_constrs = model.getConstrs()
         constr_names = tuple(model.getAttr("constrName", gp_constrs))
-        rhs = None
-        senses = None
-        lhs = None
+        rhs, lhs, senses, slacks, basis_status = None, None, None, None, None
+        dual_value, basis_status, sa_rhs_up, sa_rhs_down = None, None, None, None
 
         if with_static:
             rhs = tuple(model.getAttr("rhs", gp_constrs))
@@ -185,11 +196,31 @@ class GurobiSolver(InternalSolver):
                 )
             lhs = tuple(lhs_l)
 
+        if self._has_lp_solution:
+            dual_value = tuple(model.getAttr("pi", gp_constrs))
+            basis_status = tuple(
+                map(
+                    _parse_gurobi_cbasis,
+                    model.getAttr("cbasis", gp_constrs),
+                )
+            )
+            if with_sa:
+                sa_rhs_up = tuple(model.getAttr("saRhsUp", gp_constrs))
+                sa_rhs_down = tuple(model.getAttr("saRhsLow", gp_constrs))
+
+        if self._has_lp_solution or self._has_mip_solution:
+            slacks = tuple(model.getAttr("slack", gp_constrs))
+
         return ConstraintFeatures(
+            basis_status=basis_status,
+            dual_values=dual_value,
+            lhs=lhs,
             names=constr_names,
             rhs=rhs,
+            sa_rhs_down=sa_rhs_down,
+            sa_rhs_up=sa_rhs_up,
             senses=senses,
-            lhs=lhs,
+            slacks=slacks,
         )
 
     @overrides

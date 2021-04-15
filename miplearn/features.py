@@ -148,6 +148,7 @@ class Constraint:
 class Features:
     instance: Optional[InstanceFeatures] = None
     variables: Optional[VariableFeatures] = None
+    constraints: Optional[ConstraintFeatures] = None
     constraints_old: Optional[Dict[str, Constraint]] = None
     lp_solve: Optional["LPSolveStats"] = None
     mip_solve: Optional["MIPSolveStats"] = None
@@ -176,6 +177,10 @@ class FeaturesExtractor:
     ) -> Features:
         features = Features()
         features.variables = solver.get_variables(
+            with_static=with_static,
+            with_sa=self.with_sa,
+        )
+        features.constraints = solver.get_constraints(
             with_static=with_static,
             with_sa=self.with_sa,
         )

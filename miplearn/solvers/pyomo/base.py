@@ -128,15 +128,23 @@ class BasePyomoSolver(InternalSolver):
             self._pyomo_solver.update_var(var)
 
     @overrides
-    def get_constraints(self, with_static: bool = True) -> ConstraintFeatures:
-        assert self.model is not None
+    def get_constraints(
+        self,
+        with_static: bool = True,
+        with_sa: bool = True,
+    ) -> ConstraintFeatures:
+        model = self.model
+        assert model is not None
 
         names: List[str] = []
         rhs: List[float] = []
         lhs: List[Tuple[Tuple[str, float], ...]] = []
         senses: List[str] = []
+        dual_values: List[float] = []
+        slacks: List[float] = []
 
         def _parse_constraint(c: pe.Constraint) -> None:
+            assert model is not None
             if with_static:
                 # Extract RHS and sense
                 has_ub = c.has_ub()
@@ -175,7 +183,15 @@ class BasePyomoSolver(InternalSolver):
                     )
                 lhs.append(tuple(lhsc))
 
-        for constr in self.model.component_objects(pyomo.core.Constraint):
+            # Extract dual values
+            if self._has_lp_solution:
+                dual_values.append(model.dual[c])
+
+            # Extract slacks
+            if self._has_mip_solution or self._has_lp_solution:
+                slacks.append(model.slack[c])
+
+        for constr in model.component_objects(pyomo.core.Constraint):
             if isinstance(constr, pe.ConstraintList):
                 for idx in constr:
                     names.append(f"{constr.name}[{idx}]")
@@ -185,16 +201,23 @@ class BasePyomoSolver(InternalSolver):
                 _parse_constraint(constr)
 
         rhs_t, lhs_t, senses_t = None, None, None
+        slacks_t, dual_values_t = None, None
         if with_static:
             rhs_t = tuple(rhs)
             lhs_t = tuple(lhs)
             senses_t = tuple(senses)
+        if self._has_lp_solution:
+            dual_values_t = tuple(dual_values)
+        if self._has_lp_solution or self._has_mip_solution:
+            slacks_t = tuple(slacks)
 
         return ConstraintFeatures(
             names=tuple(names),
             rhs=rhs_t,
             senses=senses_t,
             lhs=lhs_t,
+            slacks=slacks_t,
+            dual_values=dual_values_t,
         )
 
     @overrides
@@ -224,12 +247,12 @@ class BasePyomoSolver(InternalSolver):
     @overrides
     def get_constraint_attrs(self) -> List[str]:
         return [
-            "dual_value",
-            "lazy",
+            "dual_values",
             "lhs",
+            "names",
             "rhs",
-            "sense",
-            "slack",
+            "senses",
+            "slacks",
         ]
 
     @overrides

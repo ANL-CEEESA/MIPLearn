@@ -30,16 +30,12 @@ def _round(obj: Any) -> Any:
         return tuple([_round(v) for v in obj])
     if isinstance(obj, list):
         return [_round(v) for v in obj]
+    if isinstance(obj, dict):
+        return {key: _round(value) for (key, value) in obj.items()}
     if isinstance(obj, VariableFeatures):
-        obj.reduced_costs = _round(obj.reduced_costs)
-        obj.sa_obj_up = _round(obj.sa_obj_up)
-        obj.sa_obj_down = _round(obj.sa_obj_down)
-        obj.sa_lb_up = _round(obj.sa_lb_up)
-        obj.sa_lb_down = _round(obj.sa_lb_down)
-        obj.sa_ub_up = _round(obj.sa_ub_up)
-        obj.sa_ub_down = _round(obj.sa_ub_down)
-        obj.values = _round(obj.values)
-        obj.alvarez_2017 = _round(obj.alvarez_2017)
+        obj.__dict__ = _round(obj.__dict__)
+    if isinstance(obj, ConstraintFeatures):
+        obj.__dict__ = _round(obj.__dict__)
     return obj
 
 
@@ -110,18 +106,6 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         ),
     )
 
-    assert_equals(
-        _round_constraints(solver.get_constraints_old()),
-        {
-            "eq_capacity": Constraint(
-                lazy=False,
-                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0, "z": -1.0},
-                rhs=0.0,
-                sense="=",
-            )
-        },
-    )
-
     # Solve linear programming relaxation
     lp_stats = solver.solve_lp()
     assert not solver.is_infeasible()
@@ -154,28 +138,17 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # Fetch constraints (after-lp)
     assert_equals(
-        _round_constraints(solver.get_constraints_old()),
-        _remove_unsupported_constr_attrs(
-            solver,
-            {
-                "eq_capacity": Constraint(
-                    basis_status="N",
-                    dual_value=13.538462,
-                    lazy=False,
-                    lhs={
-                        "x[0]": 23.0,
-                        "x[1]": 26.0,
-                        "x[2]": 20.0,
-                        "x[3]": 18.0,
-                        "z": -1.0,
-                    },
-                    rhs=0.0,
-                    sa_rhs_down=-24.0,
-                    sa_rhs_up=1.9999999999999987,
-                    sense="=",
-                    slack=0.0,
-                )
-            },
+        _round(solver.get_constraints(with_static=False)),
+        _filter_attrs(
+            solver.get_constraint_attrs(),
+            ConstraintFeatures(
+                basis_status=("N",),
+                dual_values=(13.538462,),
+                names=("eq_capacity",),
+                sa_rhs_down=(-24.0,),
+                sa_rhs_up=(2.0,),
+                slacks=(0.0,),
+            ),
         ),
     )
 

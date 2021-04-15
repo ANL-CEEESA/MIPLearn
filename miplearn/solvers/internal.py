@@ -169,7 +169,11 @@ class InternalSolver(ABC, EnforceOverrides):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_constraints(self, with_static: bool = True) -> ConstraintFeatures:
+    def get_constraints(
+        self,
+        with_static: bool = True,
+        with_sa: bool = True,
+    ) -> ConstraintFeatures:
         pass
 
     @abstractmethod
