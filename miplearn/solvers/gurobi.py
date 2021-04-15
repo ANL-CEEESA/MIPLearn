@@ -10,7 +10,7 @@ from typing import List, Any, Dict, Optional, Hashable, Tuple, TYPE_CHECKING
 
 from overrides import overrides
 
-from miplearn.features import Constraint, VariableFeatures
+from miplearn.features import Constraint, VariableFeatures, ConstraintFeatures
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
@@ -162,7 +162,38 @@ class GurobiSolver(InternalSolver):
         ]
 
     @overrides
-    def get_constraints(self, with_static: bool = True) -> Dict[str, Constraint]:
+    def get_constraints(self, with_static: bool = True) -> ConstraintFeatures:
+        model = self.model
+        assert model is not None
+        assert model.numVars == len(self._gp_vars)
+
+        gp_constrs = model.getConstrs()
+        constr_names = tuple(model.getAttr("constrName", gp_constrs))
+        rhs = None
+        senses = None
+        lhs = None
+
+        if with_static:
+            rhs = tuple(model.getAttr("rhs", gp_constrs))
+            senses = tuple(model.getAttr("sense", gp_constrs))
+            lhs_l: List = [None for _ in gp_constrs]
+            for (i, gp_constr) in enumerate(gp_constrs):
+                expr = model.getRow(gp_constr)
+                lhs_l[i] = tuple(
+                    (self._var_names[expr.getVar(j).index], expr.getCoeff(j))
+                    for j in range(expr.size())
+                )
+            lhs = tuple(lhs_l)
+
+        return ConstraintFeatures(
+            names=constr_names,
+            rhs=rhs,
+            senses=senses,
+            lhs=lhs,
+        )
+
+    @overrides
+    def get_constraints_old(self, with_static: bool = True) -> Dict[str, Constraint]:
         model = self.model
         assert model is not None
         self._raise_if_callback()
@@ -255,22 +286,6 @@ class GurobiSolver(InternalSolver):
     @overrides
     def get_variable_attrs(self) -> List[str]:
         return [
-            "basis_status",
-            "category",
-            "lower_bound",
-            "obj_coeff",
-            "reduced_cost",
-            "sa_lb_down",
-            "sa_lb_up",
-            "sa_obj_down",
-            "sa_obj_up",
-            "sa_ub_down",
-            "sa_ub_up",
-            "type",
-            "upper_bound",
-            "user_features",
-            "value",
-            # new attributes
             "names",
             "basis_status",
             "categories",

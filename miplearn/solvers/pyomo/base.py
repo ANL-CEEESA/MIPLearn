@@ -19,7 +19,7 @@ from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
 from pyomo.opt import TerminationCondition
 from pyomo.opt.base.solvers import SolverFactory
 
-from miplearn.features import VariableFeatures
+from miplearn.features import VariableFeatures, ConstraintFeatures
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
@@ -128,7 +128,77 @@ class BasePyomoSolver(InternalSolver):
             self._pyomo_solver.update_var(var)
 
     @overrides
-    def get_constraints(self, with_static: bool = True) -> Dict[str, Constraint]:
+    def get_constraints(self, with_static: bool = True) -> ConstraintFeatures:
+        assert self.model is not None
+
+        names: List[str] = []
+        rhs: List[float] = []
+        lhs: List[Tuple[Tuple[str, float], ...]] = []
+        senses: List[str] = []
+
+        def _parse_constraint(c: pe.Constraint) -> None:
+            if with_static:
+                # Extract RHS and sense
+                has_ub = c.has_ub()
+                has_lb = c.has_lb()
+                assert (
+                    (not has_lb) or (not has_ub) or c.upper() == c.lower()
+                ), "range constraints not supported"
+                if not has_ub:
+                    senses.append(">")
+                    rhs.append(float(c.lower()))
+                elif not has_lb:
+                    senses.append("<")
+                    rhs.append(float(c.upper()))
+                else:
+                    senses.append("=")
+                    rhs.append(float(c.upper()))
+
+                # Extract LHS
+                lhsc = []
+                expr = c.body
+                if isinstance(expr, SumExpression):
+                    for term in expr._args_:
+                        if isinstance(term, MonomialTermExpression):
+                            lhsc.append((term._args_[1].name, float(term._args_[0])))
+                        elif isinstance(term, _GeneralVarData):
+                            lhsc.append((term.name, 1.0))
+                        else:
+                            raise Exception(
+                                f"Unknown term type: {term.__class__.__name__}"
+                            )
+                elif isinstance(expr, _GeneralVarData):
+                    lhsc.append((expr.name, 1.0))
+                else:
+                    raise Exception(
+                        f"Unknown expression type: {expr.__class__.__name__}"
+                    )
+                lhs.append(tuple(lhsc))
+
+        for constr in self.model.component_objects(pyomo.core.Constraint):
+            if isinstance(constr, pe.ConstraintList):
+                for idx in constr:
+                    names.append(f"{constr.name}[{idx}]")
+                    _parse_constraint(constr[idx])
+            else:
+                names.append(constr.name)
+                _parse_constraint(constr)
+
+        rhs_t, lhs_t, senses_t = None, None, None
+        if with_static:
+            rhs_t = tuple(rhs)
+            lhs_t = tuple(lhs)
+            senses_t = tuple(senses)
+
+        return ConstraintFeatures(
+            names=tuple(names),
+            rhs=rhs_t,
+            senses=senses_t,
+            lhs=lhs_t,
+        )
+
+    @overrides
+    def get_constraints_old(self, with_static: bool = True) -> Dict[str, Constraint]:
         assert self.model is not None
 
         constraints = {}
@@ -267,20 +337,6 @@ class BasePyomoSolver(InternalSolver):
     @overrides
     def get_variable_attrs(self) -> List[str]:
         return [
-            # "basis_status",
-            "lower_bound",
-            "obj_coeff",
-            "reduced_cost",
-            # "sa_lb_down",
-            # "sa_lb_up",
-            # "sa_obj_down",
-            # "sa_obj_up",
-            # "sa_ub_down",
-            # "sa_ub_up",
-            "type",
-            "upper_bound",
-            "value",
-            # new attributes
             "names",
             # "basis_status",
             "categories",

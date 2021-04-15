@@ -4,7 +4,7 @@
 
 from typing import Any, Dict, List
 
-from miplearn.features import Constraint, VariableFeatures
+from miplearn.features import Constraint, VariableFeatures, ConstraintFeatures
 from miplearn.solvers.internal import InternalSolver
 
 inf = float("inf")
@@ -93,7 +93,25 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # Fetch constraints (after-load)
     assert_equals(
-        _round_constraints(solver.get_constraints()),
+        solver.get_constraints(),
+        ConstraintFeatures(
+            names=("eq_capacity",),
+            rhs=(0.0,),
+            lhs=(
+                (
+                    ("x[0]", 23.0),
+                    ("x[1]", 26.0),
+                    ("x[2]", 20.0),
+                    ("x[3]", 18.0),
+                    ("z", -1.0),
+                ),
+            ),
+            senses=("=",),
+        ),
+    )
+
+    assert_equals(
+        _round_constraints(solver.get_constraints_old()),
         {
             "eq_capacity": Constraint(
                 lazy=False,
@@ -136,7 +154,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # Fetch constraints (after-lp)
     assert_equals(
-        _round_constraints(solver.get_constraints()),
+        _round_constraints(solver.get_constraints_old()),
         _remove_unsupported_constr_attrs(
             solver,
             {
@@ -192,7 +210,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # Fetch constraints (after-mip)
     assert_equals(
-        _round_constraints(solver.get_constraints(with_static=False)),
+        _round_constraints(solver.get_constraints_old(with_static=False)),
         {"eq_capacity": Constraint(slack=0.0)},
     )
 
@@ -204,7 +222,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # also clear the current solution.
     solver.add_constraint(cut, "cut")
     assert_equals(
-        _round_constraints(solver.get_constraints()),
+        _round_constraints(solver.get_constraints_old()),
         {
             "eq_capacity": Constraint(
                 lazy=False,
