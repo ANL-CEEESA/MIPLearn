@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 
 from overrides import EnforceOverrides
 
-from miplearn.features import Constraint, Variable, VariableFeatures
+from miplearn.features import Constraint, VariableFeatures
 from miplearn.instance.base import Instance
 from miplearn.types import (
     IterationCallback,
@@ -17,7 +17,6 @@ from miplearn.types import (
     BranchPriorities,
     UserCutCallback,
     Solution,
-    VariableName,
 )
 
 logger = logging.getLogger(__name__)
@@ -235,10 +234,6 @@ class InternalSolver(ABC, EnforceOverrides):
         callback or user cuts callback.
         """
         return False
-
-    @abstractmethod
-    def get_variables_old(self, with_static: bool = True) -> Dict[str, Variable]:
-        pass
 
     @abstractmethod
     def get_variables(

@@ -13,10 +13,10 @@ from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.features import (
-    Variable,
     Features,
     Sample,
     InstanceFeatures,
+    VariableFeatures,
 )
 from miplearn.problems.tsp import TravelingSalesmanGenerator
 from miplearn.solvers.learning import LearningSolver
@@ -28,39 +28,37 @@ def sample() -> Sample:
     sample = Sample(
         after_load=Features(
             instance=InstanceFeatures(),
-            variables_old={
-                "x[0]": Variable(category="default"),
-                "x[1]": Variable(category=None),
-                "x[2]": Variable(category="default"),
-                "x[3]": Variable(category="default"),
-            },
+            variables=VariableFeatures(
+                names=("x[0]", "x[1]", "x[2]", "x[3]"),
+                categories=("default", None, "default", "default"),
+            ),
         ),
         after_lp=Features(
-            variables_old={
-                "x[0]": Variable(),
-                "x[1]": Variable(),
-                "x[2]": Variable(),
-                "x[3]": Variable(),
-            },
+            variables=VariableFeatures(),
         ),
         after_mip=Features(
-            variables_old={
-                "x[0]": Variable(value=0.0),
-                "x[1]": Variable(value=1.0),
-                "x[2]": Variable(value=1.0),
-                "x[3]": Variable(value=0.0),
-            }
+            variables=VariableFeatures(
+                names=("x[0]", "x[1]", "x[2]", "x[3]"),
+                values=(0.0, 1.0, 1.0, 0.0),
+            )
         ),
     )
     sample.after_load.instance.to_list = Mock(return_value=[5.0])  # type: ignore
-    sample.after_lp.variables_old["x[0]"].to_list = Mock(  # type: ignore
-        return_value=[0.0, 0.0]
+    sample.after_load.variables.to_list = Mock(  # type:ignore
+        side_effect=lambda i: [
+            [0.0, 0.0],
+            None,
+            [1.0, 0.0],
+            [1.0, 1.0],
+        ][i]
     )
-    sample.after_lp.variables_old["x[2]"].to_list = Mock(  # type: ignore
-        return_value=[1.0, 0.0]
-    )
-    sample.after_lp.variables_old["x[3]"].to_list = Mock(  # type: ignore
-        return_value=[1.0, 1.0]
+    sample.after_lp.variables.to_list = Mock(  # type:ignore
+        side_effect=lambda i: [
+            [2.0, 2.0],
+            None,
+            [3.0, 2.0],
+            [3.0, 3.0],
+        ][i]
     )
     return sample
 
@@ -68,9 +66,9 @@ def sample() -> Sample:
 def test_xy(sample: Sample) -> None:
     x_expected = {
         "default": [
-            [5.0, 0.0, 0.0],
-            [5.0, 1.0, 0.0],
-            [5.0, 1.0, 1.0],
+            [5.0, 0.0, 0.0, 2.0, 2.0],
+            [5.0, 1.0, 0.0, 3.0, 2.0],
+            [5.0, 1.0, 1.0, 3.0, 3.0],
         ]
     }
     y_expected = {

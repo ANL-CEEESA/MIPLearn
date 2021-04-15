@@ -5,14 +5,12 @@
 from miplearn.features import (
     FeaturesExtractor,
     InstanceFeatures,
-    Variable,
     Constraint,
     VariableFeatures,
 )
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.tests import (
     assert_equals,
-    _round_variables,
     _round_constraints,
     _round,
 )
@@ -28,7 +26,7 @@ def test_knapsack() -> None:
     solver.solve_lp()
 
     features = FeaturesExtractor(solver).extract(instance)
-    assert features.variables_old is not None
+    assert features.variables is not None
     assert features.constraints is not None
     assert features.instance is not None
 
@@ -57,6 +55,13 @@ def test_knapsack() -> None:
                 None,
             ),
             values=(1.0, 0.923077, 1.0, 0.0, 67.0),
+            alvarez_2017=[
+                [1.0, 0.32899, 0.0, 0.0, 1.0, 1.0, 5.265874, 46.051702],
+                [1.0, 0.229316, 0.0, 0.076923, 1.0, 1.0, 3.532875, 5.388476],
+                [1.0, 0.298371, 0.0, 0.0, 1.0, 1.0, 5.232342, 46.051702],
+                [1.0, 0.143322, 0.0, 0.0, 1.0, -1.0, 46.051702, 3.16515],
+                [0.0, 0.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0],
+            ],
         ),
     )
     assert_equals(

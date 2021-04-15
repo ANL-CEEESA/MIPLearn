@@ -3,14 +3,12 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Optional, List, Dict
+from typing import Optional
 
 from overrides import overrides
 from pyomo import environ as pe
 from scipy.stats import randint
 
-from miplearn.features import Variable
-from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
 from miplearn.types import SolverParams, BranchPriorities
 

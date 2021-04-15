@@ -3,9 +3,8 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from typing import Any, Dict, List
-import numpy as np
 
-from miplearn.features import Constraint, Variable, VariableFeatures
+from miplearn.features import Constraint, VariableFeatures
 from miplearn.solvers.internal import InternalSolver
 
 inf = float("inf")
@@ -22,33 +21,15 @@ def _round_constraints(constraints: Dict[str, Constraint]) -> Dict[str, Constrai
     return constraints
 
 
-def _round_variables(vars: Dict[str, Variable]) -> Dict[str, Variable]:
-    for (cname, c) in vars.items():
-        for attr in [
-            "upper_bound",
-            "lower_bound",
-            "obj_coeff",
-            "value",
-            "reduced_cost",
-            "sa_obj_up",
-            "sa_obj_down",
-            "sa_ub_up",
-            "sa_ub_down",
-            "sa_lb_up",
-            "sa_lb_down",
-        ]:
-            if getattr(c, attr) is not None:
-                setattr(c, attr, round(getattr(c, attr), 6))
-        if c.alvarez_2017 is not None:
-            c.alvarez_2017 = list(np.round(c.alvarez_2017, 6))
-    return vars
-
-
 def _round(obj: Any) -> Any:
+    if obj is None:
+        return None
+    if isinstance(obj, float):
+        return round(obj, 6)
     if isinstance(obj, tuple):
-        if obj is None:
-            return None
-        return tuple([round(v, 6) for v in obj])
+        return tuple([_round(v) for v in obj])
+    if isinstance(obj, list):
+        return [_round(v) for v in obj]
     if isinstance(obj, VariableFeatures):
         obj.reduced_costs = _round(obj.reduced_costs)
         obj.sa_obj_up = _round(obj.sa_obj_up)
@@ -58,6 +39,7 @@ def _round(obj: Any) -> Any:
         obj.sa_ub_up = _round(obj.sa_ub_up)
         obj.sa_ub_down = _round(obj.sa_ub_down)
         obj.values = _round(obj.values)
+        obj.alvarez_2017 = _round(obj.alvarez_2017)
     return obj
 
 

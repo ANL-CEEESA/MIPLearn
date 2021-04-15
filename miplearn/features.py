@@ -10,8 +10,6 @@ from typing import TYPE_CHECKING, Dict, Optional, List, Hashable, Tuple
 
 import numpy as np
 
-from miplearn.types import Category
-
 if TYPE_CHECKING:
     from miplearn.solvers.internal import InternalSolver, LPSolveStats, MIPSolveStats
     from miplearn.instance.base import Instance
@@ -49,49 +47,31 @@ class VariableFeatures:
     user_features: Optional[Tuple[Optional[Tuple[float, ...]], ...]] = None
     values: Optional[Tuple[float, ...]] = None
 
-
-@dataclass
-class Variable:
-    basis_status: Optional[str] = None
-    category: Optional[Hashable] = None
-    lower_bound: Optional[float] = None
-    obj_coeff: Optional[float] = None
-    reduced_cost: Optional[float] = None
-    sa_lb_down: Optional[float] = None
-    sa_lb_up: Optional[float] = None
-    sa_obj_down: Optional[float] = None
-    sa_obj_up: Optional[float] = None
-    sa_ub_down: Optional[float] = None
-    sa_ub_up: Optional[float] = None
-    type: Optional[str] = None
-    upper_bound: Optional[float] = None
-    user_features: Optional[List[float]] = None
-    value: Optional[float] = None
-
     # Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
     # approximation of strong branching. INFORMS Journal on Computing, 29(1), 185-195.
-    alvarez_2017: Optional[List[float]] = None
+    alvarez_2017: Optional[List[List[float]]] = None
 
-    def to_list(self) -> List[float]:
+    def to_list(self, index: int) -> List[float]:
         features: List[float] = []
         for attr in [
-            "lower_bound",
-            "obj_coeff",
-            "reduced_cost",
+            "lower_bounds",
+            "obj_coeffs",
+            "reduced_costs",
             "sa_lb_down",
             "sa_lb_up",
             "sa_obj_down",
             "sa_obj_up",
             "sa_ub_down",
             "sa_ub_up",
-            "upper_bound",
-            "value",
+            "upper_bounds",
+            "values",
         ]:
             if getattr(self, attr) is not None:
-                features.append(getattr(self, attr))
+                features.append(getattr(self, attr)[index])
         for attr in ["user_features", "alvarez_2017"]:
             if getattr(self, attr) is not None:
-                features.extend(getattr(self, attr))
+                if getattr(self, attr)[index] is not None:
+                    features.extend(getattr(self, attr)[index])
         _clip(features)
         return features
 
@@ -136,7 +116,6 @@ class Constraint:
 class Features:
     instance: Optional[InstanceFeatures] = None
     variables: Optional[VariableFeatures] = None
-    variables_old: Optional[Dict[str, Variable]] = None
     constraints: Optional[Dict[str, Constraint]] = None
     lp_solve: Optional["LPSolveStats"] = None
     mip_solve: Optional["MIPSolveStats"] = None
@@ -169,50 +148,15 @@ class FeaturesExtractor:
             with_static=with_static,
             with_sa=self.with_sa,
         )
-        features.variables_old = self.solver.get_variables_old(
-            with_static=with_static,
-        )
         features.constraints = self.solver.get_constraints(
             with_static=with_static,
         )
         if with_static:
             self._extract_user_features_vars(instance, features)
-            self._extract_user_features_vars_old(instance, features)
             self._extract_user_features_constrs(instance, features)
             self._extract_user_features_instance(instance, features)
             self._extract_alvarez_2017(features)
         return features
-
-    def _extract_user_features_vars_old(
-        self,
-        instance: "Instance",
-        features: Features,
-    ) -> None:
-        assert features.variables_old is not None
-        for (var_name, var) in features.variables_old.items():
-            user_features: Optional[List[float]] = None
-            category: Category = instance.get_variable_category(var_name)
-            if category is not None:
-                assert isinstance(category, collections.Hashable), (
-                    f"Variable category must be be hashable. "
-                    f"Found {type(category).__name__} instead for var={var_name}."
-                )
-                user_features = instance.get_variable_features(var_name)
-                if isinstance(user_features, np.ndarray):
-                    user_features = user_features.tolist()
-                assert isinstance(user_features, list), (
-                    f"Variable features must be a list. "
-                    f"Found {type(user_features).__name__} instead for "
-                    f"var={var_name}."
-                )
-                for v in user_features:
-                    assert isinstance(v, numbers.Real), (
-                        f"Variable features must be a list of numbers. "
-                        f"Found {type(v).__name__} instead "
-                        f"for var={var_name}."
-                    )
-            var.category = category
-            var.user_features = user_features
 
     def _extract_user_features_vars(
         self,
@@ -312,72 +256,80 @@ class FeaturesExtractor:
         )
 
     def _extract_alvarez_2017(self, features: Features) -> None:
-        assert features.variables_old is not None
+        assert features.variables is not None
+        assert features.variables.names is not None
+
+        obj_coeffs = features.variables.obj_coeffs
+        obj_sa_down = features.variables.sa_obj_down
+        obj_sa_up = features.variables.sa_obj_up
+        values = features.variables.values
 
         pos_obj_coeff_sum = 0.0
         neg_obj_coeff_sum = 0.0
-        for (varname, var) in features.variables_old.items():
-            if var.obj_coeff is not None:
-                if var.obj_coeff > 0:
-                    pos_obj_coeff_sum += var.obj_coeff
-                if var.obj_coeff < 0:
-                    neg_obj_coeff_sum += -var.obj_coeff
+        if obj_coeffs is not None:
+            for coeff in obj_coeffs:
+                if coeff > 0:
+                    pos_obj_coeff_sum += coeff
+                if coeff < 0:
+                    neg_obj_coeff_sum += -coeff
 
-        for (varname, var) in features.variables_old.items():
-            assert isinstance(var, Variable)
+        features.variables.alvarez_2017 = []
+        for i in range(len(features.variables.names)):
             f: List[float] = []
-            if var.obj_coeff is not None:
+            if obj_coeffs is not None:
                 # Feature 1
-                f.append(np.sign(var.obj_coeff))
+                f.append(np.sign(obj_coeffs[i]))
 
                 # Feature 2
                 if pos_obj_coeff_sum > 0:
-                    f.append(abs(var.obj_coeff) / pos_obj_coeff_sum)
+                    f.append(abs(obj_coeffs[i]) / pos_obj_coeff_sum)
                 else:
                     f.append(0.0)
 
                 # Feature 3
                 if neg_obj_coeff_sum > 0:
-                    f.append(abs(var.obj_coeff) / neg_obj_coeff_sum)
+                    f.append(abs(obj_coeffs[i]) / neg_obj_coeff_sum)
                 else:
                     f.append(0.0)
 
-            if var.value is not None:
+            if values is not None:
                 # Feature 37
                 f.append(
                     min(
-                        var.value - np.floor(var.value),
-                        np.ceil(var.value) - var.value,
+                        values[i] - np.floor(values[i]),
+                        np.ceil(values[i]) - values[i],
                     )
                 )
 
-            if var.sa_obj_up is not None:
-                assert var.obj_coeff is not None
-                assert var.sa_obj_down is not None
+            if obj_sa_up is not None:
+                assert obj_sa_down is not None
+                assert obj_coeffs is not None
+
                 # Convert inf into large finite numbers
-                sa_obj_down = max(-1e20, var.sa_obj_down)
-                sa_obj_up = min(1e20, var.sa_obj_up)
+                sd = max(-1e20, obj_sa_down[i])
+                su = min(1e20, obj_sa_up[i])
+                obj = obj_coeffs[i]
 
                 # Features 44 and 46
-                f.append(np.sign(var.sa_obj_up))
-                f.append(np.sign(var.sa_obj_down))
+                f.append(np.sign(obj_sa_up[i]))
+                f.append(np.sign(obj_sa_down[i]))
 
                 # Feature 47
-                csign = np.sign(var.obj_coeff)
-                if csign != 0 and ((var.obj_coeff - sa_obj_down) / csign) > 0.001:
-                    f.append(log((var.obj_coeff - sa_obj_down) / csign))
+                csign = np.sign(obj)
+                if csign != 0 and ((obj - sd) / csign) > 0.001:
+                    f.append(log((obj - sd) / csign))
                 else:
                     f.append(0.0)
 
                 # Feature 48
-                if csign != 0 and ((sa_obj_up - var.obj_coeff) / csign) > 0.001:
-                    f.append(log((sa_obj_up - var.obj_coeff) / csign))
+                if csign != 0 and ((su - obj) / csign) > 0.001:
+                    f.append(log((su - obj) / csign))
                 else:
                     f.append(0.0)
 
             for v in f:
                 assert isfinite(v), f"non-finite elements detected: {f}"
-            var.alvarez_2017 = f
+            features.variables.alvarez_2017.append(f)
 
 
 def _clip(v: List[float]) -> None:

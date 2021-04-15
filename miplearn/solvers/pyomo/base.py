@@ -19,7 +19,7 @@ from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
 from pyomo.opt import TerminationCondition
 from pyomo.opt.base.solvers import SolverFactory
 
-from miplearn.features import Variable, VariableFeatures
+from miplearn.features import VariableFeatures
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
@@ -174,21 +174,6 @@ class BasePyomoSolver(InternalSolver):
                     continue
                 solution[f"{var}[{index}]"] = var[index].value
         return solution
-
-    @overrides
-    def get_variables_old(self, with_static: bool = True) -> Dict[str, Variable]:
-        assert self.model is not None
-        variables = {}
-        for var in self.model.component_objects(pyomo.core.Var):
-            for idx in var:
-                varname = f"{var}[{idx}]"
-                if idx is None:
-                    varname = str(var)
-                variables[varname] = self._parse_pyomo_variable(
-                    var[idx],
-                    with_static=with_static,
-                )
-        return variables
 
     @overrides
     def get_variables(
@@ -494,49 +479,6 @@ class BasePyomoSolver(InternalSolver):
 
     def _get_warm_start_regexp(self) -> Optional[str]:
         return None
-
-    def _parse_pyomo_variable(
-        self,
-        pyomo_var: pyomo.core.Var,
-        with_static: bool = True,
-    ) -> Variable:
-        assert self.model is not None
-        variable = Variable()
-
-        if with_static:
-            # Variable type
-            vtype: Optional[str] = None
-            if pyomo_var.domain == pyomo.core.Binary:
-                vtype = "B"
-            elif pyomo_var.domain in [
-                pyomo.core.Reals,
-                pyomo.core.NonNegativeReals,
-                pyomo.core.NonPositiveReals,
-                pyomo.core.NegativeReals,
-                pyomo.core.PositiveReals,
-            ]:
-                vtype = "C"
-            if vtype is None:
-                raise Exception(f"unknown variable domain: {pyomo_var.domain}")
-            variable.type = vtype
-
-            # Bounds
-            lb, ub = pyomo_var.bounds
-            variable.upper_bound = float(ub)
-            variable.lower_bound = float(lb)
-
-            # Objective coefficient
-            obj_coeff = 0.0
-            if pyomo_var.name in self._obj:
-                obj_coeff = self._obj[pyomo_var.name]
-            variable.obj_coeff = obj_coeff
-
-        # Reduced costs
-        if pyomo_var in self.model.rc:
-            variable.reduced_cost = self.model.rc[pyomo_var]
-
-        variable.value = pyomo_var.value
-        return variable
 
     def _parse_pyomo_constraint(
         self,
