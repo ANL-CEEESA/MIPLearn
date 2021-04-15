@@ -35,3 +35,23 @@ def test_gurobi_pyomo_solver() -> None:
 
 def test_gurobi_solver() -> None:
     run_internal_solver_tests(GurobiSolver())
+
+
+def test_redundancy() -> None:
+    solver = GurobiSolver()
+    instance = solver.build_test_instance_redundancy()
+    solver.set_instance(instance)
+    stats = solver.solve_lp()
+    assert stats.lp_value == 1.0
+    constraints = solver.get_constraints()
+    assert constraints.names[0] == "c1"
+    assert constraints.slacks[0] == 0.0
+
+    solver.relax_constraints(["c1"])
+    stats = solver.solve_lp()
+    assert stats.lp_value == 2.0
+    assert solver.is_constraint_satisfied(["c1"]) == [False]
+
+    solver.enforce_constraints(["c1"])
+    stats = solver.solve_lp()
+    assert stats.lp_value == 1.0

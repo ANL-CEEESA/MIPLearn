@@ -72,12 +72,16 @@ class GurobiSolver(InternalSolver):
         self._has_mip_solution = False
 
         self._varname_to_var: Dict[str, "gurobipy.Var"] = {}
+        self._cname_to_constr: Dict[str, "gurobipy.Constr"] = {}
         self._gp_vars: Tuple["gurobipy.Var", ...] = tuple()
+        self._gp_constrs: Tuple["gurobipy.Constr", ...] = tuple()
         self._var_names: Tuple[str, ...] = tuple()
+        self._constr_names: Tuple[str, ...] = tuple()
         self._var_types: Tuple[str, ...] = tuple()
         self._var_lbs: Tuple[float, ...] = tuple()
         self._var_ubs: Tuple[float, ...] = tuple()
         self._var_obj_coeffs: Tuple[float, ...] = tuple()
+        self._relaxed_constrs: Dict[str, Tuple["gurobipy.LinExpr", str, float]] = {}
 
         if self.lazy_cb_frequency == 1:
             self.lazy_cb_where = [self.gp.GRB.Callback.MIPSOL]
@@ -133,6 +137,16 @@ class GurobiSolver(InternalSolver):
             params=self.params,
             lazy_cb_frequency=self.lazy_cb_frequency,
         )
+
+    def enforce_constraints(self, names: List[str]) -> None:
+        constr = [self._relaxed_constrs[n] for n in names]
+        for (i, (lhs, sense, rhs)) in enumerate(constr):
+            if sense == "=":
+                self.model.addConstr(lhs == rhs, name=names[i])
+            elif sense == "<":
+                self.model.addConstr(lhs <= rhs, name=names[i])
+            else:
+                self.model.addConstr(lhs >= rhs, name=names[i])
 
     @overrides
     def fix(self, solution: Solution) -> None:
@@ -406,8 +420,30 @@ class GurobiSolver(InternalSolver):
             values=values,
         )
 
+    def is_constraint_satisfied(
+        self,
+        names: List[str],
+        tol: float = 1e-6,
+    ) -> List[bool]:
+        def _check(c):
+            lhs, sense, rhs = c
+            lhs_value = lhs.getValue()
+            if sense == "=":
+                return abs(lhs_value - rhs) < tol
+            elif sense == ">":
+                return lhs_value > rhs - tol
+            else:
+                return lhs_value < rhs - tol
+
+        constrs = [self._relaxed_constrs[n] for n in names]
+        return list(map(_check, constrs))
+
     @overrides
-    def is_constraint_satisfied(self, constr: Constraint, tol: float = 1e-6) -> bool:
+    def is_constraint_satisfied_old(
+        self,
+        constr: Constraint,
+        tol: float = 1e-6,
+    ) -> bool:
         assert constr.lhs is not None
         lhs = 0.0
         for (varname, coeff) in constr.lhs.items():
@@ -424,6 +460,14 @@ class GurobiSolver(InternalSolver):
     def is_infeasible(self) -> bool:
         assert self.model is not None
         return self.model.status in [self.gp.GRB.INFEASIBLE, self.gp.GRB.INF_OR_UNBD]
+
+    def relax_constraints(self, names: List[str]) -> None:
+        constrs = [self._cname_to_constr[n] for n in names]
+        for (i, name) in enumerate(names):
+            c = constrs[i]
+            self._relaxed_constrs[name] = self.model.getRow(c), c.sense, c.rhs
+        self.model.remove(constrs)
+        self.model.update()
 
     @overrides
     def remove_constraint(self, name: str) -> None:
@@ -444,7 +488,7 @@ class GurobiSolver(InternalSolver):
         self.instance = instance
         self.model = model
         self.model.update()
-        self._update_vars()
+        self._update()
 
     @overrides
     def set_warm_start(self, solution: Solution) -> None:
@@ -571,7 +615,7 @@ class GurobiSolver(InternalSolver):
         assert self.model is not None
         self.model.update()
         self.model = self.model.relax()
-        self._update_vars()
+        self._update()
 
     def _apply_params(self, streams: List[Any]) -> None:
         assert self.model is not None
@@ -620,19 +664,22 @@ class GurobiSolver(InternalSolver):
         if self.cb_where is not None:
             raise Exception("method cannot be called from a callback")
 
-    def _update_vars(self) -> None:
+    def _update(self) -> None:
         assert self.model is not None
         gp_vars: List["gurobipy.Var"] = self.model.getVars()
+        gp_constrs: List["gurobipy.Constr"] = self.model.getConstrs()
         var_names: List[str] = self.model.getAttr("varName", gp_vars)
         var_types: List[str] = self.model.getAttr("vtype", gp_vars)
         var_ubs: List[float] = self.model.getAttr("ub", gp_vars)
         var_lbs: List[float] = self.model.getAttr("lb", gp_vars)
         var_obj_coeffs: List[float] = self.model.getAttr("obj", gp_vars)
+        constr_names: List[str] = self.model.getAttr("constrName", gp_constrs)
         varname_to_var: Dict = {}
+        cname_to_constr: Dict = {}
         for (i, gp_var) in enumerate(gp_vars):
             assert var_names[i] not in varname_to_var, (
                 f"Duplicated variable name detected: {var_names[i]}. "
-                f"Unique variable var_names are currently required."
+                f"Unique variable names are currently required."
             )
             if var_types[i] == "I":
                 assert var_ubs[i] == 1.0, (
@@ -649,9 +696,18 @@ class GurobiSolver(InternalSolver):
                 "Variable {var.varName} has type {vtype}."
             )
             varname_to_var[var_names[i]] = gp_var
+        for (i, gp_constr) in enumerate(gp_constrs):
+            assert constr_names[i] not in cname_to_constr, (
+                f"Duplicated constraint name detected: {constr_names[i]}. "
+                f"Unique constraint names are currently required."
+            )
+            cname_to_constr[constr_names[i]] = gp_constr
         self._varname_to_var = varname_to_var
+        self._cname_to_constr = cname_to_constr
         self._gp_vars = tuple(gp_vars)
+        self._gp_constrs = tuple(gp_constrs)
         self._var_names = tuple(var_names)
+        self._constr_names = constr_names
         self._var_types = tuple(var_types)
         self._var_lbs = tuple(var_lbs)
         self._var_ubs = tuple(var_ubs)
@@ -692,8 +748,8 @@ class GurobiTestInstanceRedundancy(Instance):
 
         model = gp.Model()
         x = model.addVars(2, vtype=GRB.BINARY, name="x")
-        model.addConstr(x[0] + x[1] <= 1)
-        model.addConstr(x[0] + x[1] <= 2)
+        model.addConstr(x[0] + x[1] <= 1, name="c1")
+        model.addConstr(x[0] + x[1] <= 2, name="c2")
         model.setObjective(x[0] + x[1], GRB.MAXIMIZE)
         return model
 

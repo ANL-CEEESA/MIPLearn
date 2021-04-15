@@ -189,7 +189,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # Build a new constraint
     cut = Constraint(lhs={"x[0]": 1.0}, sense="<", rhs=0.0)
-    assert not solver.is_constraint_satisfied(cut)
+    assert not solver.is_constraint_satisfied_old(cut)
 
     # Add new constraint and verify that it is listed. Modifying the model should
     # also clear the current solution.
@@ -215,7 +215,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # Re-solve MIP and verify that constraint affects the solution
     stats = solver.solve()
     assert_equals(stats.mip_lower_bound, 1030.0)
-    assert solver.is_constraint_satisfied(cut)
+    assert solver.is_constraint_satisfied_old(cut)
 
     # Remove the new constraint
     solver.remove_constraint("cut")

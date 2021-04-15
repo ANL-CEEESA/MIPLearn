@@ -386,7 +386,9 @@ class BasePyomoSolver(InternalSolver):
         ]
 
     @overrides
-    def is_constraint_satisfied(self, constr: Constraint, tol: float = 1e-6) -> bool:
+    def is_constraint_satisfied_old(
+        self, constr: Constraint, tol: float = 1e-6
+    ) -> bool:
         lhs = 0.0
         assert constr.lhs is not None
         for (varname, coeff) in constr.lhs.items():

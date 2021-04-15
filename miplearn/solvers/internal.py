@@ -196,7 +196,9 @@ class InternalSolver(ABC, EnforceOverrides):
         pass
 
     @abstractmethod
-    def is_constraint_satisfied(self, constr: Constraint, tol: float = 1e-6) -> bool:
+    def is_constraint_satisfied_old(
+        self, constr: Constraint, tol: float = 1e-6
+    ) -> bool:
         """
         Returns True if the current solution satisfies the given constraint.
         """

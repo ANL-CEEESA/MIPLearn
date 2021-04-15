@@ -163,7 +163,7 @@ class StaticLazyConstraintsComponent(Component):
         logger.info("Finding violated lazy constraints...")
         enforced: Dict[str, Constraint] = {}
         for (cid, c) in self.pool.items():
-            if not solver.internal_solver.is_constraint_satisfied(
+            if not solver.internal_solver.is_constraint_satisfied_old(
                 c,
                 tol=self.violation_tolerance,
             ):

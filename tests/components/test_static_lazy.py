@@ -86,7 +86,7 @@ def test_usage_with_solver(instance: Instance) -> None:
     solver.gap_tolerance = 1e-4
 
     internal = solver.internal_solver = Mock(spec=InternalSolver)
-    internal.is_constraint_satisfied = Mock(return_value=False)
+    internal.is_constraint_satisfied_old = Mock(return_value=False)
 
     component = StaticLazyConstraintsComponent(violation_tolerance=1.0)
     component.thresholds["type-a"] = MinProbabilityThreshold([0.5, 0.5])
@@ -144,8 +144,8 @@ def test_usage_with_solver(instance: Instance) -> None:
     # Should ask internal solver to verify if constraints in the pool are
     # satisfied and add the ones that are not
     c3 = sample.after_load.constraints_old["c3"]
-    internal.is_constraint_satisfied.assert_called_once_with(c3, tol=1.0)
-    internal.is_constraint_satisfied.reset_mock()
+    internal.is_constraint_satisfied_old.assert_called_once_with(c3, tol=1.0)
+    internal.is_constraint_satisfied_old.reset_mock()
     internal.add_constraint.assert_called_once_with(c3, name="c3")
     internal.add_constraint.reset_mock()
 
@@ -154,7 +154,7 @@ def test_usage_with_solver(instance: Instance) -> None:
     assert not should_repeat
 
     # The lazy constraint pool should be empty by now, so no calls should be made
-    internal.is_constraint_satisfied.assert_not_called()
+    internal.is_constraint_satisfied_old.assert_not_called()
     internal.add_constraint.assert_not_called()
 
     # LearningSolver calls after_solve_mip
