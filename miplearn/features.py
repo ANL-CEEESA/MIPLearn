@@ -132,23 +132,22 @@ class Sample:
 class FeaturesExtractor:
     def __init__(
         self,
-        internal_solver: "InternalSolver",
         with_sa: bool = True,
     ) -> None:
-        self.solver = internal_solver
         self.with_sa = with_sa
 
     def extract(
         self,
         instance: "Instance",
+        solver: "InternalSolver",
         with_static: bool = True,
     ) -> Features:
         features = Features()
-        features.variables = self.solver.get_variables(
+        features.variables = solver.get_variables(
             with_static=with_static,
             with_sa=self.with_sa,
         )
-        features.constraints = self.solver.get_constraints(
+        features.constraints = solver.get_constraints(
             with_static=with_static,
         )
         if with_static:

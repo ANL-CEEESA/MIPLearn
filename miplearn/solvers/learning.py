@@ -99,9 +99,12 @@ class LearningSolver:
         use_lazy_cb: bool = False,
         solve_lp: bool = True,
         simulate_perfect: bool = False,
+        extractor: Optional[FeaturesExtractor] = None,
     ) -> None:
         if solver is None:
             solver = GurobiPyomoSolver()
+        if extractor is None:
+            extractor = FeaturesExtractor()
         assert isinstance(solver, InternalSolver)
         self.components: Dict[str, Component] = {}
         self.internal_solver: Optional[InternalSolver] = None
@@ -111,6 +114,7 @@ class LearningSolver:
         self.solve_lp: bool = solve_lp
         self.tee = False
         self.use_lazy_cb: bool = use_lazy_cb
+        self.extractor = extractor
         if components is not None:
             for comp in components:
                 self._add_component(comp)
@@ -156,7 +160,7 @@ class LearningSolver:
         # Extract features (after-load)
         # -------------------------------------------------------
         logger.info("Extracting features (after-load)...")
-        features = FeaturesExtractor(self.internal_solver).extract(instance)
+        features = self.extractor.extract(instance, self.internal_solver)
         features.extra = {}
         sample.after_load = features
 
@@ -187,8 +191,9 @@ class LearningSolver:
             # Extract features (after-lp)
             # -------------------------------------------------------
             logger.info("Extracting features (after-lp)...")
-            features = FeaturesExtractor(self.internal_solver).extract(
+            features = self.extractor.extract(
                 instance,
+                self.internal_solver,
                 with_static=False,
             )
             features.extra = {}
@@ -252,8 +257,9 @@ class LearningSolver:
         # Extract features (after-mip)
         # -------------------------------------------------------
         logger.info("Extracting features (after-mip)...")
-        features = FeaturesExtractor(self.internal_solver).extract(
+        features = self.extractor.extract(
             instance,
+            self.internal_solver,
             with_static=False,
         )
         features.mip_solve = mip_stats
