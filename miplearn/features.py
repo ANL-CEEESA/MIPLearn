@@ -166,8 +166,10 @@ class FeaturesExtractor:
     def __init__(
         self,
         with_sa: bool = True,
+        with_lhs: bool = True,
     ) -> None:
         self.with_sa = with_sa
+        self.with_lhs = with_lhs
 
     def extract(
         self,
@@ -183,6 +185,7 @@ class FeaturesExtractor:
         features.constraints = solver.get_constraints(
             with_static=with_static,
             with_sa=self.with_sa,
+            with_lhs=self.with_lhs,
         )
         features.constraints_old = solver.get_constraints_old(
             with_static=with_static,

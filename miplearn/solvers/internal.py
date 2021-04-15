@@ -173,6 +173,7 @@ class InternalSolver(ABC, EnforceOverrides):
         self,
         with_static: bool = True,
         with_sa: bool = True,
+        with_lhs: bool = True,
     ) -> ConstraintFeatures:
         pass
 

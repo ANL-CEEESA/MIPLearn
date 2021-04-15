@@ -132,6 +132,7 @@ class BasePyomoSolver(InternalSolver):
         self,
         with_static: bool = True,
         with_sa: bool = True,
+        with_lhs: bool = True,
     ) -> ConstraintFeatures:
         model = self.model
         assert model is not None
@@ -162,26 +163,32 @@ class BasePyomoSolver(InternalSolver):
                     senses.append("=")
                     rhs.append(float(c.upper()))
 
-                # Extract LHS
-                lhsc = []
-                expr = c.body
-                if isinstance(expr, SumExpression):
-                    for term in expr._args_:
-                        if isinstance(term, MonomialTermExpression):
-                            lhsc.append((term._args_[1].name, float(term._args_[0])))
-                        elif isinstance(term, _GeneralVarData):
-                            lhsc.append((term.name, 1.0))
-                        else:
-                            raise Exception(
-                                f"Unknown term type: {term.__class__.__name__}"
-                            )
-                elif isinstance(expr, _GeneralVarData):
-                    lhsc.append((expr.name, 1.0))
-                else:
-                    raise Exception(
-                        f"Unknown expression type: {expr.__class__.__name__}"
-                    )
-                lhs.append(tuple(lhsc))
+                if with_lhs:
+                    # Extract LHS
+                    lhsc = []
+                    expr = c.body
+                    if isinstance(expr, SumExpression):
+                        for term in expr._args_:
+                            if isinstance(term, MonomialTermExpression):
+                                lhsc.append(
+                                    (
+                                        term._args_[1].name,
+                                        float(term._args_[0]),
+                                    )
+                                )
+                            elif isinstance(term, _GeneralVarData):
+                                lhsc.append((term.name, 1.0))
+                            else:
+                                raise Exception(
+                                    f"Unknown term type: {term.__class__.__name__}"
+                                )
+                    elif isinstance(expr, _GeneralVarData):
+                        lhsc.append((expr.name, 1.0))
+                    else:
+                        raise Exception(
+                            f"Unknown expression type: {expr.__class__.__name__}"
+                        )
+                    lhs.append(tuple(lhsc))
 
             # Extract dual values
             if self._has_lp_solution:

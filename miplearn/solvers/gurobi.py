@@ -167,6 +167,7 @@ class GurobiSolver(InternalSolver):
         self,
         with_static: bool = True,
         with_sa: bool = True,
+        with_lhs: bool = True,
     ) -> ConstraintFeatures:
         model = self.model
         assert model is not None
@@ -187,14 +188,15 @@ class GurobiSolver(InternalSolver):
         if with_static:
             rhs = tuple(model.getAttr("rhs", gp_constrs))
             senses = tuple(model.getAttr("sense", gp_constrs))
-            lhs_l: List = [None for _ in gp_constrs]
-            for (i, gp_constr) in enumerate(gp_constrs):
-                expr = model.getRow(gp_constr)
-                lhs_l[i] = tuple(
-                    (self._var_names[expr.getVar(j).index], expr.getCoeff(j))
-                    for j in range(expr.size())
-                )
-            lhs = tuple(lhs_l)
+            if with_lhs:
+                lhs_l: List = [None for _ in gp_constrs]
+                for (i, gp_constr) in enumerate(gp_constrs):
+                    expr = model.getRow(gp_constr)
+                    lhs_l[i] = tuple(
+                        (self._var_names[expr.getVar(j).index], expr.getCoeff(j))
+                        for j in range(expr.size())
+                    )
+                lhs = tuple(lhs_l)
 
         if self._has_lp_solution:
             dual_value = tuple(model.getAttr("pi", gp_constrs))
