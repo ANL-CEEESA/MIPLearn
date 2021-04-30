@@ -50,6 +50,7 @@ def _parallel_solve(
             instances[idx],
             discard_output=discard_outputs,
         )
+        instances[idx].free()
         return stats, instances[idx]
     except Exception as e:
         traceback.print_exc()

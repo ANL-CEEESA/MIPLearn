@@ -126,6 +126,7 @@ class PickleGzInstance(Instance):
     @overrides
     def free(self) -> None:
         self.instance = None  # type: ignore
+        self.samples = None  # type: ignore
         gc.collect()
 
     @overrides
