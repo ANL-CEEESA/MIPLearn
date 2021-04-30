@@ -139,6 +139,7 @@ class GurobiSolver(InternalSolver):
         )
 
     def enforce_constraints(self, names: List[str]) -> None:
+        assert self.model is not None
         constr = [self._relaxed_constrs[n] for n in names]
         for (i, (lhs, sense, rhs)) in enumerate(constr):
             if sense == "=":
@@ -425,7 +426,7 @@ class GurobiSolver(InternalSolver):
         names: List[str],
         tol: float = 1e-6,
     ) -> List[bool]:
-        def _check(c):
+        def _check(c: Tuple) -> bool:
             lhs, sense, rhs = c
             lhs_value = lhs.getValue()
             if sense == "=":
@@ -462,6 +463,7 @@ class GurobiSolver(InternalSolver):
         return self.model.status in [self.gp.GRB.INFEASIBLE, self.gp.GRB.INF_OR_UNBD]
 
     def relax_constraints(self, names: List[str]) -> None:
+        assert self.model is not None
         constrs = [self._cname_to_constr[n] for n in names]
         for (i, name) in enumerate(names):
             c = constrs[i]
@@ -707,7 +709,7 @@ class GurobiSolver(InternalSolver):
         self._gp_vars = tuple(gp_vars)
         self._gp_constrs = tuple(gp_constrs)
         self._var_names = tuple(var_names)
-        self._constr_names = constr_names
+        self._constr_names = tuple(constr_names)
         self._var_types = tuple(var_types)
         self._var_lbs = tuple(var_lbs)
         self._var_ubs = tuple(var_ubs)
