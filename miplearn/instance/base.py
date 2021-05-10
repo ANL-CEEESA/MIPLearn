@@ -6,8 +6,6 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional, Hashable, TYPE_CHECKING
 
-from overrides import EnforceOverrides
-
 from miplearn.features import Sample
 from miplearn.types import VariableName, Category
 
@@ -18,7 +16,7 @@ if TYPE_CHECKING:
 
 
 # noinspection PyMethodMayBeStatic
-class Instance(ABC, EnforceOverrides):
+class Instance(ABC):
     """
     Abstract class holding all the data necessary to generate a concrete model of the
     proble.

@@ -5,20 +5,18 @@
 from typing import Any, List, TYPE_CHECKING, Tuple, Dict, Hashable, Optional
 
 import numpy as np
-from overrides import EnforceOverrides
+from p_tqdm import p_umap
 
 from miplearn.features import Sample
 from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats
-
-from p_tqdm import p_umap
 
 if TYPE_CHECKING:
     from miplearn.solvers.learning import LearningSolver
 
 
 # noinspection PyMethodMayBeStatic
-class Component(EnforceOverrides):
+class Component:
     """
     A Component is an object which adds functionality to a LearningSolver.
 

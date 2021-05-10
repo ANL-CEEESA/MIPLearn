@@ -7,8 +7,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from overrides import EnforceOverrides
-
 from miplearn.features import Constraint, VariableFeatures, ConstraintFeatures
 from miplearn.instance.base import Instance
 from miplearn.types import (
@@ -47,7 +45,7 @@ class MIPSolveStats:
     mip_warm_start_value: Optional[float] = None
 
 
-class InternalSolver(ABC, EnforceOverrides):
+class InternalSolver(ABC):
     """
     Abstract class representing the MIP solver used internally by LearningSolver.
     """
