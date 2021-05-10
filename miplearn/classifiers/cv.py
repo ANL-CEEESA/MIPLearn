@@ -53,7 +53,6 @@ class CrossValidatedClassifier(Classifier):
         cv: int = 5,
         scoring: str = "accuracy",
     ):
-        """"""
         super().__init__()
         if constant is None:
             constant = [True, False]
