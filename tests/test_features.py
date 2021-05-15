@@ -28,7 +28,6 @@ def test_knapsack() -> None:
 
     features = FeaturesExtractor().extract(instance, solver)
     assert features.variables is not None
-    assert features.constraints_old is not None
     assert features.instance is not None
 
     assert_equals(
@@ -66,22 +65,29 @@ def test_knapsack() -> None:
         ),
     )
     assert_equals(
-        _round_constraints(features.constraints_old),
-        {
-            "eq_capacity": Constraint(
-                basis_status="N",
-                category="eq_capacity",
-                dual_value=13.538462,
-                lazy=False,
-                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0, "z": -1.0},
-                rhs=0.0,
-                sa_rhs_down=-24.0,
-                sa_rhs_up=1.9999999999999987,
-                sense="=",
-                slack=0.0,
-                user_features=[0.0],
-            )
-        },
+        _round(features.constraints),
+        ConstraintFeatures(
+            basis_status=("N",),
+            categories=("eq_capacity",),
+            dual_values=(13.538462,),
+            names=("eq_capacity",),
+            lazy=(False,),
+            lhs=(
+                (
+                    ("x[0]", 23.0),
+                    ("x[1]", 26.0),
+                    ("x[2]", 20.0),
+                    ("x[3]", 18.0),
+                    ("z", -1.0),
+                ),
+            ),
+            rhs=(0.0,),
+            sa_rhs_down=(-24.0,),
+            sa_rhs_up=(2.0,),
+            senses=("=",),
+            slacks=(0.0,),
+            user_features=((0.0,),),
+        ),
     )
     assert_equals(
         features.instance,

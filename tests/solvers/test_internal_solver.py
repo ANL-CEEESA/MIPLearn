@@ -50,7 +50,6 @@ def test_redundancy() -> None:
     solver.relax_constraints(["c1"])
     stats = solver.solve_lp()
     assert stats.lp_value == 2.0
-    assert solver.is_constraint_satisfied(["c1"]) == [False]
 
     solver.enforce_constraints(["c1"])
     stats = solver.solve_lp()

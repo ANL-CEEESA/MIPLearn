@@ -5,7 +5,7 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from miplearn.features import Constraint, VariableFeatures, ConstraintFeatures
 from miplearn.instance.base import Instance
@@ -51,21 +51,185 @@ class InternalSolver(ABC):
     """
 
     @abstractmethod
-    def solve_lp(
-        self,
-        tee: bool = False,
-    ) -> LPSolveStats:
-        """
-        Solves the LP relaxation of the currently loaded instance. After this
-        method finishes, the solution can be retrieved by calling `get_solution`.
+    def add_constraints(self, cf: ConstraintFeatures) -> None:
+        """Adds the given constraints to the model."""
+        pass
 
-        This method should not permanently modify the problem. That is, subsequent
-        calls to `solve` should solve the original MIP, not the LP relaxation.
+    @abstractmethod
+    def are_constraints_satisfied(
+        self,
+        cf: ConstraintFeatures,
+        tol: float = 1e-5,
+    ) -> Tuple[bool, ...]:
+        """
+        Checks whether the current solution satisfies the given constraints.
+        """
+        pass
+
+    def are_callbacks_supported(self) -> bool:
+        """
+        Returns True if this solver supports native callbacks, such as lazy constraints
+        callback or user cuts callback.
+        """
+        return False
+
+    @abstractmethod
+    def build_test_instance_infeasible(self) -> Instance:
+        pass
+
+    @abstractmethod
+    def build_test_instance_knapsack(self) -> Instance:
+        """
+        Returns an instance corresponding to the following MIP, for testing purposes:
+
+          maximize  505 x0 + 352 x1 + 458 x2 + 220 x3
+          s.t.      eq_capacity: z = 23 x0 + 26 x1 + 20 x2 + 18 x3
+                    x0, x1, x2, x3 binary
+                    0 <= z <= 67 continuous
+        """
+        pass
+
+    @abstractmethod
+    def build_test_instance_redundancy(self) -> Instance:
+        pass
+
+    @abstractmethod
+    def clone(self) -> "InternalSolver":
+        """
+        Returns a new copy of this solver with identical parameters, but otherwise
+        completely unitialized.
+        """
+        pass
+
+    @abstractmethod
+    def fix(self, solution: Solution) -> None:
+        """
+        Fixes the values of a subset of decision variables. Missing values in the
+        solution indicate variables that should be left free.
+        """
+        pass
+
+    @abstractmethod
+    def get_solution(self) -> Optional[Solution]:
+        """
+        Returns current solution found by the solver.
+
+        If called after `solve`, returns the best primal solution found during
+        the search. If called after `solve_lp`, returns the optimal solution
+        to the LP relaxation. If no primal solution is available, return None.
+        """
+        pass
+
+    @abstractmethod
+    def get_constraint_attrs(self) -> List[str]:
+        """
+        Returns a list of constraint attributes supported by this solver. Used for
+        testing purposes only.
+        """
+
+        pass
+
+    @abstractmethod
+    def get_constraints(
+        self,
+        with_static: bool = True,
+        with_sa: bool = True,
+        with_lhs: bool = True,
+    ) -> ConstraintFeatures:
+        pass
+
+    @abstractmethod
+    def get_variable_attrs(self) -> List[str]:
+        """
+        Returns a list of variable attributes supported by this solver. Used for
+        testing purposes only.
+        """
+        pass
+
+    @abstractmethod
+    def get_variables(
+        self,
+        with_static: bool = True,
+        with_sa: bool = True,
+    ) -> VariableFeatures:
+        """
+        Returns a description of the decision variables in the problem.
 
         Parameters
         ----------
-        tee
-            If true, prints the solver log to the screen.
+        with_static: bool
+            If True, include features that do not change during the solution process,
+            such as variable types and names. This parameter is used to reduce the
+            amount of duplicated data collected by LearningSolver. Features that do
+            not change are only collected once.
+        with_sa: bool
+            If True, collect sensitivity analysis information. For large models,
+            collecting this information may be expensive, so this parameter is useful
+            for reducing running times.
+        """
+        pass
+
+    @abstractmethod
+    def is_infeasible(self) -> bool:
+        """
+        Returns True if the model has been proved to be infeasible.
+        Must be called after solve.
+        """
+        pass
+
+    @abstractmethod
+    def remove_constraints(self, names: Tuple[str, ...]) -> None:
+        """
+        Removes the given constraints from the model.
+        """
+        pass
+
+    @abstractmethod
+    def relax(self) -> None:
+        """
+        Drops all integrality constraints from the model.
+        """
+        pass
+
+    def set_branching_priorities(self, priorities: BranchPriorities) -> None:
+        """
+        Sets the branching priorities for the given decision variables.
+
+        When the MIP solver needs to decide on which variable to branch, variables
+        with higher priority are picked first, given that they are fractional.
+        Ties are solved arbitrarily. By default, all variables have priority zero.
+
+        Missing values indicate variables whose priorities should not be modified.
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def set_instance(
+        self,
+        instance: Instance,
+        model: Any = None,
+    ) -> None:
+        """
+        Loads the given instance into the solver.
+
+        Parameters
+        ----------
+        instance: Instance
+            The instance to be loaded.
+        model: Any
+            The concrete optimization model corresponding to this instance
+            (e.g. JuMP.Model or pyomo.core.ConcreteModel). If not provided,
+            it will be generated by calling `instance.to_model()`.
+        """
+        pass
+
+    @abstractmethod
+    def set_warm_start(self, solution: Solution) -> None:
+        """
+        Sets the warm start to be used by the solver.
+
+        Only one warm start is supported. Calling this function when a warm start
+        already exists will remove the previous warm start.
         """
         pass
 
@@ -106,211 +270,20 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def get_solution(self) -> Optional[Solution]:
-        """
-        Returns current solution found by the solver.
-
-        If called after `solve`, returns the best primal solution found during
-        the search. If called after `solve_lp`, returns the optimal solution
-        to the LP relaxation. If no primal solution is available, return None.
-        """
-        pass
-
-    @abstractmethod
-    def set_warm_start(self, solution: Solution) -> None:
-        """
-        Sets the warm start to be used by the solver.
-
-        Only one warm start is supported. Calling this function when a warm start
-        already exists will remove the previous warm start.
-        """
-        pass
-
-    @abstractmethod
-    def set_instance(
+    def solve_lp(
         self,
-        instance: Instance,
-        model: Any = None,
-    ) -> None:
+        tee: bool = False,
+    ) -> LPSolveStats:
         """
-        Loads the given instance into the solver.
+        Solves the LP relaxation of the currently loaded instance. After this
+        method finishes, the solution can be retrieved by calling `get_solution`.
+
+        This method should not permanently modify the problem. That is, subsequent
+        calls to `solve` should solve the original MIP, not the LP relaxation.
 
         Parameters
         ----------
-        instance: Instance
-            The instance to be loaded.
-        model: Any
-            The concrete optimization model corresponding to this instance
-            (e.g. JuMP.Model or pyomo.core.ConcreteModel). If not provided,
-            it will be generated by calling `instance.to_model()`.
-        """
-        pass
-
-    @abstractmethod
-    def fix(self, solution: Solution) -> None:
-        """
-        Fixes the values of a subset of decision variables. Missing values in the
-        solution indicate variables that should be left free.
-        """
-        pass
-
-    def set_branching_priorities(self, priorities: BranchPriorities) -> None:
-        """
-        Sets the branching priorities for the given decision variables.
-
-        When the MIP solver needs to decide on which variable to branch, variables
-        with higher priority are picked first, given that they are fractional.
-        Ties are solved arbitrarily. By default, all variables have priority zero.
-
-        Missing values indicate variables whose priorities should not be modified.
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def get_constraints(
-        self,
-        with_static: bool = True,
-        with_sa: bool = True,
-        with_lhs: bool = True,
-    ) -> ConstraintFeatures:
-        pass
-
-    @abstractmethod
-    def get_constraints_old(self, with_static: bool = True) -> Dict[str, Constraint]:
-        pass
-
-    @abstractmethod
-    def add_constraint(self, constr: Constraint, name: str) -> None:
-        """
-        Adds a given constraint to the model.
-        """
-        pass
-
-    @abstractmethod
-    def add_constraints(self, cf: ConstraintFeatures) -> None:
-        """Adds the given constraints to the model."""
-        pass
-
-    @abstractmethod
-    def are_constraints_satisfied(
-        self,
-        cf: ConstraintFeatures,
-        tol: float = 1e-5,
-    ) -> List[bool]:
-        """
-        Checks whether the current solution satisfies the given constraints.
-        """
-        pass
-
-    @abstractmethod
-    def remove_constraint(self, name: str) -> None:
-        """
-        Removes the constraint that has a given name from the model.
-        """
-        pass
-
-    @abstractmethod
-    def remove_constraints(self, names: List[str]) -> None:
-        """
-        Removes the given constraints from the model.
-        """
-        pass
-
-    @abstractmethod
-    def is_constraint_satisfied_old(
-        self, constr: Constraint, tol: float = 1e-6
-    ) -> bool:
-        """
-        Returns True if the current solution satisfies the given constraint.
-        """
-        pass
-
-    @abstractmethod
-    def relax(self) -> None:
-        """
-        Drops all integrality constraints from the model.
-        """
-        pass
-
-    @abstractmethod
-    def is_infeasible(self) -> bool:
-        """
-        Returns True if the model has been proved to be infeasible.
-        Must be called after solve.
-        """
-        pass
-
-    @abstractmethod
-    def clone(self) -> "InternalSolver":
-        """
-        Returns a new copy of this solver with identical parameters, but otherwise
-        completely unitialized.
-        """
-        pass
-
-    @abstractmethod
-    def build_test_instance_infeasible(self) -> Instance:
-        pass
-
-    @abstractmethod
-    def build_test_instance_redundancy(self) -> Instance:
-        pass
-
-    @abstractmethod
-    def build_test_instance_knapsack(self) -> Instance:
-        """
-        Returns an instance corresponding to the following MIP, for testing purposes:
-
-          maximize  505 x0 + 352 x1 + 458 x2 + 220 x3
-          s.t.      eq_capacity: z = 23 x0 + 26 x1 + 20 x2 + 18 x3
-                    x0, x1, x2, x3 binary
-                    0 <= z <= 67 continuous
-        """
-        pass
-
-    def are_callbacks_supported(self) -> bool:
-        """
-        Returns True if this solver supports native callbacks, such as lazy constraints
-        callback or user cuts callback.
-        """
-        return False
-
-    @abstractmethod
-    def get_variables(
-        self,
-        with_static: bool = True,
-        with_sa: bool = True,
-    ) -> VariableFeatures:
-        """
-        Returns a description of the decision variables in the problem.
-
-        Parameters
-        ----------
-        with_static: bool
-            If True, include features that do not change during the solution process,
-            such as variable types and names. This parameter is used to reduce the
-            amount of duplicated data collected by LearningSolver. Features that do
-            not change are only collected once.
-        with_sa: bool
-            If True, collect sensitivity analysis information. For large models,
-            collecting this information may be expensive, so this parameter is useful
-            for reducing running times.
-        """
-        pass
-
-    @abstractmethod
-    def get_constraint_attrs(self) -> List[str]:
-        """
-        Returns a list of constraint attributes supported by this solver. Used for
-        testing purposes only.
-        """
-
-        pass
-
-    @abstractmethod
-    def get_variable_attrs(self) -> List[str]:
-        """
-        Returns a list of variable attributes supported by this solver. Used for
-        testing purposes only.
+        tee
+            If true, prints the solver log to the screen.
         """
         pass

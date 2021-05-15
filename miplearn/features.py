@@ -174,7 +174,6 @@ class Features:
     instance: Optional[InstanceFeatures] = None
     variables: Optional[VariableFeatures] = None
     constraints: Optional[ConstraintFeatures] = None
-    constraints_old: Optional[Dict[str, Constraint]] = None
     lp_solve: Optional["LPSolveStats"] = None
     mip_solve: Optional["MIPSolveStats"] = None
     extra: Optional[Dict] = None
@@ -211,9 +210,6 @@ class FeaturesExtractor:
             with_static=with_static,
             with_sa=self.with_sa,
             with_lhs=self.with_lhs,
-        )
-        features.constraints_old = solver.get_constraints_old(
-            with_static=with_static,
         )
         if with_static:
             self._extract_user_features_vars(instance, features)
@@ -266,38 +262,50 @@ class FeaturesExtractor:
         instance: "Instance",
         features: Features,
     ) -> None:
-        assert features.constraints_old is not None
+        assert features.constraints is not None
+        assert features.constraints.names is not None
         has_static_lazy = instance.has_static_lazy_constraints()
-        for (cid, constr) in features.constraints_old.items():
-            user_features = None
-            category = instance.get_constraint_category(cid)
+        user_features: List[Optional[Tuple[float, ...]]] = []
+        categories: List[Optional[Hashable]] = []
+        lazy: List[bool] = []
+        for (cidx, cname) in enumerate(features.constraints.names):
+            cf: Optional[List[float]] = None
+            category: Optional[Hashable] = instance.get_constraint_category(cname)
             if category is not None:
+                categories.append(category)
                 assert isinstance(category, collections.Hashable), (
                     f"Constraint category must be hashable. "
-                    f"Found {type(category).__name__} instead for cid={cid}.",
+                    f"Found {type(category).__name__} instead for cname={cname}.",
                 )
-                user_features = instance.get_constraint_features(cid)
-                if isinstance(user_features, np.ndarray):
-                    user_features = user_features.tolist()
-                assert isinstance(user_features, list), (
+                cf = instance.get_constraint_features(cname)
+                if isinstance(cf, np.ndarray):
+                    cf = tuple(cf.tolist())
+                assert isinstance(cf, list), (
                     f"Constraint features must be a list. "
-                    f"Found {type(user_features).__name__} instead for cid={cid}."
+                    f"Found {type(cf).__name__} instead for cname={cname}."
                 )
-                assert isinstance(user_features[0], float), (
-                    f"Constraint features must be a list of floats. "
-                    f"Found {type(user_features[0]).__name__} instead for cid={cid}."
-                )
+                for f in cf:
+                    assert isinstance(f, numbers.Real), (
+                        f"Constraint features must be a list of numbers. "
+                        f"Found {type(f).__name__} instead for cname={cname}."
+                    )
+                user_features.append(tuple(cf))
+            else:
+                user_features.append(None)
+                categories.append(None)
             if has_static_lazy:
-                constr.lazy = instance.is_constraint_lazy(cid)
-            constr.category = category
-            constr.user_features = user_features
+                lazy.append(instance.is_constraint_lazy(cname))
+            else:
+                lazy.append(False)
+        features.constraints.user_features = tuple(user_features)
+        features.constraints.lazy = tuple(lazy)
+        features.constraints.categories = tuple(categories)
 
     def _extract_user_features_instance(
         self,
         instance: "Instance",
         features: Features,
     ) -> None:
-        assert features.constraints_old is not None
         user_features = instance.get_instance_features()
         if isinstance(user_features, np.ndarray):
             user_features = user_features.tolist()
@@ -310,13 +318,11 @@ class FeaturesExtractor:
                 f"Instance features must be a list of numbers. "
                 f"Found {type(v).__name__} instead."
             )
-        lazy_count = 0
-        for (cid, cdict) in features.constraints_old.items():
-            if cdict.lazy:
-                lazy_count += 1
+        assert features.constraints is not None
+        assert features.constraints.lazy is not None
         features.instance = InstanceFeatures(
             user_features=user_features,
-            lazy_constraint_count=lazy_count,
+            lazy_constraint_count=sum(features.constraints.lazy),
         )
 
     def _extract_alvarez_2017(self, features: Features) -> None:

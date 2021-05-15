@@ -28,7 +28,6 @@ from miplearn.solvers.internal import (
     IterationCallback,
     LazyCallback,
     MIPSolveStats,
-    Constraint,
 )
 from miplearn.types import (
     SolverParams,
@@ -69,31 +68,12 @@ class BasePyomoSolver(InternalSolver):
         for (key, value) in params.items():
             self._pyomo_solver.options[key] = value
 
-    @overrides
     def add_constraint(
         self,
         constr: Any,
-        name: str,
     ) -> None:
         assert self.model is not None
-        if isinstance(constr, Constraint):
-            assert constr.lhs is not None
-            lhs = 0.0
-            for (varname, coeff) in constr.lhs.items():
-                var = self._varname_to_var[varname]
-                lhs += var * coeff
-            if constr.sense == "=":
-                expr = lhs == constr.rhs
-            elif constr.sense == "<":
-                expr = lhs <= constr.rhs
-            else:
-                expr = lhs >= constr.rhs
-            cl = pe.Constraint(expr=expr, name=name)
-            self.model.add_component(name, cl)
-            self._pyomo_solver.add_constraint(cl)
-            self._cname_to_constr[name] = cl
-        else:
-            self._pyomo_solver.add_constraint(constr)
+        self._pyomo_solver.add_constraint(constr)
         self._termination_condition = ""
         self._has_lp_solution = False
         self._has_mip_solution = False
@@ -133,7 +113,7 @@ class BasePyomoSolver(InternalSolver):
         self,
         cf: ConstraintFeatures,
         tol: float = 1e-5,
-    ) -> List[bool]:
+    ) -> Tuple[bool, ...]:
         assert cf.names is not None
         assert cf.lhs is not None
         assert cf.rhs is not None
@@ -150,7 +130,7 @@ class BasePyomoSolver(InternalSolver):
                 result.append(lhs >= cf.rhs[i] - tol)
             else:
                 result.append(abs(cf.rhs[i] - lhs) < tol)
-        return result
+        return tuple(result)
 
     @overrides
     def build_test_instance_infeasible(self) -> Instance:
@@ -276,30 +256,6 @@ class BasePyomoSolver(InternalSolver):
             slacks=slacks_t,
             dual_values=dual_values_t,
         )
-
-    @overrides
-    def get_constraints_old(self, with_static: bool = True) -> Dict[str, Constraint]:
-        assert self.model is not None
-
-        constraints = {}
-        for constr in self.model.component_objects(pyomo.core.Constraint):
-            if isinstance(constr, pe.ConstraintList):
-                for idx in constr:
-                    name = f"{constr.name}[{idx}]"
-                    assert name not in constraints
-                    constraints[name] = self._parse_pyomo_constraint(
-                        constr[idx],
-                        with_static=with_static,
-                    )
-            else:
-                name = constr.name
-                assert name not in constraints
-                constraints[name] = self._parse_pyomo_constraint(
-                    constr,
-                    with_static=with_static,
-                )
-
-        return constraints
 
     @overrides
     def get_constraint_attrs(self) -> List[str]:
@@ -436,35 +392,11 @@ class BasePyomoSolver(InternalSolver):
         ]
 
     @overrides
-    def is_constraint_satisfied_old(
-        self, constr: Constraint, tol: float = 1e-6
-    ) -> bool:
-        lhs = 0.0
-        assert constr.lhs is not None
-        for (varname, coeff) in constr.lhs.items():
-            var = self._varname_to_var[varname]
-            lhs += var.value * coeff
-        if constr.sense == "<":
-            return lhs <= constr.rhs + tol
-        elif constr.sense == ">":
-            return lhs >= constr.rhs - tol
-        else:
-            return abs(constr.rhs - lhs) < abs(tol)
-
-    @overrides
     def is_infeasible(self) -> bool:
         return self._termination_condition == TerminationCondition.infeasible
 
     @overrides
-    def remove_constraint(self, name: str) -> None:
-        assert self.model is not None
-        constr = self._cname_to_constr[name]
-        del self._cname_to_constr[name]
-        self.model.del_component(constr)
-        self._pyomo_solver.remove_constraint(constr)
-
-    @overrides
-    def remove_constraints(self, names: List[str]) -> None:
+    def remove_constraints(self, names: Tuple[str, ...]) -> None:
         assert self.model is not None
         for name in names:
             constr = self._cname_to_constr[name]
@@ -626,46 +558,6 @@ class BasePyomoSolver(InternalSolver):
 
     def _get_warm_start_regexp(self) -> Optional[str]:
         return None
-
-    def _parse_pyomo_constraint(
-        self,
-        pyomo_constr: pyomo.core.Constraint,
-        with_static: bool = True,
-    ) -> Constraint:
-        assert self.model is not None
-        constr = Constraint()
-
-        if with_static:
-            # Extract RHS and sense
-            has_ub = pyomo_constr.has_ub()
-            has_lb = pyomo_constr.has_lb()
-            assert (
-                (not has_lb)
-                or (not has_ub)
-                or pyomo_constr.upper() == pyomo_constr.lower()
-            ), "range constraints not supported"
-            if not has_ub:
-                constr.sense = ">"
-                constr.rhs = pyomo_constr.lower()
-            elif not has_lb:
-                constr.sense = "<"
-                constr.rhs = pyomo_constr.upper()
-            else:
-                constr.sense = "="
-                constr.rhs = pyomo_constr.upper()
-
-            # Extract LHS
-            constr.lhs = self._parse_pyomo_expr(pyomo_constr.body)
-
-        # Extract solution attributes
-        if self._has_lp_solution:
-            constr.dual_value = self.model.dual[pyomo_constr]
-
-        if self._has_mip_solution or self._has_lp_solution:
-            constr.slack = self.model.slack[pyomo_constr]
-
-        # Build constraint
-        return constr
 
     def _parse_pyomo_expr(self, expr: Any) -> Dict[str, float]:
         lhs = {}

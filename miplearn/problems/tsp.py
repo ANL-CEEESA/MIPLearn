@@ -117,7 +117,7 @@ class TravelingSalesmanInstance(Instance):
             or (e[0] not in component and e[1] in component)
         ]
         constr = model.eq_subtour.add(expr=sum(model.x[e] for e in cut_edges) >= 2)
-        solver.add_constraint(constr, name="")
+        solver.add_constraint(constr)
 
 
 class TravelingSalesmanGenerator:

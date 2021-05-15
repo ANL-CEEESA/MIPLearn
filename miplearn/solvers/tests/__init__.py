@@ -200,7 +200,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         rhs=(0.0,),
         senses=("<",),
     )
-    assert_equals(solver.are_constraints_satisfied(cf), [False])
+    assert_equals(solver.are_constraints_satisfied(cf), (False,))
 
     # Add constraint and verify it affects solution
     solver.add_constraints(cf)
@@ -227,10 +227,10 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     )
     stats = solver.solve()
     assert_equals(stats.mip_lower_bound, 1030.0)
-    assert_equals(solver.are_constraints_satisfied(cf), [True])
+    assert_equals(solver.are_constraints_satisfied(cf), (True,))
 
     # Remove the new constraint
-    solver.remove_constraints(["cut"])
+    solver.remove_constraints(("cut",))
 
     # New constraint should no longer affect solution
     stats = solver.solve()

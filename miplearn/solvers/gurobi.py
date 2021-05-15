@@ -92,26 +92,6 @@ class GurobiSolver(InternalSolver):
             ]
 
     @overrides
-    def add_constraint(self, constr: Constraint, name: str) -> None:
-        assert self.model is not None
-        assert self._varname_to_var is not None
-
-        assert constr.lhs is not None
-        lhs = self.gp.quicksum(
-            self._varname_to_var[varname] * coeff
-            for (varname, coeff) in constr.lhs.items()
-        )
-        if constr.sense == "=":
-            self.model.addConstr(lhs == constr.rhs, name=name)
-        elif constr.sense == "<":
-            self.model.addConstr(lhs <= constr.rhs, name=name)
-        else:
-            self.model.addConstr(lhs >= constr.rhs, name=name)
-        self._dirty = True
-        self._has_lp_solution = False
-        self._has_mip_solution = False
-
-    @overrides
     def add_constraints(self, cf: ConstraintFeatures) -> None:
         assert cf.names is not None
         assert cf.senses is not None
@@ -143,7 +123,7 @@ class GurobiSolver(InternalSolver):
         self,
         cf: ConstraintFeatures,
         tol: float = 1e-5,
-    ) -> List[bool]:
+    ) -> Tuple[bool, ...]:
         assert cf.names is not None
         assert cf.senses is not None
         assert cf.lhs is not None
@@ -162,7 +142,7 @@ class GurobiSolver(InternalSolver):
                 result.append(lhs >= cf.rhs[i] - tol)
             else:
                 result.append(abs(cf.rhs[i] - lhs) <= tol)
-        return result
+        return tuple(result)
 
     @overrides
     def build_test_instance_infeasible(self) -> Instance:
@@ -290,76 +270,6 @@ class GurobiSolver(InternalSolver):
         )
 
     @overrides
-    def get_constraints_old(self, with_static: bool = True) -> Dict[str, Constraint]:
-        model = self.model
-        assert model is not None
-        self._raise_if_callback()
-        if self._dirty:
-            model.update()
-            self._dirty = False
-
-        gp_constrs = model.getConstrs()
-        constr_names = model.getAttr("constrName", gp_constrs)
-        lhs: Optional[List[Dict]] = None
-        rhs = None
-        sense = None
-        dual_value = None
-        sa_rhs_up = None
-        sa_rhs_down = None
-        slack = None
-        basis_status = None
-
-        if with_static:
-            var_names = model.getAttr("varName", model.getVars())
-            rhs = model.getAttr("rhs", gp_constrs)
-            sense = model.getAttr("sense", gp_constrs)
-            lhs = []
-            for (i, gp_constr) in enumerate(gp_constrs):
-                expr = model.getRow(gp_constr)
-                lhsi = {}
-                for j in range(expr.size()):
-                    lhsi[var_names[expr.getVar(j).index]] = expr.getCoeff(j)
-                lhs.append(lhsi)
-        if self._has_lp_solution:
-            dual_value = model.getAttr("pi", gp_constrs)
-            sa_rhs_up = model.getAttr("saRhsUp", gp_constrs)
-            sa_rhs_down = model.getAttr("saRhsLow", gp_constrs)
-            basis_status = model.getAttr("cbasis", gp_constrs)
-        if self._has_lp_solution or self._has_mip_solution:
-            slack = model.getAttr("slack", gp_constrs)
-
-        constraints: Dict[str, Constraint] = {}
-        for (i, gp_constr) in enumerate(gp_constrs):
-            assert (
-                constr_names[i] not in constraints
-            ), f"Duplicated constraint name detected: {constr_names[i]}"
-            constraint = Constraint()
-            if with_static:
-                assert lhs is not None
-                assert rhs is not None
-                assert sense is not None
-                constraint.lhs = lhs[i]
-                constraint.rhs = rhs[i]
-                constraint.sense = sense[i]
-            if dual_value is not None:
-                assert sa_rhs_up is not None
-                assert sa_rhs_down is not None
-                assert basis_status is not None
-                constraint.dual_value = dual_value[i]
-                constraint.sa_rhs_up = sa_rhs_up[i]
-                constraint.sa_rhs_down = sa_rhs_down[i]
-                if gp_constr.cbasis == 0:
-                    constraint.basis_status = "B"
-                elif gp_constr.cbasis == -1:
-                    constraint.basis_status = "N"
-                else:
-                    raise Exception(f"unknown cbasis: {gp_constr.cbasis}")
-            if slack is not None:
-                constraint.slack = slack[i]
-            constraints[constr_names[i]] = constraint
-        return constraints
-
-    @overrides
     def get_solution(self) -> Optional[Solution]:
         assert self.model is not None
         if self.cb_where is not None:
@@ -470,42 +380,6 @@ class GurobiSolver(InternalSolver):
             values=values,
         )
 
-    def is_constraint_satisfied(
-        self,
-        names: List[str],
-        tol: float = 1e-6,
-    ) -> List[bool]:
-        def _check(c: Tuple) -> bool:
-            lhs, sense, rhs = c
-            lhs_value = lhs.getValue()
-            if sense == "=":
-                return abs(lhs_value - rhs) < tol
-            elif sense == ">":
-                return lhs_value > rhs - tol
-            else:
-                return lhs_value < rhs - tol
-
-        constrs = [self._relaxed_constrs[n] for n in names]
-        return list(map(_check, constrs))
-
-    @overrides
-    def is_constraint_satisfied_old(
-        self,
-        constr: Constraint,
-        tol: float = 1e-6,
-    ) -> bool:
-        assert constr.lhs is not None
-        lhs = 0.0
-        for (varname, coeff) in constr.lhs.items():
-            var = self._varname_to_var[varname]
-            lhs += self._get_value(var) * coeff
-        if constr.sense == "<":
-            return lhs <= constr.rhs + tol
-        elif constr.sense == ">":
-            return lhs >= constr.rhs - tol
-        else:
-            return abs(constr.rhs - lhs) < abs(tol)
-
     @overrides
     def is_infeasible(self) -> bool:
         assert self.model is not None
@@ -521,13 +395,7 @@ class GurobiSolver(InternalSolver):
         self.model.update()
 
     @overrides
-    def remove_constraint(self, name: str) -> None:
-        assert self.model is not None
-        constr = self.model.getConstrByName(name)
-        self.model.remove(constr)
-
-    @overrides
-    def remove_constraints(self, names: List[str]) -> None:
+    def remove_constraints(self, names: Tuple[str, ...]) -> None:
         assert self.model is not None
         constrs = [self.model.getConstrByName(n) for n in names]
         self.model.remove(constrs)

@@ -16,6 +16,7 @@ from miplearn.features import (
     Features,
     Constraint,
     Sample,
+    ConstraintFeatures,
 )
 from miplearn.instance.base import Instance
 from miplearn.solvers.internal import InternalSolver
@@ -32,23 +33,21 @@ def sample() -> Sample:
             instance=InstanceFeatures(
                 lazy_constraint_count=4,
             ),
-            constraints_old={
-                "c1": Constraint(category="type-a", lazy=True),
-                "c2": Constraint(category="type-a", lazy=True),
-                "c3": Constraint(category="type-a", lazy=True),
-                "c4": Constraint(category="type-b", lazy=True),
-                "c5": Constraint(category="type-b", lazy=False),
-            },
+            constraints=ConstraintFeatures(
+                names=("c1", "c2", "c3", "c4", "c5"),
+                categories=(
+                    "type-a",
+                    "type-a",
+                    "type-a",
+                    "type-b",
+                    "type-b",
+                ),
+                lazy=(True, True, True, True, False),
+            ),
         ),
         after_lp=Features(
             instance=InstanceFeatures(),
-            constraints_old={
-                "c1": Constraint(),
-                "c2": Constraint(),
-                "c3": Constraint(),
-                "c4": Constraint(),
-                "c5": Constraint(),
-            },
+            constraints=ConstraintFeatures(names=("c1", "c2", "c3", "c4", "c5")),
         ),
         after_mip=Features(
             extra={
@@ -57,17 +56,14 @@ def sample() -> Sample:
         ),
     )
     sample.after_lp.instance.to_list = Mock(return_value=[5.0])  # type: ignore
-    sample.after_lp.constraints_old["c1"].to_list = Mock(  # type: ignore
-        return_value=[1.0, 1.0]
-    )
-    sample.after_lp.constraints_old["c2"].to_list = Mock(  # type: ignore
-        return_value=[1.0, 2.0]
-    )
-    sample.after_lp.constraints_old["c3"].to_list = Mock(  # type: ignore
-        return_value=[1.0, 3.0]
-    )
-    sample.after_lp.constraints_old["c4"].to_list = Mock(  # type: ignore
-        return_value=[1.0, 4.0, 0.0]
+    sample.after_lp.constraints.to_list = Mock(  # type: ignore
+        side_effect=lambda idx: {
+            0: [1.0, 1.0],
+            1: [1.0, 2.0],
+            2: [1.0, 3.0],
+            3: [1.0, 4.0, 0.0],
+            4: None,
+        }[idx]
     )
     return sample
 
@@ -87,6 +83,9 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     internal = solver.internal_solver = Mock(spec=InternalSolver)
     internal.is_constraint_satisfied_old = Mock(return_value=False)
+    internal.are_constraints_satisfied = Mock(
+        side_effect=lambda cf, tol=1.0: [False for i in range(len(cf.names))]
+    )
 
     component = StaticLazyConstraintsComponent(violation_tolerance=1.0)
     component.thresholds["type-a"] = MinProbabilityThreshold([0.5, 0.5])
@@ -115,7 +114,6 @@ def test_usage_with_solver(instance: Instance) -> None:
     stats: LearningSolveStats = {}
     sample = instance.samples[0]
     assert sample.after_load is not None
-    assert sample.after_load.constraints_old is not None
     assert sample.after_mip is not None
     assert sample.after_mip.extra is not None
     del sample.after_mip.extra["lazy_enforced"]
@@ -134,8 +132,8 @@ def test_usage_with_solver(instance: Instance) -> None:
     component.classifiers["type-b"].predict_proba.assert_called_once()
 
     # Should ask internal solver to remove some constraints
-    assert internal.remove_constraint.call_count == 1
-    internal.remove_constraint.assert_has_calls([call("c3")])
+    assert internal.remove_constraints.call_count == 1
+    internal.remove_constraints.assert_has_calls([call(("c3",))])
 
     # LearningSolver calls after_iteration (first time)
     should_repeat = component.iteration_cb(solver, instance, None)
@@ -143,19 +141,20 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     # Should ask internal solver to verify if constraints in the pool are
     # satisfied and add the ones that are not
-    c3 = sample.after_load.constraints_old["c3"]
-    internal.is_constraint_satisfied_old.assert_called_once_with(c3, tol=1.0)
-    internal.is_constraint_satisfied_old.reset_mock()
-    internal.add_constraint.assert_called_once_with(c3, name="c3")
-    internal.add_constraint.reset_mock()
+    assert sample.after_load.constraints is not None
+    c = sample.after_load.constraints[False, False, True, False, False]
+    internal.are_constraints_satisfied.assert_called_once_with(c, tol=1.0)
+    internal.are_constraints_satisfied.reset_mock()
+    internal.add_constraints.assert_called_once_with(c)
+    internal.add_constraints.reset_mock()
 
     # LearningSolver calls after_iteration (second time)
     should_repeat = component.iteration_cb(solver, instance, None)
     assert not should_repeat
 
     # The lazy constraint pool should be empty by now, so no calls should be made
-    internal.is_constraint_satisfied_old.assert_not_called()
-    internal.add_constraint.assert_not_called()
+    internal.are_constraints_satisfied.assert_not_called()
+    internal.add_constraints.assert_not_called()
 
     # LearningSolver calls after_solve_mip
     component.after_solve_mip(
