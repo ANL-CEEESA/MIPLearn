@@ -187,9 +187,32 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
+    def add_constraints(self, cf: ConstraintFeatures) -> None:
+        """Adds the given constraints to the model."""
+        pass
+
+    @abstractmethod
+    def are_constraints_satisfied(
+        self,
+        cf: ConstraintFeatures,
+        tol: float = 1e-5,
+    ) -> List[bool]:
+        """
+        Checks whether the current solution satisfies the given constraints.
+        """
+        pass
+
+    @abstractmethod
     def remove_constraint(self, name: str) -> None:
         """
         Removes the constraint that has a given name from the model.
+        """
+        pass
+
+    @abstractmethod
+    def remove_constraints(self, names: List[str]) -> None:
+        """
+        Removes the given constraints from the model.
         """
         pass
 
@@ -235,6 +258,14 @@ class InternalSolver(ABC):
 
     @abstractmethod
     def build_test_instance_knapsack(self) -> Instance:
+        """
+        Returns an instance corresponding to the following MIP, for testing purposes:
+
+          maximize  505 x0 + 352 x1 + 458 x2 + 220 x3
+          s.t.      eq_capacity: z = 23 x0 + 26 x1 + 20 x2 + 18 x3
+                    x0, x1, x2, x3 binary
+                    0 <= z <= 67 continuous
+        """
         pass
 
     def are_callbacks_supported(self) -> bool:
@@ -250,12 +281,28 @@ class InternalSolver(ABC):
         with_static: bool = True,
         with_sa: bool = True,
     ) -> VariableFeatures:
+        """
+        Returns a description of the decision variables in the problem.
+
+        Parameters
+        ----------
+        with_static: bool
+            If True, include features that do not change during the solution process,
+            such as variable types and names. This parameter is used to reduce the
+            amount of duplicated data collected by LearningSolver. Features that do
+            not change are only collected once.
+        with_sa: bool
+            If True, collect sensitivity analysis information. For large models,
+            collecting this information may be expensive, so this parameter is useful
+            for reducing running times.
+        """
         pass
 
     @abstractmethod
     def get_constraint_attrs(self) -> List[str]:
         """
-        Returns a list of constraint attributes supported by this solver.
+        Returns a list of constraint attributes supported by this solver. Used for
+        testing purposes only.
         """
 
         pass
@@ -263,6 +310,7 @@ class InternalSolver(ABC):
     @abstractmethod
     def get_variable_attrs(self) -> List[str]:
         """
-        Returns a list of variable attributes supported by this solver.
+        Returns a list of variable attributes supported by this solver. Used for
+        testing purposes only.
         """
         pass

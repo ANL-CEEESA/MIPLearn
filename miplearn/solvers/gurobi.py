@@ -112,8 +112,57 @@ class GurobiSolver(InternalSolver):
         self._has_mip_solution = False
 
     @overrides
+    def add_constraints(self, cf: ConstraintFeatures) -> None:
+        assert cf.names is not None
+        assert cf.senses is not None
+        assert cf.lhs is not None
+        assert cf.rhs is not None
+        assert self.model is not None
+        for i in range(len(cf.names)):
+            sense = cf.senses[i]
+            lhs = self.gp.quicksum(
+                self._varname_to_var[varname] * coeff for (varname, coeff) in cf.lhs[i]
+            )
+            if sense == "=":
+                self.model.addConstr(lhs == cf.rhs[i], name=cf.names[i])
+            elif sense == "<":
+                self.model.addConstr(lhs <= cf.rhs[i], name=cf.names[i])
+            else:
+                self.model.addConstr(lhs >= cf.rhs[i], name=cf.names[i])
+        self.model.update()
+        self._dirty = True
+        self._has_lp_solution = False
+        self._has_mip_solution = False
+
+    @overrides
     def are_callbacks_supported(self) -> bool:
         return True
+
+    @overrides
+    def are_constraints_satisfied(
+        self,
+        cf: ConstraintFeatures,
+        tol: float = 1e-5,
+    ) -> List[bool]:
+        assert cf.names is not None
+        assert cf.senses is not None
+        assert cf.lhs is not None
+        assert cf.rhs is not None
+        assert self.model is not None
+        result = []
+        for i in range(len(cf.names)):
+            sense = cf.senses[i]
+            lhs = sum(
+                self._varname_to_var[varname].x * coeff
+                for (varname, coeff) in cf.lhs[i]
+            )
+            if sense == "<":
+                result.append(lhs <= cf.rhs[i] + tol)
+            elif sense == ">":
+                result.append(lhs >= cf.rhs[i] - tol)
+            else:
+                result.append(abs(cf.rhs[i] - lhs) <= tol)
+        return result
 
     @overrides
     def build_test_instance_infeasible(self) -> Instance:
@@ -476,6 +525,13 @@ class GurobiSolver(InternalSolver):
         assert self.model is not None
         constr = self.model.getConstrByName(name)
         self.model.remove(constr)
+
+    @overrides
+    def remove_constraints(self, names: List[str]) -> None:
+        assert self.model is not None
+        constrs = [self.model.getConstrByName(n) for n in names]
+        self.model.remove(constrs)
+        self.model.update()
 
     @overrides
     def set_instance(

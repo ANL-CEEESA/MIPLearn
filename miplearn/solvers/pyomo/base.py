@@ -99,8 +99,58 @@ class BasePyomoSolver(InternalSolver):
         self._has_mip_solution = False
 
     @overrides
+    def add_constraints(self, cf: ConstraintFeatures) -> None:
+        assert cf.names is not None
+        assert cf.senses is not None
+        assert cf.lhs is not None
+        assert cf.rhs is not None
+        assert self.model is not None
+        for (i, name) in enumerate(cf.names):
+            lhs = 0.0
+            for (varname, coeff) in cf.lhs[i]:
+                var = self._varname_to_var[varname]
+                lhs += var * coeff
+            if cf.senses[i] == "=":
+                expr = lhs == cf.rhs[i]
+            elif cf.senses[i] == "<":
+                expr = lhs <= cf.rhs[i]
+            else:
+                expr = lhs >= cf.rhs[i]
+            cl = pe.Constraint(expr=expr, name=name)
+            self.model.add_component(name, cl)
+            self._pyomo_solver.add_constraint(cl)
+            self._cname_to_constr[name] = cl
+        self._termination_condition = ""
+        self._has_lp_solution = False
+        self._has_mip_solution = False
+
+    @overrides
     def are_callbacks_supported(self) -> bool:
         return False
+
+    @overrides
+    def are_constraints_satisfied(
+        self,
+        cf: ConstraintFeatures,
+        tol: float = 1e-5,
+    ) -> List[bool]:
+        assert cf.names is not None
+        assert cf.lhs is not None
+        assert cf.rhs is not None
+        assert cf.senses is not None
+        result = []
+        for (i, name) in enumerate(cf.names):
+            lhs = 0.0
+            for (varname, coeff) in cf.lhs[i]:
+                var = self._varname_to_var[varname]
+                lhs += var.value * coeff
+            if cf.senses[i] == "<":
+                result.append(lhs <= cf.rhs[i] + tol)
+            elif cf.senses[i] == ">":
+                result.append(lhs >= cf.rhs[i] - tol)
+            else:
+                result.append(abs(cf.rhs[i] - lhs) < tol)
+        return result
 
     @overrides
     def build_test_instance_infeasible(self) -> Instance:
@@ -412,6 +462,15 @@ class BasePyomoSolver(InternalSolver):
         del self._cname_to_constr[name]
         self.model.del_component(constr)
         self._pyomo_solver.remove_constraint(constr)
+
+    @overrides
+    def remove_constraints(self, names: List[str]) -> None:
+        assert self.model is not None
+        for name in names:
+            constr = self._cname_to_constr[name]
+            del self._cname_to_constr[name]
+            self.model.del_component(constr)
+            self._pyomo_solver.remove_constraint(constr)
 
     @overrides
     def set_instance(

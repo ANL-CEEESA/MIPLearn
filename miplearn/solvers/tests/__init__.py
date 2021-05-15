@@ -183,42 +183,54 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # Fetch constraints (after-mip)
     assert_equals(
-        _round_constraints(solver.get_constraints_old(with_static=False)),
-        {"eq_capacity": Constraint(slack=0.0)},
+        _round(solver.get_constraints(with_static=False)),
+        _filter_attrs(
+            solver.get_constraint_attrs(),
+            ConstraintFeatures(
+                names=("eq_capacity",),
+                slacks=(0.0,),
+            ),
+        ),
     )
 
-    # Build a new constraint
-    cut = Constraint(lhs={"x[0]": 1.0}, sense="<", rhs=0.0)
-    assert not solver.is_constraint_satisfied_old(cut)
+    # Build new constraint and verify that it is violated
+    cf = ConstraintFeatures(
+        names=("cut",),
+        lhs=((("x[0]", 1.0),),),
+        rhs=(0.0,),
+        senses=("<",),
+    )
+    assert_equals(solver.are_constraints_satisfied(cf), [False])
 
-    # Add new constraint and verify that it is listed. Modifying the model should
-    # also clear the current solution.
-    solver.add_constraint(cut, "cut")
+    # Add constraint and verify it affects solution
+    solver.add_constraints(cf)
     assert_equals(
-        _round_constraints(solver.get_constraints_old()),
-        {
-            "eq_capacity": Constraint(
-                lazy=False,
-                lhs={"x[0]": 23.0, "x[1]": 26.0, "x[2]": 20.0, "x[3]": 18.0, "z": -1.0},
-                rhs=0.0,
-                sense="=",
+        _round(solver.get_constraints(with_static=True)),
+        _filter_attrs(
+            solver.get_constraint_attrs(),
+            ConstraintFeatures(
+                names=("eq_capacity", "cut"),
+                rhs=(0.0, 0.0),
+                lhs=(
+                    (
+                        ("x[0]", 23.0),
+                        ("x[1]", 26.0),
+                        ("x[2]", 20.0),
+                        ("x[3]", 18.0),
+                        ("z", -1.0),
+                    ),
+                    (("x[0]", 1.0),),
+                ),
+                senses=("=", "<"),
             ),
-            "cut": Constraint(
-                lazy=False,
-                lhs={"x[0]": 1.0},
-                rhs=0.0,
-                sense="<",
-            ),
-        },
+        ),
     )
-
-    # Re-solve MIP and verify that constraint affects the solution
     stats = solver.solve()
     assert_equals(stats.mip_lower_bound, 1030.0)
-    assert solver.is_constraint_satisfied_old(cut)
+    assert_equals(solver.are_constraints_satisfied(cf), [True])
 
     # Remove the new constraint
-    solver.remove_constraint("cut")
+    solver.remove_constraints(["cut"])
 
     # New constraint should no longer affect solution
     stats = solver.solve()
