@@ -107,6 +107,31 @@ class ConstraintFeatures:
         _clip(features)
         return features
 
+    def __getitem__(self, selected: Tuple[bool, ...]) -> "ConstraintFeatures":
+        return ConstraintFeatures(
+            basis_status=self._filter(self.basis_status, selected),
+            categories=self._filter(self.categories, selected),
+            dual_values=self._filter(self.dual_values, selected),
+            names=self._filter(self.names, selected),
+            lazy=self._filter(self.lazy, selected),
+            lhs=self._filter(self.lhs, selected),
+            rhs=self._filter(self.rhs, selected),
+            sa_rhs_down=self._filter(self.sa_rhs_down, selected),
+            sa_rhs_up=self._filter(self.sa_rhs_up, selected),
+            senses=self._filter(self.senses, selected),
+            slacks=self._filter(self.slacks, selected),
+            user_features=self._filter(self.user_features, selected),
+        )
+
+    def _filter(
+        self,
+        obj: Optional[Tuple],
+        selected: Tuple[bool, ...],
+    ) -> Optional[Tuple]:
+        if obj is None:
+            return None
+        return tuple(obj[i] for (i, selected_i) in enumerate(selected) if selected_i)
+
 
 @dataclass
 class Constraint:

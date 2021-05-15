@@ -7,6 +7,7 @@ from miplearn.features import (
     InstanceFeatures,
     Constraint,
     VariableFeatures,
+    ConstraintFeatures,
 )
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.tests import (
@@ -87,5 +88,45 @@ def test_knapsack() -> None:
         InstanceFeatures(
             user_features=[67.0, 21.75],
             lazy_constraint_count=0,
+        ),
+    )
+
+
+def test_constraint_getindex() -> None:
+    cf = ConstraintFeatures(
+        names=("c1", "c2", "c3"),
+        rhs=(1.0, 2.0, 3.0),
+        senses=("=", "<", ">"),
+        lhs=(
+            (
+                ("x1", 1.0),
+                ("x2", 1.0),
+            ),
+            (
+                ("x2", 2.0),
+                ("x3", 2.0),
+            ),
+            (
+                ("x3", 3.0),
+                ("x4", 3.0),
+            ),
+        ),
+    )
+    assert_equals(
+        cf[True, False, True],
+        ConstraintFeatures(
+            names=("c1", "c3"),
+            rhs=(1.0, 3.0),
+            senses=("=", ">"),
+            lhs=(
+                (
+                    ("x1", 1.0),
+                    ("x2", 1.0),
+                ),
+                (
+                    ("x3", 3.0),
+                    ("x4", 3.0),
+                ),
+            ),
         ),
     )
