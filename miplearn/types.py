@@ -10,7 +10,6 @@ if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from miplearn.solvers.learning import InternalSolver
 
-BranchPriorities = Dict[str, Optional[float]]
 Category = Hashable
 IterationCallback = Callable[[], bool]
 LazyCallback = Callable[[Any, Any], None]

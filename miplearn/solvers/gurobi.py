@@ -10,7 +10,7 @@ from typing import List, Any, Dict, Optional, Hashable, Tuple, TYPE_CHECKING
 
 from overrides import overrides
 
-from miplearn.features import Constraint, VariableFeatures, ConstraintFeatures
+from miplearn.features import VariableFeatures, ConstraintFeatures
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
@@ -81,7 +81,6 @@ class GurobiSolver(InternalSolver):
         self._var_lbs: Tuple[float, ...] = tuple()
         self._var_ubs: Tuple[float, ...] = tuple()
         self._var_obj_coeffs: Tuple[float, ...] = tuple()
-        self._relaxed_constrs: Dict[str, Tuple["gurobipy.LinExpr", str, float]] = {}
 
         if self.lazy_cb_frequency == 1:
             self.lazy_cb_where = [self.gp.GRB.Callback.MIPSOL]
@@ -157,26 +156,11 @@ class GurobiSolver(InternalSolver):
         )
 
     @overrides
-    def build_test_instance_redundancy(self) -> Instance:
-        return GurobiTestInstanceRedundancy()
-
-    @overrides
     def clone(self) -> "GurobiSolver":
         return GurobiSolver(
             params=self.params,
             lazy_cb_frequency=self.lazy_cb_frequency,
         )
-
-    def enforce_constraints(self, names: List[str]) -> None:
-        assert self.model is not None
-        constr = [self._relaxed_constrs[n] for n in names]
-        for (i, (lhs, sense, rhs)) in enumerate(constr):
-            if sense == "=":
-                self.model.addConstr(lhs == rhs, name=names[i])
-            elif sense == "<":
-                self.model.addConstr(lhs <= rhs, name=names[i])
-            else:
-                self.model.addConstr(lhs >= rhs, name=names[i])
 
     @overrides
     def fix(self, solution: Solution) -> None:
@@ -385,15 +369,6 @@ class GurobiSolver(InternalSolver):
         assert self.model is not None
         return self.model.status in [self.gp.GRB.INFEASIBLE, self.gp.GRB.INF_OR_UNBD]
 
-    def relax_constraints(self, names: List[str]) -> None:
-        assert self.model is not None
-        constrs = [self._cname_to_constr[n] for n in names]
-        for (i, name) in enumerate(names):
-            c = constrs[i]
-            self._relaxed_constrs[name] = self.model.getRow(c), c.sense, c.rhs
-        self.model.remove(constrs)
-        self.model.update()
-
     @overrides
     def remove_constraints(self, names: Tuple[str, ...]) -> None:
         assert self.model is not None
@@ -536,13 +511,6 @@ class GurobiSolver(InternalSolver):
             lp_wallclock_time=self.model.runtime,
         )
 
-    @overrides
-    def relax(self) -> None:
-        assert self.model is not None
-        self.model.update()
-        self.model = self.model.relax()
-        self._update()
-
     def _apply_params(self, streams: List[Any]) -> None:
         assert self.model is not None
         with _RedirectOutput(streams):
@@ -663,20 +631,6 @@ class GurobiTestInstanceInfeasible(Instance):
         x = model.addVars(1, vtype=GRB.BINARY, name="x")
         model.addConstr(x[0] >= 2)
         model.setObjective(x[0])
-        return model
-
-
-class GurobiTestInstanceRedundancy(Instance):
-    @overrides
-    def to_model(self) -> Any:
-        import gurobipy as gp
-        from gurobipy import GRB
-
-        model = gp.Model()
-        x = model.addVars(2, vtype=GRB.BINARY, name="x")
-        model.addConstr(x[0] + x[1] <= 1, name="c1")
-        model.addConstr(x[0] + x[1] <= 2, name="c2")
-        model.setObjective(x[0] + x[1], GRB.MAXIMIZE)
         return model
 
 

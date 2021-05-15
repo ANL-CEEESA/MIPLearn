@@ -5,14 +5,12 @@
 from miplearn.features import (
     FeaturesExtractor,
     InstanceFeatures,
-    Constraint,
     VariableFeatures,
     ConstraintFeatures,
 )
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.tests import (
     assert_equals,
-    _round_constraints,
     _round,
 )
 

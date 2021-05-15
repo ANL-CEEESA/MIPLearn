@@ -134,42 +134,6 @@ class ConstraintFeatures:
 
 
 @dataclass
-class Constraint:
-    basis_status: Optional[str] = None
-    category: Optional[Hashable] = None
-    dual_value: Optional[float] = None
-    lazy: bool = False
-    lhs: Optional[Dict[str, float]] = None
-    rhs: float = 0.0
-    sa_rhs_down: Optional[float] = None
-    sa_rhs_up: Optional[float] = None
-    sense: str = "<"
-    slack: Optional[float] = None
-    user_features: Optional[List[float]] = None
-
-    def to_list(self) -> List[float]:
-        features: List[float] = []
-        for attr in [
-            "dual value",
-            "rhs",
-            "sa_rhs_down",
-            "sa_rhs_up",
-            "slack",
-        ]:
-            if getattr(self, attr) is not None:
-                features.append(getattr(self, attr))
-        for attr in ["user_features"]:
-            if getattr(self, attr) is not None:
-                features.extend(getattr(self, attr))
-        if self.lhs is not None and len(self.lhs) > 0:
-            features.append(np.max(self.lhs.values()))
-            features.append(np.average(self.lhs.values()))
-            features.append(np.min(self.lhs.values()))
-        _clip(features)
-        return features
-
-
-@dataclass
 class Features:
     instance: Optional[InstanceFeatures] = None
     variables: Optional[VariableFeatures] = None

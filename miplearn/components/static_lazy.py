@@ -12,7 +12,7 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold, Threshold
 from miplearn.components.component import Component
-from miplearn.features import Constraint, Sample, ConstraintFeatures
+from miplearn.features import Sample, ConstraintFeatures
 from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats
 
@@ -45,7 +45,6 @@ class StaticLazyConstraintsComponent(Component):
         self.threshold_prototype: Threshold = threshold
         self.classifiers: Dict[Hashable, Classifier] = {}
         self.thresholds: Dict[Hashable, Threshold] = {}
-        self.pool_old: Dict[str, Constraint] = {}
         self.pool: ConstraintFeatures = ConstraintFeatures()
         self.violation_tolerance: float = violation_tolerance
         self.enforced_cids: Set[Hashable] = set()

@@ -10,7 +10,7 @@ from pyomo import environ as pe
 from scipy.stats import randint
 
 from miplearn.solvers.pyomo.base import BasePyomoSolver
-from miplearn.types import SolverParams, BranchPriorities
+from miplearn.types import SolverParams
 
 logger = logging.getLogger(__name__)
 
@@ -41,17 +41,6 @@ class GurobiPyomoSolver(BasePyomoSolver):
     @overrides
     def clone(self) -> "GurobiPyomoSolver":
         return GurobiPyomoSolver(params=self.params)
-
-    @overrides
-    def set_branching_priorities(self, priorities: BranchPriorities) -> None:
-        from gurobipy import GRB
-
-        for (varname, priority) in priorities.items():
-            if priority is None:
-                continue
-            var = self._varname_to_var[varname]
-            gvar = self._pyomo_solver._pyomo_var_to_solver_var_map[var]
-            gvar.setAttr(GRB.Attr.BranchPriority, int(round(priority)))
 
     @overrides
     def _extract_node_count(self, log: str) -> int:

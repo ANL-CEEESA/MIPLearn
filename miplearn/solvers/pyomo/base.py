@@ -137,10 +137,6 @@ class BasePyomoSolver(InternalSolver):
         return PyomoTestInstanceInfeasible()
 
     @overrides
-    def build_test_instance_redundancy(self) -> Instance:
-        return PyomoTestInstanceRedundancy()
-
-    @overrides
     def build_test_instance_knapsack(self) -> Instance:
         return PyomoTestInstanceKnapsack(
             weights=[23.0, 26.0, 20.0, 18.0],
@@ -490,7 +486,7 @@ class BasePyomoSolver(InternalSolver):
         self,
         tee: bool = False,
     ) -> LPSolveStats:
-        self.relax()
+        self._relax()
         streams: List[Any] = [StringIO()]
         if tee:
             streams += [sys.stdout]
@@ -509,15 +505,6 @@ class BasePyomoSolver(InternalSolver):
             lp_log=streams[0].getvalue(),
             lp_wallclock_time=results["Solver"][0]["Wallclock time"],
         )
-
-    @overrides
-    def relax(self) -> None:
-        for var in self._bin_vars:
-            lb, ub = var.bounds
-            var.setlb(lb)
-            var.setub(ub)
-            var.domain = pyomo.core.base.set_types.Reals
-            self._pyomo_solver.update_var(var)
 
     def _clear_warm_start(self) -> None:
         for var in self._all_vars:
@@ -575,6 +562,14 @@ class BasePyomoSolver(InternalSolver):
             raise Exception(f"Unknown expression type: {expr.__class__.__name__}")
         return lhs
 
+    def _relax(self) -> None:
+        for var in self._bin_vars:
+            lb, ub = var.bounds
+            var.setlb(lb)
+            var.setub(ub)
+            var.domain = pyomo.core.base.set_types.Reals
+            self._pyomo_solver.update_var(var)
+
     def _restore_integrality(self) -> None:
         for var in self._bin_vars:
             var.domain = pyomo.core.base.set_types.Binary
@@ -621,17 +616,6 @@ class PyomoTestInstanceInfeasible(Instance):
         model.x = pe.Var([0], domain=pe.Binary)
         model.OBJ = pe.Objective(expr=model.x[0], sense=pe.maximize)
         model.eq = pe.Constraint(expr=model.x[0] >= 2)
-        return model
-
-
-class PyomoTestInstanceRedundancy(Instance):
-    @overrides
-    def to_model(self) -> pe.ConcreteModel:
-        model = pe.ConcreteModel()
-        model.x = pe.Var([0, 1], domain=pe.Binary)
-        model.OBJ = pe.Objective(expr=model.x[0] + model.x[1], sense=pe.maximize)
-        model.eq1 = pe.Constraint(expr=model.x[0] + model.x[1] <= 1)
-        model.eq2 = pe.Constraint(expr=model.x[0] + model.x[1] <= 2)
         return model
 
 

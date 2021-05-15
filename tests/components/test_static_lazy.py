@@ -14,7 +14,6 @@ from miplearn.components.static_lazy import StaticLazyConstraintsComponent
 from miplearn.features import (
     InstanceFeatures,
     Features,
-    Constraint,
     Sample,
     ConstraintFeatures,
 )

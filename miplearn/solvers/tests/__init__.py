@@ -2,23 +2,15 @@
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Any, Dict, List
+from typing import Any, List
 
-from miplearn.features import Constraint, VariableFeatures, ConstraintFeatures
+from miplearn.features import VariableFeatures, ConstraintFeatures
 from miplearn.solvers.internal import InternalSolver
 
 inf = float("inf")
 
 # NOTE:
 # This file is in the main source folder, so that it can be called from Julia.
-
-
-def _round_constraints(constraints: Dict[str, Constraint]) -> Dict[str, Constraint]:
-    for (cname, c) in constraints.items():
-        for attr in ["slack", "dual_value"]:
-            if getattr(c, attr) is not None:
-                setattr(c, attr, round(getattr(c, attr), 6))
-    return constraints
 
 
 def _round(obj: Any) -> Any:
@@ -44,20 +36,6 @@ def _filter_attrs(allowed_keys: List[str], obj: Any) -> Any:
         if key not in allowed_keys:
             setattr(obj, key, None)
     return obj
-
-
-def _remove_unsupported_constr_attrs(
-    solver: InternalSolver,
-    constraints: Dict[str, Constraint],
-) -> Dict[str, Constraint]:
-    for (cname, c) in constraints.items():
-        to_remove = []
-        for k in c.__dict__.keys():
-            if k not in solver.get_constraint_attrs():
-                to_remove.append(k)
-        for k in to_remove:
-            setattr(c, k, None)
-    return constraints
 
 
 def run_internal_solver_tests(solver: InternalSolver) -> None:

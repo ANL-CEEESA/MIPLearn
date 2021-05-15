@@ -5,14 +5,13 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
-from miplearn.features import Constraint, VariableFeatures, ConstraintFeatures
+from miplearn.features import VariableFeatures, ConstraintFeatures
 from miplearn.instance.base import Instance
 from miplearn.types import (
     IterationCallback,
     LazyCallback,
-    BranchPriorities,
     UserCutCallback,
     Solution,
 )
@@ -75,6 +74,9 @@ class InternalSolver(ABC):
 
     @abstractmethod
     def build_test_instance_infeasible(self) -> Instance:
+        """
+        Returns an infeasible instance, for testing purposes.
+        """
         pass
 
     @abstractmethod
@@ -87,10 +89,6 @@ class InternalSolver(ABC):
                     x0, x1, x2, x3 binary
                     0 <= z <= 67 continuous
         """
-        pass
-
-    @abstractmethod
-    def build_test_instance_redundancy(self) -> Instance:
         pass
 
     @abstractmethod
@@ -183,25 +181,6 @@ class InternalSolver(ABC):
         Removes the given constraints from the model.
         """
         pass
-
-    @abstractmethod
-    def relax(self) -> None:
-        """
-        Drops all integrality constraints from the model.
-        """
-        pass
-
-    def set_branching_priorities(self, priorities: BranchPriorities) -> None:
-        """
-        Sets the branching priorities for the given decision variables.
-
-        When the MIP solver needs to decide on which variable to branch, variables
-        with higher priority are picked first, given that they are fractional.
-        Ties are solved arbitrarily. By default, all variables have priority zero.
-
-        Missing values indicate variables whose priorities should not be modified.
-        """
-        raise NotImplementedError()
 
     @abstractmethod
     def set_instance(
