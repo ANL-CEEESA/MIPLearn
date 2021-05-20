@@ -44,7 +44,7 @@ def test_instance() -> None:
     features = instance.samples[0].after_mip
     assert features is not None
     assert features.variables is not None
-    assert features.variables.values == (1.0, 0.0, 1.0, 1.0, 0.0, 1.0)
+    assert features.variables.values == [1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
     assert features.mip_solve is not None
     assert features.mip_solve.mip_lower_bound == 4.0
     assert features.mip_solve.mip_upper_bound == 4.0
@@ -75,7 +75,7 @@ def test_subtour() -> None:
     assert lazy_enforced is not None
     assert len(lazy_enforced) > 0
     assert features.variables is not None
-    assert features.variables.values == (
+    assert features.variables.values == [
         1.0,
         0.0,
         0.0,
@@ -91,6 +91,6 @@ def test_subtour() -> None:
         0.0,
         1.0,
         1.0,
-    )
+    ]
     solver.fit([instance])
     solver.solve(instance)

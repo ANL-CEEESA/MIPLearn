@@ -57,11 +57,11 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     assert_equals(
         solver.get_variables(),
         VariableFeatures(
-            names=("x[0]", "x[1]", "x[2]", "x[3]", "z"),
-            lower_bounds=(0.0, 0.0, 0.0, 0.0, 0.0),
-            upper_bounds=(1.0, 1.0, 1.0, 1.0, 67.0),
-            types=("B", "B", "B", "B", "C"),
-            obj_coeffs=(505.0, 352.0, 458.0, 220.0, 0.0),
+            names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
+            lower_bounds=[0.0, 0.0, 0.0, 0.0, 0.0],
+            upper_bounds=[1.0, 1.0, 1.0, 1.0, 67.0],
+            types=["B", "B", "B", "B", "C"],
+            obj_coeffs=[505.0, 352.0, 458.0, 220.0, 0.0],
         ),
     )
 
@@ -100,16 +100,16 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         _filter_attrs(
             solver.get_variable_attrs(),
             VariableFeatures(
-                names=("x[0]", "x[1]", "x[2]", "x[3]", "z"),
-                basis_status=("U", "B", "U", "L", "U"),
-                reduced_costs=(193.615385, 0.0, 187.230769, -23.692308, 13.538462),
-                sa_lb_down=(-inf, -inf, -inf, -0.111111, -inf),
-                sa_lb_up=(1.0, 0.923077, 1.0, 1.0, 67.0),
-                sa_obj_down=(311.384615, 317.777778, 270.769231, -inf, -13.538462),
-                sa_obj_up=(inf, 570.869565, inf, 243.692308, inf),
-                sa_ub_down=(0.913043, 0.923077, 0.9, 0.0, 43.0),
-                sa_ub_up=(2.043478, inf, 2.2, inf, 69.0),
-                values=(1.0, 0.923077, 1.0, 0.0, 67.0),
+                names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
+                basis_status=["U", "B", "U", "L", "U"],
+                reduced_costs=[193.615385, 0.0, 187.230769, -23.692308, 13.538462],
+                sa_lb_down=[-inf, -inf, -inf, -0.111111, -inf],
+                sa_lb_up=[1.0, 0.923077, 1.0, 1.0, 67.0],
+                sa_obj_down=[311.384615, 317.777778, 270.769231, -inf, -13.538462],
+                sa_obj_up=[inf, 570.869565, inf, 243.692308, inf],
+                sa_ub_down=[0.913043, 0.923077, 0.9, 0.0, 43.0],
+                sa_ub_up=[2.043478, inf, 2.2, inf, 69.0],
+                values=[1.0, 0.923077, 1.0, 0.0, 67.0],
             ),
         ),
     )
@@ -153,8 +153,8 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         _filter_attrs(
             solver.get_variable_attrs(),
             VariableFeatures(
-                names=("x[0]", "x[1]", "x[2]", "x[3]", "z"),
-                values=(1.0, 0.0, 1.0, 1.0, 61.0),
+                names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
+                values=[1.0, 0.0, 1.0, 1.0, 61.0],
             ),
         ),
     )

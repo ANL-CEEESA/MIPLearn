@@ -29,8 +29,8 @@ def sample() -> Sample:
         after_load=Features(
             instance=InstanceFeatures(),
             variables=VariableFeatures(
-                names=("x[0]", "x[1]", "x[2]", "x[3]"),
-                categories=("default", None, "default", "default"),
+                names=["x[0]", "x[1]", "x[2]", "x[3]"],
+                categories=["default", None, "default", "default"],
             ),
         ),
         after_lp=Features(
@@ -38,8 +38,8 @@ def sample() -> Sample:
         ),
         after_mip=Features(
             variables=VariableFeatures(
-                names=("x[0]", "x[1]", "x[2]", "x[3]"),
-                values=(0.0, 1.0, 1.0, 0.0),
+                names=["x[0]", "x[1]", "x[2]", "x[3]"],
+                values=[0.0, 1.0, 1.0, 0.0],
             )
         ),
     )

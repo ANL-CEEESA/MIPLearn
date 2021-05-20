@@ -75,12 +75,12 @@ class GurobiSolver(InternalSolver):
         self._cname_to_constr: Dict[str, "gurobipy.Constr"] = {}
         self._gp_vars: Tuple["gurobipy.Var", ...] = tuple()
         self._gp_constrs: Tuple["gurobipy.Constr", ...] = tuple()
-        self._var_names: Tuple[str, ...] = tuple()
+        self._var_names: List[str] = []
         self._constr_names: Tuple[str, ...] = tuple()
-        self._var_types: Tuple[str, ...] = tuple()
-        self._var_lbs: Tuple[float, ...] = tuple()
-        self._var_ubs: Tuple[float, ...] = tuple()
-        self._var_obj_coeffs: Tuple[float, ...] = tuple()
+        self._var_types: List[str] = []
+        self._var_lbs: List[float] = []
+        self._var_ubs: List[float] = []
+        self._var_obj_coeffs: List[float] = []
 
         if self.lazy_cb_frequency == 1:
             self.lazy_cb_where = [self.gp.GRB.Callback.MIPSOL]
@@ -328,8 +328,8 @@ class GurobiSolver(InternalSolver):
             obj_coeffs = self._var_obj_coeffs
 
         if self._has_lp_solution:
-            reduced_costs = tuple(model.getAttr("rc", self._gp_vars))
-            basis_status = tuple(
+            reduced_costs = model.getAttr("rc", self._gp_vars)
+            basis_status = list(
                 map(
                     _parse_gurobi_vbasis,
                     model.getAttr("vbasis", self._gp_vars),
@@ -337,15 +337,15 @@ class GurobiSolver(InternalSolver):
             )
 
             if with_sa:
-                sa_obj_up = tuple(model.getAttr("saobjUp", self._gp_vars))
-                sa_obj_down = tuple(model.getAttr("saobjLow", self._gp_vars))
-                sa_ub_up = tuple(model.getAttr("saubUp", self._gp_vars))
-                sa_ub_down = tuple(model.getAttr("saubLow", self._gp_vars))
-                sa_lb_up = tuple(model.getAttr("salbUp", self._gp_vars))
-                sa_lb_down = tuple(model.getAttr("salbLow", self._gp_vars))
+                sa_obj_up = model.getAttr("saobjUp", self._gp_vars)
+                sa_obj_down = model.getAttr("saobjLow", self._gp_vars)
+                sa_ub_up = model.getAttr("saubUp", self._gp_vars)
+                sa_ub_down = model.getAttr("saubLow", self._gp_vars)
+                sa_lb_up = model.getAttr("salbUp", self._gp_vars)
+                sa_lb_down = model.getAttr("salbLow", self._gp_vars)
 
         if model.solCount > 0:
-            values = tuple(model.getAttr("x", self._gp_vars))
+            values = model.getAttr("x", self._gp_vars)
 
         return VariableFeatures(
             names=self._var_names,
@@ -600,12 +600,12 @@ class GurobiSolver(InternalSolver):
         self._cname_to_constr = cname_to_constr
         self._gp_vars = tuple(gp_vars)
         self._gp_constrs = tuple(gp_constrs)
-        self._var_names = tuple(var_names)
+        self._var_names = var_names
         self._constr_names = tuple(constr_names)
-        self._var_types = tuple(var_types)
-        self._var_lbs = tuple(var_lbs)
-        self._var_ubs = tuple(var_ubs)
-        self._var_obj_coeffs = tuple(var_obj_coeffs)
+        self._var_types = var_types
+        self._var_lbs = var_lbs
+        self._var_ubs = var_ubs
+        self._var_obj_coeffs = var_obj_coeffs
 
     def __getstate__(self) -> Dict:
         return {

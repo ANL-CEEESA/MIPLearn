@@ -337,33 +337,20 @@ class BasePyomoSolver(InternalSolver):
                 if self._has_lp_solution or self._has_mip_solution:
                     values.append(v.value)
 
-        types_t: Optional[Tuple[str, ...]] = None
-        upper_bounds_t: Optional[Tuple[float, ...]] = None
-        lower_bounds_t: Optional[Tuple[float, ...]] = None
-        obj_coeffs_t: Optional[Tuple[float, ...]] = None
-        reduced_costs_t: Optional[Tuple[float, ...]] = None
-        values_t: Optional[Tuple[float, ...]] = None
-
-        if with_static:
-            types_t = tuple(types)
-            upper_bounds_t = tuple(upper_bounds)
-            lower_bounds_t = tuple(lower_bounds)
-            obj_coeffs_t = tuple(obj_coeffs)
-
-        if self._has_lp_solution:
-            reduced_costs_t = tuple(reduced_costs)
-
-        if self._has_lp_solution or self._has_mip_solution:
-            values_t = tuple(values)
+        def _none_if_empty(obj: Any) -> Any:
+            if len(obj) == 0:
+                return None
+            else:
+                return obj
 
         return VariableFeatures(
-            names=tuple(names),
-            types=types_t,
-            upper_bounds=upper_bounds_t,
-            lower_bounds=lower_bounds_t,
-            obj_coeffs=obj_coeffs_t,
-            reduced_costs=reduced_costs_t,
-            values=values_t,
+            names=_none_if_empty(names),
+            types=_none_if_empty(types),
+            upper_bounds=_none_if_empty(upper_bounds),
+            lower_bounds=_none_if_empty(lower_bounds),
+            obj_coeffs=_none_if_empty(obj_coeffs),
+            reduced_costs=_none_if_empty(reduced_costs),
+            values=_none_if_empty(values),
         )
 
     @overrides

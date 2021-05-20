@@ -30,22 +30,22 @@ class InstanceFeatures:
 
 @dataclass
 class VariableFeatures:
-    names: Optional[Tuple[str, ...]] = None
-    basis_status: Optional[Tuple[str, ...]] = None
-    categories: Optional[Tuple[Optional[Hashable], ...]] = None
-    lower_bounds: Optional[Tuple[float, ...]] = None
-    obj_coeffs: Optional[Tuple[float, ...]] = None
-    reduced_costs: Optional[Tuple[float, ...]] = None
-    sa_lb_down: Optional[Tuple[float, ...]] = None
-    sa_lb_up: Optional[Tuple[float, ...]] = None
-    sa_obj_down: Optional[Tuple[float, ...]] = None
-    sa_obj_up: Optional[Tuple[float, ...]] = None
-    sa_ub_down: Optional[Tuple[float, ...]] = None
-    sa_ub_up: Optional[Tuple[float, ...]] = None
-    types: Optional[Tuple[str, ...]] = None
-    upper_bounds: Optional[Tuple[float, ...]] = None
-    user_features: Optional[Tuple[Optional[Tuple[float, ...]], ...]] = None
-    values: Optional[Tuple[float, ...]] = None
+    names: Optional[List[str]] = None
+    basis_status: Optional[List[str]] = None
+    categories: Optional[List[Optional[Hashable]]] = None
+    lower_bounds: Optional[List[float]] = None
+    obj_coeffs: Optional[List[float]] = None
+    reduced_costs: Optional[List[float]] = None
+    sa_lb_down: Optional[List[float]] = None
+    sa_lb_up: Optional[List[float]] = None
+    sa_obj_down: Optional[List[float]] = None
+    sa_obj_up: Optional[List[float]] = None
+    sa_ub_down: Optional[List[float]] = None
+    sa_ub_up: Optional[List[float]] = None
+    types: Optional[List[str]] = None
+    upper_bounds: Optional[List[float]] = None
+    user_features: Optional[List[Optional[List[float]]]] = None
+    values: Optional[List[float]] = None
 
     # Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
     # approximation of strong branching. INFORMS Journal on Computing, 29(1), 185-195.
@@ -190,7 +190,7 @@ class FeaturesExtractor:
         assert features.variables is not None
         assert features.variables.names is not None
         categories: List[Hashable] = []
-        user_features: List[Optional[Tuple[float, ...]]] = []
+        user_features: List[Optional[List[float]]] = []
         for (i, var_name) in enumerate(features.variables.names):
             category: Hashable = instance.get_variable_category(var_name)
             user_features_i: Optional[List[float]] = None
@@ -217,9 +217,9 @@ class FeaturesExtractor:
             if user_features_i is None:
                 user_features.append(None)
             else:
-                user_features.append(tuple(user_features_i))
-        features.variables.categories = tuple(categories)
-        features.variables.user_features = tuple(user_features)
+                user_features.append(user_features_i)
+        features.variables.categories = categories
+        features.variables.user_features = user_features
 
     def _extract_user_features_constrs(
         self,
