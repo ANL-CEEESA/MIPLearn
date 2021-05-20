@@ -243,7 +243,7 @@ class FeaturesExtractor:
                 )
                 cf = instance.get_constraint_features(cname)
                 if isinstance(cf, np.ndarray):
-                    cf = tuple(cf.tolist())
+                    cf = cf.tolist()
                 assert isinstance(cf, list), (
                     f"Constraint features must be a list. "
                     f"Found {type(cf).__name__} instead for cname={cname}."
