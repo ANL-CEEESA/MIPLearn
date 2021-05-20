@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="miplearn",
-    version="0.2.0.dev6",
+    version="0.2.0.dev7",
     author="Alinson S. Xavier",
     author_email="axavier@anl.gov",
     description="Extensible framework for Learning-Enhanced Mixed-Integer Optimization",

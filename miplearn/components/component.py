@@ -198,7 +198,10 @@ class Component:
             instance.free()
             return pre_instance
 
-        pre = p_umap(_pre_sample_xy, instances, num_cpus=n_jobs)
+        if n_jobs == 1:
+            pre = [_pre_sample_xy(instance) for instance in instances]
+        else:
+            pre = p_umap(_pre_sample_xy, instances, num_cpus=n_jobs)
         pre_combined: Dict = {}
         for (cname, comp) in components.items():
             pre_combined[cname] = []
@@ -229,7 +232,10 @@ class Component:
             instance.free()
             return x_instance, y_instance
 
-        xy = p_umap(_sample_xy, instances)
+        if n_jobs == 1:
+            xy = [_sample_xy(instance) for instance in instances]
+        else:
+            xy = p_umap(_sample_xy, instances)
 
         for (cname, comp) in components.items():
             x_comp: Dict = {}
