@@ -267,7 +267,10 @@ def run_lazy_cb_tests(solver: InternalSolver) -> None:
 
 def _equals_preprocess(obj: Any) -> Any:
     if isinstance(obj, np.ndarray):
-        return np.round(obj, decimals=6).tolist()
+        if obj.dtype == "float64":
+            return np.round(obj, decimals=6).tolist()
+        else:
+            return obj.tolist()
     elif isinstance(obj, (int, str)):
         return obj
     elif isinstance(obj, float):

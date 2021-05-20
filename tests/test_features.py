@@ -150,5 +150,9 @@ def test_assert_equals() -> None:
         VariableFeatures(values=np.array([1.0, 2.0])),  # type: ignore
         VariableFeatures(values=np.array([1.0, 2.0])),  # type: ignore
     )
+    assert_equals(
+        np.array([True, True]),
+        [True, True],
+    )
     assert_equals((1.0,), (1.0,))
     assert_equals({"x": 10}, {"x": 10})
