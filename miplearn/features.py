@@ -78,18 +78,18 @@ class VariableFeatures:
 
 @dataclass
 class ConstraintFeatures:
-    basis_status: Optional[Tuple[str, ...]] = None
-    categories: Optional[Tuple[Optional[Hashable], ...]] = None
-    dual_values: Optional[Tuple[float, ...]] = None
-    names: Optional[Tuple[str, ...]] = None
-    lazy: Optional[Tuple[bool, ...]] = None
-    lhs: Optional[Tuple[Tuple[Tuple[str, float], ...], ...]] = None
-    rhs: Optional[Tuple[float, ...]] = None
-    sa_rhs_down: Optional[Tuple[float, ...]] = None
-    sa_rhs_up: Optional[Tuple[float, ...]] = None
-    senses: Optional[Tuple[str, ...]] = None
-    slacks: Optional[Tuple[float, ...]] = None
-    user_features: Optional[Tuple[Optional[Tuple[float, ...]], ...]] = None
+    basis_status: Optional[List[str]] = None
+    categories: Optional[List[Optional[Hashable]]] = None
+    dual_values: Optional[List[float]] = None
+    names: Optional[List[str]] = None
+    lazy: Optional[List[bool]] = None
+    lhs: Optional[List[List[Tuple[str, float]]]] = None
+    rhs: Optional[List[float]] = None
+    sa_rhs_down: Optional[List[float]] = None
+    sa_rhs_up: Optional[List[float]] = None
+    senses: Optional[List[str]] = None
+    slacks: Optional[List[float]] = None
+    user_features: Optional[List[Optional[List[float]]]] = None
 
     def to_list(self, index: int) -> List[float]:
         features: List[float] = []
@@ -107,7 +107,7 @@ class ConstraintFeatures:
         _clip(features)
         return features
 
-    def __getitem__(self, selected: Tuple[bool, ...]) -> "ConstraintFeatures":
+    def __getitem__(self, selected: List[bool]) -> "ConstraintFeatures":
         return ConstraintFeatures(
             basis_status=self._filter(self.basis_status, selected),
             categories=self._filter(self.categories, selected),
@@ -125,12 +125,12 @@ class ConstraintFeatures:
 
     def _filter(
         self,
-        obj: Optional[Tuple],
-        selected: Tuple[bool, ...],
-    ) -> Optional[Tuple]:
+        obj: Optional[List],
+        selected: List[bool],
+    ) -> Optional[List]:
         if obj is None:
             return None
-        return tuple(obj[i] for (i, selected_i) in enumerate(selected) if selected_i)
+        return [obj[i] for (i, selected_i) in enumerate(selected) if selected_i]
 
 
 @dataclass
@@ -217,7 +217,7 @@ class FeaturesExtractor:
             if user_features_i is None:
                 user_features.append(None)
             else:
-                user_features.append(user_features_i)
+                user_features.append(list(user_features_i))
         features.variables.categories = categories
         features.variables.user_features = user_features
 
@@ -229,7 +229,7 @@ class FeaturesExtractor:
         assert features.constraints is not None
         assert features.constraints.names is not None
         has_static_lazy = instance.has_static_lazy_constraints()
-        user_features: List[Optional[Tuple[float, ...]]] = []
+        user_features: List[Optional[List[float]]] = []
         categories: List[Optional[Hashable]] = []
         lazy: List[bool] = []
         for (cidx, cname) in enumerate(features.constraints.names):
@@ -253,7 +253,7 @@ class FeaturesExtractor:
                         f"Constraint features must be a list of numbers. "
                         f"Found {type(f).__name__} instead for cname={cname}."
                     )
-                user_features.append(tuple(cf))
+                user_features.append(list(cf))
             else:
                 user_features.append(None)
                 categories.append(None)
@@ -261,9 +261,9 @@ class FeaturesExtractor:
                 lazy.append(instance.is_constraint_lazy(cname))
             else:
                 lazy.append(False)
-        features.constraints.user_features = tuple(user_features)
-        features.constraints.lazy = tuple(lazy)
-        features.constraints.categories = tuple(categories)
+        features.constraints.user_features = user_features
+        features.constraints.lazy = lazy
+        features.constraints.categories = categories
 
     def _extract_user_features_instance(
         self,

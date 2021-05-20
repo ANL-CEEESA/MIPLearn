@@ -88,10 +88,10 @@ class StaticLazyConstraintsComponent(Component):
         assert constraints is not None
         assert constraints.lazy is not None
         assert constraints.names is not None
-        selected = tuple(
+        selected = [
             (constraints.lazy[i] and constraints.names[i] not in self.enforced_cids)
             for i in range(len(constraints.lazy))
-        )
+        ]
         n_removed = sum(selected)
         n_kept = sum(constraints.lazy) - n_removed
         self.pool = constraints[selected]
@@ -174,7 +174,7 @@ class StaticLazyConstraintsComponent(Component):
             self.pool,
             tol=self.violation_tolerance,
         )
-        is_violated = tuple(not i for i in is_satisfied)
+        is_violated = [not i for i in is_satisfied]
         violated_constraints = self.pool[is_violated]
         satisfied_constraints = self.pool[is_satisfied]
         self.pool = satisfied_constraints

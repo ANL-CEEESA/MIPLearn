@@ -5,7 +5,7 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, List
 
 from miplearn.features import VariableFeatures, ConstraintFeatures
 from miplearn.instance.base import Instance
@@ -59,7 +59,7 @@ class InternalSolver(ABC):
         self,
         cf: ConstraintFeatures,
         tol: float = 1e-5,
-    ) -> Tuple[bool, ...]:
+    ) -> List[bool]:
         """
         Checks whether the current solution satisfies the given constraints.
         """
@@ -176,7 +176,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def remove_constraints(self, names: Tuple[str, ...]) -> None:
+    def remove_constraints(self, names: List[str]) -> None:
         """
         Removes the given constraints from the model.
         """

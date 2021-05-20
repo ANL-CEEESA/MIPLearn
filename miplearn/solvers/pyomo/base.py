@@ -21,7 +21,7 @@ from pyomo.opt.base.solvers import SolverFactory
 
 from miplearn.features import VariableFeatures, ConstraintFeatures
 from miplearn.instance.base import Instance
-from miplearn.solvers import _RedirectOutput
+from miplearn.solvers import _RedirectOutput, _none_if_empty
 from miplearn.solvers.internal import (
     InternalSolver,
     LPSolveStats,
@@ -113,7 +113,7 @@ class BasePyomoSolver(InternalSolver):
         self,
         cf: ConstraintFeatures,
         tol: float = 1e-5,
-    ) -> Tuple[bool, ...]:
+    ) -> List[bool]:
         assert cf.names is not None
         assert cf.lhs is not None
         assert cf.rhs is not None
@@ -130,7 +130,7 @@ class BasePyomoSolver(InternalSolver):
                 result.append(lhs >= cf.rhs[i] - tol)
             else:
                 result.append(abs(cf.rhs[i] - lhs) < tol)
-        return tuple(result)
+        return result
 
     @overrides
     def build_test_instance_infeasible(self) -> Instance:
@@ -165,7 +165,7 @@ class BasePyomoSolver(InternalSolver):
 
         names: List[str] = []
         rhs: List[float] = []
-        lhs: List[Tuple[Tuple[str, float], ...]] = []
+        lhs: List[List[Tuple[str, float]]] = []
         senses: List[str] = []
         dual_values: List[float] = []
         slacks: List[float] = []
@@ -214,7 +214,7 @@ class BasePyomoSolver(InternalSolver):
                         raise Exception(
                             f"Unknown expression type: {expr.__class__.__name__}"
                         )
-                    lhs.append(tuple(lhsc))
+                    lhs.append(lhsc)
 
             # Extract dual values
             if self._has_lp_solution:
@@ -233,24 +233,13 @@ class BasePyomoSolver(InternalSolver):
                 names.append(constr.name)
                 _parse_constraint(constr)
 
-        rhs_t, lhs_t, senses_t = None, None, None
-        slacks_t, dual_values_t = None, None
-        if with_static:
-            rhs_t = tuple(rhs)
-            lhs_t = tuple(lhs)
-            senses_t = tuple(senses)
-        if self._has_lp_solution:
-            dual_values_t = tuple(dual_values)
-        if self._has_lp_solution or self._has_mip_solution:
-            slacks_t = tuple(slacks)
-
         return ConstraintFeatures(
-            names=tuple(names),
-            rhs=rhs_t,
-            senses=senses_t,
-            lhs=lhs_t,
-            slacks=slacks_t,
-            dual_values=dual_values_t,
+            names=_none_if_empty(names),
+            rhs=_none_if_empty(rhs),
+            senses=_none_if_empty(senses),
+            lhs=_none_if_empty(lhs),
+            slacks=_none_if_empty(slacks),
+            dual_values=_none_if_empty(dual_values),
         )
 
     @overrides
@@ -337,12 +326,6 @@ class BasePyomoSolver(InternalSolver):
                 if self._has_lp_solution or self._has_mip_solution:
                     values.append(v.value)
 
-        def _none_if_empty(obj: Any) -> Any:
-            if len(obj) == 0:
-                return None
-            else:
-                return obj
-
         return VariableFeatures(
             names=_none_if_empty(names),
             types=_none_if_empty(types),
@@ -379,7 +362,7 @@ class BasePyomoSolver(InternalSolver):
         return self._termination_condition == TerminationCondition.infeasible
 
     @overrides
-    def remove_constraints(self, names: Tuple[str, ...]) -> None:
+    def remove_constraints(self, names: List[str]) -> None:
         assert self.model is not None
         for name in names:
             constr = self._cname_to_constr[name]

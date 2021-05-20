@@ -65,26 +65,26 @@ def test_knapsack() -> None:
     assert_equals(
         _round(features.constraints),
         ConstraintFeatures(
-            basis_status=("N",),
-            categories=("eq_capacity",),
-            dual_values=(13.538462,),
-            names=("eq_capacity",),
-            lazy=(False,),
-            lhs=(
-                (
+            basis_status=["N"],
+            categories=["eq_capacity"],
+            dual_values=[13.538462],
+            names=["eq_capacity"],
+            lazy=[False],
+            lhs=[
+                [
                     ("x[0]", 23.0),
                     ("x[1]", 26.0),
                     ("x[2]", 20.0),
                     ("x[3]", 18.0),
                     ("z", -1.0),
-                ),
-            ),
-            rhs=(0.0,),
-            sa_rhs_down=(-24.0,),
-            sa_rhs_up=(2.0,),
-            senses=("=",),
-            slacks=(0.0,),
-            user_features=((0.0,),),
+                ],
+            ],
+            rhs=[0.0],
+            sa_rhs_down=[-24.0],
+            sa_rhs_up=[2.0],
+            senses=["="],
+            slacks=[0.0],
+            user_features=[[0.0]],
         ),
     )
     assert_equals(
@@ -98,39 +98,39 @@ def test_knapsack() -> None:
 
 def test_constraint_getindex() -> None:
     cf = ConstraintFeatures(
-        names=("c1", "c2", "c3"),
-        rhs=(1.0, 2.0, 3.0),
-        senses=("=", "<", ">"),
-        lhs=(
-            (
+        names=["c1", "c2", "c3"],
+        rhs=[1.0, 2.0, 3.0],
+        senses=["=", "<", ">"],
+        lhs=[
+            [
                 ("x1", 1.0),
                 ("x2", 1.0),
-            ),
-            (
+            ],
+            [
                 ("x2", 2.0),
                 ("x3", 2.0),
-            ),
-            (
+            ],
+            [
                 ("x3", 3.0),
                 ("x4", 3.0),
-            ),
-        ),
+            ],
+        ],
     )
     assert_equals(
-        cf[True, False, True],
+        cf[[True, False, True]],
         ConstraintFeatures(
-            names=("c1", "c3"),
-            rhs=(1.0, 3.0),
-            senses=("=", ">"),
-            lhs=(
-                (
+            names=["c1", "c3"],
+            rhs=[1.0, 3.0],
+            senses=["=", ">"],
+            lhs=[
+                [
                     ("x1", 1.0),
                     ("x2", 1.0),
-                ),
-                (
+                ],
+                [
                     ("x3", 3.0),
                     ("x4", 3.0),
-                ),
-            ),
+                ],
+            ],
         ),
     )

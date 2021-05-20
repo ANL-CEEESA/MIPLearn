@@ -122,7 +122,7 @@ class GurobiSolver(InternalSolver):
         self,
         cf: ConstraintFeatures,
         tol: float = 1e-5,
-    ) -> Tuple[bool, ...]:
+    ) -> List[bool]:
         assert cf.names is not None
         assert cf.senses is not None
         assert cf.lhs is not None
@@ -141,7 +141,7 @@ class GurobiSolver(InternalSolver):
                 result.append(lhs >= cf.rhs[i] - tol)
             else:
                 result.append(abs(cf.rhs[i] - lhs) <= tol)
-        return tuple(result)
+        return result
 
     @overrides
     def build_test_instance_infeasible(self) -> Instance:
@@ -209,37 +209,37 @@ class GurobiSolver(InternalSolver):
             raise Exception(f"unknown cbasis: {v}")
 
         gp_constrs = model.getConstrs()
-        constr_names = tuple(model.getAttr("constrName", gp_constrs))
-        rhs, lhs, senses, slacks, basis_status = None, None, None, None, None
+        constr_names = model.getAttr("constrName", gp_constrs)
+        lhs: Optional[List] = None
+        rhs, senses, slacks, basis_status = None, None, None, None
         dual_value, basis_status, sa_rhs_up, sa_rhs_down = None, None, None, None
 
         if with_static:
-            rhs = tuple(model.getAttr("rhs", gp_constrs))
-            senses = tuple(model.getAttr("sense", gp_constrs))
+            rhs = model.getAttr("rhs", gp_constrs)
+            senses = model.getAttr("sense", gp_constrs)
             if with_lhs:
-                lhs_l: List = [None for _ in gp_constrs]
+                lhs = [None for _ in gp_constrs]
                 for (i, gp_constr) in enumerate(gp_constrs):
                     expr = model.getRow(gp_constr)
-                    lhs_l[i] = tuple(
+                    lhs[i] = [
                         (self._var_names[expr.getVar(j).index], expr.getCoeff(j))
                         for j in range(expr.size())
-                    )
-                lhs = tuple(lhs_l)
+                    ]
 
         if self._has_lp_solution:
-            dual_value = tuple(model.getAttr("pi", gp_constrs))
-            basis_status = tuple(
+            dual_value = model.getAttr("pi", gp_constrs)
+            basis_status = list(
                 map(
                     _parse_gurobi_cbasis,
                     model.getAttr("cbasis", gp_constrs),
                 )
             )
             if with_sa:
-                sa_rhs_up = tuple(model.getAttr("saRhsUp", gp_constrs))
-                sa_rhs_down = tuple(model.getAttr("saRhsLow", gp_constrs))
+                sa_rhs_up = model.getAttr("saRhsUp", gp_constrs)
+                sa_rhs_down = model.getAttr("saRhsLow", gp_constrs)
 
         if self._has_lp_solution or self._has_mip_solution:
-            slacks = tuple(model.getAttr("slack", gp_constrs))
+            slacks = model.getAttr("slack", gp_constrs)
 
         return ConstraintFeatures(
             basis_status=basis_status,
@@ -370,7 +370,7 @@ class GurobiSolver(InternalSolver):
         return self.model.status in [self.gp.GRB.INFEASIBLE, self.gp.GRB.INF_OR_UNBD]
 
     @overrides
-    def remove_constraints(self, names: Tuple[str, ...]) -> None:
+    def remove_constraints(self, names: List[str]) -> None:
         assert self.model is not None
         constrs = [self.model.getConstrByName(n) for n in names]
         self.model.remove(constrs)

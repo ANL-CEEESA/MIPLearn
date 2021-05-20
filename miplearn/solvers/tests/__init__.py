@@ -69,18 +69,18 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     assert_equals(
         solver.get_constraints(),
         ConstraintFeatures(
-            names=("eq_capacity",),
-            rhs=(0.0,),
-            lhs=(
-                (
+            names=["eq_capacity"],
+            rhs=[0.0],
+            lhs=[
+                [
                     ("x[0]", 23.0),
                     ("x[1]", 26.0),
                     ("x[2]", 20.0),
                     ("x[3]", 18.0),
                     ("z", -1.0),
-                ),
-            ),
-            senses=("=",),
+                ],
+            ],
+            senses=["="],
         ),
     )
 
@@ -120,12 +120,12 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         _filter_attrs(
             solver.get_constraint_attrs(),
             ConstraintFeatures(
-                basis_status=("N",),
-                dual_values=(13.538462,),
-                names=("eq_capacity",),
-                sa_rhs_down=(-24.0,),
-                sa_rhs_up=(2.0,),
-                slacks=(0.0,),
+                basis_status=["N"],
+                dual_values=[13.538462],
+                names=["eq_capacity"],
+                sa_rhs_down=[-24.0],
+                sa_rhs_up=[2.0],
+                slacks=[0.0],
             ),
         ),
     )
@@ -165,20 +165,20 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         _filter_attrs(
             solver.get_constraint_attrs(),
             ConstraintFeatures(
-                names=("eq_capacity",),
-                slacks=(0.0,),
+                names=["eq_capacity"],
+                slacks=[0.0],
             ),
         ),
     )
 
     # Build new constraint and verify that it is violated
     cf = ConstraintFeatures(
-        names=("cut",),
-        lhs=((("x[0]", 1.0),),),
-        rhs=(0.0,),
-        senses=("<",),
+        names=["cut"],
+        lhs=[[("x[0]", 1.0)]],
+        rhs=[0.0],
+        senses=["<"],
     )
-    assert_equals(solver.are_constraints_satisfied(cf), (False,))
+    assert_equals(solver.are_constraints_satisfied(cf), [False])
 
     # Add constraint and verify it affects solution
     solver.add_constraints(cf)
@@ -187,28 +187,30 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         _filter_attrs(
             solver.get_constraint_attrs(),
             ConstraintFeatures(
-                names=("eq_capacity", "cut"),
-                rhs=(0.0, 0.0),
-                lhs=(
-                    (
+                names=["eq_capacity", "cut"],
+                rhs=[0.0, 0.0],
+                lhs=[
+                    [
                         ("x[0]", 23.0),
                         ("x[1]", 26.0),
                         ("x[2]", 20.0),
                         ("x[3]", 18.0),
                         ("z", -1.0),
-                    ),
-                    (("x[0]", 1.0),),
-                ),
-                senses=("=", "<"),
+                    ],
+                    [
+                        ("x[0]", 1.0),
+                    ],
+                ],
+                senses=["=", "<"],
             ),
         ),
     )
     stats = solver.solve()
     assert_equals(stats.mip_lower_bound, 1030.0)
-    assert_equals(solver.are_constraints_satisfied(cf), (True,))
+    assert_equals(solver.are_constraints_satisfied(cf), [True])
 
     # Remove the new constraint
-    solver.remove_constraints(("cut",))
+    solver.remove_constraints(["cut"])
 
     # New constraint should no longer affect solution
     stats = solver.solve()

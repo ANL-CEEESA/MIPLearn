@@ -33,20 +33,20 @@ def sample() -> Sample:
                 lazy_constraint_count=4,
             ),
             constraints=ConstraintFeatures(
-                names=("c1", "c2", "c3", "c4", "c5"),
-                categories=(
+                names=["c1", "c2", "c3", "c4", "c5"],
+                categories=[
                     "type-a",
                     "type-a",
                     "type-a",
                     "type-b",
                     "type-b",
-                ),
-                lazy=(True, True, True, True, False),
+                ],
+                lazy=[True, True, True, True, False],
             ),
         ),
         after_lp=Features(
             instance=InstanceFeatures(),
-            constraints=ConstraintFeatures(names=("c1", "c2", "c3", "c4", "c5")),
+            constraints=ConstraintFeatures(names=["c1", "c2", "c3", "c4", "c5"]),
         ),
         after_mip=Features(
             extra={
@@ -132,7 +132,7 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     # Should ask internal solver to remove some constraints
     assert internal.remove_constraints.call_count == 1
-    internal.remove_constraints.assert_has_calls([call(("c3",))])
+    internal.remove_constraints.assert_has_calls([call(["c3"])])
 
     # LearningSolver calls after_iteration (first time)
     should_repeat = component.iteration_cb(solver, instance, None)
@@ -141,7 +141,7 @@ def test_usage_with_solver(instance: Instance) -> None:
     # Should ask internal solver to verify if constraints in the pool are
     # satisfied and add the ones that are not
     assert sample.after_load.constraints is not None
-    c = sample.after_load.constraints[False, False, True, False, False]
+    c = sample.after_load.constraints[[False, False, True, False, False]]
     internal.are_constraints_satisfied.assert_called_once_with(c, tol=1.0)
     internal.are_constraints_satisfied.reset_mock()
     internal.add_constraints.assert_called_once_with(c)

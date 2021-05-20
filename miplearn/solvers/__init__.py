@@ -36,3 +36,10 @@ class _RedirectOutput:
     ) -> None:
         sys.stdout = self._original_stdout
         sys.stderr = self._original_stderr
+
+
+def _none_if_empty(obj: Any) -> Any:
+    if len(obj) == 0:
+        return None
+    else:
+        return obj
