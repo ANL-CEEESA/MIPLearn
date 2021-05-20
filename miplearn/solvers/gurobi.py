@@ -73,10 +73,10 @@ class GurobiSolver(InternalSolver):
 
         self._varname_to_var: Dict[str, "gurobipy.Var"] = {}
         self._cname_to_constr: Dict[str, "gurobipy.Constr"] = {}
-        self._gp_vars: Tuple["gurobipy.Var", ...] = tuple()
-        self._gp_constrs: Tuple["gurobipy.Constr", ...] = tuple()
+        self._gp_vars: List["gurobipy.Var"] = []
+        self._gp_constrs: List["gurobipy.Constr"] = []
         self._var_names: List[str] = []
-        self._constr_names: Tuple[str, ...] = tuple()
+        self._constr_names: List[str] = []
         self._var_types: List[str] = []
         self._var_lbs: List[float] = []
         self._var_ubs: List[float] = []
@@ -598,10 +598,10 @@ class GurobiSolver(InternalSolver):
             cname_to_constr[constr_names[i]] = gp_constr
         self._varname_to_var = varname_to_var
         self._cname_to_constr = cname_to_constr
-        self._gp_vars = tuple(gp_vars)
-        self._gp_constrs = tuple(gp_constrs)
+        self._gp_vars = gp_vars
+        self._gp_constrs = gp_constrs
         self._var_names = var_names
-        self._constr_names = tuple(constr_names)
+        self._constr_names = constr_names
         self._var_types = var_types
         self._var_lbs = var_lbs
         self._var_ubs = var_ubs
