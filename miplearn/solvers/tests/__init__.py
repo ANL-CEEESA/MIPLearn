@@ -4,6 +4,8 @@
 
 from typing import Any, List
 
+import numpy as np
+
 from miplearn.features import VariableFeatures, ConstraintFeatures
 from miplearn.solvers.internal import InternalSolver
 
@@ -282,4 +284,8 @@ def run_lazy_cb_tests(solver: InternalSolver) -> None:
 
 
 def assert_equals(left: Any, right: Any) -> None:
+    if isinstance(left, np.ndarray):
+        left = left.tolist()
+    if isinstance(right, np.ndarray):
+        right = right.tolist()
     assert left == right, f"left:\n{left}\nright:\n{right}"

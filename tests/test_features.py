@@ -13,6 +13,7 @@ from miplearn.solvers.tests import (
     assert_equals,
     _round,
 )
+import numpy as np
 
 inf = float("inf")
 
@@ -133,4 +134,17 @@ def test_constraint_getindex() -> None:
                 ],
             ],
         ),
+    )
+
+
+def test_assert_equals() -> None:
+    assert_equals("hello", "hello")
+    assert_equals([1.0, 2.0], [1.0, 2.0])
+    assert_equals(
+        np.array([1.0, 2.0]),
+        np.array([1.0, 2.0]),
+    )
+    assert_equals(
+        np.array([[1.0, 2.0], [3.0, 4.0]]),
+        np.array([[1.0, 2.0], [3.0, 4.0]]),
     )
