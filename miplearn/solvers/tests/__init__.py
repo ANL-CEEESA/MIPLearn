@@ -283,9 +283,26 @@ def run_lazy_cb_tests(solver: InternalSolver) -> None:
     assert_equals(solution["x[0]"], 0.0)
 
 
+def _recursive_convert_ndarray_to_list(obj: Any) -> Any:
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, (int, float, str)):
+        return obj
+    elif isinstance(obj, list):
+        return [_recursive_convert_ndarray_to_list(i) for i in obj]
+    elif isinstance(obj, tuple):
+        return tuple(_recursive_convert_ndarray_to_list(i) for i in obj)
+    elif obj is None:
+        return None
+    elif isinstance(obj, dict):
+        return {k: _recursive_convert_ndarray_to_list(v) for (k, v) in obj.items()}
+    else:
+        for key in obj.__dict__.keys():
+            obj.__dict__[key] = _recursive_convert_ndarray_to_list(obj.__dict__[key])
+        return obj
+
+
 def assert_equals(left: Any, right: Any) -> None:
-    if isinstance(left, np.ndarray):
-        left = left.tolist()
-    if isinstance(right, np.ndarray):
-        right = right.tolist()
+    left = _recursive_convert_ndarray_to_list(left)
+    right = _recursive_convert_ndarray_to_list(right)
     assert left == right, f"left:\n{left}\nright:\n{right}"
