@@ -2,6 +2,8 @@
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import numpy as np
+
 from miplearn.features import (
     FeaturesExtractor,
     InstanceFeatures,
@@ -9,11 +11,7 @@ from miplearn.features import (
     ConstraintFeatures,
 )
 from miplearn.solvers.gurobi import GurobiSolver
-from miplearn.solvers.tests import (
-    assert_equals,
-    _round,
-)
-import numpy as np
+from miplearn.solvers.tests import assert_equals
 
 inf = float("inf")
 
@@ -30,7 +28,7 @@ def test_knapsack() -> None:
     assert features.instance is not None
 
     assert_equals(
-        _round(features.variables),
+        features.variables,
         VariableFeatures(
             names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
             basis_status=["U", "B", "U", "L", "U"],
@@ -64,7 +62,7 @@ def test_knapsack() -> None:
         ),
     )
     assert_equals(
-        _round(features.constraints),
+        features.constraints,
         ConstraintFeatures(
             basis_status=["N"],
             categories=["eq_capacity"],

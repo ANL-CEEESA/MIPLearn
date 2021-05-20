@@ -16,8 +16,8 @@ from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.learning import LearningSolver
 
 # noinspection PyUnresolvedReferences
-from miplearn.solvers.tests import _round
 from tests.solvers.test_internal_solver import internal_solvers
+from miplearn.solvers.tests import assert_equals
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ def test_learning_solver(
             after_lp = sample.after_lp
             assert after_lp is not None
             assert after_lp.variables is not None
-            assert _round(after_lp.variables.values) == [1.0, 0.923077, 1.0, 0.0, 67.0]
+            assert_equals(after_lp.variables.values, [1.0, 0.923077, 1.0, 0.0, 67.0])
             assert after_lp.lp_solve is not None
             assert after_lp.lp_solve.lp_value is not None
             assert round(after_lp.lp_solve.lp_value, 3) == 1287.923

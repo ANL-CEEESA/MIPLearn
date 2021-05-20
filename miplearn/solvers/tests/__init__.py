@@ -15,24 +15,6 @@ inf = float("inf")
 # This file is in the main source folder, so that it can be called from Julia.
 
 
-def _round(obj: Any) -> Any:
-    if obj is None:
-        return None
-    if isinstance(obj, float):
-        return round(obj, 6)
-    if isinstance(obj, tuple):
-        return tuple([_round(v) for v in obj])
-    if isinstance(obj, list):
-        return [_round(v) for v in obj]
-    if isinstance(obj, dict):
-        return {key: _round(value) for (key, value) in obj.items()}
-    if isinstance(obj, VariableFeatures):
-        obj.__dict__ = _round(obj.__dict__)
-    if isinstance(obj, ConstraintFeatures):
-        obj.__dict__ = _round(obj.__dict__)
-    return obj
-
-
 def _filter_attrs(allowed_keys: List[str], obj: Any) -> Any:
     for key in obj.__dict__.keys():
         if key not in allowed_keys:
@@ -98,7 +80,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # Fetch variables (after-lp)
     assert_equals(
-        _round(solver.get_variables(with_static=False)),
+        solver.get_variables(with_static=False),
         _filter_attrs(
             solver.get_variable_attrs(),
             VariableFeatures(
@@ -118,7 +100,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # Fetch constraints (after-lp)
     assert_equals(
-        _round(solver.get_constraints(with_static=False)),
+        solver.get_constraints(with_static=False),
         _filter_attrs(
             solver.get_constraint_attrs(),
             ConstraintFeatures(
@@ -151,7 +133,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # Fetch variables (after-mip)
     assert_equals(
-        _round(solver.get_variables(with_static=False)),
+        solver.get_variables(with_static=False),
         _filter_attrs(
             solver.get_variable_attrs(),
             VariableFeatures(
@@ -163,7 +145,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
 
     # Fetch constraints (after-mip)
     assert_equals(
-        _round(solver.get_constraints(with_static=False)),
+        solver.get_constraints(with_static=False),
         _filter_attrs(
             solver.get_constraint_attrs(),
             ConstraintFeatures(
@@ -185,7 +167,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # Add constraint and verify it affects solution
     solver.add_constraints(cf)
     assert_equals(
-        _round(solver.get_constraints(with_static=True)),
+        solver.get_constraints(with_static=True),
         _filter_attrs(
             solver.get_constraint_attrs(),
             ConstraintFeatures(
@@ -283,26 +265,28 @@ def run_lazy_cb_tests(solver: InternalSolver) -> None:
     assert_equals(solution["x[0]"], 0.0)
 
 
-def _recursive_convert_ndarray_to_list(obj: Any) -> Any:
+def _equals_preprocess(obj: Any) -> Any:
     if isinstance(obj, np.ndarray):
-        return obj.tolist()
-    elif isinstance(obj, (int, float, str)):
+        return np.round(obj, decimals=6).tolist()
+    elif isinstance(obj, (int, str)):
         return obj
+    elif isinstance(obj, float):
+        return round(obj, 6)
     elif isinstance(obj, list):
-        return [_recursive_convert_ndarray_to_list(i) for i in obj]
+        return [_equals_preprocess(i) for i in obj]
     elif isinstance(obj, tuple):
-        return tuple(_recursive_convert_ndarray_to_list(i) for i in obj)
+        return tuple(_equals_preprocess(i) for i in obj)
     elif obj is None:
         return None
     elif isinstance(obj, dict):
-        return {k: _recursive_convert_ndarray_to_list(v) for (k, v) in obj.items()}
+        return {k: _equals_preprocess(v) for (k, v) in obj.items()}
     else:
         for key in obj.__dict__.keys():
-            obj.__dict__[key] = _recursive_convert_ndarray_to_list(obj.__dict__[key])
+            obj.__dict__[key] = _equals_preprocess(obj.__dict__[key])
         return obj
 
 
 def assert_equals(left: Any, right: Any) -> None:
-    left = _recursive_convert_ndarray_to_list(left)
-    right = _recursive_convert_ndarray_to_list(right)
+    left = _equals_preprocess(left)
+    right = _equals_preprocess(right)
     assert left == right, f"left:\n{left}\nright:\n{right}"
