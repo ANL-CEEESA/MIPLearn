@@ -1,463 +1,539 @@
+
 <!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1. Using MIPLearn &#8212; MIPLearn&lt;br/&gt;&lt;small&gt;0.2.0&lt;/small&gt;</title>
     
-    
-    
-    <link rel="shortcut icon" href="../img/favicon.ico">
-
-    
-    <title>Usage - MIPLearn</title>
-    
-
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
-    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
-    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
-    <link href="../css/base.min.css" rel="stylesheet">
-    <link href="../css/cinder.min.css" rel="stylesheet">
+  <link href="../_static/css/theme.css" rel="stylesheet" />
+  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
 
     
-        
-        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
-        
-    
-    <link href="../css/custom.css" rel="stylesheet">
-
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
-        <![endif]-->
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
     
+      
 
-     
-</head>
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
 
-<body>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
+    <link rel="author" title="About these documents" href="../about/" />
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="2. Benchmarks" href="../benchmark/" />
+    <link rel="prev" title="MIPLearn" href="../" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
 
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="container">
+    
 
-        <!-- Collapsed navigation -->
-        <div class="navbar-header">
-            <!-- Expander button -->
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn<br/><small>0.2.0</small></h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   <span class="sectnum">
+    1.
+   </span>
+   Using MIPLearn
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../benchmark/">
+   <span class="sectnum">
+    2.
+   </span>
+   Benchmarks
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../customization/">
+   <span class="sectnum">
+    3.
+   </span>
+   Customization
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../about/">
+   <span class="sectnum">
+    4.
+   </span>
+   About
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
             </button>
             
-
-            <!-- Main title -->
-
             
-              <a class="navbar-brand" href="..">MIPLearn</a>
-            
-        </div>
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
 
-        <!-- Expanded navigation -->
-        <div class="navbar-collapse collapse">
-                <!-- Main navigation -->
-                <ul class="nav navbar-nav">
-                
-                
-                    <li >
-                        <a href="..">Home</a>
-                    </li>
-                
-                
-                
-                    <li class="active">
-                        <a href="./">Usage</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="../problems/">Problems</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="../customization/">Customization</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="../about/">About</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="../api/miplearn/index.html">API</a>
-                    </li>
-                
-                
-                </ul>
-
-            <ul class="nav navbar-nav navbar-right">
-                    <li>
-                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
-                            <i class="fas fa-search"></i> Search
-                        </a>
-                    </li>
-                    <li >
-                        <a rel="prev" href="..">
-                            <i class="fas fa-arrow-left"></i> Previous
-                        </a>
-                    </li>
-                    <li >
-                        <a rel="next" href="../problems/">
-                            Next <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/ANL-CEEESA/MIPLearn/edit/dev/docs/usage.md"><i class="fab fa-github"></i> Edit on GitHub</a>
-                    </li>
-            </ul>
-        </div>
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../_sources/usage.md.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.md</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
     </div>
 </div>
 
-    <div class="container">
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/ANL-CEEESA/MIPLearn/"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
         
         
-        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
-    <ul class="nav bs-sidenav">
-        <li class="first-level active"><a href="#usage">Usage</a></li>
-            <li class="second-level"><a href="#1-installation">1. Installation</a></li>
-                
-            <li class="second-level"><a href="#2-using-learningsolver">2. Using LearningSolver</a></li>
-                
-            <li class="second-level"><a href="#3-describing-problem-instances">3. Describing problem instances</a></li>
-                
-            <li class="second-level"><a href="#4-describing-lazy-constraints">4. Describing lazy constraints</a></li>
-                
-                <li class="third-level"><a href="#41-adding-lazy-constraints-through-annotations">4.1 Adding lazy constraints through annotations</a></li>
-                <li class="third-level"><a href="#42-adding-lazy-constraints-through-callbacks">4.2 Adding lazy constraints through callbacks</a></li>
-            <li class="second-level"><a href="#5-obtaining-heuristic-solutions">5. Obtaining heuristic solutions</a></li>
-                
-            <li class="second-level"><a href="#6-scaling-up">6. Scaling Up</a></li>
-                
-                <li class="third-level"><a href="#61-saving-and-loading-solver-state">6.1 Saving and loading solver state</a></li>
-                <li class="third-level"><a href="#62-solving-instances-in-parallel">6.2 Solving instances in parallel</a></li>
-                <li class="third-level"><a href="#63-solving-instances-from-the-disk">6.3 Solving instances from the disk</a></li>
-            <li class="second-level"><a href="#7-running-benchmarks">7. Running benchmarks</a></li>
-                
-            <li class="second-level"><a href="#8-current-limitations">8. Current Limitations</a></li>
-                
-    </ul>
-</div></div>
-        <div class="col-md-9" role="main">
+    </div>
+</div>
 
-<h1 id="usage">Usage</h1>
-<h2 id="1-installation">1. Installation</h2>
-<p>In these docs, we describe the Python/Pyomo version of the package, although a <a href="https://github.com/ANL-CEEESA/MIPLearn.jl">Julia/JuMP version</a> is also available. A mixed-integer solver is also required and its Python bindings must be properly installed. Supported solvers are currently CPLEX, Gurobi and XPRESS.</p>
-<p>To install MIPLearn, run: </p>
-<pre><code class="language-bash">pip3 install --upgrade miplearn==0.2.*
-</code></pre>
-<p>After installation, the package <code>miplearn</code> should become available to Python. It can be imported
-as follows:</p>
-<pre><code class="language-python">import miplearn
-</code></pre>
-<h2 id="2-using-learningsolver">2. Using <code>LearningSolver</code></h2>
-<p>The main class provided by this package is <code>LearningSolver</code>, a learning-enhanced MIP solver which uses information from previously solved instances to accelerate the solution of new instances. The following example shows its basic usage:</p>
-<pre><code class="language-python">from miplearn import LearningSolver
+            <!-- Full screen (wrap in <a> to have style consistency -->
 
-# List of user-provided instances
-training_instances = [...] 
-test_instances = [...]
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
 
-# Create solver
-solver = LearningSolver()
+            <!-- Launch buttons -->
 
-# Solve all training instances
-for instance in training_instances:
-    solver.solve(instance)
+        </div>
 
-# Learn from training instances
-solver.fit(training_instances)
-
-# Solve all test instances
-for instance in test_instances:
-    solver.solve(instance)
-</code></pre>
-<p>In this example, we have two lists of user-provided instances: <code>training_instances</code> and <code>test_instances</code>. We start by solving all training instances. Since there is no historical information available at this point, the instances will be processed from scratch, with no ML acceleration. After solving each instance, the solver stores within each <code>instance</code> object the optimal solution, the optimal objective value, and other information that can be used to accelerate future solves. After all training instances are solved, we call <code>solver.fit(training_instances)</code>. This instructs the solver to train all its internal machine-learning models based on the solutions of the (solved) trained instances. Subsequent calls to <code>solver.solve(instance)</code> will automatically use the trained Machine Learning models to accelerate the solution process.</p>
-<h2 id="3-describing-problem-instances">3. Describing problem instances</h2>
-<p>Instances to be solved by <code>LearningSolver</code> must derive from the abstract class <code>miplearn.Instance</code>. The following three abstract methods must be implemented:</p>
-<ul>
-<li><code>instance.to_model()</code>, which returns a concrete Pyomo model corresponding to the instance;</li>
-<li><code>instance.get_instance_features()</code>, which returns a 1-dimensional Numpy array of (numerical) features describing the entire instance;</li>
-<li><code>instance.get_variable_features(var_name, index)</code>, which returns a 1-dimensional array of (numerical) features describing a particular decision variable.</li>
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#installation">
+   <span class="sectnum">
+    1.1.
+   </span>
+   Installation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#using-learningsolver">
+   <span class="sectnum">
+    1.2.
+   </span>
+   Using
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     LearningSolver
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#describing-problem-instances">
+   <span class="sectnum">
+    1.3.
+   </span>
+   Describing problem instances
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#describing-lazy-constraints">
+   <span class="sectnum">
+    1.4.
+   </span>
+   Describing lazy constraints
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#adding-lazy-constraints-through-annotations">
+     Adding lazy constraints through annotations
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#adding-lazy-constraints-through-callbacks">
+     Adding lazy constraints through callbacks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#obtaining-heuristic-solutions">
+   <span class="sectnum">
+    1.5.
+   </span>
+   Obtaining heuristic solutions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#scaling-up">
+   <span class="sectnum">
+    1.6.
+   </span>
+   Scaling Up
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#saving-and-loading-solver-state">
+     Saving and loading solver state
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#solving-instances-in-parallel">
+     Solving instances in parallel
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#solving-instances-from-the-disk">
+     Solving instances from the disk
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#running-benchmarks">
+   <span class="sectnum">
+    1.7.
+   </span>
+   Running benchmarks
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#current-limitations">
+   <span class="sectnum">
+    1.8.
+   </span>
+   Current Limitations
+  </a>
+ </li>
 </ul>
-<p>The first method is used by <code>LearningSolver</code> to construct a concrete Pyomo model, which will be provided to the internal MIP solver. The second and third methods provide an encoding of the instance, which can be used by the ML models to make predictions. In the knapsack problem, for example, an implementation may decide to provide as instance features the average weights, average prices, number of items and the size of the knapsack. The weight and the price of each individual item could be provided as variable features. See <code>src/python/miplearn/problems/knapsack.py</code> for a concrete example.</p>
-<p>An optional method which can be implemented is <code>instance.get_variable_category(var_name, index)</code>, which returns a category (a string, an integer or any hashable type) for each decision variable. If two variables have the same category, <code>LearningSolver</code> will use the same internal ML model to predict the values of both variables. By default, all variables belong to the <code>"default"</code> category, and therefore only one ML model is used for all variables. If the returned category is <code>None</code>, ML predictors will ignore the variable.</p>
-<p>It is not necessary to have a one-to-one correspondence between features and problem instances. One important (and deliberate) limitation of MIPLearn, however, is that <code>get_instance_features()</code> must always return arrays of same length for all relevant instances of the problem. Similarly, <code>get_variable_features(var_name, index)</code> must also always return arrays of same length for all variables in each category. It is up to the user to decide how to encode variable-length characteristics of the problem into fixed-length vectors. In graph problems, for example, graph embeddings can be used to reduce the (variable-length) lists of nodes and edges into a fixed-length structure that still preserves some properties of the graph. Different instance encodings may have significant impact on performance.</p>
-<h2 id="4-describing-lazy-constraints">4. Describing lazy constraints</h2>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="section" id="using-miplearn">
+<h1><span class="sectnum">1.</span> Using MIPLearn<a class="headerlink" href="#using-miplearn" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2><span class="sectnum">1.1.</span> Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>In these docs, we describe the Python/Pyomo version of the package, although a <a class="reference external" href="https://github.com/ANL-CEEESA/MIPLearn.jl">Julia/JuMP version</a> is also available. A mixed-integer solver is also required and its Python bindings must be properly installed. Supported solvers are currently CPLEX, Gurobi and XPRESS.</p>
+<p>To install MIPLearn, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3 install --upgrade <span class="nv">miplearn</span><span class="o">==</span><span class="m">0</span>.2.*
+</pre></div>
+</div>
+<p>After installation, the package <code class="docutils literal notranslate"><span class="pre">miplearn</span></code> should become available to Python. It can be imported
+as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">miplearn</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-learningsolver">
+<h2><span class="sectnum">1.2.</span> Using <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code><a class="headerlink" href="#using-learningsolver" title="Permalink to this headline">¶</a></h2>
+<p>The main class provided by this package is <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code>, a learning-enhanced MIP solver which uses information from previously solved instances to accelerate the solution of new instances. The following example shows its basic usage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn</span> <span class="kn">import</span> <span class="n">LearningSolver</span>
+
+<span class="c1"># List of user-provided instances</span>
+<span class="n">training_instances</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> 
+<span class="n">test_instances</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+
+<span class="c1"># Create solver</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">()</span>
+
+<span class="c1"># Solve all training instances</span>
+<span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">training_instances</span><span class="p">:</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+
+<span class="c1"># Learn from training instances</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training_instances</span><span class="p">)</span>
+
+<span class="c1"># Solve all test instances</span>
+<span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">test_instances</span><span class="p">:</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, we have two lists of user-provided instances: <code class="docutils literal notranslate"><span class="pre">training_instances</span></code> and <code class="docutils literal notranslate"><span class="pre">test_instances</span></code>. We start by solving all training instances. Since there is no historical information available at this point, the instances will be processed from scratch, with no ML acceleration. After solving each instance, the solver stores within each <code class="docutils literal notranslate"><span class="pre">instance</span></code> object the optimal solution, the optimal objective value, and other information that can be used to accelerate future solves. After all training instances are solved, we call <code class="docutils literal notranslate"><span class="pre">solver.fit(training_instances)</span></code>. This instructs the solver to train all its internal machine-learning models based on the solutions of the (solved) trained instances. Subsequent calls to <code class="docutils literal notranslate"><span class="pre">solver.solve(instance)</span></code> will automatically use the trained Machine Learning models to accelerate the solution process.</p>
+</div>
+<div class="section" id="describing-problem-instances">
+<h2><span class="sectnum">1.3.</span> Describing problem instances<a class="headerlink" href="#describing-problem-instances" title="Permalink to this headline">¶</a></h2>
+<p>Instances to be solved by <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code> must derive from the abstract class <code class="docutils literal notranslate"><span class="pre">miplearn.Instance</span></code>. The following three abstract methods must be implemented:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">instance.to_model()</span></code>, which returns a concrete Pyomo model corresponding to the instance;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instance.get_instance_features()</span></code>, which returns a 1-dimensional Numpy array of (numerical) features describing the entire instance;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instance.get_variable_features(var_name,</span> <span class="pre">index)</span></code>, which returns a 1-dimensional array of (numerical) features describing a particular decision variable.</p></li>
+</ul>
+<p>The first method is used by <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code> to construct a concrete Pyomo model, which will be provided to the internal MIP solver. The second and third methods provide an encoding of the instance, which can be used by the ML models to make predictions. In the knapsack problem, for example, an implementation may decide to provide as instance features the average weights, average prices, number of items and the size of the knapsack. The weight and the price of each individual item could be provided as variable features. See <code class="docutils literal notranslate"><span class="pre">src/python/miplearn/problems/knapsack.py</span></code> for a concrete example.</p>
+<p>An optional method which can be implemented is <code class="docutils literal notranslate"><span class="pre">instance.get_variable_category(var_name,</span> <span class="pre">index)</span></code>, which returns a category (a string, an integer or any hashable type) for each decision variable. If two variables have the same category, <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code> will use the same internal ML model to predict the values of both variables. By default, all variables belong to the <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> category, and therefore only one ML model is used for all variables. If the returned category is <code class="docutils literal notranslate"><span class="pre">None</span></code>, ML predictors will ignore the variable.</p>
+<p>It is not necessary to have a one-to-one correspondence between features and problem instances. One important (and deliberate) limitation of MIPLearn, however, is that <code class="docutils literal notranslate"><span class="pre">get_instance_features()</span></code> must always return arrays of same length for all relevant instances of the problem. Similarly, <code class="docutils literal notranslate"><span class="pre">get_variable_features(var_name,</span> <span class="pre">index)</span></code> must also always return arrays of same length for all variables in each category. It is up to the user to decide how to encode variable-length characteristics of the problem into fixed-length vectors. In graph problems, for example, graph embeddings can be used to reduce the (variable-length) lists of nodes and edges into a fixed-length structure that still preserves some properties of the graph. Different instance encodings may have significant impact on performance.</p>
+</div>
+<div class="section" id="describing-lazy-constraints">
+<h2><span class="sectnum">1.4.</span> Describing lazy constraints<a class="headerlink" href="#describing-lazy-constraints" title="Permalink to this headline">¶</a></h2>
 <p>For many MIP formulations, it is not desirable to add all constraints up-front, either because the total number of constraints is very large, or because some of the constraints, even in relatively small numbers, can still cause significant performance impact when added to the formulation. In these situations, it may be desirable to generate and add constraints incrementaly, during the solution process itself. Conventional MIP solvers typically start by solving the problem without any lazy constraints. Whenever a candidate solution is found, the solver finds all violated lazy constraints and adds them to the formulation. MIPLearn significantly accelerates this process by using ML to predict which lazy constraints should be enforced from the very beginning of the optimization process, even before a candidate solution is available.</p>
 <p>MIPLearn supports two types of lazy constraints: through constraint annotations and through callbacks.</p>
-<h3 id="41-adding-lazy-constraints-through-annotations">4.1 Adding lazy constraints through annotations</h3>
+<div class="section" id="adding-lazy-constraints-through-annotations">
+<h3>Adding lazy constraints through annotations<a class="headerlink" href="#adding-lazy-constraints-through-annotations" title="Permalink to this headline">¶</a></h3>
 <p>The easiest way to create lazy constraints in MIPLearn is to add them to the model (just like any regular constraints), then annotate them as lazy, as described below. Just before the optimization starts, MIPLearn removes all lazy constraints from the model and places them in a lazy constraint pool. If any trained ML models are available, MIPLearn queries these models to decide which of these constraints should be moved back into the formulation. After this step, the optimization starts, and lazy constraints from the pool are added to the model in the conventional fashion.</p>
 <p>To tag a constraint as lazy, the following methods must be implemented:</p>
-<ul>
-<li><code>instance.has_static_lazy_constraints()</code>, which returns <code>True</code> if the model has any annotated lazy constraints. By default, this method returns <code>False</code>.</li>
-<li><code>instance.is_constraint_lazy(cid)</code>, which returns <code>True</code> if the constraint with name <code>cid</code> should be treated as a lazy constraint, and <code>False</code> otherwise.</li>
-<li><code>instance.get_constraint_features(cid)</code>, which returns a 1-dimensional Numpy array of (numerical) features describing the constraint.</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">instance.has_static_lazy_constraints()</span></code>, which returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the model has any annotated lazy constraints. By default, this method returns <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instance.is_constraint_lazy(cid)</span></code>, which returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the constraint with name <code class="docutils literal notranslate"><span class="pre">cid</span></code> should be treated as a lazy constraint, and <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instance.get_constraint_features(cid)</span></code>, which returns a 1-dimensional Numpy array of (numerical) features describing the constraint.</p></li>
 </ul>
-<p>For instances such that <code>has_lazy_constraints</code> returns <code>True</code>, MIPLearn calls <code>is_constraint_lazy</code> for each constraint in the formulation, providing the name of the constraint. For constraints such that <code>is_constraint_lazy</code> returns <code>True</code>, MIPLearn additionally calls <code>get_constraint_features</code> to gather a ML representation of each constraint. These features are used to predict which lazy constraints should be initially enforced.</p>
-<p>An additional method that can be implemented is <code>get_lazy_constraint_category(cid)</code>, which returns a category (a string or any other hashable type) for each lazy constraint. Similarly to decision variable categories, if two lazy constraints have the same category, then MIPLearn will use the same internal ML model to decide whether to initially enforce them. By default, all lazy constraints belong to the <code>"default"</code> category, and therefore a single ML model is used.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>If two lazy constraints belong to the same category, their feature vectors should have the same length.</p>
+<p>For instances such that <code class="docutils literal notranslate"><span class="pre">has_lazy_constraints</span></code> returns <code class="docutils literal notranslate"><span class="pre">True</span></code>, MIPLearn calls <code class="docutils literal notranslate"><span class="pre">is_constraint_lazy</span></code> for each constraint in the formulation, providing the name of the constraint. For constraints such that <code class="docutils literal notranslate"><span class="pre">is_constraint_lazy</span></code> returns <code class="docutils literal notranslate"><span class="pre">True</span></code>, MIPLearn additionally calls <code class="docutils literal notranslate"><span class="pre">get_constraint_features</span></code> to gather a ML representation of each constraint. These features are used to predict which lazy constraints should be initially enforced.</p>
+<p>An additional method that can be implemented is <code class="docutils literal notranslate"><span class="pre">get_lazy_constraint_category(cid)</span></code>, which returns a category (a string or any other hashable type) for each lazy constraint. Similarly to decision variable categories, if two lazy constraints have the same category, then MIPLearn will use the same internal ML model to decide whether to initially enforce them. By default, all lazy constraints belong to the <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> category, and therefore a single ML model is used.</p>
+<p>!!! warning
+If two lazy constraints belong to the same category, their feature vectors should have the same length.</p>
 </div>
-<h3 id="42-adding-lazy-constraints-through-callbacks">4.2 Adding lazy constraints through callbacks</h3>
+<div class="section" id="adding-lazy-constraints-through-callbacks">
+<h3>Adding lazy constraints through callbacks<a class="headerlink" href="#adding-lazy-constraints-through-callbacks" title="Permalink to this headline">¶</a></h3>
 <p>Although convenient, the method described in the previous subsection still requires the generation of all lazy constraints ahead of time, which can be prohibitively expensive. An alternative method is through a lazy constraint callbacks, described below. During the solution process, MIPLearn will repeatedly call a user-provided function to identify any violated lazy constraints. If violated constraints are identified, MIPLearn will additionally call another user-provided function to generate the constraint and add it to the formulation.</p>
 <p>To describe lazy constraints through user callbacks, the following methods need to be implemented:</p>
-<ul>
-<li><code>instance.has_dynamic_lazy_constraints()</code>, which returns <code>True</code> if the model has any lazy constraints generated by user callbacks. By default, this method returns <code>False</code>.</li>
-<li><code>instance.find_violated_lazy_constraints(model)</code>, which returns a list of identifiers corresponding to the lazy constraints found to be violated by the current solution. These identifiers should be strings, tuples or any other hashable type.</li>
-<li><code>instance.build_violated_lazy_constraints(model, cid)</code>, which returns either a list of Pyomo constraints, or a single Pyomo constraint, corresponding to the given lazy constraint identifier.</li>
-<li><code>instance.get_constraint_features(cid)</code>, which returns a 1-dimensional Numpy array of (numerical) features describing the constraint. If this constraint is not valid, returns <code>None</code>.</li>
-<li><code>instance.get_lazy_constraint_category(cid)</code>, which returns a category (a string or any other hashable type) for each lazy constraint, indicating which ML model to use. By default, returns <code>"default"</code>.</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">instance.has_dynamic_lazy_constraints()</span></code>, which returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the model has any lazy constraints generated by user callbacks. By default, this method returns <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instance.find_violated_lazy_constraints(model)</span></code>, which returns a list of identifiers corresponding to the lazy constraints found to be violated by the current solution. These identifiers should be strings, tuples or any other hashable type.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instance.build_violated_lazy_constraints(model,</span> <span class="pre">cid)</span></code>, which returns either a list of Pyomo constraints, or a single Pyomo constraint, corresponding to the given lazy constraint identifier.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instance.get_constraint_features(cid)</span></code>, which returns a 1-dimensional Numpy array of (numerical) features describing the constraint. If this constraint is not valid, returns <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instance.get_lazy_constraint_category(cid)</span></code>, which returns a category (a string or any other hashable type) for each lazy constraint, indicating which ML model to use. By default, returns <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code>.</p></li>
 </ul>
-<p>Assuming that trained ML models are available, immediately after calling <code>solver.solve</code>, MIPLearn will call <code>get_constraint_features</code> for each lazy constraint identifier found in the training set. For constraints such that <code>get_constraint_features</code> returns a vector (instead of <code>None</code>), MIPLearn will call <code>get_constraint_category</code> to decide which trained ML model to use. It will then query the ML model to decide whether the constraint should be initially enforced. Assuming that the ML predicts this constraint will be necessary, MIPLearn calls <code>build_violated_constraints</code> then adds the returned list of Pyomo constraints to the model. The optimization then starts. When no trained ML models are available, this entire initial process is skipped, and MIPLearn behaves like a conventional solver.</p>
-<p>After the optimization process starts, MIPLearn will periodically call <code>find_violated_lazy_constraints</code> to verify if the current solution violates any lazy constraints. If any violated lazy constraints are found, MIPLearn will call the method <code>build_violated_lazy_constraints</code> and add the returned constraints to the formulation.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When implementing <code>find_violated_lazy_constraints(self, model)</code>, the current solution may be accessed through <code>self.solution[var_name][index]</code>.</p>
+<p>Assuming that trained ML models are available, immediately after calling <code class="docutils literal notranslate"><span class="pre">solver.solve</span></code>, MIPLearn will call <code class="docutils literal notranslate"><span class="pre">get_constraint_features</span></code> for each lazy constraint identifier found in the training set. For constraints such that <code class="docutils literal notranslate"><span class="pre">get_constraint_features</span></code> returns a vector (instead of <code class="docutils literal notranslate"><span class="pre">None</span></code>), MIPLearn will call <code class="docutils literal notranslate"><span class="pre">get_constraint_category</span></code> to decide which trained ML model to use. It will then query the ML model to decide whether the constraint should be initially enforced. Assuming that the ML predicts this constraint will be necessary, MIPLearn calls <code class="docutils literal notranslate"><span class="pre">build_violated_constraints</span></code> then adds the returned list of Pyomo constraints to the model. The optimization then starts. When no trained ML models are available, this entire initial process is skipped, and MIPLearn behaves like a conventional solver.</p>
+<p>After the optimization process starts, MIPLearn will periodically call <code class="docutils literal notranslate"><span class="pre">find_violated_lazy_constraints</span></code> to verify if the current solution violates any lazy constraints. If any violated lazy constraints are found, MIPLearn will call the method <code class="docutils literal notranslate"><span class="pre">build_violated_lazy_constraints</span></code> and add the returned constraints to the formulation.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>When implementing <code class="docutils literal notranslate"><span class="pre">find_violated_lazy_constraints(self,</span> <span class="pre">model)</span></code>, the current solution may be accessed through <code class="docutils literal notranslate"><span class="pre">self.solution[var_name][index]</span></code>.</p>
 </div>
-<h2 id="5-obtaining-heuristic-solutions">5. Obtaining heuristic solutions</h2>
-<p>By default, <code>LearningSolver</code> uses Machine Learning to accelerate the MIP solution process, while maintaining all optimality guarantees provided by the MIP solver. In the default mode of operation, for example, predicted optimal solutions are used only as MIP starts.</p>
-<p>For more significant performance benefits, <code>LearningSolver</code> can also be configured to place additional trust in the Machine Learning predictors, by using the <code>mode="heuristic"</code> constructor argument. When operating in this mode, if a ML model is statistically shown (through <em>stratified k-fold cross validation</em>) to have exceptionally high accuracy, the solver may decide to restrict the search space based on its predictions. The parts of the solution which the ML models cannot predict accurately will still be explored using traditional (branch-and-bound) methods.  For particular applications, this mode has been shown to quickly produce optimal or near-optimal solutions (see <a href="../about/#references">references</a> and <a href="../problems/">benchmark results</a>).</p>
+</div>
+</div>
+<div class="section" id="obtaining-heuristic-solutions">
+<h2><span class="sectnum">1.5.</span> Obtaining heuristic solutions<a class="headerlink" href="#obtaining-heuristic-solutions" title="Permalink to this headline">¶</a></h2>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code> uses Machine Learning to accelerate the MIP solution process, while maintaining all optimality guarantees provided by the MIP solver. In the default mode of operation, for example, predicted optimal solutions are used only as MIP starts.</p>
+<p>For more significant performance benefits, <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code> can also be configured to place additional trust in the Machine Learning predictors, by using the <code class="docutils literal notranslate"><span class="pre">mode=&quot;heuristic&quot;</span></code> constructor argument. When operating in this mode, if a ML model is statistically shown (through <em>stratified k-fold cross validation</em>) to have exceptionally high accuracy, the solver may decide to restrict the search space based on its predictions. The parts of the solution which the ML models cannot predict accurately will still be explored using traditional (branch-and-bound) methods.  For particular applications, this mode has been shown to quickly produce optimal or near-optimal solutions (see <a class="reference external" href="about.md#references">references</a> and <a class="reference internal" href="../benchmark/"><span class="doc std std-doc">benchmark results</span></a>).</p>
 <div class="admonition danger">
 <p class="admonition-title">Danger</p>
-<p>The <code>heuristic</code> mode provides no optimality guarantees, and therefore should only be used if the solver is first trained on a large and representative set of training instances. Training on a small or non-representative set of instances may produce low-quality solutions, or make the solver incorrectly classify new instances as infeasible.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">heuristic</span></code> mode provides no optimality guarantees, and therefore should only be used if the solver is first trained on a large and representative set of training instances. Training on a small or non-representative set of instances may produce low-quality solutions, or make the solver incorrectly classify new instances as infeasible.</p>
 </div>
-<h2 id="6-scaling-up">6. Scaling Up</h2>
-<h3 id="61-saving-and-loading-solver-state">6.1 Saving and loading solver state</h3>
-<p>After solving a large number of training instances, it may be desirable to save the current state of <code>LearningSolver</code> to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the standard <code>pickle</code> module, as the following example illustrates:</p>
-<pre><code class="language-python">from miplearn import LearningSolver
-import pickle
+</div>
+<div class="section" id="scaling-up">
+<h2><span class="sectnum">1.6.</span> Scaling Up<a class="headerlink" href="#scaling-up" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="saving-and-loading-solver-state">
+<h3>Saving and loading solver state<a class="headerlink" href="#saving-and-loading-solver-state" title="Permalink to this headline">¶</a></h3>
+<p>After solving a large number of training instances, it may be desirable to save the current state of <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code> to disk, so that the solver can still use the acquired knowledge after the application restarts. This can be accomplished by using the the utility functions <code class="docutils literal notranslate"><span class="pre">write_pickle_gz</span></code> and <code class="docutils literal notranslate"><span class="pre">read_pickle_gz</span></code>, as the following example illustrates:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn</span> <span class="kn">import</span> <span class="n">LearningSolver</span><span class="p">,</span> <span class="n">write_pickle_gz</span><span class="p">,</span> <span class="n">read_pickle_gz</span>
 
-# Solve training instances
-training_instances = [...]
-solver = LearningSolver()
-for instance in training_instances:
-    solver.solve(instance)
+<span class="c1"># Solve training instances</span>
+<span class="n">training_instances</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">training_instances</span><span class="p">:</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
 
-# Train machine-learning models
-solver.fit(training_instances)
+<span class="c1"># Train machine-learning models</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training_instances</span><span class="p">)</span>
 
-# Save trained solver to disk
-with open(&quot;solver.pickle&quot;, &quot;wb&quot;) as file:
-    pickle.dump(solver, file)
+<span class="c1"># Save trained solver to disk</span>
+<span class="n">write_pickle_gz</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="s2">&quot;solver.pkl.gz&quot;</span><span class="p">)</span>
 
-# Application restarts...
+<span class="c1"># Application restarts...</span>
 
-# Load trained solver from disk
-with open(&quot;solver.pickle&quot;, &quot;rb&quot;) as file:
-    solver = pickle.load(file)
+<span class="c1"># Load trained solver from disk</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">read_pickle_gz</span><span class="p">(</span><span class="s2">&quot;solver.pkl.gz&quot;</span><span class="p">)</span>
 
-# Solve additional instances
-test_instances = [...]
-for instance in test_instances:
-    solver.solve(instance)
-</code></pre>
-<h3 id="62-solving-instances-in-parallel">6.2 Solving instances in parallel</h3>
-<p>In many situations, instances can be solved in parallel to accelerate the training process. <code>LearningSolver</code> provides the method <code>parallel_solve(instances)</code> to easily achieve this:</p>
-<pre><code class="language-python">from miplearn import LearningSolver
+<span class="c1"># Solve additional instances</span>
+<span class="n">test_instances</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">test_instances</span><span class="p">:</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="solving-instances-in-parallel">
+<h3>Solving instances in parallel<a class="headerlink" href="#solving-instances-in-parallel" title="Permalink to this headline">¶</a></h3>
+<p>In many situations, instances can be solved in parallel to accelerate the training process. <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code> provides the method <code class="docutils literal notranslate"><span class="pre">parallel_solve(instances)</span></code> to easily achieve this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn</span> <span class="kn">import</span> <span class="n">LearningSolver</span>
 
-training_instances = [...]
-solver = LearningSolver()
-solver.parallel_solve(training_instances, n_jobs=4)
-solver.fit(training_instances)
+<span class="n">training_instances</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">()</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">parallel_solve</span><span class="p">(</span><span class="n">training_instances</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training_instances</span><span class="p">)</span>
 
-# Test phase...
-test_instances = [...]
-solver.parallel_solve(test_instances)
-</code></pre>
-<h3 id="63-solving-instances-from-the-disk">6.3 Solving instances from the disk</h3>
-<p>In all examples above, we have assumed that instances are available as Python objects, stored in memory. When problem instances are very large, or when there is a large number of problem instances, this approach may require an excessive amount of memory. To reduce memory requirements, MIPLearn can also operate on instances that are stored on disk. More precisely, the methods <code>fit</code>, <code>solve</code> and <code>parallel_solve</code> in <code>LearningSolver</code> can operate on filenames (or lists of filenames) instead of instance objects, as the next example illustrates.
-Instance files must be pickled instance objects. The method <code>solve</code> loads at most one instance to memory at a time, while <code>parallel_solve</code> loads at most <code>n_jobs</code> instances.</p>
-<pre><code class="language-python">import pickle
-from miplearn import LearningSolver
+<span class="c1"># Test phase...</span>
+<span class="n">test_instances</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">parallel_solve</span><span class="p">(</span><span class="n">test_instances</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="solving-instances-from-the-disk">
+<h3>Solving instances from the disk<a class="headerlink" href="#solving-instances-from-the-disk" title="Permalink to this headline">¶</a></h3>
+<p>In all examples above, we have assumed that instances are available as Python objects, stored in memory. When problem instances are very large, or when there is a large number of problem instances, this approach may require an excessive amount of memory. To reduce memory requirements, MIPLearn can also operate on instances that are stored on disk, through the <code class="docutils literal notranslate"><span class="pre">PickleGzInstance</span></code> class, as the next example illustrates.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">miplearn</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LearningSolver</span><span class="p">,</span>
+    <span class="n">PickleGzInstance</span><span class="p">,</span>
+    <span class="n">write_pickle_gz</span><span class="p">,</span>
+<span class="p">)</span>
 
-# Construct and pickle 600 problem instances
-for i in range(600):
-    instance = MyProblemInstance([...])
-    with open(&quot;instance_%03d.pkl&quot; % i, &quot;w&quot;) as file:
-        pickle.dump(instance, obj)
-
-# Split instances into training and test
-test_instances  = [&quot;instance_%03d.pkl&quot; % i for i in range(500)]
-train_instances = [&quot;instance_%03d.pkl&quot; % i for i in range(500, 600)]
-
-# Create solver
-solver = LearningSolver([...])
-
-# Solve training instances 
-solver.parallel_solve(train_instances, n_jobs=4)
-
-# Train ML models
-solver.fit(train_instances)
-
-# Solve test instances 
-solver.parallel_solve(test_instances, n_jobs=4)
-</code></pre>
-<p>By default, <code>solve</code> and <code>parallel_solve</code> modify files in place. That is, after the instances are loaded from disk and solved, MIPLearn writes them back to the disk, overwriting the original files. To write to an alternative file instead, use the arguments <code>output_filename</code> (in <code>solve</code>) and <code>output_filenames</code> (in <code>parallel_solve</code>). To discard the modifications instead, use <code>discard_outputs=True</code>. This can be useful, for example, during benchmarks.</p>
-<pre><code class="language-python"># Solve a single instance file and write the output to another file
-solver.solve(&quot;knapsack_1.orig.pkl&quot;, output_filename=&quot;knapsack_1.solved.pkl&quot;)
-
-# Solve a list of instance files
-instances = [&quot;knapsack_%03d.orig.pkl&quot; % i for i in range(100)]
-output = [&quot;knapsack_%03d.solved.pkl&quot; % i for i in range(100)]
-solver.parallel_solve(instances, output_filenames=output)
-
-# Solve instances and discard solutions and training data
-solver.parallel_solve(instances, discard_outputs=True)
-</code></pre>
-<h2 id="7-running-benchmarks">7. Running benchmarks</h2>
-<p>MIPLearn provides the utility class <code>BenchmarkRunner</code>, which simplifies the task of comparing the performance of different solvers. The snippet below shows its basic usage:</p>
-<pre><code class="language-python">from miplearn import BenchmarkRunner, LearningSolver
-
-# Create train and test instances
-train_instances = [...]
-test_instances  = [...]
-
-# Training phase...
-training_solver = LearningSolver(...)
-training_solver.parallel_solve(train_instances, n_jobs=10)
-
-# Test phase...
-benchmark = BenchmarkRunner({
-    &quot;Baseline&quot;: LearningSolver(...),
-    &quot;Strategy A&quot;: LearningSolver(...),
-    &quot;Strategy B&quot;: LearningSolver(...),
-    &quot;Strategy C&quot;: LearningSolver(...),
-})
-benchmark.fit(train_instances)
-benchmark.parallel_solve(test_instances, n_jobs=5)
-benchmark.write_csv(&quot;results.csv&quot;)
-</code></pre>
-<p>The method <code>fit</code> trains the ML models for each individual solver. The method <code>parallel_solve</code> solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, <code>write_csv</code> produces a table of results. The columns in the CSV file depend on the components added to the solver.</p>
-<h2 id="8-current-limitations">8. Current Limitations</h2>
-<ul>
-<li>Only binary and continuous decision variables are currently supported. General integer variables are not currently supported by some solver components.</li>
-</ul></div>
+<span class="c1"># Construct and pickle 600 problem instances</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">600</span><span class="p">):</span>
+    <span class="n">instance</span> <span class="o">=</span> <span class="n">MyProblemInstance</span><span class="p">([</span><span class="o">...</span><span class="p">])</span>
+    <span class="n">write_pickle_gz</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s2">&quot;instance_</span><span class="si">%03d</span><span class="s2">.pkl&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
         
-        
-    </div>
+<span class="c1"># Split instances into training and test</span>
+<span class="n">test_instances</span>  <span class="o">=</span> <span class="p">[</span><span class="n">PickleGzInstance</span><span class="p">(</span><span class="s2">&quot;instance_</span><span class="si">%03d</span><span class="s2">.pkl&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">)]</span>
+<span class="n">train_instances</span> <span class="o">=</span> <span class="p">[</span><span class="n">PickleGzInstance</span><span class="p">(</span><span class="s2">&quot;instance_</span><span class="si">%03d</span><span class="s2">.pkl&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">600</span><span class="p">)]</span>
 
-    
-      <footer class="col-md-12 text-center">
-          
-          
-            <hr>
-            <p>
-            <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.</small><br>
+<span class="c1"># Create solver</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">([</span><span class="o">...</span><span class="p">])</span>
+
+<span class="c1"># Solve training instances </span>
+<span class="n">solver</span><span class="o">.</span><span class="n">parallel_solve</span><span class="p">(</span><span class="n">train_instances</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="c1"># Train ML models</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_instances</span><span class="p">)</span>
+
+<span class="c1"># Solve test instances </span>
+<span class="n">solver</span><span class="o">.</span><span class="n">parallel_solve</span><span class="p">(</span><span class="n">test_instances</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">solve</span></code> and <code class="docutils literal notranslate"><span class="pre">parallel_solve</span></code> modify files in place. That is, after the instances are loaded from disk and solved, MIPLearn writes them back to the disk, overwriting the original files. To discard the modifications instead, use <code class="docutils literal notranslate"><span class="pre">LearningSolver(...,</span> <span class="pre">discard_outputs=True)</span></code>. This can be useful, for example, during benchmarks.</p>
+</div>
+</div>
+<div class="section" id="running-benchmarks">
+<h2><span class="sectnum">1.7.</span> Running benchmarks<a class="headerlink" href="#running-benchmarks" title="Permalink to this headline">¶</a></h2>
+<p>MIPLearn provides the utility class <code class="docutils literal notranslate"><span class="pre">BenchmarkRunner</span></code>, which simplifies the task of comparing the performance of different solvers. The snippet below shows its basic usage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn</span> <span class="kn">import</span> <span class="n">BenchmarkRunner</span><span class="p">,</span> <span class="n">LearningSolver</span>
+
+<span class="c1"># Create train and test instances</span>
+<span class="n">train_instances</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="n">test_instances</span>  <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+
+<span class="c1"># Training phase...</span>
+<span class="n">training_solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">training_solver</span><span class="o">.</span><span class="n">parallel_solve</span><span class="p">(</span><span class="n">train_instances</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Test phase...</span>
+<span class="n">benchmark</span> <span class="o">=</span> <span class="n">BenchmarkRunner</span><span class="p">({</span>
+    <span class="s2">&quot;Baseline&quot;</span><span class="p">:</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+    <span class="s2">&quot;Strategy A&quot;</span><span class="p">:</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+    <span class="s2">&quot;Strategy B&quot;</span><span class="p">:</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+    <span class="s2">&quot;Strategy C&quot;</span><span class="p">:</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+<span class="p">})</span>
+<span class="n">benchmark</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_instances</span><span class="p">)</span>
+<span class="n">benchmark</span><span class="o">.</span><span class="n">parallel_solve</span><span class="p">(</span><span class="n">test_instances</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">benchmark</span><span class="o">.</span><span class="n">write_csv</span><span class="p">(</span><span class="s2">&quot;results.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The method <code class="docutils literal notranslate"><span class="pre">fit</span></code> trains the ML models for each individual solver. The method <code class="docutils literal notranslate"><span class="pre">parallel_solve</span></code> solves the test instances in parallel, and collects solver statistics such as running time and optimal value. Finally, <code class="docutils literal notranslate"><span class="pre">write_csv</span></code> produces a table of results. The columns in the CSV file depend on the components added to the solver.</p>
+</div>
+<div class="section" id="current-limitations">
+<h2><span class="sectnum">1.8.</span> Current Limitations<a class="headerlink" href="#current-limitations" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Only binary and continuous decision variables are currently supported. General integer variables are not currently supported by some solver components.</p></li>
+</ul>
+</div>
+</div>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
             
-            <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
-            </p>
-          
+    <a class='left-prev' id="prev-link" href="../" title="previous page">MIPLearn</a>
+    <a class='right-next' id="next-link" href="../benchmark/" title="next page"><span class="sectnum">2.</span> Benchmarks</a>
 
-          
-          
-      </footer>
-    
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="../js/bootstrap-3.0.3.min.js"></script>
-
-    
-    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+        </div>
         
-    <script>hljs.initHighlightingOnLoad();</script>
-    
-
-    <script>var base_url = ".."</script>
-    
-    <script src="../js/base.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script src="../js/mathjax.js"></script>
-    <script src="../search/main.js"></script>
-
-    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">
-                    <span aria-hidden="true">&times;</span>
-                    <span class="sr-only">Close</span>
-                </button>
-                <h4 class="modal-title" id="searchModalLabel">Search</h4>
-            </div>
-            <div class="modal-body">
-                <p>
-                    From here you can search these documents. Enter
-                    your search terms below.
-                </p>
-                <form>
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
-                    </div>
-                </form>
-                <div id="mkdocs-search-results"></div>
-            </div>
-            <div class="modal-footer">
-            </div>
         </div>
     </div>
-</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-            </div>
-            <div class="modal-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th style="width: 20%;">Keys</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="help shortcut"><kbd>?</kbd></td>
-                    <td>Open this help</td>
-                  </tr>
-                  <tr>
-                    <td class="next shortcut"><kbd>n</kbd></td>
-                    <td>Next page</td>
-                  </tr>
-                  <tr>
-                    <td class="prev shortcut"><kbd>p</kbd></td>
-                    <td>Previous page</td>
-                  </tr>
-                  <tr>
-                    <td class="search shortcut"><kbd>s</kbd></td>
-                    <td>Search</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="modal-footer">
-            </div>
-        </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2021, UChicago Argonne, LLC.<br/>
+      </p>
     </div>
-</div>
-    </body>
+  </footer>
+</main>
 
+
+      </div>
+    </div>
+  
+  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
 </html>

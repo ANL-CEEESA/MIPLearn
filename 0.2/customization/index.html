@@ -1,236 +1,343 @@
+
 <!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3. Customization &#8212; MIPLearn&lt;br/&gt;&lt;small&gt;0.2.0&lt;/small&gt;</title>
     
-    
-    
-    <link rel="shortcut icon" href="../img/favicon.ico">
-
-    
-    <title>Customization - MIPLearn</title>
-    
-
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
-    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
-    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
-    <link href="../css/base.min.css" rel="stylesheet">
-    <link href="../css/cinder.min.css" rel="stylesheet">
+  <link href="../_static/css/theme.css" rel="stylesheet" />
+  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
 
     
-        
-        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
-        
-    
-    <link href="../css/custom.css" rel="stylesheet">
-
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
-        <![endif]-->
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
     
+      
 
-     
-</head>
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
 
-<body>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
+    <link rel="author" title="About these documents" href="../about/" />
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="4. About" href="../about/" />
+    <link rel="prev" title="2. Benchmarks" href="../benchmark/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
 
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="container">
+    
 
-        <!-- Collapsed navigation -->
-        <div class="navbar-header">
-            <!-- Expander button -->
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn<br/><small>0.2.0</small></h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../usage/">
+   <span class="sectnum">
+    1.
+   </span>
+   Using MIPLearn
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../benchmark/">
+   <span class="sectnum">
+    2.
+   </span>
+   Benchmarks
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   <span class="sectnum">
+    3.
+   </span>
+   Customization
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../about/">
+   <span class="sectnum">
+    4.
+   </span>
+   About
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
             </button>
             
-
-            <!-- Main title -->
-
             
-              <a class="navbar-brand" href="..">MIPLearn</a>
-            
-        </div>
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
 
-        <!-- Expanded navigation -->
-        <div class="navbar-collapse collapse">
-                <!-- Main navigation -->
-                <ul class="nav navbar-nav">
-                
-                
-                    <li >
-                        <a href="..">Home</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="../usage/">Usage</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="../problems/">Problems</a>
-                    </li>
-                
-                
-                
-                    <li class="active">
-                        <a href="./">Customization</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="../about/">About</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="../api/miplearn/index.html">API</a>
-                    </li>
-                
-                
-                </ul>
-
-            <ul class="nav navbar-nav navbar-right">
-                    <li>
-                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
-                            <i class="fas fa-search"></i> Search
-                        </a>
-                    </li>
-                    <li >
-                        <a rel="prev" href="../problems/">
-                            <i class="fas fa-arrow-left"></i> Previous
-                        </a>
-                    </li>
-                    <li >
-                        <a rel="next" href="../about/">
-                            Next <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/ANL-CEEESA/MIPLearn/edit/dev/docs/customization.md"><i class="fab fa-github"></i> Edit on GitHub</a>
-                    </li>
-            </ul>
-        </div>
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../_sources/customization.md.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.md</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
     </div>
 </div>
 
-    <div class="container">
-        
-        
-        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
-    <ul class="nav bs-sidenav">
-        <li class="first-level active"><a href="#customization">Customization</a></li>
-            <li class="second-level"><a href="#customizing-solver-parameters">Customizing solver parameters</a></li>
-                
-                <li class="third-level"><a href="#selecting-the-internal-mip-solver">Selecting the internal MIP solver</a></li>
-            <li class="second-level"><a href="#customizing-solver-components">Customizing solver components</a></li>
-                
-                <li class="third-level"><a href="#selecting-components">Selecting components</a></li>
-                <li class="third-level"><a href="#adjusting-component-aggressiveness">Adjusting component aggressiveness</a></li>
-                <li class="third-level"><a href="#evaluating-component-performance">Evaluating component performance</a></li>
-                <li class="third-level"><a href="#using-customized-ml-classifiers-and-regressors">Using customized ML classifiers and regressors</a></li>
-    </ul>
-</div></div>
-        <div class="col-md-9" role="main">
+            <!-- Source interaction buttons -->
 
-<h1 id="customization">Customization</h1>
-<h2 id="customizing-solver-parameters">Customizing solver parameters</h2>
-<h3 id="selecting-the-internal-mip-solver">Selecting the internal MIP solver</h3>
-<p>By default, <code>LearningSolver</code> uses <a href="https://www.gurobi.com/">Gurobi</a> as its internal MIP solver, and expects models to be provided using the Pyomo modeling language. Supported solvers and modeling languages include:</p>
-<ul>
-<li><code>GurobiPyomoSolver</code>: Gurobi with Pyomo (default).</li>
-<li><code>CplexPyomoSolver</code>: <a href="https://www.ibm.com/products/ilog-cplex-optimization-studio">IBM ILOG CPLEX</a> with Pyomo.</li>
-<li><code>XpressPyomoSolver</code>: <a href="https://www.fico.com/en/products/fico-xpress-solver">FICO XPRESS Solver</a> with Pyomo.</li>
-<li><code>GurobiSolver</code>: Gurobi without any modeling language.</li>
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/ANL-CEEESA/MIPLearn/"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        
+        
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#customizing-solver-parameters">
+   <span class="sectnum">
+    3.1.
+   </span>
+   Customizing solver parameters
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#selecting-the-internal-mip-solver">
+     Selecting the internal MIP solver
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#customizing-solver-components">
+   <span class="sectnum">
+    3.2.
+   </span>
+   Customizing solver components
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#selecting-components">
+     Selecting components
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#adjusting-component-aggressiveness">
+     Adjusting component aggressiveness
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#evaluating-component-performance">
+     Evaluating component performance
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#using-customized-ml-classifiers-and-regressors">
+     Using customized ML classifiers and regressors
+    </a>
+   </li>
+  </ul>
+ </li>
 </ul>
-<p>To switch between solvers, provide the desired class using the <code>solver</code> argument:</p>
-<pre><code class="language-python">from miplearn import LearningSolver, CplexPyomoSolver
-solver = LearningSolver(solver=CplexPyomoSolver)
-</code></pre>
-<p>To configure a particular solver, use the <code>params</code> constructor argument, as shown below.</p>
-<pre><code class="language-python">from miplearn import LearningSolver, GurobiPyomoSolver
-solver = LearningSolver(
-    solver=lambda: GurobiPyomoSolver(
-        params={
-            &quot;TimeLimit&quot;: 900,
-            &quot;MIPGap&quot;: 1e-3,
-            &quot;NodeLimit&quot;: 1000,
-        }
-    ),
-)
-</code></pre>
-<h2 id="customizing-solver-components">Customizing solver components</h2>
-<p><code>LearningSolver</code> is composed by a number of individual machine-learning components, each targeting a different part of the solution process. Each component can be individually enabled, disabled or customized. The following components are enabled by default:</p>
-<ul>
-<li><code>LazyConstraintComponent</code>: Predicts which lazy constraint to initially enforce.</li>
-<li><code>ObjectiveValueComponent</code>: Predicts the optimal value of the optimization problem, given the optimal solution to the LP relaxation.</li>
-<li><code>PrimalSolutionComponent</code>: Predicts optimal values for binary decision variables. In heuristic mode, this component fixes the variables to their predicted values. In exact mode, the predicted values are provided to the solver as a (partial) MIP start.</li>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="section" id="customization">
+<h1><span class="sectnum">3.</span> Customization<a class="headerlink" href="#customization" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="customizing-solver-parameters">
+<h2><span class="sectnum">3.1.</span> Customizing solver parameters<a class="headerlink" href="#customizing-solver-parameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="selecting-the-internal-mip-solver">
+<h3>Selecting the internal MIP solver<a class="headerlink" href="#selecting-the-internal-mip-solver" title="Permalink to this headline">¶</a></h3>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code> uses <a class="reference external" href="https://www.gurobi.com/">Gurobi</a> as its internal MIP solver, and expects models to be provided using the Pyomo modeling language. Supported solvers and modeling languages include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GurobiPyomoSolver</span></code>: Gurobi with Pyomo (default).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CplexPyomoSolver</span></code>: <a class="reference external" href="https://www.ibm.com/products/ilog-cplex-optimization-studio">IBM ILOG CPLEX</a> with Pyomo.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">XpressPyomoSolver</span></code>: <a class="reference external" href="https://www.fico.com/en/products/fico-xpress-solver">FICO XPRESS Solver</a> with Pyomo.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GurobiSolver</span></code>: Gurobi without any modeling language.</p></li>
+</ul>
+<p>To switch between solvers, provide the desired class using the <code class="docutils literal notranslate"><span class="pre">solver</span></code> argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn</span> <span class="kn">import</span> <span class="n">LearningSolver</span><span class="p">,</span> <span class="n">CplexPyomoSolver</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="n">CplexPyomoSolver</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To configure a particular solver, use the <code class="docutils literal notranslate"><span class="pre">params</span></code> constructor argument, as shown below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn</span> <span class="kn">import</span> <span class="n">LearningSolver</span><span class="p">,</span> <span class="n">GurobiPyomoSolver</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span>
+    <span class="n">solver</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">GurobiPyomoSolver</span><span class="p">(</span>
+        <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;TimeLimit&quot;</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>
+            <span class="s2">&quot;MIPGap&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+            <span class="s2">&quot;NodeLimit&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="customizing-solver-components">
+<h2><span class="sectnum">3.2.</span> Customizing solver components<a class="headerlink" href="#customizing-solver-components" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code> is composed by a number of individual machine-learning components, each targeting a different part of the solution process. Each component can be individually enabled, disabled or customized. The following components are enabled by default:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LazyConstraintComponent</span></code>: Predicts which lazy constraint to initially enforce.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ObjectiveValueComponent</span></code>: Predicts the optimal value of the optimization problem, given the optimal solution to the LP relaxation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PrimalSolutionComponent</span></code>: Predicts optimal values for binary decision variables. In heuristic mode, this component fixes the variables to their predicted values. In exact mode, the predicted values are provided to the solver as a (partial) MIP start.</p></li>
 </ul>
 <p>The following components are also available, but not enabled by default:</p>
-<ul>
-<li><code>BranchPriorityComponent</code>: Predicts good branch priorities for decision variables.</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BranchPriorityComponent</span></code>: Predicts good branch priorities for decision variables.</p></li>
 </ul>
-<h3 id="selecting-components">Selecting components</h3>
-<p>To create a <code>LearningSolver</code> with a specific set of components, the <code>components</code> constructor argument may be used, as the next example shows:</p>
-<pre><code class="language-python"># Create a solver without any components
-solver1 = LearningSolver(components=[])
+<div class="section" id="selecting-components">
+<h3>Selecting components<a class="headerlink" href="#selecting-components" title="Permalink to this headline">¶</a></h3>
+<p>To create a <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code> with a specific set of components, the <code class="docutils literal notranslate"><span class="pre">components</span></code> constructor argument may be used, as the next example shows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a solver without any components</span>
+<span class="n">solver1</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="p">[])</span>
 
-# Create a solver with only two components
-solver2 = LearningSolver(components=[
-    LazyConstraintComponent(...),
-    PrimalSolutionComponent(...),
-])
-</code></pre>
-<h3 id="adjusting-component-aggressiveness">Adjusting component aggressiveness</h3>
-<p>The aggressiveness of classification components (such as <code>PrimalSolutionComponent</code> and <code>LazyConstraintComponent</code>) can
-be adjusted through the <code>threshold</code> constructor argument. Internally, these components ask the ML models how confident
-they are on each prediction (through the <code>predict_proba</code> method in the sklearn API), and only take into account
-predictions which have probabilities above the threshold. Lowering a component's threshold increases its aggressiveness,
-while raising a component's threshold makes it more conservative. </p>
-<p>MIPLearn also includes <code>MinPrecisionThreshold</code>, a dynamic threshold which adjusts itself automatically during training
-to achieve a minimum desired true positive rate (also known as precision). The example below shows how to initialize
-a <code>PrimalSolutionComponent</code> which achieves 95% precision, possibly at the cost of a lower recall. To make the component
-more aggressive, this precision may be lowered.</p>
-<pre><code class="language-python">PrimalSolutionComponent(threshold=MinPrecisionThreshold(0.95))
-</code></pre>
-<h3 id="evaluating-component-performance">Evaluating component performance</h3>
+<span class="c1"># Create a solver with only two components</span>
+<span class="n">solver2</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="p">[</span>
+    <span class="n">LazyConstraintComponent</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+    <span class="n">PrimalSolutionComponent</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="adjusting-component-aggressiveness">
+<h3>Adjusting component aggressiveness<a class="headerlink" href="#adjusting-component-aggressiveness" title="Permalink to this headline">¶</a></h3>
+<p>The aggressiveness of classification components, such as <code class="docutils literal notranslate"><span class="pre">PrimalSolutionComponent</span></code> and <code class="docutils literal notranslate"><span class="pre">LazyConstraintComponent</span></code>, can be adjusted through the <code class="docutils literal notranslate"><span class="pre">threshold</span></code> constructor argument. Internally, these components ask the machine learning models how confident are they on each prediction they make, then automatically discard all predictions that have low confidence. The <code class="docutils literal notranslate"><span class="pre">threshold</span></code> argument specifies how confident should the ML models be for a prediction to be considered trustworthy. Lowering a component’s threshold increases its aggressiveness, while raising a component’s threshold makes it more conservative.</p>
+<p>For example, if the ML model predicts that a certain binary variable will assume value <code class="docutils literal notranslate"><span class="pre">1.0</span></code> in the optimal solution with 75% confidence, and if the <code class="docutils literal notranslate"><span class="pre">PrimalSolutionComponent</span></code> is configured to discard all predictions with less than 90% confidence, then this variable will not be included in the predicted MIP start.</p>
+<p>MIPLearn currently provides two types of thresholds:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MinProbabilityThreshold(p:</span> <span class="pre">List[float])</span></code> A threshold which indicates that a prediction is trustworthy if its probability of being correct, as computed by the machine learning model, is above a fixed value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MinPrecisionThreshold(p:</span> <span class="pre">List[float])</span></code> A dynamic threshold which automatically adjusts itself during training to ensure that the component achieves at least a given precision on the training data set. Note that increasing a component’s precision may reduce its recall.</p></li>
+</ul>
+<p>The example below shows how to build a <code class="docutils literal notranslate"><span class="pre">PrimalSolutionComponent</span></code> which fixes variables to zero with at least 80% precision, and to one with at least 95% precision. Other components are configured similarly.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn</span> <span class="kn">import</span> <span class="n">PrimalSolutionComponent</span><span class="p">,</span> <span class="n">MinPrecisionThreshold</span>
+
+<span class="n">PrimalSolutionComponent</span><span class="p">(</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;heuristic&quot;</span><span class="p">,</span>
+    <span class="n">threshold</span><span class="o">=</span><span class="n">MinPrecisionThreshold</span><span class="p">([</span><span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">]),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="evaluating-component-performance">
+<h3>Evaluating component performance<a class="headerlink" href="#evaluating-component-performance" title="Permalink to this headline">¶</a></h3>
 <p>MIPLearn allows solver components to be modified, trained and evaluated in isolation. In the following example, we build and
-fit <code>PrimalSolutionComponent</code> outside the solver, then evaluate its performance.</p>
-<pre><code class="language-python">from miplearn import PrimalSolutionComponent
+fit <code class="docutils literal notranslate"><span class="pre">PrimalSolutionComponent</span></code> outside the solver, then evaluate its performance.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn</span> <span class="kn">import</span> <span class="n">PrimalSolutionComponent</span>
 
-# User-provided set of previously-solved instances
-train_instances = [...]
+<span class="c1"># User-provided set of previously-solved instances</span>
+<span class="n">train_instances</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
 
-# Construct and fit component on a subset of training instances
-comp = PrimalSolutionComponent()
-comp.fit(train_instances[:100])
+<span class="c1"># Construct and fit component on a subset of training instances</span>
+<span class="n">comp</span> <span class="o">=</span> <span class="n">PrimalSolutionComponent</span><span class="p">()</span>
+<span class="n">comp</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_instances</span><span class="p">[:</span><span class="mi">100</span><span class="p">])</span>
 
-# Evaluate performance on an additional set of training instances
-ev = comp.evaluate(train_instances[100:150])
-</code></pre>
-<p>The method <code>evaluate</code> returns a dictionary with performance evaluation statistics for each training instance provided,
+<span class="c1"># Evaluate performance on an additional set of training instances</span>
+<span class="n">ev</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">train_instances</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">150</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The method <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> returns a dictionary with performance evaluation statistics for each training instance provided,
 and for each type of prediction the component makes. To obtain a summary across all instances, pandas may be used, as below:</p>
-<pre><code class="language-python">import pandas as pd
-pd.DataFrame(ev[&quot;Fix one&quot;]).mean(axis=1)
-</code></pre>
-<pre><code class="language-text">Predicted positive          3.120000
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">ev</span><span class="p">[</span><span class="s2">&quot;Fix one&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Predicted positive          3.120000
 Predicted negative        196.880000
 Condition positive         62.500000
 Condition negative        137.500000
@@ -251,147 +358,77 @@ True negative (%)          68.720000
 False positive (%)          0.030000
 False negative (%)         29.720000
 dtype: float64
-</code></pre>
-<p>Regression components (such as <code>ObjectiveValueComponent</code>) can also be trained and evaluated similarly,
+</pre></div>
+</div>
+<p>Regression components (such as <code class="docutils literal notranslate"><span class="pre">ObjectiveValueComponent</span></code>) can also be trained and evaluated similarly,
 as the next example shows:</p>
-<pre><code class="language-python">from miplearn import ObjectiveValueComponent
-comp = ObjectiveValueComponent()
-comp.fit(train_instances[:100])
-ev = comp.evaluate(train_instances[100:150])
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn</span> <span class="kn">import</span> <span class="n">ObjectiveValueComponent</span>
+<span class="n">comp</span> <span class="o">=</span> <span class="n">ObjectiveValueComponent</span><span class="p">()</span>
+<span class="n">comp</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_instances</span><span class="p">[:</span><span class="mi">100</span><span class="p">])</span>
+<span class="n">ev</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">train_instances</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">150</span><span class="p">])</span>
 
-import pandas as pd
-pd.DataFrame(ev).mean(axis=1)
-</code></pre>
-<pre><code class="language-text">Mean squared error       7001.977827
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Mean squared error       7001.977827
 Explained variance          0.519790
 Max error                 242.375804
 Mean absolute error        65.843924
 R2                          0.517612
 Median absolute error      65.843924
 dtype: float64
-</code></pre>
-<h3 id="using-customized-ml-classifiers-and-regressors">Using customized ML classifiers and regressors</h3>
-<p>By default, given a training set of instantes, MIPLearn trains a fixed set of ML classifiers and regressors, then
-selects the best one based on cross-validation performance. Alternatively, the user may specify which ML model a component
-should use through the <code>classifier</code> or <code>regressor</code> contructor parameters. The provided classifiers and regressors must 
-follow the sklearn API. In particular, classifiers must provide the methods <code>fit</code>, <code>predict_proba</code> and <code>predict</code>,
-while regressors must provide the methods <code>fit</code> and <code>predict</code></p>
-<div class="admonition danger">
-<p class="admonition-title">Danger</p>
-<p>MIPLearn must be able to generate a copy of any custom ML classifiers and regressors through 
-the standard  <code>copy.deepcopy</code> method. This currently makes it incompatible with Keras and TensorFlow
-predictors. This is a known limitation, which will be addressed in a future version.</p>
+</pre></div>
 </div>
-<p>The example below shows how to construct a <code>PrimalSolutionComponent</code> which internally uses
-sklearn's <code>KNeighborsClassifiers</code>. Any other sklearn classifier or pipeline can be used. </p>
-<pre><code class="language-python">from miplearn import PrimalSolutionComponent
-from sklearn.neighbors import KNeighborsClassifier
+</div>
+<div class="section" id="using-customized-ml-classifiers-and-regressors">
+<h3>Using customized ML classifiers and regressors<a class="headerlink" href="#using-customized-ml-classifiers-and-regressors" title="Permalink to this headline">¶</a></h3>
+<p>By default, given a training set of instantes, MIPLearn trains a fixed set of ML classifiers and regressors, then selects the best one based on cross-validation performance. Alternatively, the user may specify which ML model a component should use through the <code class="docutils literal notranslate"><span class="pre">classifier</span></code> or <code class="docutils literal notranslate"><span class="pre">regressor</span></code> contructor parameters. Scikit-learn classifiers and regressors are currently supported. A future version of the package will add compatibility with Keras models.</p>
+<p>The example below shows how to construct a <code class="docutils literal notranslate"><span class="pre">PrimalSolutionComponent</span></code> which internally uses scikit-learn’s <code class="docutils literal notranslate"><span class="pre">KNeighborsClassifiers</span></code>. Any other scikit-learn classifier or pipeline can be used. It needs to be wrapped in <code class="docutils literal notranslate"><span class="pre">ScikitLearnClassifier</span></code> to ensure that all the proper data transformations are applied.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn</span> <span class="kn">import</span> <span class="n">PrimalSolutionComponent</span><span class="p">,</span> <span class="n">ScikitLearnClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="kn">import</span> <span class="n">KNeighborsClassifier</span>
 
-comp = PrimalSolutionComponent(classifier=KNeighborsClassifier(n_neighbors=5))
-comp.fit(train_instances)
-</code></pre></div>
-        
-        
-    </div>
+<span class="n">comp</span> <span class="o">=</span> <span class="n">PrimalSolutionComponent</span><span class="p">(</span>
+    <span class="n">classifier</span><span class="o">=</span><span class="n">ScikitLearnClassifier</span><span class="p">(</span>
+        <span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">comp</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_instances</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
 
-    
-      <footer class="col-md-12 text-center">
-          
-          
-            <hr>
-            <p>
-            <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.</small><br>
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
             
-            <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
-            </p>
-          
+    <a class='left-prev' id="prev-link" href="../benchmark/" title="previous page"><span class="sectnum">2.</span> Benchmarks</a>
+    <a class='right-next' id="next-link" href="../about/" title="next page"><span class="sectnum">4.</span> About</a>
 
-          
-          
-      </footer>
-    
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="../js/bootstrap-3.0.3.min.js"></script>
-
-    
-    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+        </div>
         
-    <script>hljs.initHighlightingOnLoad();</script>
-    
-
-    <script>var base_url = ".."</script>
-    
-    <script src="../js/base.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script src="../js/mathjax.js"></script>
-    <script src="../search/main.js"></script>
-
-    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">
-                    <span aria-hidden="true">&times;</span>
-                    <span class="sr-only">Close</span>
-                </button>
-                <h4 class="modal-title" id="searchModalLabel">Search</h4>
-            </div>
-            <div class="modal-body">
-                <p>
-                    From here you can search these documents. Enter
-                    your search terms below.
-                </p>
-                <form>
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
-                    </div>
-                </form>
-                <div id="mkdocs-search-results"></div>
-            </div>
-            <div class="modal-footer">
-            </div>
         </div>
     </div>
-</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-            </div>
-            <div class="modal-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th style="width: 20%;">Keys</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="help shortcut"><kbd>?</kbd></td>
-                    <td>Open this help</td>
-                  </tr>
-                  <tr>
-                    <td class="next shortcut"><kbd>n</kbd></td>
-                    <td>Next page</td>
-                  </tr>
-                  <tr>
-                    <td class="prev shortcut"><kbd>p</kbd></td>
-                    <td>Previous page</td>
-                  </tr>
-                  <tr>
-                    <td class="search shortcut"><kbd>s</kbd></td>
-                    <td>Search</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="modal-footer">
-            </div>
-        </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2021, UChicago Argonne, LLC.<br/>
+      </p>
     </div>
-</div>
-    </body>
+  </footer>
+</main>
 
+
+      </div>
+    </div>
+  
+  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
 </html>

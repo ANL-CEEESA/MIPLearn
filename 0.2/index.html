@@ -1,290 +1,298 @@
+
 <!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MIPLearn &#8212; MIPLearn&lt;br/&gt;&lt;small&gt;0.2.0&lt;/small&gt;</title>
     
-    
-    
-    <link rel="shortcut icon" href="img/favicon.ico">
-
-    
-    <title>Home - MIPLearn</title>
-    
-
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
-    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
-    <link href="css/bootstrap-custom.min.css" rel="stylesheet">
-    <link href="css/base.min.css" rel="stylesheet">
-    <link href="css/cinder.min.css" rel="stylesheet">
+  <link href="_static/css/theme.css" rel="stylesheet" />
+  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
 
     
-        
-        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
-        
-    
-    <link href="css/custom.css" rel="stylesheet">
-
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
-        <![endif]-->
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
     
+      
 
-     
-</head>
+    
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
 
-<body class="homepage" >
+    <script id="documentation_options" data-url_root="" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
+    <link rel="author" title="About these documents" href="about/" />
+    <link rel="index" title="Index" href="genindex/" />
+    <link rel="search" title="Search" href="search/" />
+    <link rel="next" title="1. Using MIPLearn" href="usage/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
 
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="container">
+    
 
-        <!-- Collapsed navigation -->
-        <div class="navbar-header">
-            <!-- Expander button -->
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="#">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn<br/><small>0.2.0</small></h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="usage/">
+   <span class="sectnum">
+    1.
+   </span>
+   Using MIPLearn
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="benchmark/">
+   <span class="sectnum">
+    2.
+   </span>
+   Benchmarks
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="customization/">
+   <span class="sectnum">
+    3.
+   </span>
+   Customization
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="about/">
+   <span class="sectnum">
+    4.
+   </span>
+   About
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
             </button>
             
-
-            <!-- Main title -->
-
             
-              <a class="navbar-brand" href=".">MIPLearn</a>
-            
-        </div>
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
 
-        <!-- Expanded navigation -->
-        <div class="navbar-collapse collapse">
-                <!-- Main navigation -->
-                <ul class="nav navbar-nav">
-                
-                
-                    <li class="active">
-                        <a href=".">Home</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="usage/">Usage</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="problems/">Problems</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="customization/">Customization</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="about/">About</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="api/miplearn/index.html">API</a>
-                    </li>
-                
-                
-                </ul>
-
-            <ul class="nav navbar-nav navbar-right">
-                    <li>
-                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
-                            <i class="fas fa-search"></i> Search
-                        </a>
-                    </li>
-                    <li class="disabled">
-                        <a rel="prev" >
-                            <i class="fas fa-arrow-left"></i> Previous
-                        </a>
-                    </li>
-                    <li >
-                        <a rel="next" href="usage/">
-                            Next <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/ANL-CEEESA/MIPLearn/edit/dev/docs/index.md"><i class="fab fa-github"></i> Edit on GitHub</a>
-                    </li>
-            </ul>
-        </div>
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/index.md.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.md</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
     </div>
 </div>
 
-    <div class="container">
-        
-        
-        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
-    <ul class="nav bs-sidenav">
-        <li class="first-level active"><a href="#miplearn">MIPLearn</a></li>
-            <li class="second-level"><a href="#features">Features</a></li>
-                
-            <li class="second-level"><a href="#documentation">Documentation</a></li>
-                
-            <li class="second-level"><a href="#source-code">Source Code</a></li>
-                
-    </ul>
-</div></div>
-        <div class="col-md-9" role="main">
+            <!-- Source interaction buttons -->
 
-<h1 id="miplearn">MIPLearn</h1>
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/ANL-CEEESA/MIPLearn/"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        
+        
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#features">
+   Features
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#site-contents">
+   Site contents
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#source-code">
+   Source Code
+  </a>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="section" id="miplearn">
+<h1>MIPLearn<a class="headerlink" href="#miplearn" title="Permalink to this headline">¶</a></h1>
 <p><strong>MIPLearn</strong> is an extensible framework for solving discrete optimization problems using a combination of Mixed-Integer Linear Programming (MIP) and Machine Learning (ML). The framework uses ML methods to automatically identify patterns in previously solved instances of the problem, then uses these patterns to accelerate the performance of conventional state-of-the-art MIP solvers (such as CPLEX, Gurobi or XPRESS).</p>
 <p>Unlike pure ML methods, MIPLearn is not only able to find high-quality solutions to discrete optimization problems, but it can also prove the optimality and feasibility of these solutions.
-Unlike conventional MIP solvers, MIPLearn can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value). </p>
-<p>For certain classes of problems, this approach has been shown to provide significant performance benefits (see <a href="problems/">benchmarks</a> and <a href="about/">references</a>).</p>
-<h3 id="features">Features</h3>
-<ul>
-<li>
-<p><strong>MIPLearn proposes a flexible problem specification format,</strong> which allows users to describe their particular optimization problems to a Learning-Enhanced MIP solver, both from the MIP perspective and from the ML perspective, without making any assumptions on the problem being modeled, the mathematical formulation of the problem, or ML encoding. While the format is very flexible, some constraints are enforced to ensure that it is usable by an actual solver.</p>
-</li>
-<li>
-<p><strong>MIPLearn provides a reference implementation of a <em>Learning-Enhanced Solver</em>,</strong> which can use the above problem specification format to automatically predict, based on previously solved instances, a number of hints to accelerate MIP performance. Currently, the reference solver is able to predict: (i) partial solutions which are likely to work well as MIP starts; (ii) an initial set of lazy constraints to enforce; (iii) variable branching priorities to accelerate the exploration of the branch-and-bound tree; (iv) the optimal objective value based on the solution to the LP relaxation. The usage of the solver is very straightforward. The most suitable ML models are automatically selected, trained, cross-validated and applied to the problem with no user intervention.</p>
-</li>
-<li>
-<p><strong>MIPLearn provides a set of benchmark problems and random instance generators,</strong> covering applications from different domains, which can be used to quickly evaluate new learning-enhanced MIP techniques in a measurable and reproducible way.</p>
-</li>
-<li>
-<p><strong>MIPLearn is customizable and extensible</strong>. For MIP and ML researchers exploring new techniques to accelerate MIP performance based on historical data, each component of the reference solver can be individually replaced, extended or customized.</p>
-</li>
+Unlike conventional MIP solvers, MIPLearn can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value).</p>
+<p>For certain classes of problems, this approach has been shown to provide significant performance benefits (see <a class="reference internal" href="benchmark/"><span class="doc std std-doc">benchmarks</span></a> and <a class="reference internal" href="about/"><span class="doc std std-doc">references</span></a>).</p>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><strong>MIPLearn proposes a flexible problem specification format,</strong> which allows users to describe their particular optimization problems to a Learning-Enhanced MIP solver, both from the MIP perspective and from the ML perspective, without making any assumptions on the problem being modeled, the mathematical formulation of the problem, or ML encoding. While the format is very flexible, some constraints are enforced to ensure that it is usable by an actual solver.</p></li>
+<li><p><strong>MIPLearn provides a reference implementation of a <em>Learning-Enhanced Solver</em>,</strong> which can use the above problem specification format to automatically predict, based on previously solved instances, a number of hints to accelerate MIP performance. Currently, the reference solver is able to predict: (i) partial solutions which are likely to work well as MIP starts; (ii) an initial set of lazy constraints to enforce; (iii) variable branching priorities to accelerate the exploration of the branch-and-bound tree; (iv) the optimal objective value based on the solution to the LP relaxation. The usage of the solver is very straightforward. The most suitable ML models are automatically selected, trained, cross-validated and applied to the problem with no user intervention.</p></li>
+<li><p><strong>MIPLearn provides a set of benchmark problems and random instance generators,</strong> covering applications from different domains, which can be used to quickly evaluate new learning-enhanced MIP techniques in a measurable and reproducible way.</p></li>
+<li><p><strong>MIPLearn is customizable and extensible</strong>. For MIP and ML researchers exploring new techniques to accelerate MIP performance based on historical data, each component of the reference solver can be individually replaced, extended or customized.</p></li>
 </ul>
-<h3 id="documentation">Documentation</h3>
-<ul>
-<li><a href="usage/">Installation and typical usage</a></li>
-<li><a href="problems/">Benchmark problems and results</a></li>
-<li><a href="customization/">Customizing the solver</a></li>
-<li><a href="about/">License, authors, references and acknowledgments</a></li>
-</ul>
-<h3 id="source-code">Source Code</h3>
-<ul>
-<li><a href="https://github.com/ANL-CEEESA/MIPLearn">https://github.com/ANL-CEEESA/MIPLearn</a></li>
-</ul></div>
-        
-        
-    </div>
-
-    
-      <footer class="col-md-12 text-center">
-          
-          
-            <hr>
-            <p>
-            <small>Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.</small><br>
-            
-            <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
-            </p>
-          
-
-          
-          
-      </footer>
-    
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="js/bootstrap-3.0.3.min.js"></script>
-
-    
-    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
-        
-    <script>hljs.initHighlightingOnLoad();</script>
-    
-
-    <script>var base_url = "."</script>
-    
-    <script src="js/base.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script src="js/mathjax.js"></script>
-    <script src="search/main.js"></script>
-
-    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">
-                    <span aria-hidden="true">&times;</span>
-                    <span class="sr-only">Close</span>
-                </button>
-                <h4 class="modal-title" id="searchModalLabel">Search</h4>
-            </div>
-            <div class="modal-body">
-                <p>
-                    From here you can search these documents. Enter
-                    your search terms below.
-                </p>
-                <form>
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
-                    </div>
-                </form>
-                <div id="mkdocs-search-results"></div>
-            </div>
-            <div class="modal-footer">
-            </div>
-        </div>
-    </div>
-</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-            </div>
-            <div class="modal-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th style="width: 20%;">Keys</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="help shortcut"><kbd>?</kbd></td>
-                    <td>Open this help</td>
-                  </tr>
-                  <tr>
-                    <td class="next shortcut"><kbd>n</kbd></td>
-                    <td>Next page</td>
-                  </tr>
-                  <tr>
-                    <td class="prev shortcut"><kbd>p</kbd></td>
-                    <td>Previous page</td>
-                  </tr>
-                  <tr>
-                    <td class="search shortcut"><kbd>s</kbd></td>
-                    <td>Search</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="modal-footer">
-            </div>
-        </div>
-    </div>
 </div>
-    </body>
+<div class="section" id="site-contents">
+<h2>Site contents<a class="headerlink" href="#site-contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage/"><span class="sectnum">1.</span> Using MIPLearn</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage/#installation"><span class="sectnum">1.1.</span> Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/#using-learningsolver"><span class="sectnum">1.2.</span> Using <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/#describing-problem-instances"><span class="sectnum">1.3.</span> Describing problem instances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/#describing-lazy-constraints"><span class="sectnum">1.4.</span> Describing lazy constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/#obtaining-heuristic-solutions"><span class="sectnum">1.5.</span> Obtaining heuristic solutions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/#scaling-up"><span class="sectnum">1.6.</span> Scaling Up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/#running-benchmarks"><span class="sectnum">1.7.</span> Running benchmarks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/#current-limitations"><span class="sectnum">1.8.</span> Current Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark/"><span class="sectnum">2.</span> Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchmark/#preliminaries"><span class="sectnum">2.1.</span> Preliminaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmark/#maximum-weight-stable-set-problem"><span class="sectnum">2.2.</span> Maximum Weight Stable Set Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmark/#traveling-salesman-problem"><span class="sectnum">2.3.</span> Traveling Salesman Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmark/#multidimensional-0-1-knapsack-problem"><span class="sectnum">2.4.</span> Multidimensional 0-1 Knapsack Problem</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="customization/"><span class="sectnum">3.</span> Customization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="customization/#customizing-solver-parameters"><span class="sectnum">3.1.</span> Customizing solver parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/#customizing-solver-components"><span class="sectnum">3.2.</span> Customizing solver components</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="about/"><span class="sectnum">4.</span> About</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="about/#authors"><span class="sectnum">4.1.</span> Authors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about/#acknowledgments"><span class="sectnum">4.2.</span> Acknowledgments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about/#references"><span class="sectnum">4.3.</span> References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about/#license"><span class="sectnum">4.4.</span> License</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="source-code">
+<h2>Source Code<a class="headerlink" href="#source-code" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/ANL-CEEESA/MIPLearn">https://github.com/ANL-CEEESA/MIPLearn</a></p></li>
+</ul>
+</div>
+</div>
 
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='right-next' id="next-link" href="usage/" title="next page"><span class="sectnum">1.</span> Using MIPLearn</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2021, UChicago Argonne, LLC.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
 </html>
-
-<!--
-MkDocs version : 1.1.2
-Build Date UTC : 2021-01-22 13:43:46.121328+00:00
--->
