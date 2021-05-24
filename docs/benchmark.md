@@ -1,4 +1,12 @@
-# Benchmark Problems, Challenges and Results
+```{sectnum}
+---
+start: 2
+depth: 2
+suffix: .
+---
+```
+
+# Benchmarks
 
 MIPLearn provides a selection of benchmark problems and random instance generators, covering applications from different fields, that can be used to evaluate new learning-enhanced MIP techniques in a measurable and reproducible way. In this page, we describe these problems, the included instance generators, and we present some benchmark results for  `LearningSolver` with default parameters.
 
@@ -100,6 +108,7 @@ TravelingSalesmanGenerator(x=uniform(loc=0.0, scale=1000.0),
 
 Given a set of $n$ items and $m$ types of resources (also called *knapsacks*), the problem is to find a subset of items that maximizes profit without consuming more resources than it is available. More precisely, the problem is:
 
+$$
 \begin{align*}
     \text{maximize}
         & \sum_{j=1}^n p_j x_j
@@ -110,6 +119,7 @@ Given a set of $n$ items and $m$ types of resources (also called *knapsacks*), t
     & x_j \in \{0,1\}
         & \forall j=1,\ldots,n
 \end{align*}
+$$
 
 ### Random instance generator
 

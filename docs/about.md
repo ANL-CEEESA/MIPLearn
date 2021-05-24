@@ -1,15 +1,23 @@
+```{sectnum}
+---
+start: 4
+depth: 2
+suffix: .
+---
+```
+
 # About
 
-### Authors
+## Authors
 
 * **Alinson S. Xavier,** Argonne National Laboratory <<axavier@anl.gov>>
 * **Feng Qiu,** Argonne National Laboratory <<fqiu@anl.gov>>
 
-### Acknowledgments
+## Acknowledgments
 
 * Based upon work supported by **Laboratory Directed Research and Development** (LDRD) funding from Argonne National Laboratory, provided by the Director, Office of Science, of the U.S. Department of Energy under Contract No. DE-AC02-06CH11357, and the **U.S. Department of Energy Advanced Grid Modeling Program** under Grant DE-OE0000875.
 
-### References
+## References
 
 
 If you use MIPLearn in your research, or the included problem generators, we kindly request that you cite the package as follows:
@@ -20,7 +28,7 @@ If you use MIPLearn in the field of power systems optimization, we kindly reques
 
 * **Alinson S. Xavier, Feng Qiu, Shabbir Ahmed.** *Learning to Solve Large-Scale Unit Commitment Problems.* INFORMS Journal on Computing (2020). DOI: [10.1287/ijoc.2020.0976](https://doi.org/10.1287/ijoc.2020.0976)
 
-### License
+## License
 
 ```text
 MIPLearn, an extensible framework for Learning-Enhanced Mixed-Integer Optimization

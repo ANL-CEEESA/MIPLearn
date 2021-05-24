@@ -37,12 +37,13 @@ setup(
     extras_require={
         "dev": [
             "docopt>=0.6,<0.7",
-            "mkdocs>=1,<2",
-            "mkdocs-cinder>=1,<2",
             "black==20.8b1",
             "pre-commit>=2,<3",
             "pdoc3>=0.7,<0.8",
             "twine>=3,<4",
+            "Sphinx>=3,<4",
+            "sphinx-book-theme==0.1.0",
+            "myst-parser==0.14.0",
         ]
     },
 )

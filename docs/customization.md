@@ -1,3 +1,11 @@
+```{sectnum}
+---
+start: 3
+depth: 2
+suffix: .
+---
+```
+
 # Customization
 
 ## Customizing solver parameters
