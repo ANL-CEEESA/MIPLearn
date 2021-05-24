@@ -5,9 +5,9 @@
 Unlike pure ML methods, MIPLearn is not only able to find high-quality solutions to discrete optimization problems, but it can also prove the optimality and feasibility of these solutions.
 Unlike conventional MIP solvers, MIPLearn can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value). 
 
-For certain classes of problems, this approach has been shown to provide significant performance benefits (see [benchmarks](problems.md) and [references](about.md)).
+For certain classes of problems, this approach has been shown to provide significant performance benefits (see [benchmarks](benchmark.md) and [references](about.md)).
 
-### Features
+## Features
 
 * **MIPLearn proposes a flexible problem specification format,** which allows users to describe their particular optimization problems to a Learning-Enhanced MIP solver, both from the MIP perspective and from the ML perspective, without making any assumptions on the problem being modeled, the mathematical formulation of the problem, or ML encoding. While the format is very flexible, some constraints are enforced to ensure that it is usable by an actual solver.
 
@@ -17,14 +17,19 @@ For certain classes of problems, this approach has been shown to provide signifi
 
 * **MIPLearn is customizable and extensible**. For MIP and ML researchers exploring new techniques to accelerate MIP performance based on historical data, each component of the reference solver can be individually replaced, extended or customized.
 
-### Documentation
+## Site contents
 
-* [Installation and typical usage](usage.md)
-* [Benchmark problems and results](problems.md)
-* [Customizing the solver](customization.md)
-* [License, authors, references and acknowledgments](about.md)
+```{toctree}
+---
+maxdepth: 2
+---
+usage.md
+benchmark.md
+customization.md
+about.md
+```
 
-### Source Code
+## Source Code
 
 * [https://github.com/ANL-CEEESA/MIPLearn](https://github.com/ANL-CEEESA/MIPLearn)
 

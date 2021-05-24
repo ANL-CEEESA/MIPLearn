@@ -1,1 +1,1 @@
--e .[build]
+-e .[dev]

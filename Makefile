@@ -20,10 +20,9 @@ dist-upload:
 	$(PYTHON) -m twine upload dist/*
 
 docs:
-	rm -rf ../docs/$(VERSION) html
-	mkdocs build -d ../docs/$(VERSION)/
-	pdoc3 --html miplearn
-	mv -v html ../docs/$(VERSION)/api
+	rm -rf ../docs/$(VERSION) 
+	cd docs; make clean; make dirhtml
+	rsync -avP --delete-after docs/_build/dirhtml/ ../docs/$(VERSION)
 
 
 install-deps:
