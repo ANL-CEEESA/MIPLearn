@@ -21,7 +21,7 @@ setup(
     install_requires=[
         "matplotlib>=3,<4",
         "networkx>=2,<3",
-        "numpy>=1,<2",
+        "numpy>=1,<1.21",
         "p_tqdm>=1,<2",
         "pandas>=1,<2",
         "pyomo>=5,<6",
