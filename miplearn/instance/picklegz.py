@@ -134,15 +134,17 @@ class PickleGzInstance(Instance):
         write_pickle_gz(self.instance, self.filename)
 
 
-def write_pickle_gz(obj: Any, filename: str) -> None:
-    logger.info(f"Writing: {filename}")
+def write_pickle_gz(obj: Any, filename: str, quiet: bool = False) -> None:
+    if not quiet:
+        logger.info(f"Writing: {filename}")
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with gzip.GzipFile(filename, "wb") as file:
         pickle.dump(obj, cast(IO[bytes], file))
 
 
-def read_pickle_gz(filename: str) -> Any:
-    logger.info(f"Reading: {filename}")
+def read_pickle_gz(filename: str, quiet: bool = False) -> Any:
+    if not quiet:
+        logger.info(f"Reading: {filename}")
     with gzip.GzipFile(filename, "rb") as file:
         return pickle.load(cast(IO[bytes], file))
 

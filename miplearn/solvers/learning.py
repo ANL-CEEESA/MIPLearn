@@ -184,6 +184,9 @@ class LearningSolver:
             logger.info("Solving root LP relaxation...")
             lp_stats = self.internal_solver.solve_lp(tee=tee)
             stats.update(cast(LearningSolveStats, lp_stats.__dict__))
+            logger.info(
+                "LP relaxation solved in %.2f seconds" % lp_stats.lp_wallclock_time
+            )
 
             logger.debug("Running after_solve_lp callbacks...")
             for component in self.components.values():
@@ -247,6 +250,7 @@ class LearningSolver:
             user_cut_cb=user_cut_cb,
             lazy_cb=lazy_cb,
         )
+        logger.info("MIP solved in %.2f seconds" % mip_stats.mip_wallclock_time)
         stats.update(cast(LearningSolveStats, mip_stats.__dict__))
         stats["Solver"] = "default"
         stats["Gap"] = self._compute_gap(
