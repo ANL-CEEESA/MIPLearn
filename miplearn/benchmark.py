@@ -8,6 +8,7 @@ from typing import Dict, List
 
 import pandas as pd
 
+from miplearn.components.component import Component
 from miplearn.instance.base import Instance
 from miplearn.solvers.learning import LearningSolver
 
@@ -106,10 +107,17 @@ class BenchmarkRunner:
         ----------
         instances:  List[Instance]
             List of training instances.
+        n_jobs: int
+            Number of parallel processes to use.
         """
-        for (solver_name, solver) in self.solvers.items():
-            logger.debug(f"Fitting {solver_name}...")
-            solver.fit(instances, n_jobs=n_jobs)
+        components: List[Component] = []
+        for solver in self.solvers.values():
+            components += solver.components.values()
+        Component.fit_multiple(
+            components,
+            instances,
+            n_jobs=n_jobs,
+        )
 
     def _silence_miplearn_logger(self) -> None:
         miplearn_logger = logging.getLogger("miplearn")

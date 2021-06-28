@@ -58,7 +58,7 @@ def test_learning_solver(
             assert after_lp.lp_solve.lp_log is not None
             assert len(after_lp.lp_solve.lp_log) > 100
 
-            solver.fit([instance])
+            solver.fit([instance], n_jobs=4)
             solver.solve(instance)
 
             # Assert solver is picklable

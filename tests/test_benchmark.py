@@ -28,7 +28,7 @@ def test_benchmark() -> None:
             "Strategy B": LearningSolver(),
         }
         benchmark = BenchmarkRunner(test_solvers)
-        benchmark.fit(train_instances)  # type: ignore
+        benchmark.fit(train_instances, n_jobs=n_jobs)  # type: ignore
         benchmark.parallel_solve(
             test_instances,  # type: ignore
             n_jobs=n_jobs,

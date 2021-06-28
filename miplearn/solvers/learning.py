@@ -413,7 +413,7 @@ class LearningSolver:
             logger.warning("Empty list of training instances provided. Skipping.")
             return
         Component.fit_multiple(
-            self.components,
+            list(self.components.values()),
             training_instances,
             n_jobs=n_jobs,
         )
