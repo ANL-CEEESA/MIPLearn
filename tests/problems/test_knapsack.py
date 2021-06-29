@@ -5,6 +5,7 @@
 import numpy as np
 from scipy.stats import uniform, randint
 
+from miplearn import LearningSolver
 from miplearn.problems.knapsack import MultiKnapsackGenerator
 
 
@@ -22,3 +23,12 @@ def test_knapsack_generator() -> None:
     b_sum = sum(instance.capacities for instance in instances) / len(instances)
     assert round(float(np.mean(w_sum)), -1) == 500.0
     assert round(float(np.mean(b_sum)), -3) == 25000.0
+
+
+def test_knapsack() -> None:
+    instance = MultiKnapsackGenerator(
+        n=randint(low=5, high=6),
+        m=randint(low=5, high=6),
+    ).generate(1)[0]
+    solver = LearningSolver()
+    solver.solve(instance)

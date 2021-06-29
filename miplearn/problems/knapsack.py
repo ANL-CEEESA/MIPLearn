@@ -48,13 +48,14 @@ class ChallengeA:
 class MultiKnapsackInstance(Instance):
     """Representation of the Multidimensional 0-1 Knapsack Problem.
 
-    Given a set of n items and m knapsacks, the problem is to find a subset of items S maximizing
-    sum(prices[i] for i in S). If selected, each item i occupies weights[i,j] units of space in
-    each knapsack j. Furthermore, each knapsack j has limited storage space, given by capacities[j].
+    Given a set of n items and m knapsacks, the problem is to find a subset of items
+    S maximizing sum(prices[i] for i in S). If selected, each item i occupies
+    weights[i,j] units of space in each knapsack j. Furthermore, each knapsack j has
+    limited storage space, given by capacities[j].
 
-    This implementation assigns a different category for each decision variable, and therefore
-    trains one ML model per variable. It is only suitable when training and test instances have
-    same size and items don't shuffle around.
+    This implementation assigns a different category for each decision variable,
+    and therefore trains one ML model per variable. It is only suitable when training
+    and test instances have same size and items don't shuffle around.
     """
 
     def __init__(
@@ -74,7 +75,6 @@ class MultiKnapsackInstance(Instance):
         self.prices = prices
         self.capacities = capacities
         self.weights = weights
-        self.varname_to_index = {f"x[{i}]": i for i in range(self.n)}
 
     @overrides
     def to_model(self) -> pe.ConcreteModel:
@@ -98,9 +98,11 @@ class MultiKnapsackInstance(Instance):
         return [float(np.mean(self.prices))] + list(self.capacities)
 
     @overrides
-    def get_variable_features(self, var_name: VariableName) -> List[float]:
-        index = self.varname_to_index[var_name]
-        return [self.prices[index]] + list(self.weights[:, index])
+    def get_variable_features(self) -> Dict[str, List[float]]:
+        return {
+            f"x[{i}]": [self.prices[i] + list(self.weights[:, i])]
+            for i in range(self.n)
+        }
 
 
 # noinspection PyPep8Naming
@@ -110,7 +112,7 @@ class MultiKnapsackGenerator:
         n: rv_frozen = randint(low=100, high=101),
         m: rv_frozen = randint(low=30, high=31),
         w: rv_frozen = randint(low=0, high=1000),
-        K: rv_frozen = randint(low=500, high=500),
+        K: rv_frozen = randint(low=500, high=501),
         u: rv_frozen = uniform(loc=0.0, scale=1.0),
         alpha: rv_frozen = uniform(loc=0.25, scale=0.0),
         fix_w: bool = False,
@@ -241,51 +243,3 @@ class MultiKnapsackGenerator:
             return MultiKnapsackInstance(p, b, w)
 
         return [_sample() for _ in range(n_samples)]
-
-
-class KnapsackInstance(Instance):
-    """
-    Simpler (one-dimensional) Knapsack Problem, used for testing.
-    """
-
-    def __init__(
-        self,
-        weights: List[float],
-        prices: List[float],
-        capacity: float,
-    ) -> None:
-        super().__init__()
-        self.weights = weights
-        self.prices = prices
-        self.capacity = capacity
-        self.varname_to_item: Dict[VariableName, int] = {
-            f"x[{i}]": i for i in range(len(self.weights))
-        }
-
-    @overrides
-    def to_model(self) -> pe.ConcreteModel:
-        model = pe.ConcreteModel()
-        items = range(len(self.weights))
-        model.x = pe.Var(items, domain=pe.Binary)
-        model.OBJ = pe.Objective(
-            expr=sum(model.x[v] * self.prices[v] for v in items), sense=pe.maximize
-        )
-        model.eq_capacity = pe.Constraint(
-            expr=sum(model.x[v] * self.weights[v] for v in items) <= self.capacity
-        )
-        return model
-
-    @overrides
-    def get_instance_features(self) -> List[float]:
-        return [
-            self.capacity,
-            np.average(self.weights),
-        ]
-
-    @overrides
-    def get_variable_features(self, var_name: VariableName) -> List[Category]:
-        item = self.varname_to_item[var_name]
-        return [
-            self.weights[item],
-            self.prices[item],
-        ]

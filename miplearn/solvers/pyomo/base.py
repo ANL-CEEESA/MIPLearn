@@ -6,7 +6,7 @@ import logging
 import re
 import sys
 from io import StringIO
-from typing import Any, List, Dict, Optional, Tuple
+from typing import Any, List, Dict, Optional, Tuple, Hashable
 
 import numpy as np
 import pyomo
@@ -604,9 +604,6 @@ class PyomoTestInstanceKnapsack(Instance):
         self.weights = weights
         self.prices = prices
         self.capacity = capacity
-        self.varname_to_item: Dict[VariableName, int] = {
-            f"x[{i}]": i for i in range(len(self.weights))
-        }
 
     @overrides
     def to_model(self) -> pe.ConcreteModel:
@@ -631,15 +628,15 @@ class PyomoTestInstanceKnapsack(Instance):
         ]
 
     @overrides
-    def get_variable_features(self, var_name: VariableName) -> List[Category]:
-        item = self.varname_to_item[var_name]
-        return [
-            self.weights[item],
-            self.prices[item],
-        ]
+    def get_variable_features(self) -> Dict[str, List[float]]:
+        return {
+            f"x[{i}]": [
+                self.weights[i],
+                self.prices[i],
+            ]
+            for i in range(len(self.weights))
+        }
 
     @overrides
-    def get_variable_category(self, var_name: VariableName) -> Optional[Category]:
-        if var_name.startswith("x"):
-            return "default"
-        return None
+    def get_variable_categories(self) -> Dict[str, Hashable]:
+        return {f"x[{i}]": "default" for i in range(len(self.weights))}

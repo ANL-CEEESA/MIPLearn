@@ -189,17 +189,25 @@ class FeaturesExtractor:
     ) -> None:
         assert features.variables is not None
         assert features.variables.names is not None
-        categories: List[Hashable] = []
+        categories: List[Optional[Hashable]] = []
         user_features: List[Optional[List[float]]] = []
+        var_features_dict = instance.get_variable_features()
+        var_categories_dict = instance.get_variable_categories()
+
         for (i, var_name) in enumerate(features.variables.names):
-            category: Hashable = instance.get_variable_category(var_name)
+            if var_name not in var_categories_dict:
+                user_features.append(None)
+                categories.append(None)
+                continue
+            category: Hashable = var_categories_dict[var_name]
+            assert isinstance(category, collections.Hashable), (
+                f"Variable category must be be hashable. "
+                f"Found {type(category).__name__} instead for var={var_name}."
+            )
+            categories.append(category)
             user_features_i: Optional[List[float]] = None
-            if category is not None:
-                assert isinstance(category, collections.Hashable), (
-                    f"Variable category must be be hashable. "
-                    f"Found {type(category).__name__} instead for var={var_name}."
-                )
-                user_features_i = instance.get_variable_features(var_name)
+            if var_name in var_features_dict:
+                user_features_i = var_features_dict[var_name]
                 if isinstance(user_features_i, np.ndarray):
                     user_features_i = user_features_i.tolist()
                 assert isinstance(user_features_i, list), (
@@ -213,11 +221,8 @@ class FeaturesExtractor:
                         f"Found {type(v).__name__} instead "
                         f"for var={var_name}."
                     )
-            categories.append(category)
-            if user_features_i is None:
-                user_features.append(None)
-            else:
-                user_features.append(list(user_features_i))
+                user_features_i = list(user_features_i)
+            user_features.append(user_features_i)
         features.variables.categories = categories
         features.variables.user_features = user_features
 

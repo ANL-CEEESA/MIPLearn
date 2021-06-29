@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List
+from typing import List, Dict, Hashable
 
 import networkx as nx
 import numpy as np
@@ -52,7 +52,6 @@ class MaxWeightStableSetInstance(Instance):
         self.graph = graph
         self.weights = weights
         self.nodes = list(self.graph.nodes)
-        self.varname_to_node = {f"x[{v}]": v for v in self.nodes}
 
     @overrides
     def to_model(self) -> pe.ConcreteModel:
@@ -68,24 +67,26 @@ class MaxWeightStableSetInstance(Instance):
         return model
 
     @overrides
-    def get_variable_features(self, var_name: VariableName) -> List[float]:
-        v1 = self.varname_to_node[var_name]
-        neighbor_weights = [0.0] * 15
-        neighbor_degrees = [100.0] * 15
-        for v2 in self.graph.neighbors(v1):
-            neighbor_weights += [self.weights[v2] / self.weights[v1]]
-            neighbor_degrees += [self.graph.degree(v2) / self.graph.degree(v1)]
-        neighbor_weights.sort(reverse=True)
-        neighbor_degrees.sort()
-        features = []
-        features += neighbor_weights[:5]
-        features += neighbor_degrees[:5]
-        features += [self.graph.degree(v1)]
+    def get_variable_features(self) -> Dict[str, List[float]]:
+        features = {}
+        for v1 in self.nodes:
+            neighbor_weights = [0.0] * 15
+            neighbor_degrees = [100.0] * 15
+            for v2 in self.graph.neighbors(v1):
+                neighbor_weights += [self.weights[v2] / self.weights[v1]]
+                neighbor_degrees += [self.graph.degree(v2) / self.graph.degree(v1)]
+            neighbor_weights.sort(reverse=True)
+            neighbor_degrees.sort()
+            f = []
+            f += neighbor_weights[:5]
+            f += neighbor_degrees[:5]
+            f += [self.graph.degree(v1)]
+            features[f"x[{v1}]"] = f
         return features
 
     @overrides
-    def get_variable_category(self, var: VariableName) -> Category:
-        return "default"
+    def get_variable_categories(self) -> Dict[str, Hashable]:
+        return {f"x[{v}]": "default" for v in self.nodes}
 
 
 class MaxWeightStableSetGenerator:

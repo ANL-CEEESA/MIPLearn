@@ -1,6 +1,6 @@
 # MIPLearn: Changelog
 
-## [Unreleased]
+## [0.2.0] - [Unreleased]
 
 ### Added
 
@@ -20,14 +20,7 @@
 
 ### Changed
 
-- Variables are now referenced by their names, instead of tuples `(var_name, index)`. This change was required to improve the compatibility with modeling languages other than Pyomo, which do not follow this convention. The functions `get_variable_category` and `get_variable_features` now have the following signature:
-  ````python
-   def get_variable_features(self, var_name: str) -> List[float]:
-      pass
-  
-   def get_variable_category(self, var_name: str) -> Optional[Hashable]:
-      pass  
-   ````
+- Variables are now referenced by their names, instead of tuples `(var_name, index)`. This change was required to improve the compatibility with modeling languages other than Pyomo, which do not follow this convention. For performance reasons, the functions `get_variable_features` and `get_variable_categories` should now return a dictionary containing categories and features for all relevant variables. Previously, MIPLearn had to perform two function calls per variable, which was too slow for very large models.
 - Internal solvers must now be specified as objects, instead of strings. For example,
   ```python
   solver = LearningSolver(

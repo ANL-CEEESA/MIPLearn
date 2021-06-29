@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List, Tuple, FrozenSet, Any, Optional, Hashable
+from typing import List, Tuple, FrozenSet, Any, Optional, Hashable, Dict
 
 import networkx as nx
 import numpy as np
@@ -59,7 +59,6 @@ class TravelingSalesmanInstance(Instance):
         self.edges = [
             (i, j) for i in range(self.n_cities) for j in range(i + 1, self.n_cities)
         ]
-        self.varname_to_index = {f"x[{e}]": e for e in self.edges}
 
     @overrides
     def to_model(self) -> pe.ConcreteModel:
@@ -83,8 +82,8 @@ class TravelingSalesmanInstance(Instance):
         return model
 
     @overrides
-    def get_variable_category(self, var_name: VariableName) -> Category:
-        return self.varname_to_index[var_name]
+    def get_variable_categories(self) -> Dict[str, Hashable]:
+        return {f"x[{e}]": f"x[{e}]" for e in self.edges}
 
     @overrides
     def find_violated_lazy_constraints(
