@@ -4,6 +4,7 @@
 
 import logging
 import traceback
+import time
 from typing import Optional, List, Any, cast, Dict, Tuple
 
 from p_tqdm import p_map
@@ -166,7 +167,12 @@ class LearningSolver:
         # Extract features (after-load)
         # -------------------------------------------------------
         logger.info("Extracting features (after-load)...")
+        initial_time = time.time()
         features = self.extractor.extract(instance, self.internal_solver)
+        logger.info(
+            "Features (after-load) extracted in %.2f seconds"
+            % (time.time() - initial_time)
+        )
         features.extra = {}
         sample.after_load = features
 
@@ -201,10 +207,15 @@ class LearningSolver:
             # Extract features (after-lp)
             # -------------------------------------------------------
             logger.info("Extracting features (after-lp)...")
+            initial_time = time.time()
             features = self.extractor.extract(
                 instance,
                 self.internal_solver,
                 with_static=False,
+            )
+            logger.info(
+                "Features (after-lp) extracted in %.2f seconds"
+                % (time.time() - initial_time)
             )
             features.extra = {}
             features.lp_solve = lp_stats
@@ -269,10 +280,15 @@ class LearningSolver:
         # Extract features (after-mip)
         # -------------------------------------------------------
         logger.info("Extracting features (after-mip)...")
+        initial_time = time.time()
         features = self.extractor.extract(
             instance,
             self.internal_solver,
             with_static=False,
+        )
+        logger.info(
+            "Features (after-mip) extracted in %.2f seconds"
+            % (time.time() - initial_time)
         )
         features.mip_solve = mip_stats
         features.extra = {}
