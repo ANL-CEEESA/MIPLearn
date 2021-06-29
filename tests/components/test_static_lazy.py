@@ -70,7 +70,7 @@ def sample() -> Sample:
 @pytest.fixture
 def instance(sample: Sample) -> Instance:
     instance = Mock(spec=Instance)
-    instance.samples = [sample]
+    instance.get_samples = Mock(return_value=[sample])  # type: ignore
     instance.has_static_lazy_constraints = Mock(return_value=True)
     return instance
 
@@ -111,7 +111,7 @@ def test_usage_with_solver(instance: Instance) -> None:
     )
 
     stats: LearningSolveStats = {}
-    sample = instance.samples[0]
+    sample = instance.get_samples()[0]
     assert sample.after_load is not None
     assert sample.after_mip is not None
     assert sample.after_mip.extra is not None

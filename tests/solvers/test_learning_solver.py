@@ -35,8 +35,8 @@ def test_learning_solver(
             )
 
             solver.solve(instance)
-            assert len(instance.samples) > 0
-            sample = instance.samples[0]
+            assert len(instance.get_samples()) > 0
+            sample = instance.get_samples()[0]
 
             after_mip = sample.after_mip
             assert after_mip is not None
@@ -90,7 +90,7 @@ def test_parallel_solve(
         results = solver.parallel_solve(instances, n_jobs=3)
         assert len(results) == 10
         for instance in instances:
-            assert len(instance.samples) == 1
+            assert len(instance.get_samples()) == 1
 
 
 def test_solve_fit_from_disk(
@@ -109,13 +109,13 @@ def test_solve_fit_from_disk(
         solver = LearningSolver(solver=internal_solver)
         solver.solve(instances[0])
         instance_loaded = read_pickle_gz(cast(PickleGzInstance, instances[0]).filename)
-        assert len(instance_loaded.samples) > 0
+        assert len(instance_loaded.get_samples()) > 0
 
         # Test: parallel_solve
         solver.parallel_solve(instances)
         for instance in instances:
             instance_loaded = read_pickle_gz(cast(PickleGzInstance, instance).filename)
-            assert len(instance_loaded.samples) > 0
+            assert len(instance_loaded.get_samples()) > 0
 
         # Delete temporary files
         for instance in instances:

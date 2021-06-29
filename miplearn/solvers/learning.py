@@ -150,7 +150,7 @@ class LearningSolver:
         # Initialize training sample
         # -------------------------------------------------------
         sample = Sample()
-        instance.samples.append(sample)
+        instance.push_sample(sample)
 
         # Initialize stats
         # -------------------------------------------------------

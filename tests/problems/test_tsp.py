@@ -39,9 +39,10 @@ def test_instance() -> None:
     instance = TravelingSalesmanInstance(n_cities, distances)
     solver = LearningSolver()
     solver.solve(instance)
-    assert len(instance.samples) == 1
-    assert instance.samples[0].after_mip is not None
-    features = instance.samples[0].after_mip
+    assert len(instance.get_samples()) == 1
+    sample = instance.get_samples()[0]
+    assert sample.after_mip is not None
+    features = sample.after_mip
     assert features is not None
     assert features.variables is not None
     assert features.variables.values == [1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
@@ -66,9 +67,10 @@ def test_subtour() -> None:
     instance = TravelingSalesmanInstance(n_cities, distances)
     solver = LearningSolver()
     solver.solve(instance)
-    assert len(instance.samples) == 1
-    assert instance.samples[0].after_mip is not None
-    features = instance.samples[0].after_mip
+    assert len(instance.get_samples()) == 1
+    sample = instance.get_samples()[0]
+    assert sample.after_mip is not None
+    features = sample.after_mip
     assert features.extra is not None
     assert "lazy_enforced" in features.extra
     lazy_enforced = features.extra["lazy_enforced"]

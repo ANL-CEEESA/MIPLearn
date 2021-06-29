@@ -28,7 +28,7 @@ class Instance(ABC):
     """
 
     def __init__(self) -> None:
-        self.samples: List[Sample] = []
+        self._samples: List[Sample] = []
 
     @abstractmethod
     def to_model(self) -> Any:
@@ -189,3 +189,9 @@ class Instance(ABC):
         Save any pending changes made to the instance to the underlying data store.
         """
         pass
+
+    def get_samples(self) -> List[Sample]:
+        return self._samples
+
+    def push_sample(self, sample: Sample) -> None:
+        self._samples.append(sample)

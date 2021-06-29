@@ -25,7 +25,7 @@ E = 0.1
 @pytest.fixture
 def training_instances() -> List[Instance]:
     instances = [cast(Instance, Mock(spec=Instance)) for _ in range(2)]
-    instances[0].samples = [
+    samples_0 = [
         Sample(
             after_load=Features(instance=InstanceFeatures()),
             after_mip=Features(extra={"lazy_enforced": {"c1", "c2"}}),
@@ -35,12 +35,9 @@ def training_instances() -> List[Instance]:
             after_mip=Features(extra={"lazy_enforced": {"c2", "c3"}}),
         ),
     ]
-    instances[0].samples[0].after_load.instance.to_list = Mock(  # type: ignore
-        return_value=[5.0]
-    )
-    instances[0].samples[1].after_load.instance.to_list = Mock(  # type: ignore
-        return_value=[5.0]
-    )
+    samples_0[0].after_load.instance.to_list = Mock(return_value=[5.0])  # type: ignore
+    samples_0[1].after_load.instance.to_list = Mock(return_value=[5.0])  # type: ignore
+    instances[0].get_samples = Mock(return_value=samples_0)  # type: ignore
     instances[0].get_constraint_categories = Mock(  # type: ignore
         return_value={
             "c1": "type-a",
@@ -57,15 +54,14 @@ def training_instances() -> List[Instance]:
             "c4": [3.0, 4.0],
         }
     )
-    instances[1].samples = [
+    samples_1 = [
         Sample(
             after_load=Features(instance=InstanceFeatures()),
             after_mip=Features(extra={"lazy_enforced": {"c3", "c4"}}),
         )
     ]
-    instances[1].samples[0].after_load.instance.to_list = Mock(  # type: ignore
-        return_value=[8.0]
-    )
+    samples_1[0].after_load.instance.to_list = Mock(return_value=[8.0])  # type: ignore
+    instances[1].get_samples = Mock(return_value=samples_1)  # type: ignore
     instances[1].get_constraint_categories = Mock(  # type: ignore
         return_value={
             "c1": None,
@@ -97,7 +93,7 @@ def test_sample_xy(training_instances: List[Instance]) -> None:
     }
     x_actual, y_actual = comp.sample_xy(
         training_instances[0],
-        training_instances[0].samples[0],
+        training_instances[0].get_samples()[0],
     )
     assert_equals(x_actual, x_expected)
     assert_equals(y_actual, y_expected)
@@ -184,12 +180,12 @@ def test_sample_predict_evaluate(training_instances: List[Instance]) -> None:
     )
     pred = comp.sample_predict(
         training_instances[0],
-        training_instances[0].samples[0],
+        training_instances[0].get_samples()[0],
     )
     assert pred == ["c1", "c4"]
     ev = comp.sample_evaluate(
         training_instances[0],
-        training_instances[0].samples[0],
+        training_instances[0].get_samples()[0],
     )
     assert ev == {
         "type-a": classifier_evaluation_dict(tp=1, fp=0, tn=0, fn=1),

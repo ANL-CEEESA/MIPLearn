@@ -80,7 +80,7 @@ def test_usage(
     solver: LearningSolver,
 ) -> None:
     stats_before = solver.solve(stab_instance)
-    sample = stab_instance.samples[0]
+    sample = stab_instance.get_samples()[0]
     assert sample.after_mip is not None
     assert sample.after_mip.extra is not None
     assert len(sample.after_mip.extra["user_cuts_enforced"]) > 0

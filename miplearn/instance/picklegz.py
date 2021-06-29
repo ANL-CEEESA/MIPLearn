@@ -10,6 +10,7 @@ from typing import Optional, Any, List, Hashable, cast, IO, TYPE_CHECKING, Dict
 
 from overrides import overrides
 
+from miplearn.features import Sample
 from miplearn.instance.base import Instance
 
 if TYPE_CHECKING:
@@ -120,17 +121,25 @@ class PickleGzInstance(Instance):
             obj = read_pickle_gz(self.filename)
             assert isinstance(obj, Instance)
             self.instance = obj
-            self.samples = self.instance.samples
 
     @overrides
     def free(self) -> None:
         self.instance = None  # type: ignore
-        self.samples = None  # type: ignore
         gc.collect()
 
     @overrides
     def flush(self) -> None:
         write_pickle_gz(self.instance, self.filename)
+
+    @overrides
+    def get_samples(self) -> List[Sample]:
+        assert self.instance is not None
+        return self.instance.get_samples()
+
+    @overrides
+    def push_sample(self, sample: Sample) -> None:
+        assert self.instance is not None
+        self.instance.push_sample(sample)
 
 
 def write_pickle_gz(obj: Any, filename: str) -> None:

@@ -187,13 +187,14 @@ class Component:
         instances: List[Instance],
         n_jobs: int = 1,
     ) -> None:
+
         # Part I: Pre-fit
         def _pre_sample_xy(instance: Instance) -> Dict:
             pre_instance: Dict = {}
             for (cidx, comp) in enumerate(components):
                 pre_instance[cidx] = []
             instance.load()
-            for sample in instance.samples:
+            for sample in instance.get_samples():
                 for (cidx, comp) in enumerate(components):
                     pre_instance[cidx].append(comp.pre_sample_xy(instance, sample))
             instance.free()
@@ -219,7 +220,7 @@ class Component:
                 x_instance[cidx] = {}
                 y_instance[cidx] = {}
             instance.load()
-            for sample in instance.samples:
+            for sample in instance.get_samples():
                 for (cidx, comp) in enumerate(components):
                     x = x_instance[cidx]
                     y = y_instance[cidx]
