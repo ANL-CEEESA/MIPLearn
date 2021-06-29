@@ -83,7 +83,7 @@ def test_knapsack() -> None:
             sa_rhs_up=[2.0],
             senses=["="],
             slacks=[0.0],
-            user_features=[[0.0]],
+            user_features=[None],
         ),
     )
     assert_equals(

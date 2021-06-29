@@ -4,7 +4,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional, Hashable, TYPE_CHECKING, Dict
+from typing import Any, List, Hashable, TYPE_CHECKING, Dict
 
 from miplearn.features import Sample
 
@@ -96,11 +96,11 @@ class Instance(ABC):
         """
         return {}
 
-    def get_constraint_features(self, cid: str) -> List[float]:
-        return [0.0]
+    def get_constraint_features(self) -> Dict[str, List[float]]:
+        return {}
 
-    def get_constraint_category(self, cid: str) -> Optional[Hashable]:
-        return cid
+    def get_constraint_categories(self) -> Dict[str, Hashable]:
+        return {}
 
     def has_static_lazy_constraints(self) -> bool:
         return False

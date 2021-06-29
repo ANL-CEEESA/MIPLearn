@@ -56,14 +56,14 @@ class PickleGzInstance(Instance):
         return self.instance.get_variable_categories()
 
     @overrides
-    def get_constraint_features(self, cid: str) -> Optional[List[float]]:
+    def get_constraint_features(self) -> Dict[str, List[float]]:
         assert self.instance is not None
-        return self.instance.get_constraint_features(cid)
+        return self.instance.get_constraint_features()
 
     @overrides
-    def get_constraint_category(self, cid: str) -> Optional[Hashable]:
+    def get_constraint_categories(self) -> Dict[str, Hashable]:
         assert self.instance is not None
-        return self.instance.get_constraint_category(cid)
+        return self.instance.get_constraint_categories()
 
     @overrides
     def has_static_lazy_constraints(self) -> bool:

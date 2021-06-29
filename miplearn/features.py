@@ -237,16 +237,25 @@ class FeaturesExtractor:
         user_features: List[Optional[List[float]]] = []
         categories: List[Optional[Hashable]] = []
         lazy: List[bool] = []
+        constr_categories_dict = instance.get_constraint_categories()
+        constr_features_dict = instance.get_constraint_features()
+
         for (cidx, cname) in enumerate(features.constraints.names):
+            category: Optional[Hashable] = cname
+            if cname in constr_categories_dict:
+                category = constr_categories_dict[cname]
+            if category is None:
+                user_features.append(None)
+                categories.append(None)
+                continue
+            assert isinstance(category, collections.Hashable), (
+                f"Constraint category must be hashable. "
+                f"Found {type(category).__name__} instead for cname={cname}.",
+            )
+            categories.append(category)
             cf: Optional[List[float]] = None
-            category: Optional[Hashable] = instance.get_constraint_category(cname)
-            if category is not None:
-                categories.append(category)
-                assert isinstance(category, collections.Hashable), (
-                    f"Constraint category must be hashable. "
-                    f"Found {type(category).__name__} instead for cname={cname}.",
-                )
-                cf = instance.get_constraint_features(cname)
+            if cname in constr_features_dict:
+                cf = constr_features_dict[cname]
                 if isinstance(cf, np.ndarray):
                     cf = cf.tolist()
                 assert isinstance(cf, list), (
@@ -258,10 +267,8 @@ class FeaturesExtractor:
                         f"Constraint features must be a list of numbers. "
                         f"Found {type(f).__name__} instead for cname={cname}."
                     )
-                user_features.append(list(cf))
-            else:
-                user_features.append(None)
-                categories.append(None)
+                cf = list(cf)
+            user_features.append(cf)
             if has_static_lazy:
                 lazy.append(instance.is_constraint_lazy(cname))
             else:
