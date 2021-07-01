@@ -19,19 +19,12 @@ from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
 @pytest.fixture
 def sample() -> Sample:
     sample = Sample(
-        after_load=Features(
-            instance=InstanceFeatures(),
-        ),
-        after_lp=Features(
-            lp_solve=LPSolveStats(),
-        ),
         data={
             "mip_lower_bound": 1.0,
             "mip_upper_bound": 2.0,
+            "lp_instance_features": [1.0, 2.0, 3.0],
         },
     )
-    sample.after_load.instance.to_list = Mock(return_value=[1.0, 2.0])  # type: ignore
-    sample.after_lp.lp_solve.to_list = Mock(return_value=[3.0])  # type: ignore
     return sample
 
 

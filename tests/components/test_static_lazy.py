@@ -44,23 +44,27 @@ def sample() -> Sample:
                 lazy=[True, True, True, True, False],
             ),
         ),
-        after_lp=Features(
-            instance=InstanceFeatures(),
-            constraints=ConstraintFeatures(names=["c1", "c2", "c3", "c4", "c5"]),
-        ),
         data={
+            "constr_categories": [
+                "type-a",
+                "type-a",
+                "type-a",
+                "type-b",
+                "type-b",
+            ],
+            "constr_lazy": [True, True, True, True, False],
+            "constr_names": ["c1", "c2", "c3", "c4", "c5"],
+            "instance_features_user": [5.0],
             "lazy_enforced": {"c1", "c2", "c4"},
+            "lp_constr_features": [
+                [1.0, 1.0],
+                [1.0, 2.0],
+                [1.0, 3.0],
+                [1.0, 4.0, 0.0],
+                None,
+            ],
+            "static_lazy_count": 4,
         },
-    )
-    sample.after_lp.instance.to_list = Mock(return_value=[5.0])  # type: ignore
-    sample.after_lp.constraints.to_list = Mock(  # type: ignore
-        side_effect=lambda idx: {
-            0: [1.0, 1.0],
-            1: [1.0, 2.0],
-            2: [1.0, 3.0],
-            3: [1.0, 4.0, 0.0],
-            4: None,
-        }[idx]
     )
     return sample
 

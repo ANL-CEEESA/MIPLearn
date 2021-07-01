@@ -204,17 +204,26 @@ class StaticLazyConstraintsComponent(Component):
         x: Dict[Hashable, List[List[float]]] = {}
         y: Dict[Hashable, List[List[float]]] = {}
         cids: Dict[Hashable, List[str]] = {}
-        assert sample.after_load is not None
-        constraints = sample.after_load.constraints
-        assert constraints is not None
-        assert constraints.names is not None
-        assert constraints.lazy is not None
-        assert constraints.categories is not None
-        for (cidx, cname) in enumerate(constraints.names):
+        instance_features = sample.get("instance_features_user")
+        constr_features = sample.get("lp_constr_features")
+        constr_names = sample.get("constr_names")
+        constr_categories = sample.get("constr_categories")
+        constr_lazy = sample.get("constr_lazy")
+        lazy_enforced = sample.get("lazy_enforced")
+        if constr_features is None:
+            constr_features = sample.get("constr_features_user")
+
+        assert instance_features is not None
+        assert constr_features is not None
+        assert constr_names is not None
+        assert constr_categories is not None
+        assert constr_lazy is not None
+
+        for (cidx, cname) in enumerate(constr_names):
             # Initialize categories
-            if not constraints.lazy[cidx]:
+            if not constr_lazy[cidx]:
                 continue
-            category = constraints.categories[cidx]
+            category = constr_categories[cidx]
             if category is None:
                 continue
             if category not in x:
@@ -223,18 +232,12 @@ class StaticLazyConstraintsComponent(Component):
                 cids[category] = []
 
             # Features
-            sf = sample.after_load
-            if sample.after_lp is not None:
-                sf = sample.after_lp
-            assert sf.instance is not None
-            assert sf.constraints is not None
-            features = list(sf.instance.to_list())
-            features.extend(sf.constraints.to_list(cidx))
+            features = list(instance_features)
+            features.extend(constr_features[cidx])
             x[category].append(features)
             cids[category].append(cname)
 
             # Labels
-            lazy_enforced = sample.get("lazy_enforced")
             if lazy_enforced is not None:
                 if cname in lazy_enforced:
                     y[category] += [[False, True]]

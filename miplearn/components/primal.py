@@ -155,7 +155,15 @@ class PrimalSolutionComponent(Component):
         assert sample.after_load.variables is not None
         assert sample.after_load.variables.names is not None
         assert sample.after_load.variables.categories is not None
+
+        instance_features = sample.get("instance_features_user")
         mip_var_values = sample.get("mip_var_values")
+        var_features = sample.get("lp_var_features")
+        if var_features is None:
+            var_features = sample.get("var_features")
+
+        assert instance_features is not None
+        assert var_features is not None
 
         for (i, var_name) in enumerate(sample.after_load.variables.names):
             # Initialize categories
@@ -167,11 +175,8 @@ class PrimalSolutionComponent(Component):
                 y[category] = []
 
             # Features
-            features = list(sample.after_load.instance.to_list())
-            features.extend(sample.after_load.variables.to_list(i))
-            if sample.after_lp is not None:
-                assert sample.after_lp.variables is not None
-                features.extend(sample.after_lp.variables.to_list(i))
+            features = list(instance_features)
+            features.extend(var_features[i])
             x[category].append(features)
 
             # Labels

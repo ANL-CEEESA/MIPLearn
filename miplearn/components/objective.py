@@ -77,20 +77,15 @@ class ObjectiveValueComponent(Component):
         _: Optional[Instance],
         sample: Sample,
     ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
-        # Instance features
-        assert sample.after_load is not None
-        assert sample.after_load.instance is not None
-        f = sample.after_load.instance.to_list()
-
-        # LP solve features
-        if sample.after_lp is not None:
-            assert sample.after_lp.lp_solve is not None
-            f.extend(sample.after_lp.lp_solve.to_list())
+        lp_instance_features = sample.get("lp_instance_features")
+        if lp_instance_features is None:
+            lp_instance_features = sample.get("instance_features_user")
+        assert lp_instance_features is not None
 
         # Features
         x: Dict[Hashable, List[List[float]]] = {
-            "Upper bound": [f],
-            "Lower bound": [f],
+            "Upper bound": [lp_instance_features],
+            "Lower bound": [lp_instance_features],
         }
 
         # Labels

@@ -33,12 +33,23 @@ def sample() -> Sample:
                 categories=["default", None, "default", "default"],
             ),
         ),
-        after_lp=Features(
-            variables=VariableFeatures(),
-        ),
         data={
             "var_names": ["x[0]", "x[1]", "x[2]", "x[3]"],
+            "var_categories": ["default", None, "default", "default"],
             "mip_var_values": [0.0, 1.0, 1.0, 0.0],
+            "instance_features_user": [5.0],
+            "var_features": [
+                [0.0, 0.0],
+                None,
+                [1.0, 0.0],
+                [1.0, 1.0],
+            ],
+            "lp_var_features": [
+                [0.0, 0.0, 2.0, 2.0],
+                None,
+                [1.0, 0.0, 3.0, 2.0],
+                [1.0, 1.0, 3.0, 3.0],
+            ],
         },
     )
     sample.after_load.instance.to_list = Mock(return_value=[5.0])  # type: ignore
@@ -48,14 +59,6 @@ def sample() -> Sample:
             None,
             [1.0, 0.0],
             [1.0, 1.0],
-        ][i]
-    )
-    sample.after_lp.variables.to_list = Mock(  # type:ignore
-        side_effect=lambda i: [
-            [2.0, 2.0],
-            None,
-            [3.0, 2.0],
-            [3.0, 3.0],
         ][i]
     )
     return sample

@@ -147,14 +147,12 @@ class Sample:
     def __init__(
         self,
         after_load: Optional[Features] = None,
-        after_lp: Optional[Features] = None,
         data: Optional[Dict[str, Any]] = None,
     ) -> None:
         if data is None:
             data = {}
         self._data: Dict[str, Any] = data
         self.after_load = after_load
-        self.after_lp = after_lp
 
     def get(self, key: str) -> Optional[Any]:
         if key in self._data:
@@ -252,6 +250,29 @@ class FeaturesExtractor:
                     "var_upper_bounds",
                 ],
             ),
+        )
+        sample.put(
+            "lp_constr_features",
+            self._combine(
+                sample,
+                [
+                    "constr_features_user",
+                    "lp_constr_dual_values",
+                    "lp_constr_sa_rhs_down",
+                    "lp_constr_sa_rhs_up",
+                    "lp_constr_slacks",
+                ],
+            ),
+        )
+        instance_features_user = sample.get("instance_features_user")
+        assert instance_features_user is not None
+        sample.put(
+            "lp_instance_features",
+            instance_features_user
+            + [
+                sample.get("lp_value"),
+                sample.get("lp_wallclock_time"),
+            ],
         )
 
     def extract_after_mip_features(
