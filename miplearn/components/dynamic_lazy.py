@@ -78,9 +78,7 @@ class DynamicLazyConstraintsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        assert sample.after_mip is not None
-        assert sample.after_mip.extra is not None
-        sample.after_mip.extra["lazy_enforced"] = set(self.lazy_enforced)
+        sample.put("lazy_enforced", set(self.lazy_enforced))
 
     @overrides
     def iteration_cb(

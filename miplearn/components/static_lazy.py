@@ -60,9 +60,7 @@ class StaticLazyConstraintsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        assert sample.after_mip is not None
-        assert sample.after_mip.extra is not None
-        sample.after_mip.extra["lazy_enforced"] = self.enforced_cids
+        sample.put("lazy_enforced", self.enforced_cids)
         stats["LazyStatic: Restored"] = self.n_restored
         stats["LazyStatic: Iterations"] = self.n_iterations
 
@@ -236,12 +234,9 @@ class StaticLazyConstraintsComponent(Component):
             cids[category].append(cname)
 
             # Labels
-            if (
-                (sample.after_mip is not None)
-                and (sample.after_mip.extra is not None)
-                and ("lazy_enforced" in sample.after_mip.extra)
-            ):
-                if cname in sample.after_mip.extra["lazy_enforced"]:
+            lazy_enforced = sample.get("lazy_enforced")
+            if lazy_enforced is not None:
+                if cname in lazy_enforced:
                     y[category] += [[False, True]]
                 else:
                     y[category] += [[True, False]]

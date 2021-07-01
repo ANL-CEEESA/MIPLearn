@@ -28,11 +28,11 @@ def training_instances() -> List[Instance]:
     samples_0 = [
         Sample(
             after_load=Features(instance=InstanceFeatures()),
-            after_mip=Features(extra={"lazy_enforced": {"c1", "c2"}}),
+            data={"lazy_enforced": {"c1", "c2"}},
         ),
         Sample(
             after_load=Features(instance=InstanceFeatures()),
-            after_mip=Features(extra={"lazy_enforced": {"c2", "c3"}}),
+            data={"lazy_enforced": {"c2", "c3"}},
         ),
     ]
     samples_0[0].after_load.instance.to_list = Mock(return_value=[5.0])  # type: ignore
@@ -57,7 +57,7 @@ def training_instances() -> List[Instance]:
     samples_1 = [
         Sample(
             after_load=Features(instance=InstanceFeatures()),
-            after_mip=Features(extra={"lazy_enforced": {"c3", "c4"}}),
+            data={"lazy_enforced": {"c3", "c4"}},
         )
     ]
     samples_1[0].after_load.instance.to_list = Mock(return_value=[8.0])  # type: ignore

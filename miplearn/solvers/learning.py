@@ -173,7 +173,6 @@ class LearningSolver:
             "Features (after-load) extracted in %.2f seconds"
             % (time.time() - initial_time)
         )
-        features.extra = {}
         sample.after_load = features
 
         callback_args = (
@@ -217,7 +216,6 @@ class LearningSolver:
                 "Features (after-lp) extracted in %.2f seconds"
                 % (time.time() - initial_time)
             )
-            features.extra = {}
             features.lp_solve = lp_stats
             sample.after_lp = features
 
@@ -291,7 +289,6 @@ class LearningSolver:
             % (time.time() - initial_time)
         )
         features.mip_solve = mip_stats
-        features.extra = {}
         sample.after_mip = features
 
         # After-solve callbacks

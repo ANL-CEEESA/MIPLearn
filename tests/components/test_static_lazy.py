@@ -48,11 +48,9 @@ def sample() -> Sample:
             instance=InstanceFeatures(),
             constraints=ConstraintFeatures(names=["c1", "c2", "c3", "c4", "c5"]),
         ),
-        after_mip=Features(
-            extra={
-                "lazy_enforced": {"c1", "c2", "c4"},
-            }
-        ),
+        data={
+            "lazy_enforced": {"c1", "c2", "c4"},
+        },
     )
     sample.after_lp.instance.to_list = Mock(return_value=[5.0])  # type: ignore
     sample.after_lp.constraints.to_list = Mock(  # type: ignore
@@ -112,10 +110,7 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     stats: LearningSolveStats = {}
     sample = instance.get_samples()[0]
-    assert sample.after_load is not None
-    assert sample.after_mip is not None
-    assert sample.after_mip.extra is not None
-    del sample.after_mip.extra["lazy_enforced"]
+    assert sample.get("lazy_enforced") is not None
 
     # LearningSolver calls before_solve_mip
     component.before_solve_mip(
@@ -140,6 +135,7 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     # Should ask internal solver to verify if constraints in the pool are
     # satisfied and add the ones that are not
+    assert sample.after_load is not None
     assert sample.after_load.constraints is not None
     c = sample.after_load.constraints[[False, False, True, False, False]]
     internal.are_constraints_satisfied.assert_called_once_with(c, tol=1.0)
@@ -165,7 +161,7 @@ def test_usage_with_solver(instance: Instance) -> None:
     )
 
     # Should update training sample
-    assert sample.after_mip.extra["lazy_enforced"] == {"c1", "c2", "c3", "c4"}
+    assert sample.get("lazy_enforced") == {"c1", "c2", "c3", "c4"}
     #
     # Should update stats
     assert stats["LazyStatic: Removed"] == 1

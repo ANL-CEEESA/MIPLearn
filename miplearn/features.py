@@ -6,7 +6,7 @@ import collections
 import numbers
 from dataclasses import dataclass
 from math import log, isfinite
-from typing import TYPE_CHECKING, Dict, Optional, List, Hashable, Tuple
+from typing import TYPE_CHECKING, Dict, Optional, List, Hashable, Tuple, Any
 
 import numpy as np
 
@@ -140,14 +140,31 @@ class Features:
     constraints: Optional[ConstraintFeatures] = None
     lp_solve: Optional["LPSolveStats"] = None
     mip_solve: Optional["MIPSolveStats"] = None
-    extra: Optional[Dict] = None
 
 
-@dataclass
 class Sample:
-    after_load: Optional[Features] = None
-    after_lp: Optional[Features] = None
-    after_mip: Optional[Features] = None
+    def __init__(
+        self,
+        after_load: Optional[Features] = None,
+        after_lp: Optional[Features] = None,
+        after_mip: Optional[Features] = None,
+        data: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        if data is None:
+            data = {}
+        self._data: Dict[str, Any] = data
+        self.after_load = after_load
+        self.after_lp = after_lp
+        self.after_mip = after_mip
+
+    def get(self, key: str) -> Optional[Any]:
+        if key in self._data:
+            return self._data[key]
+        else:
+            return None
+
+    def put(self, key: str, value: Any) -> None:
+        self._data[key] = value
 
 
 class FeaturesExtractor:

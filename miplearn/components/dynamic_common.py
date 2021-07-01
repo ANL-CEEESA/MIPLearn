@@ -81,13 +81,12 @@ class DynamicConstraintsComponent(Component):
             cids[category].append(cid)
 
             # Labels
-            if sample.after_mip is not None:
-                assert sample.after_mip.extra is not None
-                if sample.after_mip.extra[self.attr] is not None:
-                    if cid in sample.after_mip.extra[self.attr]:
-                        y[category] += [[False, True]]
-                    else:
-                        y[category] += [[True, False]]
+            enforced_cids = sample.get(self.attr)
+            if enforced_cids is not None:
+                if cid in enforced_cids:
+                    y[category] += [[False, True]]
+                else:
+                    y[category] += [[True, False]]
         return x, y, cids
 
     @overrides
@@ -133,13 +132,7 @@ class DynamicConstraintsComponent(Component):
 
     @overrides
     def pre_sample_xy(self, instance: Instance, sample: Sample) -> Any:
-        if (
-            sample.after_mip is None
-            or sample.after_mip.extra is None
-            or sample.after_mip.extra[self.attr] is None
-        ):
-            return
-        return sample.after_mip.extra[self.attr]
+        return sample.get(self.attr)
 
     @overrides
     def fit_xy(
@@ -161,10 +154,8 @@ class DynamicConstraintsComponent(Component):
         instance: Instance,
         sample: Sample,
     ) -> Dict[Hashable, Dict[str, float]]:
-        assert sample.after_mip is not None
-        assert sample.after_mip.extra is not None
-        assert self.attr in sample.after_mip.extra
-        actual = sample.after_mip.extra[self.attr]
+        actual = sample.get(self.attr)
+        assert actual is not None
         pred = set(self.sample_predict(instance, sample))
         tp: Dict[Hashable, int] = {}
         tn: Dict[Hashable, int] = {}
