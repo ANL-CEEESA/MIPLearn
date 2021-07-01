@@ -155,6 +155,7 @@ class PrimalSolutionComponent(Component):
         assert sample.after_load.variables is not None
         assert sample.after_load.variables.names is not None
         assert sample.after_load.variables.categories is not None
+        mip_var_values = sample.get("mip_var_values")
 
         for (i, var_name) in enumerate(sample.after_load.variables.names):
             # Initialize categories
@@ -174,10 +175,8 @@ class PrimalSolutionComponent(Component):
             x[category].append(features)
 
             # Labels
-            if sample.after_mip is not None:
-                assert sample.after_mip.variables is not None
-                assert sample.after_mip.variables.values is not None
-                opt_value = sample.after_mip.variables.values[i]
+            if mip_var_values is not None:
+                opt_value = mip_var_values[i]
                 assert opt_value is not None
                 assert 0.0 - 1e-5 <= opt_value <= 1.0 + 1e-5, (
                     f"Variable {var_name} has non-binary value {opt_value} in the "
@@ -194,14 +193,13 @@ class PrimalSolutionComponent(Component):
         _: Optional[Instance],
         sample: Sample,
     ) -> Dict[Hashable, Dict[str, float]]:
-        assert sample.after_mip is not None
-        assert sample.after_mip.variables is not None
-        assert sample.after_mip.variables.values is not None
-        assert sample.after_mip.variables.names is not None
+        mip_var_values = sample.get("mip_var_values")
+        var_names = sample.get("var_names")
+        assert mip_var_values is not None
+        assert var_names is not None
 
         solution_actual = {
-            var_name: sample.after_mip.variables.values[i]
-            for (i, var_name) in enumerate(sample.after_mip.variables.names)
+            var_name: mip_var_values[i] for (i, var_name) in enumerate(var_names)
         }
         solution_pred = self.sample_predict(sample)
         vars_all, vars_one, vars_zero = set(), set(), set()

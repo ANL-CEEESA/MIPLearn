@@ -25,12 +25,10 @@ def sample() -> Sample:
         after_lp=Features(
             lp_solve=LPSolveStats(),
         ),
-        after_mip=Features(
-            mip_solve=MIPSolveStats(
-                mip_lower_bound=1.0,
-                mip_upper_bound=2.0,
-            )
-        ),
+        data={
+            "mip_lower_bound": 1.0,
+            "mip_upper_bound": 2.0,
+        },
     )
     sample.after_load.instance.to_list = Mock(return_value=[1.0, 2.0])  # type: ignore
     sample.after_lp.lp_solve.to_list = Mock(return_value=[3.0])  # type: ignore

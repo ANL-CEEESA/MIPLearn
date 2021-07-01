@@ -95,13 +95,12 @@ class ObjectiveValueComponent(Component):
 
         # Labels
         y: Dict[Hashable, List[List[float]]] = {}
-        if sample.after_mip is not None:
-            mip_stats = sample.after_mip.mip_solve
-            assert mip_stats is not None
-            if mip_stats.mip_lower_bound is not None:
-                y["Lower bound"] = [[mip_stats.mip_lower_bound]]
-            if mip_stats.mip_upper_bound is not None:
-                y["Upper bound"] = [[mip_stats.mip_upper_bound]]
+        mip_lower_bound = sample.get("mip_lower_bound")
+        mip_upper_bound = sample.get("mip_upper_bound")
+        if mip_lower_bound is not None:
+            y["Lower bound"] = [[mip_lower_bound]]
+        if mip_upper_bound is not None:
+            y["Upper bound"] = [[mip_upper_bound]]
 
         return x, y
 
@@ -111,9 +110,6 @@ class ObjectiveValueComponent(Component):
         instance: Instance,
         sample: Sample,
     ) -> Dict[Hashable, Dict[str, float]]:
-        assert sample.after_mip is not None
-        assert sample.after_mip.mip_solve is not None
-
         def compare(y_pred: float, y_actual: float) -> Dict[str, float]:
             err = np.round(abs(y_pred - y_actual), 8)
             return {
@@ -125,8 +121,8 @@ class ObjectiveValueComponent(Component):
 
         result: Dict[Hashable, Dict[str, float]] = {}
         pred = self.sample_predict(sample)
-        actual_ub = sample.after_mip.mip_solve.mip_upper_bound
-        actual_lb = sample.after_mip.mip_solve.mip_lower_bound
+        actual_ub = sample.get("mip_upper_bound")
+        actual_lb = sample.get("mip_lower_bound")
         if actual_ub is not None:
             result["Upper bound"] = compare(pred["Upper bound"], actual_ub)
         if actual_lb is not None:

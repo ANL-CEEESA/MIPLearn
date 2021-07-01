@@ -38,25 +38,18 @@ def test_learning_solver(
             assert len(instance.get_samples()) > 0
             sample = instance.get_samples()[0]
 
-            after_mip = sample.after_mip
-            assert after_mip is not None
-            assert after_mip.variables is not None
-            assert after_mip.variables.values == [1.0, 0.0, 1.0, 1.0, 61.0]
-            assert after_mip.mip_solve is not None
-            assert after_mip.mip_solve.mip_lower_bound == 1183.0
-            assert after_mip.mip_solve.mip_upper_bound == 1183.0
-            assert after_mip.mip_solve.mip_log is not None
-            assert len(after_mip.mip_solve.mip_log) > 100
+            assert sample.get("mip_var_values") == [1.0, 0.0, 1.0, 1.0, 61.0]
+            assert sample.get("mip_lower_bound") == 1183.0
+            assert sample.get("mip_upper_bound") == 1183.0
+            mip_log = sample.get("mip_log")
+            assert mip_log is not None
+            assert len(mip_log) > 100
 
-            after_lp = sample.after_lp
-            assert after_lp is not None
-            assert after_lp.variables is not None
-            assert_equals(after_lp.variables.values, [1.0, 0.923077, 1.0, 0.0, 67.0])
-            assert after_lp.lp_solve is not None
-            assert after_lp.lp_solve.lp_value is not None
-            assert round(after_lp.lp_solve.lp_value, 3) == 1287.923
-            assert after_lp.lp_solve.lp_log is not None
-            assert len(after_lp.lp_solve.lp_log) > 100
+            assert_equals(sample.get("lp_var_values"), [1.0, 0.923077, 1.0, 0.0, 67.0])
+            assert_equals(sample.get("lp_value"), 1287.923077)
+            lp_log = sample.get("lp_log")
+            assert lp_log is not None
+            assert len(lp_log) > 100
 
             solver.fit([instance], n_jobs=4)
             solver.solve(instance)

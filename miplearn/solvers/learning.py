@@ -210,6 +210,7 @@ class LearningSolver:
             # -------------------------------------------------------
             logger.info("Extracting features (after-lp)...")
             initial_time = time.time()
+            self.extractor.extract_after_lp_features(self.internal_solver, sample)
             features = self.extractor.extract(
                 instance,
                 self.internal_solver,
@@ -219,6 +220,8 @@ class LearningSolver:
                 "Features (after-lp) extracted in %.2f seconds"
                 % (time.time() - initial_time)
             )
+            for (k, v) in lp_stats.__dict__.items():
+                sample.put(k, v)
             features.lp_solve = lp_stats
             sample.after_lp = features
 
@@ -282,17 +285,13 @@ class LearningSolver:
         # -------------------------------------------------------
         logger.info("Extracting features (after-mip)...")
         initial_time = time.time()
-        features = self.extractor.extract(
-            instance,
-            self.internal_solver,
-            with_static=False,
-        )
+        self.extractor.extract_after_mip_features(self.internal_solver, sample)
+        for (k, v) in mip_stats.__dict__.items():
+            sample.put(k, v)
         logger.info(
             "Features (after-mip) extracted in %.2f seconds"
             % (time.time() - initial_time)
         )
-        features.mip_solve = mip_stats
-        sample.after_mip = features
 
         # After-solve callbacks
         # -------------------------------------------------------

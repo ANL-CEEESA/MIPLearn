@@ -148,7 +148,6 @@ class Sample:
         self,
         after_load: Optional[Features] = None,
         after_lp: Optional[Features] = None,
-        after_mip: Optional[Features] = None,
         data: Optional[Dict[str, Any]] = None,
     ) -> None:
         if data is None:
@@ -156,7 +155,6 @@ class Sample:
         self._data: Dict[str, Any] = data
         self.after_load = after_load
         self.after_lp = after_lp
-        self.after_mip = after_mip
 
     def get(self, key: str) -> Optional[Any]:
         if key in self._data:

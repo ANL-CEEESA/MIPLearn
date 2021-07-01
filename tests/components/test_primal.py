@@ -36,12 +36,10 @@ def sample() -> Sample:
         after_lp=Features(
             variables=VariableFeatures(),
         ),
-        after_mip=Features(
-            variables=VariableFeatures(
-                names=["x[0]", "x[1]", "x[2]", "x[3]"],
-                values=[0.0, 1.0, 1.0, 0.0],
-            )
-        ),
+        data={
+            "var_names": ["x[0]", "x[1]", "x[2]", "x[3]"],
+            "mip_var_values": [0.0, 1.0, 1.0, 0.0],
+        },
     )
     sample.after_load.instance.to_list = Mock(return_value=[5.0])  # type: ignore
     sample.after_load.variables.to_list = Mock(  # type:ignore

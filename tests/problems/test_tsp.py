@@ -41,14 +41,9 @@ def test_instance() -> None:
     solver.solve(instance)
     assert len(instance.get_samples()) == 1
     sample = instance.get_samples()[0]
-    assert sample.after_mip is not None
-    features = sample.after_mip
-    assert features is not None
-    assert features.variables is not None
-    assert features.variables.values == [1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
-    assert features.mip_solve is not None
-    assert features.mip_solve.mip_lower_bound == 4.0
-    assert features.mip_solve.mip_upper_bound == 4.0
+    assert sample.get("mip_var_values") == [1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
+    assert sample.get("mip_lower_bound") == 4.0
+    assert sample.get("mip_upper_bound") == 4.0
 
 
 def test_subtour() -> None:
@@ -73,10 +68,7 @@ def test_subtour() -> None:
     lazy_enforced = sample.get("lazy_enforced")
     assert lazy_enforced is not None
     assert len(lazy_enforced) > 0
-    assert sample.after_mip is not None
-    features = sample.after_mip
-    assert features.variables is not None
-    assert features.variables.values == [
+    assert sample.get("mip_var_values") == [
         1.0,
         0.0,
         0.0,
