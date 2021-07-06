@@ -19,7 +19,6 @@ from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
 from pyomo.opt import TerminationCondition
 from pyomo.opt.base.solvers import SolverFactory
 
-from miplearn.features import VariableFeatures, ConstraintFeatures
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput, _none_if_empty
 from miplearn.solvers.internal import (
@@ -28,6 +27,8 @@ from miplearn.solvers.internal import (
     IterationCallback,
     LazyCallback,
     MIPSolveStats,
+    Variables,
+    Constraints,
 )
 from miplearn.types import (
     SolverParams,
@@ -79,7 +80,7 @@ class BasePyomoSolver(InternalSolver):
         self._has_mip_solution = False
 
     @overrides
-    def add_constraints(self, cf: ConstraintFeatures) -> None:
+    def add_constraints(self, cf: Constraints) -> None:
         assert cf.names is not None
         assert cf.senses is not None
         assert cf.lhs is not None
@@ -111,7 +112,7 @@ class BasePyomoSolver(InternalSolver):
     @overrides
     def are_constraints_satisfied(
         self,
-        cf: ConstraintFeatures,
+        cf: Constraints,
         tol: float = 1e-5,
     ) -> List[bool]:
         assert cf.names is not None
@@ -159,7 +160,7 @@ class BasePyomoSolver(InternalSolver):
         with_static: bool = True,
         with_sa: bool = True,
         with_lhs: bool = True,
-    ) -> ConstraintFeatures:
+    ) -> Constraints:
         model = self.model
         assert model is not None
 
@@ -233,7 +234,7 @@ class BasePyomoSolver(InternalSolver):
                 names.append(constr.name)
                 _parse_constraint(constr)
 
-        return ConstraintFeatures(
+        return Constraints(
             names=_none_if_empty(names),
             rhs=_none_if_empty(rhs),
             senses=_none_if_empty(senses),
@@ -271,7 +272,7 @@ class BasePyomoSolver(InternalSolver):
         self,
         with_static: bool = True,
         with_sa: bool = True,
-    ) -> VariableFeatures:
+    ) -> Variables:
         assert self.model is not None
 
         names: List[str] = []
@@ -326,7 +327,7 @@ class BasePyomoSolver(InternalSolver):
                 if self._has_lp_solution or self._has_mip_solution:
                     values.append(v.value)
 
-        return VariableFeatures(
+        return Variables(
             names=_none_if_empty(names),
             types=_none_if_empty(types),
             upper_bounds=_none_if_empty(upper_bounds),

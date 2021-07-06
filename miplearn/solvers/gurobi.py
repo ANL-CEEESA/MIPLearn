@@ -10,7 +10,6 @@ from typing import List, Any, Dict, Optional, Hashable, Tuple, TYPE_CHECKING
 
 from overrides import overrides
 
-from miplearn.features import VariableFeatures, ConstraintFeatures
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
@@ -19,6 +18,8 @@ from miplearn.solvers.internal import (
     IterationCallback,
     LazyCallback,
     MIPSolveStats,
+    Variables,
+    Constraints,
 )
 from miplearn.solvers.pyomo.base import PyomoTestInstanceKnapsack
 from miplearn.types import (
@@ -91,7 +92,7 @@ class GurobiSolver(InternalSolver):
             ]
 
     @overrides
-    def add_constraints(self, cf: ConstraintFeatures) -> None:
+    def add_constraints(self, cf: Constraints) -> None:
         assert cf.names is not None
         assert cf.senses is not None
         assert cf.lhs is not None
@@ -120,7 +121,7 @@ class GurobiSolver(InternalSolver):
     @overrides
     def are_constraints_satisfied(
         self,
-        cf: ConstraintFeatures,
+        cf: Constraints,
         tol: float = 1e-5,
     ) -> List[bool]:
         assert cf.names is not None
@@ -196,7 +197,7 @@ class GurobiSolver(InternalSolver):
         with_static: bool = True,
         with_sa: bool = True,
         with_lhs: bool = True,
-    ) -> ConstraintFeatures:
+    ) -> Constraints:
         model = self.model
         assert model is not None
         assert model.numVars == len(self._gp_vars)
@@ -241,7 +242,7 @@ class GurobiSolver(InternalSolver):
         if self._has_lp_solution or self._has_mip_solution:
             slacks = model.getAttr("slack", gp_constrs)
 
-        return ConstraintFeatures(
+        return Constraints(
             basis_status=basis_status,
             dual_values=dual_value,
             lhs=lhs,
@@ -300,7 +301,7 @@ class GurobiSolver(InternalSolver):
         self,
         with_static: bool = True,
         with_sa: bool = True,
-    ) -> VariableFeatures:
+    ) -> Variables:
         model = self.model
         assert model is not None
 
@@ -347,7 +348,7 @@ class GurobiSolver(InternalSolver):
         if model.solCount > 0:
             values = model.getAttr("x", self._gp_vars)
 
-        return VariableFeatures(
+        return Variables(
             names=self._var_names,
             upper_bounds=upper_bounds,
             lower_bounds=lower_bounds,

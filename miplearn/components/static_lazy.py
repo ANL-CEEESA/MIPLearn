@@ -12,7 +12,8 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold, Threshold
 from miplearn.components.component import Component
-from miplearn.features import Sample, ConstraintFeatures
+from miplearn.features import Sample
+from miplearn.solvers.internal import Constraints
 from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats
 
@@ -45,7 +46,7 @@ class StaticLazyConstraintsComponent(Component):
         self.threshold_prototype: Threshold = threshold
         self.classifiers: Dict[Hashable, Classifier] = {}
         self.thresholds: Dict[Hashable, Threshold] = {}
-        self.pool: ConstraintFeatures = ConstraintFeatures()
+        self.pool: Constraints = Constraints()
         self.violation_tolerance: float = violation_tolerance
         self.enforced_cids: Set[Hashable] = set()
         self.n_restored: int = 0
@@ -82,7 +83,7 @@ class StaticLazyConstraintsComponent(Component):
             logger.info("Instance does not have static lazy constraints. Skipping.")
         self.enforced_cids = set(self.sample_predict(sample))
         logger.info("Moving lazy constraints to the pool...")
-        constraints = ConstraintFeatures.from_sample(sample)
+        constraints = Constraints.from_sample(sample)
         assert constraints.lazy is not None
         assert constraints.names is not None
         selected = [

@@ -11,9 +11,9 @@ from numpy.testing import assert_array_equal
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold, MinProbabilityThreshold
 from miplearn.components.static_lazy import StaticLazyConstraintsComponent
-from miplearn.features import Sample, ConstraintFeatures
+from miplearn.features import Sample
 from miplearn.instance.base import Instance
-from miplearn.solvers.internal import InternalSolver
+from miplearn.solvers.internal import InternalSolver, Constraints
 from miplearn.solvers.learning import LearningSolver
 from miplearn.types import (
     LearningSolveStats,
@@ -118,7 +118,7 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     # Should ask internal solver to verify if constraints in the pool are
     # satisfied and add the ones that are not
-    c = ConstraintFeatures.from_sample(sample)[[False, False, True, False, False]]
+    c = Constraints.from_sample(sample)[[False, False, True, False, False]]
     internal.are_constraints_satisfied.assert_called_once_with(c, tol=1.0)
     internal.are_constraints_satisfied.reset_mock()
     internal.add_constraints.assert_called_once_with(c)

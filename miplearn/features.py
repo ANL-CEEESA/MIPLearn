@@ -4,85 +4,14 @@
 
 import collections
 import numbers
-from dataclasses import dataclass
 from math import log, isfinite
-from typing import TYPE_CHECKING, Dict, Optional, List, Hashable, Tuple, Any
+from typing import TYPE_CHECKING, Dict, Optional, List, Hashable, Any
 
 import numpy as np
 
 if TYPE_CHECKING:
     from miplearn.solvers.internal import InternalSolver
     from miplearn.instance.base import Instance
-
-
-@dataclass
-class VariableFeatures:
-    names: Optional[List[str]] = None
-    basis_status: Optional[List[str]] = None
-    lower_bounds: Optional[List[float]] = None
-    obj_coeffs: Optional[List[float]] = None
-    reduced_costs: Optional[List[float]] = None
-    sa_lb_down: Optional[List[float]] = None
-    sa_lb_up: Optional[List[float]] = None
-    sa_obj_down: Optional[List[float]] = None
-    sa_obj_up: Optional[List[float]] = None
-    sa_ub_down: Optional[List[float]] = None
-    sa_ub_up: Optional[List[float]] = None
-    types: Optional[List[str]] = None
-    upper_bounds: Optional[List[float]] = None
-    values: Optional[List[float]] = None
-
-
-@dataclass
-class ConstraintFeatures:
-    basis_status: Optional[List[str]] = None
-    dual_values: Optional[List[float]] = None
-    lazy: Optional[List[bool]] = None
-    lhs: Optional[List[List[Tuple[str, float]]]] = None
-    names: Optional[List[str]] = None
-    rhs: Optional[List[float]] = None
-    sa_rhs_down: Optional[List[float]] = None
-    sa_rhs_up: Optional[List[float]] = None
-    senses: Optional[List[str]] = None
-    slacks: Optional[List[float]] = None
-
-    @staticmethod
-    def from_sample(sample: "Sample") -> "ConstraintFeatures":
-        return ConstraintFeatures(
-            basis_status=sample.get("lp_constr_basis_status"),
-            dual_values=sample.get("lp_constr_dual_values"),
-            lazy=sample.get("constr_lazy"),
-            lhs=sample.get("constr_lhs"),
-            names=sample.get("constr_names"),
-            rhs=sample.get("constr_rhs"),
-            sa_rhs_down=sample.get("lp_constr_sa_rhs_down"),
-            sa_rhs_up=sample.get("lp_constr_sa_rhs_up"),
-            senses=sample.get("constr_senses"),
-            slacks=sample.get("lp_constr_slacks"),
-        )
-
-    def __getitem__(self, selected: List[bool]) -> "ConstraintFeatures":
-        return ConstraintFeatures(
-            basis_status=self._filter(self.basis_status, selected),
-            dual_values=self._filter(self.dual_values, selected),
-            names=self._filter(self.names, selected),
-            lazy=self._filter(self.lazy, selected),
-            lhs=self._filter(self.lhs, selected),
-            rhs=self._filter(self.rhs, selected),
-            sa_rhs_down=self._filter(self.sa_rhs_down, selected),
-            sa_rhs_up=self._filter(self.sa_rhs_up, selected),
-            senses=self._filter(self.senses, selected),
-            slacks=self._filter(self.slacks, selected),
-        )
-
-    def _filter(
-        self,
-        obj: Optional[List],
-        selected: List[bool],
-    ) -> Optional[List]:
-        if obj is None:
-            return None
-        return [obj[i] for (i, selected_i) in enumerate(selected) if selected_i]
 
 
 class Sample:

@@ -6,10 +6,9 @@ import numpy as np
 
 from miplearn.features import (
     FeaturesExtractor,
-    VariableFeatures,
-    ConstraintFeatures,
     Sample,
 )
+from miplearn.solvers.internal import Variables, Constraints
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.tests import assert_equals
 
@@ -129,7 +128,7 @@ def test_knapsack() -> None:
 
 
 def test_constraint_getindex() -> None:
-    cf = ConstraintFeatures(
+    cf = Constraints(
         names=["c1", "c2", "c3"],
         rhs=[1.0, 2.0, 3.0],
         senses=["=", "<", ">"],
@@ -150,7 +149,7 @@ def test_constraint_getindex() -> None:
     )
     assert_equals(
         cf[[True, False, True]],
-        ConstraintFeatures(
+        Constraints(
             names=["c1", "c3"],
             rhs=[1.0, 3.0],
             senses=["=", ">"],
@@ -177,8 +176,8 @@ def test_assert_equals() -> None:
         np.array([[1.0, 2.0], [3.0, 4.0]]),
     )
     assert_equals(
-        VariableFeatures(values=np.array([1.0, 2.0])),  # type: ignore
-        VariableFeatures(values=np.array([1.0, 2.0])),  # type: ignore
+        Variables(values=np.array([1.0, 2.0])),  # type: ignore
+        Variables(values=np.array([1.0, 2.0])),  # type: ignore
     )
     assert_equals(np.array([True, True]), [True, True])
     assert_equals((1.0,), (1.0,))

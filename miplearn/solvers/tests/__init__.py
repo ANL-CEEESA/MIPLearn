@@ -6,8 +6,7 @@ from typing import Any, List
 
 import numpy as np
 
-from miplearn.features import VariableFeatures, ConstraintFeatures
-from miplearn.solvers.internal import InternalSolver
+from miplearn.solvers.internal import InternalSolver, Variables, Constraints
 
 inf = float("inf")
 
@@ -40,7 +39,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # Fetch variables (after-load)
     assert_equals(
         solver.get_variables(),
-        VariableFeatures(
+        Variables(
             names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
             lower_bounds=[0.0, 0.0, 0.0, 0.0, 0.0],
             upper_bounds=[1.0, 1.0, 1.0, 1.0, 67.0],
@@ -52,7 +51,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # Fetch constraints (after-load)
     assert_equals(
         solver.get_constraints(),
-        ConstraintFeatures(
+        Constraints(
             names=["eq_capacity"],
             rhs=[0.0],
             lhs=[
@@ -83,7 +82,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         solver.get_variables(with_static=False),
         _filter_attrs(
             solver.get_variable_attrs(),
-            VariableFeatures(
+            Variables(
                 names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
                 basis_status=["U", "B", "U", "L", "U"],
                 reduced_costs=[193.615385, 0.0, 187.230769, -23.692308, 13.538462],
@@ -103,7 +102,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         solver.get_constraints(with_static=False),
         _filter_attrs(
             solver.get_constraint_attrs(),
-            ConstraintFeatures(
+            Constraints(
                 basis_status=["N"],
                 dual_values=[13.538462],
                 names=["eq_capacity"],
@@ -136,7 +135,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         solver.get_variables(with_static=False),
         _filter_attrs(
             solver.get_variable_attrs(),
-            VariableFeatures(
+            Variables(
                 names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
                 values=[1.0, 0.0, 1.0, 1.0, 61.0],
             ),
@@ -148,7 +147,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         solver.get_constraints(with_static=False),
         _filter_attrs(
             solver.get_constraint_attrs(),
-            ConstraintFeatures(
+            Constraints(
                 names=["eq_capacity"],
                 slacks=[0.0],
             ),
@@ -156,7 +155,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     )
 
     # Build new constraint and verify that it is violated
-    cf = ConstraintFeatures(
+    cf = Constraints(
         names=["cut"],
         lhs=[[("x[0]", 1.0)]],
         rhs=[0.0],
@@ -170,7 +169,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         solver.get_constraints(with_static=True),
         _filter_attrs(
             solver.get_constraint_attrs(),
-            ConstraintFeatures(
+            Constraints(
                 names=["eq_capacity", "cut"],
                 rhs=[0.0, 0.0],
                 lhs=[
