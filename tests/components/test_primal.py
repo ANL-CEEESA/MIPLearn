@@ -12,12 +12,7 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.primal import PrimalSolutionComponent
-from miplearn.features import (
-    Features,
-    Sample,
-    InstanceFeatures,
-    VariableFeatures,
-)
+from miplearn.features import Sample
 from miplearn.problems.tsp import TravelingSalesmanGenerator
 from miplearn.solvers.learning import LearningSolver
 from miplearn.solvers.tests import assert_equals

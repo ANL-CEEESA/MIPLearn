@@ -171,7 +171,6 @@ class LearningSolver:
         self.extractor.extract_after_load_features(
             instance, self.internal_solver, sample
         )
-        features = self.extractor.extract(instance, self.internal_solver)
         logger.info(
             "Features (after-load) extracted in %.2f seconds"
             % (time.time() - initial_time)

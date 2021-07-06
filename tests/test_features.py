@@ -6,7 +6,6 @@ import numpy as np
 
 from miplearn.features import (
     FeaturesExtractor,
-    InstanceFeatures,
     VariableFeatures,
     ConstraintFeatures,
     Sample,
@@ -127,15 +126,6 @@ def test_knapsack() -> None:
     extractor.extract_after_mip_features(solver, sample)
     assert_equals(sample.get("mip_var_values"), [1.0, 0.0, 1.0, 1.0, 61.0])
     assert_equals(sample.get("mip_constr_slacks"), [0.0])
-
-    features = extractor.extract(instance, solver)
-    assert_equals(
-        features.instance,
-        InstanceFeatures(
-            user_features=[67.0, 21.75],
-            lazy_constraint_count=0,
-        ),
-    )
 
 
 def test_constraint_getindex() -> None:
