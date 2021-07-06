@@ -176,7 +176,6 @@ class LearningSolver:
             "Features (after-load) extracted in %.2f seconds"
             % (time.time() - initial_time)
         )
-        sample.after_load = features
 
         callback_args = (
             self,

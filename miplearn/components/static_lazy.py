@@ -74,16 +74,15 @@ class StaticLazyConstraintsComponent(Component):
         sample: Sample,
     ) -> None:
         assert solver.internal_solver is not None
-        assert sample.after_load is not None
-        assert sample.after_load.instance is not None
+        static_lazy_count = sample.get("static_lazy_count")
+        assert static_lazy_count is not None
 
         logger.info("Predicting violated (static) lazy constraints...")
-        if sample.after_load.instance.lazy_constraint_count == 0:
+        if static_lazy_count == 0:
             logger.info("Instance does not have static lazy constraints. Skipping.")
         self.enforced_cids = set(self.sample_predict(sample))
         logger.info("Moving lazy constraints to the pool...")
-        constraints = sample.after_load.constraints
-        assert constraints is not None
+        constraints = ConstraintFeatures.from_sample(sample)
         assert constraints.lazy is not None
         assert constraints.names is not None
         selected = [

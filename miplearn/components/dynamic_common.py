@@ -52,6 +52,8 @@ class DynamicConstraintsComponent(Component):
         cids: Dict[Hashable, List[str]] = {}
         constr_categories_dict = instance.get_constraint_categories()
         constr_features_dict = instance.get_constraint_features()
+        instance_features = sample.get("instance_features_user")
+        assert instance_features is not None
         for cid in self.known_cids:
             # Initialize categories
             if cid in constr_categories_dict:
@@ -66,10 +68,8 @@ class DynamicConstraintsComponent(Component):
                 cids[category] = []
 
             # Features
-            features = []
-            assert sample.after_load is not None
-            assert sample.after_load.instance is not None
-            features.extend(sample.after_load.instance.to_list())
+            features: List[float] = []
+            features.extend(instance_features)
             if cid in constr_features_dict:
                 features.extend(constr_features_dict[cid])
             for ci in features:

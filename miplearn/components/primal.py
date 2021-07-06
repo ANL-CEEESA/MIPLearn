@@ -103,8 +103,10 @@ class PrimalSolutionComponent(Component):
         )
 
     def sample_predict(self, sample: Sample) -> Solution:
-        assert sample.after_load is not None
-        assert sample.after_load.variables is not None
+        var_names = sample.get("var_names")
+        var_categories = sample.get("var_categories")
+        assert var_names is not None
+        assert var_categories is not None
 
         # Compute y_pred
         x, _ = self.sample_xy(None, sample)
@@ -125,12 +127,10 @@ class PrimalSolutionComponent(Component):
             ).T
 
         # Convert y_pred into solution
-        assert sample.after_load.variables.names is not None
-        assert sample.after_load.variables.categories is not None
-        solution: Solution = {v: None for v in sample.after_load.variables.names}
+        solution: Solution = {v: None for v in var_names}
         category_offset: Dict[Hashable, int] = {cat: 0 for cat in x.keys()}
-        for (i, var_name) in enumerate(sample.after_load.variables.names):
-            category = sample.after_load.variables.categories[i]
+        for (i, var_name) in enumerate(var_names):
+            category = var_categories[i]
             if category not in category_offset:
                 continue
             offset = category_offset[category]
@@ -150,24 +150,21 @@ class PrimalSolutionComponent(Component):
     ) -> Tuple[Dict[Category, List[List[float]]], Dict[Category, List[List[float]]]]:
         x: Dict = {}
         y: Dict = {}
-        assert sample.after_load is not None
-        assert sample.after_load.instance is not None
-        assert sample.after_load.variables is not None
-        assert sample.after_load.variables.names is not None
-        assert sample.after_load.variables.categories is not None
-
         instance_features = sample.get("instance_features_user")
         mip_var_values = sample.get("mip_var_values")
         var_features = sample.get("lp_var_features")
+        var_names = sample.get("var_names")
+        var_categories = sample.get("var_categories")
         if var_features is None:
             var_features = sample.get("var_features")
-
         assert instance_features is not None
         assert var_features is not None
+        assert var_names is not None
+        assert var_categories is not None
 
-        for (i, var_name) in enumerate(sample.after_load.variables.names):
+        for (i, var_name) in enumerate(var_names):
             # Initialize categories
-            category = sample.after_load.variables.categories[i]
+            category = var_categories[i]
             if category is None:
                 continue
             if category not in x.keys():

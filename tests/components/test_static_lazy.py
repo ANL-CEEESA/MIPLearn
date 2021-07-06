@@ -28,23 +28,7 @@ from miplearn.types import (
 @pytest.fixture
 def sample() -> Sample:
     sample = Sample(
-        after_load=Features(
-            instance=InstanceFeatures(
-                lazy_constraint_count=4,
-            ),
-            constraints=ConstraintFeatures(
-                names=["c1", "c2", "c3", "c4", "c5"],
-                categories=[
-                    "type-a",
-                    "type-a",
-                    "type-a",
-                    "type-b",
-                    "type-b",
-                ],
-                lazy=[True, True, True, True, False],
-            ),
-        ),
-        data={
+        {
             "constr_categories": [
                 "type-a",
                 "type-a",
@@ -139,9 +123,7 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     # Should ask internal solver to verify if constraints in the pool are
     # satisfied and add the ones that are not
-    assert sample.after_load is not None
-    assert sample.after_load.constraints is not None
-    c = sample.after_load.constraints[[False, False, True, False, False]]
+    c = ConstraintFeatures.from_sample(sample)[[False, False, True, False, False]]
     internal.are_constraints_satisfied.assert_called_once_with(c, tol=1.0)
     internal.are_constraints_satisfied.reset_mock()
     internal.add_constraints.assert_called_once_with(c)

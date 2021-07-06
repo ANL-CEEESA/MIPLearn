@@ -82,15 +82,32 @@ class ConstraintFeatures:
     basis_status: Optional[List[str]] = None
     categories: Optional[List[Optional[Hashable]]] = None
     dual_values: Optional[List[float]] = None
-    names: Optional[List[str]] = None
     lazy: Optional[List[bool]] = None
     lhs: Optional[List[List[Tuple[str, float]]]] = None
+    names: Optional[List[str]] = None
     rhs: Optional[List[float]] = None
     sa_rhs_down: Optional[List[float]] = None
     sa_rhs_up: Optional[List[float]] = None
     senses: Optional[List[str]] = None
     slacks: Optional[List[float]] = None
     user_features: Optional[List[Optional[List[float]]]] = None
+
+    @staticmethod
+    def from_sample(sample: "Sample") -> "ConstraintFeatures":
+        return ConstraintFeatures(
+            basis_status=sample.get("lp_constr_basis_status"),
+            categories=sample.get("constr_categories"),
+            dual_values=sample.get("lp_constr_dual_values"),
+            lazy=sample.get("constr_lazy"),
+            lhs=sample.get("constr_lhs"),
+            names=sample.get("constr_names"),
+            rhs=sample.get("constr_rhs"),
+            sa_rhs_down=sample.get("lp_constr_sa_rhs_down"),
+            sa_rhs_up=sample.get("lp_constr_sa_rhs_up"),
+            senses=sample.get("constr_senses"),
+            slacks=sample.get("lp_constr_slacks"),
+            user_features=sample.get("constr_features_user"),
+        )
 
     def to_list(self, index: int) -> List[float]:
         features: List[float] = []
@@ -146,13 +163,11 @@ class Features:
 class Sample:
     def __init__(
         self,
-        after_load: Optional[Features] = None,
         data: Optional[Dict[str, Any]] = None,
     ) -> None:
         if data is None:
             data = {}
         self._data: Dict[str, Any] = data
-        self.after_load = after_load
 
     def get(self, key: str) -> Optional[Any]:
         if key in self._data:

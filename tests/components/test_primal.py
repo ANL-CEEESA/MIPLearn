@@ -26,14 +26,7 @@ from miplearn.solvers.tests import assert_equals
 @pytest.fixture
 def sample() -> Sample:
     sample = Sample(
-        after_load=Features(
-            instance=InstanceFeatures(),
-            variables=VariableFeatures(
-                names=["x[0]", "x[1]", "x[2]", "x[3]"],
-                categories=["default", None, "default", "default"],
-            ),
-        ),
-        data={
+        {
             "var_names": ["x[0]", "x[1]", "x[2]", "x[3]"],
             "var_categories": ["default", None, "default", "default"],
             "mip_var_values": [0.0, 1.0, 1.0, 0.0],
@@ -51,15 +44,6 @@ def sample() -> Sample:
                 [1.0, 1.0, 3.0, 3.0],
             ],
         },
-    )
-    sample.after_load.instance.to_list = Mock(return_value=[5.0])  # type: ignore
-    sample.after_load.variables.to_list = Mock(  # type:ignore
-        side_effect=lambda i: [
-            [0.0, 0.0],
-            None,
-            [1.0, 0.0],
-            [1.0, 1.0],
-        ][i]
     )
     return sample
 
