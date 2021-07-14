@@ -5,7 +5,7 @@
 import numpy as np
 
 from miplearn.features.extractor import FeaturesExtractor
-from miplearn.features.sample import Sample
+from miplearn.features.sample import Sample, MemorySample
 from miplearn.solvers.internal import Variables, Constraints
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.tests import assert_equals
@@ -19,7 +19,7 @@ def test_knapsack() -> None:
     model = instance.to_model()
     solver.set_instance(instance, model)
     extractor = FeaturesExtractor()
-    sample = Sample()
+    sample = MemorySample()
 
     # after-load
     # -------------------------------------------------------

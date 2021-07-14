@@ -12,7 +12,7 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.primal import PrimalSolutionComponent
-from miplearn.features.sample import Sample
+from miplearn.features.sample import Sample, MemorySample
 from miplearn.problems.tsp import TravelingSalesmanGenerator
 from miplearn.solvers.learning import LearningSolver
 from miplearn.solvers.tests import assert_equals
@@ -20,7 +20,7 @@ from miplearn.solvers.tests import assert_equals
 
 @pytest.fixture
 def sample() -> Sample:
-    sample = Sample(
+    sample = MemorySample(
         {
             "var_names": ["x[0]", "x[1]", "x[2]", "x[3]"],
             "var_categories": ["default", None, "default", "default"],

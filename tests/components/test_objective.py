@@ -10,14 +10,14 @@ from numpy.testing import assert_array_equal
 
 from miplearn.classifiers import Regressor
 from miplearn.components.objective import ObjectiveValueComponent
-from miplearn.features.sample import Sample
+from miplearn.features.sample import Sample, MemorySample
 from miplearn.solvers.learning import LearningSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
 
 
 @pytest.fixture
 def sample() -> Sample:
-    sample = Sample(
+    sample = MemorySample(
         {
             "mip_lower_bound": 1.0,
             "mip_upper_bound": 2.0,

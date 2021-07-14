@@ -15,7 +15,7 @@ from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.features.extractor import FeaturesExtractor
-from miplearn.features.sample import Sample
+from miplearn.features.sample import Sample, MemorySample
 from miplearn.instance.base import Instance
 from miplearn.instance.picklegz import PickleGzInstance
 from miplearn.solvers import _RedirectOutput
@@ -150,7 +150,7 @@ class LearningSolver:
 
         # Initialize training sample
         # -------------------------------------------------------
-        sample = Sample()
+        sample = MemorySample()
         instance.push_sample(sample)
 
         # Initialize stats

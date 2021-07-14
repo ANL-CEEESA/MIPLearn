@@ -11,7 +11,7 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.dynamic_lazy import DynamicLazyConstraintsComponent
-from miplearn.features.sample import Sample
+from miplearn.features.sample import Sample, MemorySample
 from miplearn.instance.base import Instance
 from miplearn.solvers.tests import assert_equals
 
@@ -22,13 +22,13 @@ E = 0.1
 def training_instances() -> List[Instance]:
     instances = [cast(Instance, Mock(spec=Instance)) for _ in range(2)]
     samples_0 = [
-        Sample(
+        MemorySample(
             {
                 "lazy_enforced": {"c1", "c2"},
                 "instance_features_user": [5.0],
             },
         ),
-        Sample(
+        MemorySample(
             {
                 "lazy_enforced": {"c2", "c3"},
                 "instance_features_user": [5.0],
@@ -53,7 +53,7 @@ def training_instances() -> List[Instance]:
         }
     )
     samples_1 = [
-        Sample(
+        MemorySample(
             {
                 "lazy_enforced": {"c3", "c4"},
                 "instance_features_user": [8.0],
