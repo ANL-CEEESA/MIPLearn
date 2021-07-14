@@ -33,15 +33,15 @@ class FeaturesExtractor:
     ) -> None:
         variables = solver.get_variables(with_static=True)
         constraints = solver.get_constraints(with_static=True, with_lhs=self.with_lhs)
-        sample.put("var_lower_bounds", variables.lower_bounds)
-        sample.put("var_names", variables.names)
-        sample.put("var_obj_coeffs", variables.obj_coeffs)
-        sample.put("var_types", variables.types)
-        sample.put("var_upper_bounds", variables.upper_bounds)
-        sample.put("constr_names", constraints.names)
+        sample.put_vector("var_lower_bounds", variables.lower_bounds)
+        sample.put_vector("var_names", variables.names)
+        sample.put_vector("var_obj_coeffs", variables.obj_coeffs)
+        sample.put_vector("var_types", variables.types)
+        sample.put_vector("var_upper_bounds", variables.upper_bounds)
+        sample.put_vector("constr_names", constraints.names)
         sample.put("constr_lhs", constraints.lhs)
-        sample.put("constr_rhs", constraints.rhs)
-        sample.put("constr_senses", constraints.senses)
+        sample.put_vector("constr_rhs", constraints.rhs)
+        sample.put_vector("constr_senses", constraints.senses)
         self._extract_user_features_vars(instance, sample)
         self._extract_user_features_constrs(instance, sample)
         self._extract_user_features_instance(instance, sample)
@@ -67,20 +67,20 @@ class FeaturesExtractor:
     ) -> None:
         variables = solver.get_variables(with_static=False, with_sa=self.with_sa)
         constraints = solver.get_constraints(with_static=False, with_sa=self.with_sa)
-        sample.put("lp_var_basis_status", variables.basis_status)
-        sample.put("lp_var_reduced_costs", variables.reduced_costs)
-        sample.put("lp_var_sa_lb_down", variables.sa_lb_down)
-        sample.put("lp_var_sa_lb_up", variables.sa_lb_up)
-        sample.put("lp_var_sa_obj_down", variables.sa_obj_down)
-        sample.put("lp_var_sa_obj_up", variables.sa_obj_up)
-        sample.put("lp_var_sa_ub_down", variables.sa_ub_down)
-        sample.put("lp_var_sa_ub_up", variables.sa_ub_up)
-        sample.put("lp_var_values", variables.values)
-        sample.put("lp_constr_basis_status", constraints.basis_status)
-        sample.put("lp_constr_dual_values", constraints.dual_values)
-        sample.put("lp_constr_sa_rhs_down", constraints.sa_rhs_down)
-        sample.put("lp_constr_sa_rhs_up", constraints.sa_rhs_up)
-        sample.put("lp_constr_slacks", constraints.slacks)
+        sample.put_vector("lp_var_basis_status", variables.basis_status)
+        sample.put_vector("lp_var_reduced_costs", variables.reduced_costs)
+        sample.put_vector("lp_var_sa_lb_down", variables.sa_lb_down)
+        sample.put_vector("lp_var_sa_lb_up", variables.sa_lb_up)
+        sample.put_vector("lp_var_sa_obj_down", variables.sa_obj_down)
+        sample.put_vector("lp_var_sa_obj_up", variables.sa_obj_up)
+        sample.put_vector("lp_var_sa_ub_down", variables.sa_ub_down)
+        sample.put_vector("lp_var_sa_ub_up", variables.sa_ub_up)
+        sample.put_vector("lp_var_values", variables.values)
+        sample.put_vector("lp_constr_basis_status", constraints.basis_status)
+        sample.put_vector("lp_constr_dual_values", constraints.dual_values)
+        sample.put_vector("lp_constr_sa_rhs_down", constraints.sa_rhs_down)
+        sample.put_vector("lp_constr_sa_rhs_up", constraints.sa_rhs_up)
+        sample.put_vector("lp_constr_slacks", constraints.slacks)
         self._extract_var_features_AlvLouWeh2017(sample, prefix="lp_")
         sample.put(
             "lp_var_features",
@@ -134,8 +134,8 @@ class FeaturesExtractor:
     ) -> None:
         variables = solver.get_variables(with_static=False, with_sa=False)
         constraints = solver.get_constraints(with_static=False, with_sa=False)
-        sample.put("mip_var_values", variables.values)
-        sample.put("mip_constr_slacks", constraints.slacks)
+        sample.put_vector("mip_var_values", variables.values)
+        sample.put_vector("mip_constr_slacks", constraints.slacks)
 
     def _extract_user_features_vars(
         self,
@@ -228,7 +228,7 @@ class FeaturesExtractor:
             else:
                 lazy.append(False)
         sample.put("constr_features_user", user_features)
-        sample.put("constr_lazy", lazy)
+        sample.put_vector("constr_lazy", lazy)
         sample.put("constr_categories", categories)
 
     def _extract_user_features_instance(
@@ -251,7 +251,7 @@ class FeaturesExtractor:
         constr_lazy = sample.get("constr_lazy")
         assert constr_lazy is not None
         sample.put("instance_features_user", user_features)
-        sample.put("static_lazy_count", sum(constr_lazy))
+        sample.put_scalar("static_lazy_count", sum(constr_lazy))
 
     # Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
     # approximation of strong branching. INFORMS Journal on Computing, 29(1), 185-195.
