@@ -367,19 +367,13 @@ class FeaturesExtractor:
                 if s is None:
                     continue
                 elif isinstance(s, list):
-                    combined[i].extend([_clipf(sj) for sj in s])
+                    combined[i].extend([_clip(sj) for sj in s])
                 else:
-                    combined[i].append(_clipf(s))
+                    combined[i].append(_clip(s))
         return combined
 
 
-def _clipf(vi: float) -> float:
+def _clip(vi: float) -> float:
     if not isfinite(vi):
         return max(min(vi, 1e20), -1e20)
     return vi
-
-
-def _clip(v: List[float]) -> None:
-    for (i, vi) in enumerate(v):
-        if not isfinite(vi):
-            v[i] = max(min(vi, 1e20), -1e20)
