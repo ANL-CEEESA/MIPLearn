@@ -12,7 +12,7 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold, Threshold
 from miplearn.components.component import Component
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 from miplearn.solvers.internal import Constraints
 from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats

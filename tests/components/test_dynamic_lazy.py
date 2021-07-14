@@ -11,7 +11,7 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.dynamic_lazy import DynamicLazyConstraintsComponent
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
 from miplearn.solvers.tests import assert_equals
 

@@ -6,7 +6,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, List, Hashable, TYPE_CHECKING, Dict
 
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 
 logger = logging.getLogger(__name__)
 

@@ -21,7 +21,7 @@ from miplearn.classifiers.adaptive import AdaptiveClassifier
 from miplearn.classifiers.threshold import MinPrecisionThreshold, Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
 from miplearn.types import (
     LearningSolveStats,

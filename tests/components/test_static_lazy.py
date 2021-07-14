@@ -11,7 +11,7 @@ from numpy.testing import assert_array_equal
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold, MinProbabilityThreshold
 from miplearn.components.static_lazy import StaticLazyConstraintsComponent
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
 from miplearn.solvers.internal import InternalSolver, Constraints
 from miplearn.solvers.learning import LearningSolver

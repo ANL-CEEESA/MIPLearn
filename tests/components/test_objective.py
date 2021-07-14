@@ -10,7 +10,7 @@ from numpy.testing import assert_array_equal
 
 from miplearn.classifiers import Regressor
 from miplearn.components.objective import ObjectiveValueComponent
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 from miplearn.solvers.learning import LearningSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
 

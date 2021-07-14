@@ -14,7 +14,8 @@ from miplearn.components.dynamic_lazy import DynamicLazyConstraintsComponent
 from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
-from miplearn.features import FeaturesExtractor, Sample
+from miplearn.features.extractor import FeaturesExtractor
+from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
 from miplearn.instance.picklegz import PickleGzInstance
 from miplearn.solvers import _RedirectOutput

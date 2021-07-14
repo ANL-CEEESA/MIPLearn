@@ -12,7 +12,7 @@ from sklearn.linear_model import LinearRegression
 from miplearn.classifiers import Regressor
 from miplearn.classifiers.sklearn import ScikitLearnRegressor
 from miplearn.components.component import Component
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats
 

@@ -12,7 +12,7 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
 
 logger = logging.getLogger(__name__)

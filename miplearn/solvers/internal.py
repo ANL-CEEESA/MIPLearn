@@ -18,7 +18,7 @@ from miplearn.types import (
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from miplearn.features import Sample
+    from miplearn.features.sample import Sample
 
 
 @dataclass

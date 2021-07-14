@@ -4,10 +4,8 @@
 
 import numpy as np
 
-from miplearn.features import (
-    FeaturesExtractor,
-    Sample,
-)
+from miplearn.features.extractor import FeaturesExtractor
+from miplearn.features.sample import Sample
 from miplearn.solvers.internal import Variables, Constraints
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.tests import assert_equals
