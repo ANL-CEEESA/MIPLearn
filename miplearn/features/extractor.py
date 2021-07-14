@@ -46,7 +46,7 @@ class FeaturesExtractor:
         self._extract_user_features_constrs(instance, sample)
         self._extract_user_features_instance(instance, sample)
         self._extract_var_features_AlvLouWeh2017(sample)
-        sample.put(
+        sample.put_vector_list(
             "var_features",
             self._combine(
                 sample,
@@ -82,7 +82,7 @@ class FeaturesExtractor:
         sample.put_vector("lp_constr_sa_rhs_up", constraints.sa_rhs_up)
         sample.put_vector("lp_constr_slacks", constraints.slacks)
         self._extract_var_features_AlvLouWeh2017(sample, prefix="lp_")
-        sample.put(
+        sample.put_vector_list(
             "lp_var_features",
             self._combine(
                 sample,
@@ -103,7 +103,7 @@ class FeaturesExtractor:
                 ],
             ),
         )
-        sample.put(
+        sample.put_vector_list(
             "lp_constr_features",
             self._combine(
                 sample,
@@ -118,7 +118,7 @@ class FeaturesExtractor:
         )
         instance_features_user = sample.get("instance_features_user")
         assert instance_features_user is not None
-        sample.put(
+        sample.put_vector(
             "lp_instance_features",
             instance_features_user
             + [
@@ -178,7 +178,7 @@ class FeaturesExtractor:
                 user_features_i = list(user_features_i)
             user_features.append(user_features_i)
         sample.put("var_categories", categories)
-        sample.put("var_features_user", user_features)
+        sample.put_vector_list("var_features_user", user_features)
 
     def _extract_user_features_constrs(
         self,
@@ -227,7 +227,7 @@ class FeaturesExtractor:
                 lazy.append(instance.is_constraint_lazy(cname))
             else:
                 lazy.append(False)
-        sample.put("constr_features_user", user_features)
+        sample.put_vector_list("constr_features_user", user_features)
         sample.put_vector("constr_lazy", lazy)
         sample.put("constr_categories", categories)
 
@@ -250,7 +250,7 @@ class FeaturesExtractor:
             )
         constr_lazy = sample.get("constr_lazy")
         assert constr_lazy is not None
-        sample.put("instance_features_user", user_features)
+        sample.put_vector("instance_features_user", user_features)
         sample.put_scalar("static_lazy_count", sum(constr_lazy))
 
     # Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
@@ -331,7 +331,7 @@ class FeaturesExtractor:
             for v in f:
                 assert isfinite(v), f"non-finite elements detected: {f}"
             features.append(f)
-        sample.put(f"{prefix}var_features_AlvLouWeh2017", features)
+        sample.put_vector_list(f"{prefix}var_features_AlvLouWeh2017", features)
 
     def _combine(
         self,
