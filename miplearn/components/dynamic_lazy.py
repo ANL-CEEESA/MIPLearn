@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Dict, List, TYPE_CHECKING, Hashable, Tuple, Any, Optional, Set
+from typing import Dict, List, TYPE_CHECKING, Tuple, Any, Optional, Set
 
 import numpy as np
 from overrides import overrides
@@ -41,11 +41,11 @@ class DynamicLazyConstraintsComponent(Component):
         self.classifiers = self.dynamic.classifiers
         self.thresholds = self.dynamic.thresholds
         self.known_cids = self.dynamic.known_cids
-        self.lazy_enforced: Set[Hashable] = set()
+        self.lazy_enforced: Set[str] = set()
 
     @staticmethod
     def enforce(
-        cids: List[Hashable],
+        cids: List[str],
         instance: Instance,
         model: Any,
         solver: "LearningSolver",
@@ -117,7 +117,7 @@ class DynamicLazyConstraintsComponent(Component):
         self,
         instance: Instance,
         sample: Sample,
-    ) -> List[Hashable]:
+    ) -> List[str]:
         return self.dynamic.sample_predict(instance, sample)
 
     @overrides
@@ -127,8 +127,8 @@ class DynamicLazyConstraintsComponent(Component):
     @overrides
     def fit_xy(
         self,
-        x: Dict[Hashable, np.ndarray],
-        y: Dict[Hashable, np.ndarray],
+        x: Dict[str, np.ndarray],
+        y: Dict[str, np.ndarray],
     ) -> None:
         self.dynamic.fit_xy(x, y)
 
@@ -137,5 +137,5 @@ class DynamicLazyConstraintsComponent(Component):
         self,
         instance: Instance,
         sample: Sample,
-    ) -> Dict[Hashable, Dict[str, float]]:
+    ) -> Dict[str, Dict[str, float]]:
         return self.dynamic.sample_evaluate(instance, sample)

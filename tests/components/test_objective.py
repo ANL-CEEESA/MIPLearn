@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import Hashable, Dict
+from typing import Dict
 from unittest.mock import Mock
 
 import numpy as np
@@ -44,11 +44,11 @@ def test_sample_xy(sample: Sample) -> None:
 
 
 def test_fit_xy() -> None:
-    x: Dict[Hashable, np.ndarray] = {
+    x: Dict[str, np.ndarray] = {
         "Lower bound": np.array([[0.0, 0.0], [1.0, 2.0]]),
         "Upper bound": np.array([[0.0, 0.0], [1.0, 2.0]]),
     }
-    y: Dict[Hashable, np.ndarray] = {
+    y: Dict[str, np.ndarray] = {
         "Lower bound": np.array([[100.0]]),
         "Upper bound": np.array([[200.0]]),
     }

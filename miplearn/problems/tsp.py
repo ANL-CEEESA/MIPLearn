@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List, Tuple, FrozenSet, Any, Optional, Hashable, Dict
+from typing import List, Tuple, FrozenSet, Any, Optional, Dict
 
 import networkx as nx
 import numpy as np
@@ -11,10 +11,9 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
+from miplearn.instance.base import Instance
 from miplearn.solvers.learning import InternalSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
-from miplearn.instance.base import Instance
-from miplearn.types import VariableName, Category
 
 
 class ChallengeA:
@@ -82,7 +81,7 @@ class TravelingSalesmanInstance(Instance):
         return model
 
     @overrides
-    def get_variable_categories(self) -> Dict[str, Hashable]:
+    def get_variable_categories(self) -> Dict[str, str]:
         return {f"x[{e}]": f"x[{e}]" for e in self.edges}
 
     @overrides

@@ -2,7 +2,7 @@
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Any, List, TYPE_CHECKING, Tuple, Dict, Hashable, Optional
+from typing import Any, List, TYPE_CHECKING, Tuple, Dict, Optional
 
 import numpy as np
 from p_tqdm import p_umap
@@ -101,8 +101,8 @@ class Component:
 
     def fit_xy(
         self,
-        x: Dict[Hashable, np.ndarray],
-        y: Dict[Hashable, np.ndarray],
+        x: Dict[str, np.ndarray],
+        y: Dict[str, np.ndarray],
     ) -> None:
         """
         Given two dictionaries x and y, mapping the name of the category to matrices
@@ -152,7 +152,7 @@ class Component:
         self,
         instance: Optional[Instance],
         sample: Sample,
-    ) -> Dict[Hashable, Dict[str, float]]:
+    ) -> Dict[str, Dict[str, float]]:
         return {}
 
     def sample_xy(

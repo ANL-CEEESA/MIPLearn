@@ -121,8 +121,8 @@ def test_evaluate(sample: Sample) -> None:
     assert_equals(
         ev,
         {
-            0: classifier_evaluation_dict(tp=0, fp=1, tn=1, fn=2),
-            1: classifier_evaluation_dict(tp=1, fp=1, tn=1, fn=1),
+            "0": classifier_evaluation_dict(tp=0, fp=1, tn=1, fn=2),
+            "1": classifier_evaluation_dict(tp=1, fp=1, tn=1, fn=1),
         },
     )
 

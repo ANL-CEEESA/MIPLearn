@@ -4,7 +4,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, List, Hashable, TYPE_CHECKING, Dict
+from typing import Any, List, TYPE_CHECKING, Dict
 
 from miplearn.features.sample import Sample
 
@@ -83,7 +83,7 @@ class Instance(ABC):
         """
         return {}
 
-    def get_variable_categories(self) -> Dict[str, Hashable]:
+    def get_variable_categories(self) -> Dict[str, str]:
         """
         Returns a dictionary mapping the name of each variable to its category.
 
@@ -91,7 +91,6 @@ class Instance(ABC):
         internal ML model to predict the values of both variables. If a variable is not
         listed in the dictionary, ML models will ignore the variable.
 
-        A category can be any hashable type, such as strings, numbers or tuples.
         By default, returns {}.
         """
         return {}
@@ -99,7 +98,7 @@ class Instance(ABC):
     def get_constraint_features(self) -> Dict[str, List[float]]:
         return {}
 
-    def get_constraint_categories(self) -> Dict[str, Hashable]:
+    def get_constraint_categories(self) -> Dict[str, str]:
         return {}
 
     def has_static_lazy_constraints(self) -> bool:
@@ -115,7 +114,7 @@ class Instance(ABC):
         self,
         solver: "InternalSolver",
         model: Any,
-    ) -> List[Hashable]:
+    ) -> List[str]:
         """
         Returns lazy constraint violations found for the current solution.
 
@@ -125,10 +124,10 @@ class Instance(ABC):
         resolve the problem. The process repeats until no further lazy constraint
         violations are found.
 
-        Each "violation" is simply a string, a tuple or any other hashable type which
-        allows the instance to identify unambiguously which lazy constraint should be
-        generated. In the Traveling Salesman Problem, for example, a subtour
-        violation could be a frozen set containing the cities in the subtour.
+        Each "violation" is simply a string which allows the instance to identify
+        unambiguously which lazy constraint should be generated. In the Traveling
+        Salesman Problem, for example, a subtour violation could be a string
+        containing the cities in the subtour.
 
         The current solution can be queried with `solver.get_solution()`. If the solver
         is configured to use lazy callbacks, this solution may be non-integer.
@@ -141,7 +140,7 @@ class Instance(ABC):
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: Hashable,
+        violation: str,
     ) -> None:
         """
         Adds constraints to the model to ensure that the given violation is fixed.
@@ -167,14 +166,14 @@ class Instance(ABC):
     def has_user_cuts(self) -> bool:
         return False
 
-    def find_violated_user_cuts(self, model: Any) -> List[Hashable]:
+    def find_violated_user_cuts(self, model: Any) -> List[str]:
         return []
 
     def enforce_user_cut(
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: Hashable,
+        violation: str,
     ) -> Any:
         return None
 

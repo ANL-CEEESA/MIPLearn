@@ -6,7 +6,7 @@ import logging
 import re
 import sys
 from io import StringIO
-from typing import Any, List, Dict, Optional, Tuple, Hashable
+from typing import Any, List, Dict, Optional, Tuple
 
 import numpy as np
 import pyomo
@@ -639,5 +639,5 @@ class PyomoTestInstanceKnapsack(Instance):
         }
 
     @overrides
-    def get_variable_categories(self) -> Dict[str, Hashable]:
+    def get_variable_categories(self) -> Dict[str, str]:
         return {f"x[{i}]": "default" for i in range(len(self.weights))}

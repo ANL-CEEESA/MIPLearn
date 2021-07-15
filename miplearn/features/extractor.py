@@ -5,7 +5,7 @@
 import collections
 import numbers
 from math import log, isfinite
-from typing import TYPE_CHECKING, Dict, Optional, List, Hashable, Any
+from typing import TYPE_CHECKING, Dict, Optional, List, Any
 
 import numpy as np
 
@@ -142,7 +142,7 @@ class FeaturesExtractor:
         instance: "Instance",
         sample: Sample,
     ) -> None:
-        categories: List[Optional[Hashable]] = []
+        categories: List[Optional[str]] = []
         user_features: List[Optional[List[float]]] = []
         var_features_dict = instance.get_variable_features()
         var_categories_dict = instance.get_variable_categories()
@@ -153,9 +153,9 @@ class FeaturesExtractor:
                 user_features.append(None)
                 categories.append(None)
                 continue
-            category: Hashable = var_categories_dict[var_name]
-            assert isinstance(category, collections.Hashable), (
-                f"Variable category must be be hashable. "
+            category: str = var_categories_dict[var_name]
+            assert isinstance(category, str), (
+                f"Variable category must be a string. "
                 f"Found {type(category).__name__} instead for var={var_name}."
             )
             categories.append(category)
@@ -187,7 +187,7 @@ class FeaturesExtractor:
     ) -> None:
         has_static_lazy = instance.has_static_lazy_constraints()
         user_features: List[Optional[List[float]]] = []
-        categories: List[Optional[Hashable]] = []
+        categories: List[Optional[str]] = []
         lazy: List[bool] = []
         constr_categories_dict = instance.get_constraint_categories()
         constr_features_dict = instance.get_constraint_features()
@@ -195,15 +195,15 @@ class FeaturesExtractor:
         assert constr_names is not None
 
         for (cidx, cname) in enumerate(constr_names):
-            category: Optional[Hashable] = cname
+            category: Optional[str] = cname
             if cname in constr_categories_dict:
                 category = constr_categories_dict[cname]
             if category is None:
                 user_features.append(None)
                 categories.append(None)
                 continue
-            assert isinstance(category, collections.Hashable), (
-                f"Constraint category must be hashable. "
+            assert isinstance(category, str), (
+                f"Constraint category must be a string. "
                 f"Found {type(category).__name__} instead for cname={cname}.",
             )
             categories.append(category)

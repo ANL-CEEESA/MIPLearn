@@ -1,7 +1,8 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List, Dict, Optional, Hashable, Any
+
+from typing import List, Dict, Optional
 
 import numpy as np
 import pyomo.environ as pe
@@ -10,7 +11,6 @@ from scipy.stats import uniform, randint, rv_discrete
 from scipy.stats.distributions import rv_frozen
 
 from miplearn.instance.base import Instance
-from miplearn.types import VariableName, Category
 
 
 class ChallengeA:

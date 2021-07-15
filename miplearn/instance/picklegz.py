@@ -6,7 +6,7 @@ import gc
 import gzip
 import os
 import pickle
-from typing import Optional, Any, List, Hashable, cast, IO, TYPE_CHECKING, Dict
+from typing import Optional, Any, List, cast, IO, TYPE_CHECKING, Dict
 
 from overrides import overrides
 
@@ -52,7 +52,7 @@ class PickleGzInstance(Instance):
         return self.instance.get_variable_features()
 
     @overrides
-    def get_variable_categories(self) -> Dict[str, Hashable]:
+    def get_variable_categories(self) -> Dict[str, str]:
         assert self.instance is not None
         return self.instance.get_variable_categories()
 
@@ -62,7 +62,7 @@ class PickleGzInstance(Instance):
         return self.instance.get_constraint_features()
 
     @overrides
-    def get_constraint_categories(self) -> Dict[str, Hashable]:
+    def get_constraint_categories(self) -> Dict[str, str]:
         assert self.instance is not None
         return self.instance.get_constraint_categories()
 
@@ -86,7 +86,7 @@ class PickleGzInstance(Instance):
         self,
         solver: "InternalSolver",
         model: Any,
-    ) -> List[Hashable]:
+    ) -> List[str]:
         assert self.instance is not None
         return self.instance.find_violated_lazy_constraints(solver, model)
 
@@ -95,13 +95,13 @@ class PickleGzInstance(Instance):
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: Hashable,
+        violation: str,
     ) -> None:
         assert self.instance is not None
         self.instance.enforce_lazy_constraint(solver, model, violation)
 
     @overrides
-    def find_violated_user_cuts(self, model: Any) -> List[Hashable]:
+    def find_violated_user_cuts(self, model: Any) -> List[str]:
         assert self.instance is not None
         return self.instance.find_violated_user_cuts(model)
 
@@ -110,7 +110,7 @@ class PickleGzInstance(Instance):
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: Hashable,
+        violation: str,
     ) -> None:
         assert self.instance is not None
         self.instance.enforce_user_cut(solver, model, violation)

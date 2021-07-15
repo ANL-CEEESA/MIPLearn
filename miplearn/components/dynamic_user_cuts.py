@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Any, TYPE_CHECKING, Hashable, Set, Tuple, Dict, List, Optional
+from typing import Any, TYPE_CHECKING, Set, Tuple, Dict, List, Optional
 
 import numpy as np
 from overrides import overrides
@@ -34,7 +34,7 @@ class UserCutsComponent(Component):
             threshold=threshold,
             attr="user_cuts_enforced",
         )
-        self.enforced: Set[Hashable] = set()
+        self.enforced: Set[str] = set()
         self.n_added_in_callback = 0
 
     @overrides
@@ -71,7 +71,7 @@ class UserCutsComponent(Component):
         for cid in cids:
             if cid in self.enforced:
                 continue
-            assert isinstance(cid, Hashable)
+            assert isinstance(cid, str)
             instance.enforce_user_cut(solver.internal_solver, model, cid)
             self.enforced.add(cid)
             self.n_added_in_callback += 1
@@ -110,7 +110,7 @@ class UserCutsComponent(Component):
         self,
         instance: "Instance",
         sample: Sample,
-    ) -> List[Hashable]:
+    ) -> List[str]:
         return self.dynamic.sample_predict(instance, sample)
 
     @overrides
@@ -120,8 +120,8 @@ class UserCutsComponent(Component):
     @overrides
     def fit_xy(
         self,
-        x: Dict[Hashable, np.ndarray],
-        y: Dict[Hashable, np.ndarray],
+        x: Dict[str, np.ndarray],
+        y: Dict[str, np.ndarray],
     ) -> None:
         self.dynamic.fit_xy(x, y)
 
@@ -130,5 +130,5 @@ class UserCutsComponent(Component):
         self,
         instance: "Instance",
         sample: Sample,
-    ) -> Dict[Hashable, Dict[str, float]]:
+    ) -> Dict[str, Dict[str, float]]:
         return self.dynamic.sample_evaluate(instance, sample)

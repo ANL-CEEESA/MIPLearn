@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Any, FrozenSet, Hashable, List
+from typing import Any, FrozenSet, List
 
 import gurobipy as gp
 import networkx as nx
@@ -40,13 +40,13 @@ class GurobiStableSetProblem(Instance):
         return True
 
     @overrides
-    def find_violated_user_cuts(self, model: Any) -> List[FrozenSet]:
+    def find_violated_user_cuts(self, model: Any) -> List[str]:
         assert isinstance(model, gp.Model)
         vals = model.cbGetNodeRel(model.getVars())
         violations = []
         for clique in nx.find_cliques(self.graph):
             if sum(vals[i] for i in clique) > 1:
-                violations += [frozenset(clique)]
+                violations.append(",".join([str(i) for i in clique]))
         return violations
 
     @overrides
@@ -54,11 +54,11 @@ class GurobiStableSetProblem(Instance):
         self,
         solver: InternalSolver,
         model: Any,
-        cid: Hashable,
+        cid: str,
     ) -> Any:
-        assert isinstance(cid, FrozenSet)
+        clique = [int(i) for i in cid.split(",")]
         x = model.getVars()
-        model.addConstr(gp.quicksum([x[i] for i in cid]) <= 1)
+        model.addConstr(gp.quicksum([x[i] for i in clique]) <= 1)
 
 
 @pytest.fixture

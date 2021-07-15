@@ -6,7 +6,7 @@ import re
 import sys
 from io import StringIO
 from random import randint
-from typing import List, Any, Dict, Optional, Hashable, Tuple, TYPE_CHECKING
+from typing import List, Any, Dict, Optional, Tuple, TYPE_CHECKING
 
 from overrides import overrides
 
@@ -672,7 +672,7 @@ class GurobiTestInstanceKnapsack(PyomoTestInstanceKnapsack):
         self,
         solver: InternalSolver,
         model: Any,
-        violation: Hashable,
+        violation: str,
     ) -> None:
         x0 = model.getVarByName("x[0]")
         model.cbLazy(x0 <= 0)

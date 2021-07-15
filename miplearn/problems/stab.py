@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List, Dict, Hashable
+from typing import List, Dict
 
 import networkx as nx
 import numpy as np
@@ -12,7 +12,6 @@ from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
 from miplearn.instance.base import Instance
-from miplearn.types import VariableName, Category
 
 
 class ChallengeA:
@@ -85,7 +84,7 @@ class MaxWeightStableSetInstance(Instance):
         return features
 
     @overrides
-    def get_variable_categories(self) -> Dict[str, Hashable]:
+    def get_variable_categories(self) -> Dict[str, str]:
         return {f"x[{v}]": "default" for v in self.nodes}
 
 
