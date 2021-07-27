@@ -35,6 +35,17 @@ def _test_sample(sample: Sample) -> None:
     _assert_roundtrip_vector_list(sample, [[1], None, [2, 2], [3, 3, 3]])
     _assert_roundtrip_vector_list(sample, [[1.0], None, [2.0, 2.0], [3.0, 3.0, 3.0]])
 
+    # Bytes
+    _assert_roundtrip_bytes(sample, b"\x00\x01\x02\x03\x04\x05")
+
+
+def _assert_roundtrip_bytes(sample: Sample, expected: Any) -> None:
+    sample.put_bytes("key", expected)
+    actual = sample.get_bytes("key")
+    assert actual == expected
+    assert actual is not None
+    _assert_same_type(actual, expected)
+
 
 def _assert_roundtrip_scalar(sample: Sample, expected: Any) -> None:
     sample.put_scalar("key", expected)

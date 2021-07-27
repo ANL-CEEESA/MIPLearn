@@ -36,6 +36,14 @@ class Sample(ABC):
     """Abstract dictionary-like class that stores training data."""
 
     @abstractmethod
+    def get_bytes(self, key: str) -> Optional[bytes]:
+        pass
+
+    @abstractmethod
+    def put_bytes(self, key: str, value: bytes) -> None:
+        pass
+
+    @abstractmethod
     def get_scalar(self, key: str) -> Optional[Any]:
         pass
 
@@ -102,6 +110,10 @@ class MemorySample(Sample):
         self._data: Dict[str, Any] = data
 
     @overrides
+    def get_bytes(self, key: str) -> Optional[bytes]:
+        return self._get(key)
+
+    @overrides
     def get_scalar(self, key: str) -> Optional[Any]:
         return self._get(key)
 
@@ -112,6 +124,11 @@ class MemorySample(Sample):
     @overrides
     def get_vector_list(self, key: str) -> Optional[Any]:
         return self._get(key)
+
+    @overrides
+    def put_bytes(self, key: str, value: bytes) -> None:
+        assert isinstance(value, bytes)
+        self._put(key, value)
 
     @overrides
     def put_scalar(self, key: str, value: Scalar) -> None:
@@ -152,6 +169,12 @@ class Hdf5Sample(Sample):
         self.file = h5py.File(filename, "r+")
 
     @overrides
+    def get_bytes(self, key: str) -> Optional[bytes]:
+        ds = self.file[key]
+        assert len(ds.shape) == 1
+        return ds[()].tobytes()
+
+    @overrides
     def get_scalar(self, key: str) -> Optional[Any]:
         ds = self.file[key]
         assert len(ds.shape) == 0
@@ -179,6 +202,11 @@ class Hdf5Sample(Sample):
         else:
             padded = ds[:].tolist()
         return _crop(padded, lens)
+
+    @overrides
+    def put_bytes(self, key: str, value: bytes) -> None:
+        assert isinstance(value, bytes)
+        self._put(key, np.frombuffer(value, dtype="uint8"))
 
     @overrides
     def put_scalar(self, key: str, value: Any) -> None:
