@@ -579,16 +579,16 @@ class GurobiSolver(InternalSolver):
             if var_types[i] == "I":
                 assert var_ubs[i] == 1.0, (
                     "Only binary and continuous variables are currently supported. "
-                    "Integer variable {var.varName} has upper bound {var.ub}."
+                    f"Integer variable {var_names[i]} has upper bound {var_ubs[i]}."
                 )
                 assert var_lbs[i] == 0.0, (
                     "Only binary and continuous variables are currently supported. "
-                    "Integer variable {var.varName} has lower bound {var.ub}."
+                    f"Integer variable {var_names[i]} has lower bound {var_ubs[i]}."
                 )
                 var_types[i] = "B"
             assert var_types[i] in ["B", "C"], (
                 "Only binary and continuous variables are currently supported. "
-                "Variable {var.varName} has type {vtype}."
+                f"Variable {var_names[i]} has type {var_types[i]}."
             )
             varname_to_var[var_names[i]] = gp_var
         for (i, gp_constr) in enumerate(gp_constrs):
