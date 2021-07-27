@@ -195,7 +195,6 @@ class Hdf5Sample(Sample):
             return None
         ds = self.file[key]
         assert len(ds.shape) == 1
-        print(ds.dtype)
         if h5py.check_string_dtype(ds.dtype):
             result = ds.asstr()[:].tolist()
             result = [r if len(r) > 0 else None for r in result]
