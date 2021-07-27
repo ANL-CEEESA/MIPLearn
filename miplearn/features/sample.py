@@ -238,7 +238,8 @@ class Hdf5Sample(Sample):
             else:
                 data = np.array(padded)
             break
-        assert data is not None
+        if data is None:
+            data = np.array(padded)
         ds = self._put(key, data)
         ds.attrs["lengths"] = lens
 
@@ -254,7 +255,7 @@ def _pad(veclist: VectorList) -> Tuple[VectorList, List[int]]:
     maxlen = max(lens)
 
     # Find appropriate constant to pad the vectors
-    constant: Union[int, float, str, None] = None
+    constant: Union[int, float, str] = 0
     for v in veclist:
         if v is None or len(v) == 0:
             continue
@@ -266,7 +267,6 @@ def _pad(veclist: VectorList) -> Tuple[VectorList, List[int]]:
             constant = ""
         else:
             assert False, f"Unsupported data type: {v[0]}"
-    assert constant is not None, "veclist must not be completely empty"
 
     # Pad vectors
     for (i, vi) in enumerate(veclist):
