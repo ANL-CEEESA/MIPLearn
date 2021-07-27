@@ -137,9 +137,9 @@ class PickleGzInstance(Instance):
         return self.instance.get_samples()
 
     @overrides
-    def push_sample(self, sample: Sample) -> None:
+    def create_sample(self) -> Sample:
         assert self.instance is not None
-        self.instance.push_sample(sample)
+        return self.instance.create_sample()
 
 
 def write_pickle_gz(obj: Any, filename: str) -> None:

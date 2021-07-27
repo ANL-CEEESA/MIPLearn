@@ -6,7 +6,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, List, TYPE_CHECKING, Dict
 
-from miplearn.features.sample import Sample
+from miplearn.features.sample import Sample, MemorySample
 
 logger = logging.getLogger(__name__)
 
@@ -192,5 +192,7 @@ class Instance(ABC):
     def get_samples(self) -> List[Sample]:
         return self._samples
 
-    def push_sample(self, sample: Sample) -> None:
+    def create_sample(self) -> Sample:
+        sample = MemorySample()
         self._samples.append(sample)
+        return sample
