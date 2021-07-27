@@ -189,7 +189,9 @@ class Hdf5Sample(Sample):
         assert len(ds.shape) == 1
         print(ds.dtype)
         if h5py.check_string_dtype(ds.dtype):
-            return ds.asstr()[:].tolist()
+            result = ds.asstr()[:].tolist()
+            result = [r if len(r) > 0 else None for r in result]
+            return result
         else:
             return ds[:].tolist()
 
@@ -218,7 +220,8 @@ class Hdf5Sample(Sample):
         if value is None:
             return
         self._assert_is_vector(value)
-        self._put(key, value)
+        modified = [v if v is not None else "" for v in value]
+        self._put(key, modified)
 
     @overrides
     def put_vector_list(self, key: str, value: VectorList) -> None:
