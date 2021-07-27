@@ -41,9 +41,9 @@ def test_instance() -> None:
     solver.solve(instance)
     assert len(instance.get_samples()) == 1
     sample = instance.get_samples()[0]
-    assert sample.get("mip_var_values") == [1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
-    assert sample.get("mip_lower_bound") == 4.0
-    assert sample.get("mip_upper_bound") == 4.0
+    assert sample.get_vector("mip_var_values") == [1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
+    assert sample.get_scalar("mip_lower_bound") == 4.0
+    assert sample.get_scalar("mip_upper_bound") == 4.0
 
 
 def test_subtour() -> None:
@@ -65,10 +65,10 @@ def test_subtour() -> None:
     samples = instance.get_samples()
     assert len(samples) == 1
     sample = samples[0]
-    lazy_enforced = sample.get("lazy_enforced")
+    lazy_enforced = sample.get_set("lazy_enforced")
     assert lazy_enforced is not None
     assert len(lazy_enforced) > 0
-    assert sample.get("mip_var_values") == [
+    assert sample.get_vector("mip_var_values") == [
         1.0,
         0.0,
         0.0,

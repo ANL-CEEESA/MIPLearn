@@ -80,16 +80,16 @@ class Constraints:
     @staticmethod
     def from_sample(sample: "Sample") -> "Constraints":
         return Constraints(
-            basis_status=sample.get("lp_constr_basis_status"),
-            dual_values=sample.get("lp_constr_dual_values"),
-            lazy=sample.get("constr_lazy"),
-            lhs=sample.get("constr_lhs"),
-            names=sample.get("constr_names"),
-            rhs=sample.get("constr_rhs"),
-            sa_rhs_down=sample.get("lp_constr_sa_rhs_down"),
-            sa_rhs_up=sample.get("lp_constr_sa_rhs_up"),
-            senses=sample.get("constr_senses"),
-            slacks=sample.get("lp_constr_slacks"),
+            basis_status=sample.get_vector("lp_constr_basis_status"),
+            dual_values=sample.get_vector("lp_constr_dual_values"),
+            lazy=sample.get_vector("constr_lazy"),
+            # lhs=sample.get_vector("constr_lhs"),
+            names=sample.get_vector("constr_names"),
+            rhs=sample.get_vector("constr_rhs"),
+            sa_rhs_down=sample.get_vector("lp_constr_sa_rhs_down"),
+            sa_rhs_up=sample.get_vector("lp_constr_sa_rhs_up"),
+            senses=sample.get_vector("constr_senses"),
+            slacks=sample.get_vector("lp_constr_slacks"),
         )
 
     def __getitem__(self, selected: List[bool]) -> "Constraints":

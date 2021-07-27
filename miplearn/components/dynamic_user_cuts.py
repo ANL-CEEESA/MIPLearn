@@ -87,7 +87,7 @@ class UserCutsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        sample.put("user_cuts_enforced", set(self.enforced))
+        sample.put_set("user_cuts_enforced", set(self.enforced))
         stats["UserCuts: Added in callback"] = self.n_added_in_callback
         if self.n_added_in_callback > 0:
             logger.info(f"{self.n_added_in_callback} user cuts added in callback")

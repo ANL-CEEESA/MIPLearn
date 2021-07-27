@@ -93,7 +93,7 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     stats: LearningSolveStats = {}
     sample = instance.get_samples()[0]
-    assert sample.get("lazy_enforced") is not None
+    assert sample.get_set("lazy_enforced") is not None
 
     # LearningSolver calls before_solve_mip
     component.before_solve_mip(
@@ -142,7 +142,7 @@ def test_usage_with_solver(instance: Instance) -> None:
     )
 
     # Should update training sample
-    assert sample.get("lazy_enforced") == {"c1", "c2", "c3", "c4"}
+    assert sample.get_set("lazy_enforced") == {"c1", "c2", "c3", "c4"}
     #
     # Should update stats
     assert stats["LazyStatic: Removed"] == 1

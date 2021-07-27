@@ -61,7 +61,7 @@ class StaticLazyConstraintsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        sample.put("lazy_enforced", self.enforced_cids)
+        sample.put_set("lazy_enforced", self.enforced_cids)
         stats["LazyStatic: Restored"] = self.n_restored
         stats["LazyStatic: Iterations"] = self.n_iterations
 
@@ -75,7 +75,7 @@ class StaticLazyConstraintsComponent(Component):
         sample: Sample,
     ) -> None:
         assert solver.internal_solver is not None
-        static_lazy_count = sample.get("static_lazy_count")
+        static_lazy_count = sample.get_scalar("static_lazy_count")
         assert static_lazy_count is not None
 
         logger.info("Predicting violated (static) lazy constraints...")
@@ -204,14 +204,14 @@ class StaticLazyConstraintsComponent(Component):
         x: Dict[str, List[List[float]]] = {}
         y: Dict[str, List[List[float]]] = {}
         cids: Dict[str, List[str]] = {}
-        instance_features = sample.get("instance_features_user")
-        constr_features = sample.get("lp_constr_features")
-        constr_names = sample.get("constr_names")
-        constr_categories = sample.get("constr_categories")
-        constr_lazy = sample.get("constr_lazy")
-        lazy_enforced = sample.get("lazy_enforced")
+        instance_features = sample.get_vector("instance_features_user")
+        constr_features = sample.get_vector_list("lp_constr_features")
+        constr_names = sample.get_vector("constr_names")
+        constr_categories = sample.get_vector("constr_categories")
+        constr_lazy = sample.get_vector("constr_lazy")
+        lazy_enforced = sample.get_set("lazy_enforced")
         if constr_features is None:
-            constr_features = sample.get("constr_features_user")
+            constr_features = sample.get_vector_list("constr_features_user")
 
         assert instance_features is not None
         assert constr_features is not None

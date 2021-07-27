@@ -78,7 +78,7 @@ class DynamicLazyConstraintsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        sample.put("lazy_enforced", set(self.lazy_enforced))
+        sample.put_set("lazy_enforced", set(self.lazy_enforced))
 
     @overrides
     def iteration_cb(

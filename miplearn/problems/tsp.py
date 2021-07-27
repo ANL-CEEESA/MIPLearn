@@ -89,15 +89,14 @@ class TravelingSalesmanInstance(Instance):
         self,
         solver: InternalSolver,
         model: Any,
-    ) -> List[FrozenSet]:
+    ) -> List[str]:
         selected_edges = [e for e in self.edges if model.x[e].value > 0.5]
         graph = nx.Graph()
         graph.add_edges_from(selected_edges)
-        components = [frozenset(c) for c in list(nx.connected_components(graph))]
         violations = []
-        for c in components:
+        for c in list(nx.connected_components(graph)):
             if len(c) < self.n_cities:
-                violations += [c]
+                violations.append(",".join(map(str, c)))
         return violations
 
     @overrides
@@ -105,9 +104,10 @@ class TravelingSalesmanInstance(Instance):
         self,
         solver: InternalSolver,
         model: Any,
-        component: FrozenSet,
+        violation: str,
     ) -> None:
         assert isinstance(solver, BasePyomoSolver)
+        component = [int(v) for v in violation.split(",")]
         cut_edges = [
             e
             for e in self.edges

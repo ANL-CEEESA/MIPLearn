@@ -4,14 +4,22 @@
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Dict, Optional, Any, Union, List, Tuple, cast
+from typing import Dict, Optional, Any, Union, List, Tuple, cast, Set
 
 import h5py
 import numpy as np
+from h5py import Dataset
 from overrides import overrides
 
 Scalar = Union[None, bool, str, int, float]
-Vector = Union[None, List[bool], List[str], List[int], List[float]]
+Vector = Union[
+    None,
+    List[bool],
+    List[str],
+    List[int],
+    List[float],
+    List[Optional[str]],
+]
 VectorList = Union[
     List[List[bool]],
     List[List[str]],
@@ -51,39 +59,16 @@ class Sample(ABC):
     def put_vector_list(self, key: str, value: VectorList) -> None:
         pass
 
-    @abstractmethod
-    def get(self, key: str) -> Optional[Any]:
-        pass
+    def get_set(self, key: str) -> Set:
+        v = self.get_vector(key)
+        if v:
+            return set(v)
+        else:
+            return set()
 
-    @abstractmethod
-    def put(self, key: str, value: Any) -> None:
-        """
-        Add a new key/value pair to the sample. If the key already exists,
-        the previous value is silently replaced.
-
-        Only the following data types are supported:
-        - str, bool, int, float
-        - List[str], List[bool], List[int], List[float]
-        """
-        pass
-
-    def _assert_supported(self, value: Any) -> None:
-        def _is_primitive(v: Any) -> bool:
-            if isinstance(v, (str, bool, int, float)):
-                return True
-            if v is None:
-                return True
-            return False
-
-        if _is_primitive(value):
-            return
-        if isinstance(value, list):
-            if _is_primitive(value[0]):
-                return
-            if isinstance(value[0], list):
-                if _is_primitive(value[0][0]):
-                    return
-        assert False, f"Value has unsupported type: {value}"
+    def put_set(self, key: str, value: Set) -> None:
+        v = list(value)
+        self.put_vector(key, v)
 
     def _assert_is_scalar(self, value: Any) -> None:
         if value is None:
@@ -118,42 +103,40 @@ class MemorySample(Sample):
 
     @overrides
     def get_scalar(self, key: str) -> Optional[Any]:
-        return self.get(key)
+        return self._get(key)
 
     @overrides
     def get_vector(self, key: str) -> Optional[Any]:
-        return self.get(key)
+        return self._get(key)
 
     @overrides
     def get_vector_list(self, key: str) -> Optional[Any]:
-        return self.get(key)
+        return self._get(key)
 
     @overrides
     def put_scalar(self, key: str, value: Scalar) -> None:
         self._assert_is_scalar(value)
-        self.put(key, value)
+        self._put(key, value)
 
     @overrides
     def put_vector(self, key: str, value: Vector) -> None:
         if value is None:
             return
         self._assert_is_vector(value)
-        self.put(key, value)
+        self._put(key, value)
 
     @overrides
     def put_vector_list(self, key: str, value: VectorList) -> None:
         self._assert_is_vector_list(value)
-        self.put(key, value)
+        self._put(key, value)
 
-    @overrides
-    def get(self, key: str) -> Optional[Any]:
+    def _get(self, key: str) -> Optional[Any]:
         if key in self._data:
             return self._data[key]
         else:
             return None
 
-    @overrides
-    def put(self, key: str, value: Any) -> None:
+    def _put(self, key: str, value: Any) -> None:
         self._data[key] = value
 
 
@@ -200,20 +183,18 @@ class Hdf5Sample(Sample):
     @overrides
     def put_scalar(self, key: str, value: Any) -> None:
         self._assert_is_scalar(value)
-        self.put(key, value)
+        self._put(key, value)
 
     @overrides
     def put_vector(self, key: str, value: Vector) -> None:
         if value is None:
             return
         self._assert_is_vector(value)
-        self.put(key, value)
+        self._put(key, value)
 
     @overrides
     def put_vector_list(self, key: str, value: VectorList) -> None:
         self._assert_is_vector_list(value)
-        if key in self.file:
-            del self.file[key]
         padded, lens = _pad(value)
         data = None
         for v in value:
@@ -227,22 +208,13 @@ class Hdf5Sample(Sample):
                 data = np.array(padded)
             break
         assert data is not None
-        ds = self.file.create_dataset(key, data=data)
+        ds = self._put(key, data)
         ds.attrs["lengths"] = lens
 
-    @overrides
-    def get(self, key: str) -> Optional[Any]:
-        ds = self.file[key]
-        if h5py.check_string_dtype(ds.dtype):
-            return ds.asstr()[:].tolist()
-        else:
-            return ds[:].tolist()
-
-    @overrides
-    def put(self, key: str, value: Any) -> None:
+    def _put(self, key: str, value: Any) -> Dataset:
         if key in self.file:
             del self.file[key]
-        self.file.create_dataset(key, data=value)
+        return self.file.create_dataset(key, data=value)
 
 
 def _pad(veclist: VectorList) -> Tuple[VectorList, List[int]]:

@@ -77,9 +77,9 @@ class ObjectiveValueComponent(Component):
         _: Optional[Instance],
         sample: Sample,
     ) -> Tuple[Dict[str, List[List[float]]], Dict[str, List[List[float]]]]:
-        lp_instance_features = sample.get("lp_instance_features")
+        lp_instance_features = sample.get_vector("lp_instance_features")
         if lp_instance_features is None:
-            lp_instance_features = sample.get("instance_features_user")
+            lp_instance_features = sample.get_vector("instance_features_user")
         assert lp_instance_features is not None
 
         # Features
@@ -90,8 +90,8 @@ class ObjectiveValueComponent(Component):
 
         # Labels
         y: Dict[str, List[List[float]]] = {}
-        mip_lower_bound = sample.get("mip_lower_bound")
-        mip_upper_bound = sample.get("mip_upper_bound")
+        mip_lower_bound = sample.get_scalar("mip_lower_bound")
+        mip_upper_bound = sample.get_scalar("mip_upper_bound")
         if mip_lower_bound is not None:
             y["Lower bound"] = [[mip_lower_bound]]
         if mip_upper_bound is not None:
@@ -116,8 +116,8 @@ class ObjectiveValueComponent(Component):
 
         result: Dict[str, Dict[str, float]] = {}
         pred = self.sample_predict(sample)
-        actual_ub = sample.get("mip_upper_bound")
-        actual_lb = sample.get("mip_lower_bound")
+        actual_ub = sample.get_scalar("mip_upper_bound")
+        actual_lb = sample.get_scalar("mip_lower_bound")
         if actual_ub is not None:
             result["Upper bound"] = compare(pred["Upper bound"], actual_ub)
         if actual_lb is not None:

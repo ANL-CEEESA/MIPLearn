@@ -52,7 +52,7 @@ class DynamicConstraintsComponent(Component):
         cids: Dict[str, List[str]] = {}
         constr_categories_dict = instance.get_constraint_categories()
         constr_features_dict = instance.get_constraint_features()
-        instance_features = sample.get("instance_features_user")
+        instance_features = sample.get_vector("instance_features_user")
         assert instance_features is not None
         for cid in self.known_cids:
             # Initialize categories
@@ -81,7 +81,7 @@ class DynamicConstraintsComponent(Component):
             cids[category].append(cid)
 
             # Labels
-            enforced_cids = sample.get(self.attr)
+            enforced_cids = sample.get_set(self.attr)
             if enforced_cids is not None:
                 if cid in enforced_cids:
                     y[category] += [[False, True]]
@@ -132,7 +132,7 @@ class DynamicConstraintsComponent(Component):
 
     @overrides
     def pre_sample_xy(self, instance: Instance, sample: Sample) -> Any:
-        return sample.get(self.attr)
+        return sample.get_set(self.attr)
 
     @overrides
     def fit_xy(
@@ -154,7 +154,7 @@ class DynamicConstraintsComponent(Component):
         instance: Instance,
         sample: Sample,
     ) -> Dict[str, Dict[str, float]]:
-        actual = sample.get(self.attr)
+        actual = sample.get_set(self.attr)
         assert actual is not None
         pred = set(self.sample_predict(instance, sample))
         tp: Dict[str, int] = {}
