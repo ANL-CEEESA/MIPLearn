@@ -170,12 +170,16 @@ class Hdf5Sample(Sample):
 
     @overrides
     def get_bytes(self, key: str) -> Optional[bytes]:
+        if key not in self.file:
+            return None
         ds = self.file[key]
         assert len(ds.shape) == 1
         return ds[()].tobytes()
 
     @overrides
     def get_scalar(self, key: str) -> Optional[Any]:
+        if key not in self.file:
+            return None
         ds = self.file[key]
         assert len(ds.shape) == 0
         if h5py.check_string_dtype(ds.dtype):
@@ -185,6 +189,8 @@ class Hdf5Sample(Sample):
 
     @overrides
     def get_vector(self, key: str) -> Optional[Any]:
+        if key not in self.file:
+            return None
         ds = self.file[key]
         assert len(ds.shape) == 1
         print(ds.dtype)
@@ -197,6 +203,8 @@ class Hdf5Sample(Sample):
 
     @overrides
     def get_vector_list(self, key: str) -> Optional[Any]:
+        if key not in self.file:
+            return None
         ds = self.file[key]
         lens = ds.attrs["lengths"]
         if h5py.check_string_dtype(ds.dtype):
