@@ -119,7 +119,7 @@ class FileInstance(Instance):
 
     @classmethod
     def save(cls, instance: Instance, filename: str) -> None:
-        h5 = Hdf5Sample(filename)
+        h5 = Hdf5Sample(filename, mode="w")
         instance_pkl = pickle.dumps(instance)
         h5.put_bytes("pickled", instance_pkl)
 

@@ -167,8 +167,8 @@ class Hdf5Sample(Sample):
     are actually accessed, and therefore it is more scalable.
     """
 
-    def __init__(self, filename: str) -> None:
-        self.file = h5py.File(filename, "r+")
+    def __init__(self, filename: str, mode: str = "r+") -> None:
+        self.file = h5py.File(filename, mode)
 
     @overrides
     def get_bytes(self, key: str) -> Optional[bytes]:
