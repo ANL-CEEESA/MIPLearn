@@ -39,10 +39,15 @@ def _test_sample(sample: Sample) -> None:
     # Bytes
     _assert_roundtrip_bytes(sample, b"\x00\x01\x02\x03\x04\x05")
 
+    # Querying unknown keys should return None
     assert sample.get_scalar("unknown-key") is None
     assert sample.get_vector("unknown-key") is None
     assert sample.get_vector_list("unknown-key") is None
     assert sample.get_bytes("unknown-key") is None
+
+    # Putting None should not modify HDF5 file
+    sample.put_scalar("key", None)
+    sample.put_vector("key", None)
 
 
 def _assert_roundtrip_bytes(sample: Sample, expected: Any) -> None:

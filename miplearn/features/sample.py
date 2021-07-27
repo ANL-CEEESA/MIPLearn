@@ -132,6 +132,8 @@ class MemorySample(Sample):
 
     @overrides
     def put_scalar(self, key: str, value: Scalar) -> None:
+        if value is None:
+            return
         self._assert_is_scalar(value)
         self._put(key, value)
 
@@ -220,6 +222,8 @@ class Hdf5Sample(Sample):
 
     @overrides
     def put_scalar(self, key: str, value: Any) -> None:
+        if value is None:
+            return
         self._assert_is_scalar(value)
         self._put(key, value)
 
