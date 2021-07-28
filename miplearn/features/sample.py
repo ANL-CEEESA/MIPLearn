@@ -233,7 +233,7 @@ class Hdf5Sample(Sample):
         assert isinstance(
             value, (bytes, bytearray)
         ), f"bytes expected; found: {value}"  # type: ignore
-        self._put(key, np.frombuffer(value, dtype="uint8"))
+        self._put(key, np.frombuffer(value, dtype="uint8"), compress=True)
 
     @overrides
     def put_scalar(self, key: str, value: Any) -> None:
@@ -248,7 +248,7 @@ class Hdf5Sample(Sample):
             return
         self._assert_is_vector(value)
         modified = [v if v is not None else "" for v in value]
-        self._put(key, modified)
+        self._put(key, modified, compress=True)
 
     @overrides
     def put_vector_list(self, key: str, value: VectorList) -> None:
@@ -268,12 +268,16 @@ class Hdf5Sample(Sample):
             break
         if data is None:
             data = np.array(padded)
-        self._put(key, data)
+        self._put(key, data, compress=True)
 
-    def _put(self, key: str, value: Any) -> Dataset:
+    def _put(self, key: str, value: Any, compress: bool = False) -> Dataset:
         if key in self.file:
             del self.file[key]
-        return self.file.create_dataset(key, data=value)
+        if compress:
+            ds = self.file.create_dataset(key, data=value, compression="gzip")
+        else:
+            ds = self.file.create_dataset(key, data=value)
+        return ds
 
 
 def _pad(veclist: VectorList) -> Tuple[VectorList, List[int]]:
