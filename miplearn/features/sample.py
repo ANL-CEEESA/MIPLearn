@@ -84,19 +84,19 @@ class Sample(ABC):
             return
         if isinstance(value, (str, bool, int, float)):
             return
-        assert False, f"Scalar expected; found instead: {value}"
+        assert False, f"scalar expected; found instead: {value}"
 
     def _assert_is_vector(self, value: Any) -> None:
         assert isinstance(
             value, (list, np.ndarray)
-        ), f"List or numpy array expected; found instead: {value}"
+        ), f"list or numpy array expected; found instead: {value}"
         for v in value:
             self._assert_is_scalar(v)
 
     def _assert_is_vector_list(self, value: Any) -> None:
         assert isinstance(
             value, (list, np.ndarray)
-        ), f"List or numpy array expected; found instead: {value}"
+        ), f"list or numpy array expected; found instead: {value}"
         for v in value:
             if v is None:
                 continue
@@ -132,7 +132,7 @@ class MemorySample(Sample):
 
     @overrides
     def put_bytes(self, key: str, value: bytes) -> None:
-        assert isinstance(value, bytes)
+        assert isinstance(value, bytes), f"bytes expected; found: {value}"
         self._put(key, value)
 
     @overrides
@@ -180,7 +180,9 @@ class Hdf5Sample(Sample):
         if key not in self.file:
             return None
         ds = self.file[key]
-        assert len(ds.shape) == 1
+        assert (
+            len(ds.shape) == 1
+        ), f"1-dimensional array expected; found shape {ds.shape}"
         return ds[()].tobytes()
 
     @overrides
@@ -188,7 +190,9 @@ class Hdf5Sample(Sample):
         if key not in self.file:
             return None
         ds = self.file[key]
-        assert len(ds.shape) == 0
+        assert (
+            len(ds.shape) == 0
+        ), f"0-dimensional array expected; found shape {ds.shape}"
         if h5py.check_string_dtype(ds.dtype):
             return ds.asstr()[()]
         else:
@@ -199,7 +203,9 @@ class Hdf5Sample(Sample):
         if key not in self.file:
             return None
         ds = self.file[key]
-        assert len(ds.shape) == 1
+        assert (
+            len(ds.shape) == 1
+        ), f"1-dimensional array expected; found shape {ds.shape}"
         if h5py.check_string_dtype(ds.dtype):
             result = ds.asstr()[:].tolist()
             result = [r if len(r) > 0 else None for r in result]
@@ -221,7 +227,7 @@ class Hdf5Sample(Sample):
 
     @overrides
     def put_bytes(self, key: str, value: bytes) -> None:
-        assert isinstance(value, bytes)
+        assert isinstance(value, bytes), f"bytes expected; found: {value}"
         self._put(key, np.frombuffer(value, dtype="uint8"))
 
     @overrides
@@ -282,13 +288,13 @@ def _pad(veclist: VectorList) -> Tuple[VectorList, List[int]]:
         elif isinstance(v[0], str):
             constant = ""
         else:
-            assert False, f"Unsupported data type: {v[0]}"
+            assert False, f"unsupported data type: {v[0]}"
 
     # Pad vectors
     for (i, vi) in enumerate(veclist):
         if vi is None:
             vi = veclist[i] = []
-        assert isinstance(vi, list)
+        assert isinstance(vi, list), f"list expected; found: {vi}"
         for k in range(len(vi), maxlen):
             vi.append(constant)
 
