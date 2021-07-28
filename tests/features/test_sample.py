@@ -41,6 +41,11 @@ def _test_sample(sample: Sample) -> None:
 
     # Bytes
     _assert_roundtrip_bytes(sample, b"\x00\x01\x02\x03\x04\x05")
+    _assert_roundtrip_bytes(
+        sample,
+        bytearray(b"\x00\x01\x02\x03\x04\x05"),
+        check_type=False,
+    )
 
     # Querying unknown keys should return None
     assert sample.get_scalar("unknown-key") is None
@@ -53,12 +58,15 @@ def _test_sample(sample: Sample) -> None:
     sample.put_vector("key", None)
 
 
-def _assert_roundtrip_bytes(sample: Sample, expected: Any) -> None:
+def _assert_roundtrip_bytes(
+    sample: Sample, expected: Any, check_type: bool = False
+) -> None:
     sample.put_bytes("key", expected)
     actual = sample.get_bytes("key")
     assert actual == expected
     assert actual is not None
-    _assert_same_type(actual, expected)
+    if check_type:
+        _assert_same_type(actual, expected)
 
 
 def _assert_roundtrip_scalar(sample: Sample, expected: Any) -> None:
