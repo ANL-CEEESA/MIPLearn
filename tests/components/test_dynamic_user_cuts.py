@@ -81,7 +81,7 @@ def test_usage(
 ) -> None:
     stats_before = solver.solve(stab_instance)
     sample = stab_instance.get_samples()[0]
-    user_cuts_enforced = sample.get_set("user_cuts_enforced")
+    user_cuts_enforced = sample.get_set("mip_user_cuts_enforced")
     assert user_cuts_enforced is not None
     assert len(user_cuts_enforced) > 0
     assert stats_before["UserCuts: Added ahead-of-time"] == 0

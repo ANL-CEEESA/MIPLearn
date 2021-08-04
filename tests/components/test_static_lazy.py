@@ -34,7 +34,7 @@ def sample() -> Sample:
             "static_constr_lazy": [True, True, True, True, False],
             "static_constr_names": ["c1", "c2", "c3", "c4", "c5"],
             "static_instance_features": [5.0],
-            "lazy_enforced": {"c1", "c2", "c4"},
+            "mip_constr_lazy_enforced": {"c1", "c2", "c4"},
             "lp_constr_features": [
                 [1.0, 1.0],
                 [1.0, 2.0],
@@ -93,7 +93,7 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     stats: LearningSolveStats = {}
     sample = instance.get_samples()[0]
-    assert sample.get_set("lazy_enforced") is not None
+    assert sample.get_set("mip_constr_lazy_enforced") is not None
 
     # LearningSolver calls before_solve_mip
     component.before_solve_mip(
@@ -142,7 +142,7 @@ def test_usage_with_solver(instance: Instance) -> None:
     )
 
     # Should update training sample
-    assert sample.get_set("lazy_enforced") == {"c1", "c2", "c3", "c4"}
+    assert sample.get_set("mip_constr_lazy_enforced") == {"c1", "c2", "c3", "c4"}
     #
     # Should update stats
     assert stats["LazyStatic: Removed"] == 1

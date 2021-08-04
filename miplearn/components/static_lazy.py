@@ -61,7 +61,7 @@ class StaticLazyConstraintsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        sample.put_set("lazy_enforced", self.enforced_cids)
+        sample.put_set("mip_constr_lazy_enforced", self.enforced_cids)
         stats["LazyStatic: Restored"] = self.n_restored
         stats["LazyStatic: Iterations"] = self.n_iterations
 
@@ -209,7 +209,7 @@ class StaticLazyConstraintsComponent(Component):
         constr_names = sample.get_vector("static_constr_names")
         constr_categories = sample.get_vector("static_constr_categories")
         constr_lazy = sample.get_vector("static_constr_lazy")
-        lazy_enforced = sample.get_set("lazy_enforced")
+        lazy_enforced = sample.get_set("mip_constr_lazy_enforced")
         if constr_features is None:
             constr_features = sample.get_vector_list("static_constr_features")
 

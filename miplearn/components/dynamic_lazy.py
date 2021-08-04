@@ -36,7 +36,7 @@ class DynamicLazyConstraintsComponent(Component):
         self.dynamic: DynamicConstraintsComponent = DynamicConstraintsComponent(
             classifier=classifier,
             threshold=threshold,
-            attr="lazy_enforced",
+            attr="mip_constr_lazy_enforced",
         )
         self.classifiers = self.dynamic.classifiers
         self.thresholds = self.dynamic.thresholds
@@ -78,7 +78,7 @@ class DynamicLazyConstraintsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        sample.put_set("lazy_enforced", set(self.lazy_enforced))
+        sample.put_set("mip_constr_lazy_enforced", set(self.lazy_enforced))
 
     @overrides
     def iteration_cb(

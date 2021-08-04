@@ -24,13 +24,13 @@ def training_instances() -> List[Instance]:
     samples_0 = [
         MemorySample(
             {
-                "lazy_enforced": {"c1", "c2"},
+                "mip_constr_lazy_enforced": {"c1", "c2"},
                 "static_instance_features": [5.0],
             },
         ),
         MemorySample(
             {
-                "lazy_enforced": {"c2", "c3"},
+                "mip_constr_lazy_enforced": {"c2", "c3"},
                 "static_instance_features": [5.0],
             },
         ),
@@ -55,7 +55,7 @@ def training_instances() -> List[Instance]:
     samples_1 = [
         MemorySample(
             {
-                "lazy_enforced": {"c3", "c4"},
+                "mip_constr_lazy_enforced": {"c3", "c4"},
                 "static_instance_features": [8.0],
             },
         )

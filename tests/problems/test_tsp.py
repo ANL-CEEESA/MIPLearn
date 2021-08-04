@@ -65,7 +65,7 @@ def test_subtour() -> None:
     samples = instance.get_samples()
     assert len(samples) == 1
     sample = samples[0]
-    lazy_enforced = sample.get_set("lazy_enforced")
+    lazy_enforced = sample.get_set("mip_constr_lazy_enforced")
     assert lazy_enforced is not None
     assert len(lazy_enforced) > 0
     assert sample.get_vector("mip_var_values") == [
