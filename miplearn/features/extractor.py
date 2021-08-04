@@ -320,8 +320,10 @@ class FeaturesExtractor:
                 else:
                     f.append(0.0)
 
-            for v in f:
-                assert isfinite(v), f"non-finite elements detected: {f}"
+            for (i, v) in enumerate(f):
+                if not isfinite(v):
+                    f[i] = 0.0
+
             features.append(f)
         return features
 
