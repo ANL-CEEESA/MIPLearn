@@ -26,7 +26,7 @@ def _test_sample(sample: Sample) -> None:
     _assert_roundtrip_scalar(sample, 1.0)
 
     # Vector
-    _assert_roundtrip_vector(sample, ["A", "BB", "CCC", "こんにちは", None])
+    _assert_roundtrip_vector(sample, ["A", "BB", "CCC", None])
     _assert_roundtrip_vector(sample, [True, True, False])
     _assert_roundtrip_vector(sample, [1, 2, 3])
     _assert_roundtrip_vector(sample, [1.0, 2.0, 3.0])

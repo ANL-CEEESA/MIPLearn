@@ -33,7 +33,7 @@ def sample() -> Sample:
             ],
             "constr_lazy": [True, True, True, True, False],
             "constr_names": ["c1", "c2", "c3", "c4", "c5"],
-            "instance_features_user": [5.0],
+            "instance_features": [5.0],
             "lazy_enforced": {"c1", "c2", "c4"},
             "lp_constr_features": [
                 [1.0, 1.0],

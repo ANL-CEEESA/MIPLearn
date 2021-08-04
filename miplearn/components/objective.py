@@ -79,7 +79,7 @@ class ObjectiveValueComponent(Component):
     ) -> Tuple[Dict[str, List[List[float]]], Dict[str, List[List[float]]]]:
         lp_instance_features = sample.get_vector("lp_instance_features")
         if lp_instance_features is None:
-            lp_instance_features = sample.get_vector("instance_features_user")
+            lp_instance_features = sample.get_vector("instance_features")
         assert lp_instance_features is not None
 
         # Features

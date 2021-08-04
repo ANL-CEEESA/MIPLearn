@@ -35,20 +35,6 @@ def test_knapsack() -> None:
         sample.get_vector("var_categories"),
         ["default", "default", "default", "default", None],
     )
-    assert_equals(
-        sample.get_vector_list("var_features_user"),
-        [[23.0, 505.0], [26.0, 352.0], [20.0, 458.0], [18.0, 220.0], None],
-    )
-    assert_equals(
-        sample.get_vector_list("var_features_AlvLouWeh2017"),
-        [
-            [1.0, 0.32899, 0.0],
-            [1.0, 0.229316, 0.0],
-            [1.0, 0.298371, 0.0],
-            [1.0, 0.143322, 0.0],
-            [0.0, 0.0, 0.0],
-        ],
-    )
     assert sample.get_vector_list("var_features") is not None
     assert_equals(sample.get_vector("constr_names"), ["eq_capacity"])
     # assert_equals(
@@ -65,10 +51,10 @@ def test_knapsack() -> None:
     # )
     assert_equals(sample.get_vector("constr_rhs"), [0.0])
     assert_equals(sample.get_vector("constr_senses"), ["="])
-    assert_equals(sample.get_vector("constr_features_user"), [None])
+    assert_equals(sample.get_vector("constr_features"), [None])
     assert_equals(sample.get_vector("constr_categories"), ["eq_capacity"])
     assert_equals(sample.get_vector("constr_lazy"), [False])
-    assert_equals(sample.get_vector("instance_features_user"), [67.0, 21.75])
+    assert_equals(sample.get_vector("instance_features"), [67.0, 21.75])
     assert_equals(sample.get_scalar("static_lazy_count"), 0)
 
     # after-lp
@@ -104,16 +90,6 @@ def test_knapsack() -> None:
     )
     assert_equals(sample.get_vector("lp_var_sa_ub_up"), [2.043478, inf, 2.2, inf, 69.0])
     assert_equals(sample.get_vector("lp_var_values"), [1.0, 0.923077, 1.0, 0.0, 67.0])
-    assert_equals(
-        sample.get_vector_list("lp_var_features_AlvLouWeh2017"),
-        [
-            [1.0, 0.32899, 0.0, 0.0, 1.0, 1.0, 5.265874, 46.051702],
-            [1.0, 0.229316, 0.0, 0.076923, 1.0, 1.0, 3.532875, 5.388476],
-            [1.0, 0.298371, 0.0, 0.0, 1.0, 1.0, 5.232342, 46.051702],
-            [1.0, 0.143322, 0.0, 0.0, 1.0, -1.0, 46.051702, 3.16515],
-            [0.0, 0.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0],
-        ],
-    )
     assert sample.get_vector_list("lp_var_features") is not None
     assert_equals(sample.get_vector("lp_constr_basis_status"), ["N"])
     assert_equals(sample.get_vector("lp_constr_dual_values"), [13.538462])

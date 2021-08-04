@@ -25,13 +25,13 @@ def training_instances() -> List[Instance]:
         MemorySample(
             {
                 "lazy_enforced": {"c1", "c2"},
-                "instance_features_user": [5.0],
+                "instance_features": [5.0],
             },
         ),
         MemorySample(
             {
                 "lazy_enforced": {"c2", "c3"},
-                "instance_features_user": [5.0],
+                "instance_features": [5.0],
             },
         ),
     ]
@@ -56,7 +56,7 @@ def training_instances() -> List[Instance]:
         MemorySample(
             {
                 "lazy_enforced": {"c3", "c4"},
-                "instance_features_user": [8.0],
+                "instance_features": [8.0],
             },
         )
     ]

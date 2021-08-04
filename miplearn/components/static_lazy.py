@@ -204,14 +204,14 @@ class StaticLazyConstraintsComponent(Component):
         x: Dict[str, List[List[float]]] = {}
         y: Dict[str, List[List[float]]] = {}
         cids: Dict[str, List[str]] = {}
-        instance_features = sample.get_vector("instance_features_user")
+        instance_features = sample.get_vector("instance_features")
         constr_features = sample.get_vector_list("lp_constr_features")
         constr_names = sample.get_vector("constr_names")
         constr_categories = sample.get_vector("constr_categories")
         constr_lazy = sample.get_vector("constr_lazy")
         lazy_enforced = sample.get_set("lazy_enforced")
         if constr_features is None:
-            constr_features = sample.get_vector_list("constr_features_user")
+            constr_features = sample.get_vector_list("constr_features")
 
         assert instance_features is not None
         assert constr_features is not None

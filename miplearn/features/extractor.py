@@ -5,7 +5,7 @@
 import collections
 import numbers
 from math import log, isfinite
-from typing import TYPE_CHECKING, Dict, Optional, List, Any
+from typing import TYPE_CHECKING, Dict, Optional, List, Any, Tuple
 
 import numpy as np
 
@@ -42,16 +42,19 @@ class FeaturesExtractor:
         # sample.put("constr_lhs", constraints.lhs)
         sample.put_vector("constr_rhs", constraints.rhs)
         sample.put_vector("constr_senses", constraints.senses)
-        self._extract_user_features_vars(instance, sample)
+        vars_features_user, var_categories = self._extract_user_features_vars(
+            instance, sample
+        )
+        sample.put_vector("var_categories", var_categories)
         self._extract_user_features_constrs(instance, sample)
         self._extract_user_features_instance(instance, sample)
-        self._extract_var_features_AlvLouWeh2017(sample)
+        alw17 = self._extract_var_features_AlvLouWeh2017(sample)
         sample.put_vector_list(
             "var_features",
             self._combine(
                 [
-                    sample.get_vector_list("var_features_AlvLouWeh2017"),
-                    sample.get_vector_list("var_features_user"),
+                    alw17,
+                    vars_features_user,
                     sample.get_vector("var_lower_bounds"),
                     sample.get_vector("var_obj_coeffs"),
                     sample.get_vector("var_upper_bounds"),
@@ -80,12 +83,12 @@ class FeaturesExtractor:
         sample.put_vector("lp_constr_sa_rhs_down", constraints.sa_rhs_down)
         sample.put_vector("lp_constr_sa_rhs_up", constraints.sa_rhs_up)
         sample.put_vector("lp_constr_slacks", constraints.slacks)
-        self._extract_var_features_AlvLouWeh2017(sample, prefix="lp_")
+        alw17 = self._extract_var_features_AlvLouWeh2017(sample)
         sample.put_vector_list(
             "lp_var_features",
             self._combine(
                 [
-                    sample.get_vector_list("lp_var_features_AlvLouWeh2017"),
+                    alw17,
                     sample.get_vector("lp_var_reduced_costs"),
                     sample.get_vector("lp_var_sa_lb_down"),
                     sample.get_vector("lp_var_sa_lb_up"),
@@ -105,7 +108,7 @@ class FeaturesExtractor:
             "lp_constr_features",
             self._combine(
                 [
-                    sample.get_vector_list("constr_features_user"),
+                    sample.get_vector_list("constr_features"),
                     sample.get_vector("lp_constr_dual_values"),
                     sample.get_vector("lp_constr_sa_rhs_down"),
                     sample.get_vector("lp_constr_sa_rhs_up"),
@@ -113,11 +116,11 @@ class FeaturesExtractor:
                 ],
             ),
         )
-        instance_features_user = sample.get_vector("instance_features_user")
-        assert instance_features_user is not None
+        instance_features = sample.get_vector("instance_features")
+        assert instance_features is not None
         sample.put_vector(
             "lp_instance_features",
-            instance_features_user
+            instance_features
             + [
                 sample.get_scalar("lp_value"),
                 sample.get_scalar("lp_wallclock_time"),
@@ -138,7 +141,7 @@ class FeaturesExtractor:
         self,
         instance: "Instance",
         sample: Sample,
-    ) -> None:
+    ) -> Tuple[List, List]:
         categories: List[Optional[str]] = []
         user_features: List[Optional[List[float]]] = []
         var_features_dict = instance.get_variable_features()
@@ -174,8 +177,7 @@ class FeaturesExtractor:
                     )
                 user_features_i = list(user_features_i)
             user_features.append(user_features_i)
-        sample.put_vector("var_categories", categories)
-        sample.put_vector_list("var_features_user", user_features)
+        return user_features, categories
 
     def _extract_user_features_constrs(
         self,
@@ -224,7 +226,7 @@ class FeaturesExtractor:
                 lazy.append(instance.is_constraint_lazy(cname))
             else:
                 lazy.append(False)
-        sample.put_vector_list("constr_features_user", user_features)
+        sample.put_vector_list("constr_features", user_features)
         sample.put_vector("constr_lazy", lazy)
         sample.put_vector("constr_categories", categories)
 
@@ -247,16 +249,12 @@ class FeaturesExtractor:
             )
         constr_lazy = sample.get_vector("constr_lazy")
         assert constr_lazy is not None
-        sample.put_vector("instance_features_user", user_features)
+        sample.put_vector("instance_features", user_features)
         sample.put_scalar("static_lazy_count", sum(constr_lazy))
 
     # Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
     # approximation of strong branching. INFORMS Journal on Computing, 29(1), 185-195.
-    def _extract_var_features_AlvLouWeh2017(
-        self,
-        sample: Sample,
-        prefix: str = "",
-    ) -> None:
+    def _extract_var_features_AlvLouWeh2017(self, sample: Sample) -> List:
         obj_coeffs = sample.get_vector("var_obj_coeffs")
         obj_sa_down = sample.get_vector("lp_var_sa_obj_down")
         obj_sa_up = sample.get_vector("lp_var_sa_obj_up")
@@ -328,7 +326,7 @@ class FeaturesExtractor:
             for v in f:
                 assert isfinite(v), f"non-finite elements detected: {f}"
             features.append(f)
-        sample.put_vector_list(f"{prefix}var_features_AlvLouWeh2017", features)
+        return features
 
     def _combine(
         self,

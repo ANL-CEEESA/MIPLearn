@@ -142,7 +142,7 @@ class PrimalSolutionComponent(Component):
     ) -> Tuple[Dict[Category, List[List[float]]], Dict[Category, List[List[float]]]]:
         x: Dict = {}
         y: Dict = {}
-        instance_features = sample.get_vector("instance_features_user")
+        instance_features = sample.get_vector("instance_features")
         mip_var_values = sample.get_vector("mip_var_values")
         var_features = sample.get_vector_list("lp_var_features")
         var_names = sample.get_vector("var_names")
