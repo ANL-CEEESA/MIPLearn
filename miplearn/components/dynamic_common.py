@@ -52,7 +52,7 @@ class DynamicConstraintsComponent(Component):
         cids: Dict[str, List[str]] = {}
         constr_categories_dict = instance.get_constraint_categories()
         constr_features_dict = instance.get_constraint_features()
-        instance_features = sample.get_vector("instance_features")
+        instance_features = sample.get_vector("static_instance_features")
         assert instance_features is not None
         for cid in self.known_cids:
             # Initialize categories

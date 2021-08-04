@@ -82,13 +82,13 @@ class Constraints:
         return Constraints(
             basis_status=sample.get_vector("lp_constr_basis_status"),
             dual_values=sample.get_vector("lp_constr_dual_values"),
-            lazy=sample.get_vector("constr_lazy"),
-            # lhs=sample.get_vector("constr_lhs"),
-            names=sample.get_vector("constr_names"),
-            rhs=sample.get_vector("constr_rhs"),
+            lazy=sample.get_vector("static_constr_lazy"),
+            # lhs=sample.get_vector("static_constr_lhs"),
+            names=sample.get_vector("static_constr_names"),
+            rhs=sample.get_vector("static_constr_rhs"),
             sa_rhs_down=sample.get_vector("lp_constr_sa_rhs_down"),
             sa_rhs_up=sample.get_vector("lp_constr_sa_rhs_up"),
-            senses=sample.get_vector("constr_senses"),
+            senses=sample.get_vector("static_constr_senses"),
             slacks=sample.get_vector("lp_constr_slacks"),
         )
 

@@ -75,7 +75,7 @@ class StaticLazyConstraintsComponent(Component):
         sample: Sample,
     ) -> None:
         assert solver.internal_solver is not None
-        static_lazy_count = sample.get_scalar("static_lazy_count")
+        static_lazy_count = sample.get_scalar("static_constr_lazy_count")
         assert static_lazy_count is not None
 
         logger.info("Predicting violated (static) lazy constraints...")
@@ -204,14 +204,14 @@ class StaticLazyConstraintsComponent(Component):
         x: Dict[str, List[List[float]]] = {}
         y: Dict[str, List[List[float]]] = {}
         cids: Dict[str, List[str]] = {}
-        instance_features = sample.get_vector("instance_features")
+        instance_features = sample.get_vector("static_instance_features")
         constr_features = sample.get_vector_list("lp_constr_features")
-        constr_names = sample.get_vector("constr_names")
-        constr_categories = sample.get_vector("constr_categories")
-        constr_lazy = sample.get_vector("constr_lazy")
+        constr_names = sample.get_vector("static_constr_names")
+        constr_categories = sample.get_vector("static_constr_categories")
+        constr_lazy = sample.get_vector("static_constr_lazy")
         lazy_enforced = sample.get_set("lazy_enforced")
         if constr_features is None:
-            constr_features = sample.get_vector_list("constr_features")
+            constr_features = sample.get_vector_list("static_constr_features")
 
         assert instance_features is not None
         assert constr_features is not None

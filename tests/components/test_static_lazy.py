@@ -24,16 +24,16 @@ from miplearn.types import (
 def sample() -> Sample:
     sample = MemorySample(
         {
-            "constr_categories": [
+            "static_constr_categories": [
                 "type-a",
                 "type-a",
                 "type-a",
                 "type-b",
                 "type-b",
             ],
-            "constr_lazy": [True, True, True, True, False],
-            "constr_names": ["c1", "c2", "c3", "c4", "c5"],
-            "instance_features": [5.0],
+            "static_constr_lazy": [True, True, True, True, False],
+            "static_constr_names": ["c1", "c2", "c3", "c4", "c5"],
+            "static_instance_features": [5.0],
             "lazy_enforced": {"c1", "c2", "c4"},
             "lp_constr_features": [
                 [1.0, 1.0],
@@ -42,7 +42,7 @@ def sample() -> Sample:
                 [1.0, 4.0, 0.0],
                 None,
             ],
-            "static_lazy_count": 4,
+            "static_constr_lazy_count": 4,
         },
     )
     return sample

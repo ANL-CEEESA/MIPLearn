@@ -24,21 +24,27 @@ def test_knapsack() -> None:
     # after-load
     # -------------------------------------------------------
     extractor.extract_after_load_features(instance, solver, sample)
-    assert_equals(sample.get_vector("var_names"), ["x[0]", "x[1]", "x[2]", "x[3]", "z"])
-    assert_equals(sample.get_vector("var_lower_bounds"), [0.0, 0.0, 0.0, 0.0, 0.0])
     assert_equals(
-        sample.get_vector("var_obj_coeffs"), [505.0, 352.0, 458.0, 220.0, 0.0]
+        sample.get_vector("static_var_names"), ["x[0]", "x[1]", "x[2]", "x[3]", "z"]
     )
-    assert_equals(sample.get_vector("var_types"), ["B", "B", "B", "B", "C"])
-    assert_equals(sample.get_vector("var_upper_bounds"), [1.0, 1.0, 1.0, 1.0, 67.0])
     assert_equals(
-        sample.get_vector("var_categories"),
+        sample.get_vector("static_var_lower_bounds"), [0.0, 0.0, 0.0, 0.0, 0.0]
+    )
+    assert_equals(
+        sample.get_vector("static_var_obj_coeffs"), [505.0, 352.0, 458.0, 220.0, 0.0]
+    )
+    assert_equals(sample.get_vector("static_var_types"), ["B", "B", "B", "B", "C"])
+    assert_equals(
+        sample.get_vector("static_var_upper_bounds"), [1.0, 1.0, 1.0, 1.0, 67.0]
+    )
+    assert_equals(
+        sample.get_vector("static_var_categories"),
         ["default", "default", "default", "default", None],
     )
-    assert sample.get_vector_list("var_features") is not None
-    assert_equals(sample.get_vector("constr_names"), ["eq_capacity"])
+    assert sample.get_vector_list("static_var_features") is not None
+    assert_equals(sample.get_vector("static_constr_names"), ["eq_capacity"])
     # assert_equals(
-    #     sample.get_vector("constr_lhs"),
+    #     sample.get_vector("static_constr_lhs"),
     #     [
     #         [
     #             ("x[0]", 23.0),
@@ -49,13 +55,13 @@ def test_knapsack() -> None:
     #         ],
     #     ],
     # )
-    assert_equals(sample.get_vector("constr_rhs"), [0.0])
-    assert_equals(sample.get_vector("constr_senses"), ["="])
-    assert_equals(sample.get_vector("constr_features"), [None])
-    assert_equals(sample.get_vector("constr_categories"), ["eq_capacity"])
-    assert_equals(sample.get_vector("constr_lazy"), [False])
-    assert_equals(sample.get_vector("instance_features"), [67.0, 21.75])
-    assert_equals(sample.get_scalar("static_lazy_count"), 0)
+    assert_equals(sample.get_vector("static_constr_rhs"), [0.0])
+    assert_equals(sample.get_vector("static_constr_senses"), ["="])
+    assert_equals(sample.get_vector("static_constr_features"), [None])
+    assert_equals(sample.get_vector("static_constr_categories"), ["eq_capacity"])
+    assert_equals(sample.get_vector("static_constr_lazy"), [False])
+    assert_equals(sample.get_vector("static_instance_features"), [67.0, 21.75])
+    assert_equals(sample.get_scalar("static_constr_lazy_count"), 0)
 
     # after-lp
     # -------------------------------------------------------

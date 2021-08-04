@@ -33,31 +33,31 @@ class FeaturesExtractor:
     ) -> None:
         variables = solver.get_variables(with_static=True)
         constraints = solver.get_constraints(with_static=True, with_lhs=self.with_lhs)
-        sample.put_vector("var_lower_bounds", variables.lower_bounds)
-        sample.put_vector("var_names", variables.names)
-        sample.put_vector("var_obj_coeffs", variables.obj_coeffs)
-        sample.put_vector("var_types", variables.types)
-        sample.put_vector("var_upper_bounds", variables.upper_bounds)
-        sample.put_vector("constr_names", constraints.names)
-        # sample.put("constr_lhs", constraints.lhs)
-        sample.put_vector("constr_rhs", constraints.rhs)
-        sample.put_vector("constr_senses", constraints.senses)
+        sample.put_vector("static_var_lower_bounds", variables.lower_bounds)
+        sample.put_vector("static_var_names", variables.names)
+        sample.put_vector("static_var_obj_coeffs", variables.obj_coeffs)
+        sample.put_vector("static_var_types", variables.types)
+        sample.put_vector("static_var_upper_bounds", variables.upper_bounds)
+        sample.put_vector("static_constr_names", constraints.names)
+        # sample.put("static_constr_lhs", constraints.lhs)
+        sample.put_vector("static_constr_rhs", constraints.rhs)
+        sample.put_vector("static_constr_senses", constraints.senses)
         vars_features_user, var_categories = self._extract_user_features_vars(
             instance, sample
         )
-        sample.put_vector("var_categories", var_categories)
+        sample.put_vector("static_var_categories", var_categories)
         self._extract_user_features_constrs(instance, sample)
         self._extract_user_features_instance(instance, sample)
         alw17 = self._extract_var_features_AlvLouWeh2017(sample)
         sample.put_vector_list(
-            "var_features",
+            "static_var_features",
             self._combine(
                 [
                     alw17,
                     vars_features_user,
-                    sample.get_vector("var_lower_bounds"),
-                    sample.get_vector("var_obj_coeffs"),
-                    sample.get_vector("var_upper_bounds"),
+                    sample.get_vector("static_var_lower_bounds"),
+                    sample.get_vector("static_var_obj_coeffs"),
+                    sample.get_vector("static_var_upper_bounds"),
                 ],
             ),
         )
@@ -97,10 +97,7 @@ class FeaturesExtractor:
                     sample.get_vector("lp_var_sa_ub_down"),
                     sample.get_vector("lp_var_sa_ub_up"),
                     sample.get_vector("lp_var_values"),
-                    sample.get_vector_list("var_features_user"),
-                    sample.get_vector("var_lower_bounds"),
-                    sample.get_vector("var_obj_coeffs"),
-                    sample.get_vector("var_upper_bounds"),
+                    sample.get_vector_list("static_var_features"),
                 ],
             ),
         )
@@ -108,7 +105,7 @@ class FeaturesExtractor:
             "lp_constr_features",
             self._combine(
                 [
-                    sample.get_vector_list("constr_features"),
+                    sample.get_vector_list("static_constr_features"),
                     sample.get_vector("lp_constr_dual_values"),
                     sample.get_vector("lp_constr_sa_rhs_down"),
                     sample.get_vector("lp_constr_sa_rhs_up"),
@@ -116,11 +113,11 @@ class FeaturesExtractor:
                 ],
             ),
         )
-        instance_features = sample.get_vector("instance_features")
-        assert instance_features is not None
+        static_instance_features = sample.get_vector("static_instance_features")
+        assert static_instance_features is not None
         sample.put_vector(
             "lp_instance_features",
-            instance_features
+            static_instance_features
             + [
                 sample.get_scalar("lp_value"),
                 sample.get_scalar("lp_wallclock_time"),
@@ -146,7 +143,7 @@ class FeaturesExtractor:
         user_features: List[Optional[List[float]]] = []
         var_features_dict = instance.get_variable_features()
         var_categories_dict = instance.get_variable_categories()
-        var_names = sample.get_vector("var_names")
+        var_names = sample.get_vector("static_var_names")
         assert var_names is not None
         for (i, var_name) in enumerate(var_names):
             if var_name not in var_categories_dict:
@@ -190,7 +187,7 @@ class FeaturesExtractor:
         lazy: List[bool] = []
         constr_categories_dict = instance.get_constraint_categories()
         constr_features_dict = instance.get_constraint_features()
-        constr_names = sample.get_vector("constr_names")
+        constr_names = sample.get_vector("static_constr_names")
         assert constr_names is not None
 
         for (cidx, cname) in enumerate(constr_names):
@@ -226,9 +223,9 @@ class FeaturesExtractor:
                 lazy.append(instance.is_constraint_lazy(cname))
             else:
                 lazy.append(False)
-        sample.put_vector_list("constr_features", user_features)
-        sample.put_vector("constr_lazy", lazy)
-        sample.put_vector("constr_categories", categories)
+        sample.put_vector_list("static_constr_features", user_features)
+        sample.put_vector("static_constr_lazy", lazy)
+        sample.put_vector("static_constr_categories", categories)
 
     def _extract_user_features_instance(
         self,
@@ -247,15 +244,15 @@ class FeaturesExtractor:
                 f"Instance features must be a list of numbers. "
                 f"Found {type(v).__name__} instead."
             )
-        constr_lazy = sample.get_vector("constr_lazy")
+        constr_lazy = sample.get_vector("static_constr_lazy")
         assert constr_lazy is not None
-        sample.put_vector("instance_features", user_features)
-        sample.put_scalar("static_lazy_count", sum(constr_lazy))
+        sample.put_vector("static_instance_features", user_features)
+        sample.put_scalar("static_constr_lazy_count", sum(constr_lazy))
 
     # Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
     # approximation of strong branching. INFORMS Journal on Computing, 29(1), 185-195.
     def _extract_var_features_AlvLouWeh2017(self, sample: Sample) -> List:
-        obj_coeffs = sample.get_vector("var_obj_coeffs")
+        obj_coeffs = sample.get_vector("static_var_obj_coeffs")
         obj_sa_down = sample.get_vector("lp_var_sa_obj_down")
         obj_sa_up = sample.get_vector("lp_var_sa_obj_up")
         values = sample.get_vector(f"lp_var_values")

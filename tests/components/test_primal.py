@@ -22,11 +22,11 @@ from miplearn.solvers.tests import assert_equals
 def sample() -> Sample:
     sample = MemorySample(
         {
-            "var_names": ["x[0]", "x[1]", "x[2]", "x[3]"],
-            "var_categories": ["default", None, "default", "default"],
+            "static_var_names": ["x[0]", "x[1]", "x[2]", "x[3]"],
+            "static_var_categories": ["default", None, "default", "default"],
             "mip_var_values": [0.0, 1.0, 1.0, 0.0],
-            "instance_features": [5.0],
-            "var_features": [
+            "static_instance_features": [5.0],
+            "static_var_features": [
                 [0.0, 0.0],
                 None,
                 [1.0, 0.0],
