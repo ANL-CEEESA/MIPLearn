@@ -247,8 +247,16 @@ class Hdf5Sample(Sample):
         if value is None:
             return
         self._assert_is_vector(value)
-        modified = [v if v is not None else "" for v in value]
-        self._put(key, modified, compress=True)
+
+        for v in value:
+            if isinstance(v, str):
+                value = np.array(
+                    [u if u is not None else b"" for u in value],
+                    dtype="S",
+                )
+                break
+
+        self._put(key, value, compress=True)
 
     @overrides
     def put_vector_list(self, key: str, value: VectorList) -> None:
