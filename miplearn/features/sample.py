@@ -312,6 +312,7 @@ class Hdf5Sample(Sample):
 
 
 def _pad(veclist: VectorList) -> Tuple[VectorList, List[int]]:
+    veclist = deepcopy(veclist)
     lens = [len(v) if v is not None else -1 for v in veclist]
     maxlen = max(lens)
 

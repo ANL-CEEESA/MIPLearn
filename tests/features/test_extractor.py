@@ -192,7 +192,7 @@ if __name__ == "__main__":
     extractor = FeaturesExtractor(with_lhs=False)
     sample = Hdf5Sample("tmp/prof.h5", mode="w")
 
-    def run():
+    def run() -> None:
         extractor.extract_after_load_features(instance, solver, sample)
         extractor.extract_after_lp_features(solver, sample)
 
