@@ -176,7 +176,7 @@ class Hdf5Sample(Sample):
     """
 
     def __init__(self, filename: str, mode: str = "r+") -> None:
-        self.file = h5py.File(filename, mode)
+        self.file = h5py.File(filename, mode, libver="latest")
 
     @overrides
     def get_bytes(self, key: str) -> Optional[Bytes]:
