@@ -2,13 +2,20 @@
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import sys
+import time
+from typing import Any
+
 import numpy as np
+import gurobipy as gp
 
 from miplearn.features.extractor import FeaturesExtractor
-from miplearn.features.sample import Sample, MemorySample
-from miplearn.solvers.internal import Variables, Constraints
+from miplearn.features.sample import MemorySample, Hdf5Sample
+from miplearn.instance.base import Instance
 from miplearn.solvers.gurobi import GurobiSolver
+from miplearn.solvers.internal import Variables, Constraints
 from miplearn.solvers.tests import assert_equals
+import cProfile
 
 inf = float("inf")
 
@@ -166,3 +173,27 @@ def test_assert_equals() -> None:
     assert_equals(np.array([True, True]), [True, True])
     assert_equals((1.0,), (1.0,))
     assert_equals({"x": 10}, {"x": 10})
+
+
+class MpsInstance(Instance):
+    def __init__(self, filename: str) -> None:
+        super().__init__()
+        self.filename = filename
+
+    def to_model(self) -> Any:
+        return gp.read(self.filename)
+
+
+if __name__ == "__main__":
+    solver = GurobiSolver()
+    instance = MpsInstance(sys.argv[1])
+    solver.set_instance(instance)
+    solver.solve_lp(tee=True)
+    extractor = FeaturesExtractor(with_lhs=False)
+    sample = Hdf5Sample("tmp/prof.h5", mode="w")
+
+    def run():
+        extractor.extract_after_load_features(instance, solver, sample)
+        extractor.extract_after_lp_features(solver, sample)
+
+    cProfile.run("run()", filename="tmp/prof")
