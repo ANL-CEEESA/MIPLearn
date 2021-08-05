@@ -122,7 +122,7 @@ def test_knapsack() -> None:
 def test_constraint_getindex() -> None:
     cf = Constraints(
         names=["c1", "c2", "c3"],
-        rhs=[1.0, 2.0, 3.0],
+        rhs=np.array([1.0, 2.0, 3.0]),
         senses=["=", "<", ">"],
         lhs=[
             [
@@ -143,7 +143,7 @@ def test_constraint_getindex() -> None:
         cf[[True, False, True]],
         Constraints(
             names=["c1", "c3"],
-            rhs=[1.0, 3.0],
+            rhs=np.array([1.0, 3.0]),
             senses=["=", ">"],
             lhs=[
                 [

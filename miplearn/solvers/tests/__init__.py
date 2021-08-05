@@ -53,7 +53,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         solver.get_constraints(),
         Constraints(
             names=["eq_capacity"],
-            rhs=[0.0],
+            rhs=np.array([0.0]),
             lhs=[
                 [
                     ("x[0]", 23.0),
@@ -108,11 +108,11 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
             solver.get_constraint_attrs(),
             Constraints(
                 basis_status=["N"],
-                dual_values=[13.538462],
+                dual_values=np.array([13.538462]),
                 names=["eq_capacity"],
-                sa_rhs_down=[-24.0],
-                sa_rhs_up=[2.0],
-                slacks=[0.0],
+                sa_rhs_down=np.array([-24.0]),
+                sa_rhs_up=np.array([2.0]),
+                slacks=np.array([0.0]),
             ),
         ),
     )
@@ -153,7 +153,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
             solver.get_constraint_attrs(),
             Constraints(
                 names=["eq_capacity"],
-                slacks=[0.0],
+                slacks=np.array([0.0]),
             ),
         ),
     )
@@ -162,7 +162,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     cf = Constraints(
         names=["cut"],
         lhs=[[("x[0]", 1.0)]],
-        rhs=[0.0],
+        rhs=np.array([0.0]),
         senses=["<"],
     )
     assert_equals(solver.are_constraints_satisfied(cf), [False])
@@ -175,7 +175,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
             solver.get_constraint_attrs(),
             Constraints(
                 names=["eq_capacity", "cut"],
-                rhs=[0.0, 0.0],
+                rhs=np.array([0.0, 0.0]),
                 lhs=[
                     [
                         ("x[0]", 23.0),
@@ -274,7 +274,7 @@ def _equals_preprocess(obj: Any) -> Any:
             return np.round(obj, decimals=6).tolist()
         else:
             return obj.tolist()
-    elif isinstance(obj, (int, str)):
+    elif isinstance(obj, (int, str, bool, np.bool_)):
         return obj
     elif isinstance(obj, float):
         return round(obj, 6)

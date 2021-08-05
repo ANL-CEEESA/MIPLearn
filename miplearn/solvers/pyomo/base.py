@@ -236,11 +236,11 @@ class BasePyomoSolver(InternalSolver):
 
         return Constraints(
             names=_none_if_empty(names),
-            rhs=_none_if_empty(rhs),
+            rhs=_none_if_empty(np.array(rhs, dtype=float)),
             senses=_none_if_empty(senses),
             lhs=_none_if_empty(lhs),
-            slacks=_none_if_empty(slacks),
-            dual_values=_none_if_empty(dual_values),
+            slacks=_none_if_empty(np.array(slacks, dtype=float)),
+            dual_values=_none_if_empty(np.array(dual_values, dtype=float)),
         )
 
     @overrides

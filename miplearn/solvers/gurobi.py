@@ -217,7 +217,7 @@ class GurobiSolver(InternalSolver):
         dual_value, basis_status, sa_rhs_up, sa_rhs_down = None, None, None, None
 
         if with_static:
-            rhs = model.getAttr("rhs", gp_constrs)
+            rhs = np.array(model.getAttr("rhs", gp_constrs), dtype=float)
             senses = model.getAttr("sense", gp_constrs)
             if with_lhs:
                 lhs = [None for _ in gp_constrs]
@@ -229,7 +229,7 @@ class GurobiSolver(InternalSolver):
                     ]
 
         if self._has_lp_solution:
-            dual_value = model.getAttr("pi", gp_constrs)
+            dual_value = np.array(model.getAttr("pi", gp_constrs), dtype=float)
             basis_status = list(
                 map(
                     _parse_gurobi_cbasis,
@@ -237,11 +237,13 @@ class GurobiSolver(InternalSolver):
                 )
             )
             if with_sa:
-                sa_rhs_up = model.getAttr("saRhsUp", gp_constrs)
-                sa_rhs_down = model.getAttr("saRhsLow", gp_constrs)
+                sa_rhs_up = np.array(model.getAttr("saRhsUp", gp_constrs), dtype=float)
+                sa_rhs_down = np.array(
+                    model.getAttr("saRhsLow", gp_constrs), dtype=float
+                )
 
         if self._has_lp_solution or self._has_mip_solution:
-            slacks = model.getAttr("slack", gp_constrs)
+            slacks = np.array(model.getAttr("slack", gp_constrs), dtype=float)
 
         return Constraints(
             basis_status=basis_status,

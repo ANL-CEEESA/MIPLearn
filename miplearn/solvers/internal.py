@@ -69,15 +69,15 @@ class Variables:
 @dataclass
 class Constraints:
     basis_status: Optional[List[str]] = None
-    dual_values: Optional[List[float]] = None
+    dual_values: Optional[np.ndarray] = None
     lazy: Optional[List[bool]] = None
     lhs: Optional[List[List[Tuple[str, float]]]] = None
     names: Optional[List[str]] = None
-    rhs: Optional[List[float]] = None
-    sa_rhs_down: Optional[List[float]] = None
-    sa_rhs_up: Optional[List[float]] = None
+    rhs: Optional[np.ndarray] = None
+    sa_rhs_down: Optional[np.ndarray] = None
+    sa_rhs_up: Optional[np.ndarray] = None
     senses: Optional[List[str]] = None
-    slacks: Optional[List[float]] = None
+    slacks: Optional[np.ndarray] = None
 
     @staticmethod
     def from_sample(sample: "Sample") -> "Constraints":
@@ -97,15 +97,19 @@ class Constraints:
     def __getitem__(self, selected: List[bool]) -> "Constraints":
         return Constraints(
             basis_status=self._filter(self.basis_status, selected),
-            dual_values=self._filter(self.dual_values, selected),
+            dual_values=(
+                None if self.dual_values is None else self.dual_values[selected]
+            ),
             names=self._filter(self.names, selected),
             lazy=self._filter(self.lazy, selected),
             lhs=self._filter(self.lhs, selected),
-            rhs=self._filter(self.rhs, selected),
-            sa_rhs_down=self._filter(self.sa_rhs_down, selected),
-            sa_rhs_up=self._filter(self.sa_rhs_up, selected),
+            rhs=(None if self.rhs is None else self.rhs[selected]),
+            sa_rhs_down=(
+                None if self.sa_rhs_down is None else self.sa_rhs_down[selected]
+            ),
+            sa_rhs_up=(None if self.sa_rhs_up is None else self.sa_rhs_up[selected]),
             senses=self._filter(self.senses, selected),
-            slacks=self._filter(self.slacks, selected),
+            slacks=(None if self.slacks is None else self.slacks[selected]),
         )
 
     def _filter(
