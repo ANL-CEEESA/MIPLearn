@@ -38,7 +38,9 @@ def test_learning_solver(
             assert len(instance.get_samples()) > 0
             sample = instance.get_samples()[0]
 
-            assert sample.get_vector("mip_var_values") == [1.0, 0.0, 1.0, 1.0, 61.0]
+            assert_equals(
+                sample.get_vector("mip_var_values"), [1.0, 0.0, 1.0, 1.0, 61.0]
+            )
             assert sample.get_scalar("mip_lower_bound") == 1183.0
             assert sample.get_scalar("mip_upper_bound") == 1183.0
             mip_log = sample.get_scalar("mip_log")

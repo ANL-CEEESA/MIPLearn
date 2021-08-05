@@ -17,7 +17,7 @@ def test_usage() -> None:
     # Save instance to disk
     filename = tempfile.mktemp()
     FileInstance.save(original, filename)
-    sample = Hdf5Sample(filename)
+    sample = Hdf5Sample(filename, check_data=True)
     assert len(sample.get_bytes("pickled")) > 0
 
     # Solve instance from disk

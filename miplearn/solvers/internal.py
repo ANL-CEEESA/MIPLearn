@@ -7,6 +7,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Optional, List, Tuple, TYPE_CHECKING
 
+import numpy as np
+
 from miplearn.instance.base import Instance
 from miplearn.types import (
     IterationCallback,
@@ -50,18 +52,18 @@ class MIPSolveStats:
 class Variables:
     names: Optional[List[str]] = None
     basis_status: Optional[List[str]] = None
-    lower_bounds: Optional[List[float]] = None
-    obj_coeffs: Optional[List[float]] = None
-    reduced_costs: Optional[List[float]] = None
-    sa_lb_down: Optional[List[float]] = None
-    sa_lb_up: Optional[List[float]] = None
-    sa_obj_down: Optional[List[float]] = None
-    sa_obj_up: Optional[List[float]] = None
-    sa_ub_down: Optional[List[float]] = None
-    sa_ub_up: Optional[List[float]] = None
+    lower_bounds: Optional[np.ndarray] = None
+    obj_coeffs: Optional[np.ndarray] = None
+    reduced_costs: Optional[np.ndarray] = None
+    sa_lb_down: Optional[np.ndarray] = None
+    sa_lb_up: Optional[np.ndarray] = None
+    sa_obj_down: Optional[np.ndarray] = None
+    sa_obj_up: Optional[np.ndarray] = None
+    sa_ub_down: Optional[np.ndarray] = None
+    sa_ub_up: Optional[np.ndarray] = None
     types: Optional[List[str]] = None
-    upper_bounds: Optional[List[float]] = None
-    values: Optional[List[float]] = None
+    upper_bounds: Optional[np.ndarray] = None
+    values: Optional[np.ndarray] = None
 
 
 @dataclass

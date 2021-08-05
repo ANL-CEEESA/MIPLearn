@@ -6,8 +6,9 @@ import re
 import sys
 from io import StringIO
 from random import randint
-from typing import List, Any, Dict, Optional, Tuple, TYPE_CHECKING
+from typing import List, Any, Dict, Optional, TYPE_CHECKING
 
+import numpy as np
 from overrides import overrides
 
 from miplearn.instance.base import Instance
@@ -79,9 +80,9 @@ class GurobiSolver(InternalSolver):
         self._var_names: List[str] = []
         self._constr_names: List[str] = []
         self._var_types: List[str] = []
-        self._var_lbs: List[float] = []
-        self._var_ubs: List[float] = []
-        self._var_obj_coeffs: List[float] = []
+        self._var_lbs: np.ndarray = np.empty(0)
+        self._var_ubs: np.ndarray = np.empty(0)
+        self._var_obj_coeffs: np.ndarray = np.empty(0)
 
         if self.lazy_cb_frequency == 1:
             self.lazy_cb_where = [self.gp.GRB.Callback.MIPSOL]
@@ -338,15 +339,33 @@ class GurobiSolver(InternalSolver):
             )
 
             if with_sa:
-                sa_obj_up = model.getAttr("saobjUp", self._gp_vars)
-                sa_obj_down = model.getAttr("saobjLow", self._gp_vars)
-                sa_ub_up = model.getAttr("saubUp", self._gp_vars)
-                sa_ub_down = model.getAttr("saubLow", self._gp_vars)
-                sa_lb_up = model.getAttr("salbUp", self._gp_vars)
-                sa_lb_down = model.getAttr("salbLow", self._gp_vars)
+                sa_obj_up = np.array(
+                    model.getAttr("saobjUp", self._gp_vars),
+                    dtype=float,
+                )
+                sa_obj_down = np.array(
+                    model.getAttr("saobjLow", self._gp_vars),
+                    dtype=float,
+                )
+                sa_ub_up = np.array(
+                    model.getAttr("saubUp", self._gp_vars),
+                    dtype=float,
+                )
+                sa_ub_down = np.array(
+                    model.getAttr("saubLow", self._gp_vars),
+                    dtype=float,
+                )
+                sa_lb_up = np.array(
+                    model.getAttr("salbUp", self._gp_vars),
+                    dtype=float,
+                )
+                sa_lb_down = np.array(
+                    model.getAttr("salbLow", self._gp_vars),
+                    dtype=float,
+                )
 
         if model.solCount > 0:
-            values = model.getAttr("x", self._gp_vars)
+            values = np.array(model.getAttr("x", self._gp_vars), dtype=float)
 
         return Variables(
             names=self._var_names,
@@ -565,9 +584,18 @@ class GurobiSolver(InternalSolver):
         gp_constrs: List["gurobipy.Constr"] = self.model.getConstrs()
         var_names: List[str] = self.model.getAttr("varName", gp_vars)
         var_types: List[str] = self.model.getAttr("vtype", gp_vars)
-        var_ubs: List[float] = self.model.getAttr("ub", gp_vars)
-        var_lbs: List[float] = self.model.getAttr("lb", gp_vars)
-        var_obj_coeffs: List[float] = self.model.getAttr("obj", gp_vars)
+        var_ubs: np.ndarray = np.array(
+            self.model.getAttr("ub", gp_vars),
+            dtype=float,
+        )
+        var_lbs: np.ndarray = np.array(
+            self.model.getAttr("lb", gp_vars),
+            dtype=float,
+        )
+        var_obj_coeffs: np.ndarray = np.array(
+            self.model.getAttr("obj", gp_vars),
+            dtype=float,
+        )
         constr_names: List[str] = self.model.getAttr("constrName", gp_constrs)
         varname_to_var: Dict = {}
         cname_to_constr: Dict = {}

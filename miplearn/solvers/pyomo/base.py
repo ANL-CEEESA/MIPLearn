@@ -330,11 +330,11 @@ class BasePyomoSolver(InternalSolver):
         return Variables(
             names=_none_if_empty(names),
             types=_none_if_empty(types),
-            upper_bounds=_none_if_empty(upper_bounds),
-            lower_bounds=_none_if_empty(lower_bounds),
-            obj_coeffs=_none_if_empty(obj_coeffs),
-            reduced_costs=_none_if_empty(reduced_costs),
-            values=_none_if_empty(values),
+            upper_bounds=_none_if_empty(np.array(upper_bounds, dtype=float)),
+            lower_bounds=_none_if_empty(np.array(lower_bounds, dtype=float)),
+            obj_coeffs=_none_if_empty(np.array(obj_coeffs, dtype=float)),
+            reduced_costs=_none_if_empty(np.array(reduced_costs, dtype=float)),
+            values=_none_if_empty(np.array(values, dtype=float)),
         )
 
     @overrides

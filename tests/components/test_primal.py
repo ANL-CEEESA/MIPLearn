@@ -24,7 +24,7 @@ def sample() -> Sample:
         {
             "static_var_names": ["x[0]", "x[1]", "x[2]", "x[3]"],
             "static_var_categories": ["default", None, "default", "default"],
-            "mip_var_values": [0.0, 1.0, 1.0, 0.0],
+            "mip_var_values": np.array([0.0, 1.0, 1.0, 0.0]),
             "static_instance_features": [5.0],
             "static_var_features": [
                 [0.0, 0.0],

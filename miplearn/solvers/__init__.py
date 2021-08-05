@@ -4,7 +4,7 @@
 
 import logging
 import sys
-from typing import Any, List, TextIO, cast
+from typing import Any, List, TextIO, cast, TypeVar, Optional, Sized
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,10 @@ class _RedirectOutput:
         sys.stderr = self._original_stderr
 
 
-def _none_if_empty(obj: Any) -> Any:
+T = TypeVar("T", bound=Sized)
+
+
+def _none_if_empty(obj: T) -> Optional[T]:
     if len(obj) == 0:
         return None
     else:

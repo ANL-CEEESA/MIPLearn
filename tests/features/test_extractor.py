@@ -32,7 +32,8 @@ def test_knapsack() -> None:
     # -------------------------------------------------------
     extractor.extract_after_load_features(instance, solver, sample)
     assert_equals(
-        sample.get_vector("static_var_names"), ["x[0]", "x[1]", "x[2]", "x[3]", "z"]
+        sample.get_vector("static_var_names"),
+        ["x[0]", "x[1]", "x[2]", "x[3]", "z"],
     )
     assert_equals(
         sample.get_vector("static_var_lower_bounds"), [0.0, 0.0, 0.0, 0.0, 0.0]

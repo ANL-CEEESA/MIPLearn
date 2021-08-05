@@ -9,6 +9,7 @@ from scipy.stats import uniform, randint
 
 from miplearn.problems.tsp import TravelingSalesmanGenerator, TravelingSalesmanInstance
 from miplearn.solvers.learning import LearningSolver
+from miplearn.solvers.tests import assert_equals
 
 
 def test_generator() -> None:
@@ -41,7 +42,7 @@ def test_instance() -> None:
     solver.solve(instance)
     assert len(instance.get_samples()) == 1
     sample = instance.get_samples()[0]
-    assert sample.get_vector("mip_var_values") == [1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
+    assert_equals(sample.get_vector("mip_var_values"), [1.0, 0.0, 1.0, 1.0, 0.0, 1.0])
     assert sample.get_scalar("mip_lower_bound") == 4.0
     assert sample.get_scalar("mip_upper_bound") == 4.0
 
@@ -68,22 +69,25 @@ def test_subtour() -> None:
     lazy_enforced = sample.get_set("mip_constr_lazy_enforced")
     assert lazy_enforced is not None
     assert len(lazy_enforced) > 0
-    assert sample.get_vector("mip_var_values") == [
-        1.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        1.0,
-    ]
+    assert_equals(
+        sample.get_vector("mip_var_values"),
+        [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+        ],
+    )
     solver.fit([instance])
     solver.solve(instance)
