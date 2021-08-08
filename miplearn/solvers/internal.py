@@ -51,7 +51,7 @@ class MIPSolveStats:
 @dataclass
 class Variables:
     names: Optional[np.ndarray] = None
-    basis_status: Optional[List[str]] = None
+    basis_status: Optional[np.ndarray] = None
     lower_bounds: Optional[np.ndarray] = None
     obj_coeffs: Optional[np.ndarray] = None
     reduced_costs: Optional[np.ndarray] = None
@@ -61,7 +61,7 @@ class Variables:
     sa_obj_up: Optional[np.ndarray] = None
     sa_ub_down: Optional[np.ndarray] = None
     sa_ub_up: Optional[np.ndarray] = None
-    types: Optional[List[str]] = None
+    types: Optional[np.ndarray] = None
     upper_bounds: Optional[np.ndarray] = None
     values: Optional[np.ndarray] = None
 

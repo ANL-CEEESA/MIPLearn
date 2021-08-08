@@ -44,7 +44,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
             names=np.array(["x[0]", "x[1]", "x[2]", "x[3]", "z"], dtype="S"),
             lower_bounds=np.array([0.0, 0.0, 0.0, 0.0, 0.0]),
             upper_bounds=np.array([1.0, 1.0, 1.0, 1.0, 67.0]),
-            types=["B", "B", "B", "B", "C"],
+            types=np.array(["B", "B", "B", "B", "C"], dtype="S"),
             obj_coeffs=np.array([505.0, 352.0, 458.0, 220.0, 0.0]),
         ),
     )
@@ -85,7 +85,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
             solver.get_variable_attrs(),
             Variables(
                 names=np.array(["x[0]", "x[1]", "x[2]", "x[3]", "z"], dtype="S"),
-                basis_status=["U", "B", "U", "L", "U"],
+                basis_status=np.array(["U", "B", "U", "L", "U"], dtype="S"),
                 reduced_costs=np.array(
                     [193.615385, 0.0, 187.230769, -23.692308, 13.538462]
                 ),

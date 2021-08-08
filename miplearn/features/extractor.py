@@ -36,7 +36,7 @@ class FeaturesExtractor:
         sample.put_array("static_var_lower_bounds", variables.lower_bounds)
         sample.put_array("static_var_names", variables.names)
         sample.put_array("static_var_obj_coeffs", variables.obj_coeffs)
-        sample.put_vector("static_var_types", variables.types)
+        sample.put_array("static_var_types", variables.types)
         sample.put_array("static_var_upper_bounds", variables.upper_bounds)
         sample.put_vector("static_constr_names", constraints.names)
         # sample.put("static_constr_lhs", constraints.lhs)
@@ -69,7 +69,7 @@ class FeaturesExtractor:
     ) -> None:
         variables = solver.get_variables(with_static=False, with_sa=self.with_sa)
         constraints = solver.get_constraints(with_static=False, with_sa=self.with_sa)
-        sample.put_vector("lp_var_basis_status", variables.basis_status)
+        sample.put_array("lp_var_basis_status", variables.basis_status)
         sample.put_array("lp_var_reduced_costs", variables.reduced_costs)
         sample.put_array("lp_var_sa_lb_down", variables.sa_lb_down)
         sample.put_array("lp_var_sa_lb_up", variables.sa_lb_up)

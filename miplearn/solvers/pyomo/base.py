@@ -327,7 +327,7 @@ class BasePyomoSolver(InternalSolver):
 
         return Variables(
             names=_none_if_empty(np.array(names, dtype="S")),
-            types=_none_if_empty(types),
+            types=_none_if_empty(np.array(types, dtype="S")),
             upper_bounds=_none_if_empty(np.array(upper_bounds, dtype=float)),
             lower_bounds=_none_if_empty(np.array(lower_bounds, dtype=float)),
             obj_coeffs=_none_if_empty(np.array(obj_coeffs, dtype=float)),

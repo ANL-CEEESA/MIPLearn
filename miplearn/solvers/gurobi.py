@@ -79,7 +79,7 @@ class GurobiSolver(InternalSolver):
         self._gp_constrs: List["gurobipy.Constr"] = []
         self._var_names: np.ndarray = np.empty(0)
         self._constr_names: List[str] = []
-        self._var_types: List[str] = []
+        self._var_types: np.ndarray = np.empty(0)
         self._var_lbs: np.ndarray = np.empty(0)
         self._var_ubs: np.ndarray = np.empty(0)
         self._var_obj_coeffs: np.ndarray = np.empty(0)
@@ -322,8 +322,9 @@ class GurobiSolver(InternalSolver):
             else:
                 raise Exception(f"unknown vbasis: {basis_status}")
 
+        basis_status: Optional[np.ndarray] = None
         upper_bounds, lower_bounds, types, values = None, None, None, None
-        obj_coeffs, reduced_costs, basis_status = None, None, None
+        obj_coeffs, reduced_costs = None, None
         sa_obj_up, sa_ub_up, sa_lb_up = None, None, None
         sa_obj_down, sa_ub_down, sa_lb_down = None, None, None
 
@@ -335,11 +336,12 @@ class GurobiSolver(InternalSolver):
 
         if self._has_lp_solution:
             reduced_costs = np.array(model.getAttr("rc", self._gp_vars), dtype=float)
-            basis_status = list(
-                map(
-                    _parse_gurobi_vbasis,
-                    model.getAttr("vbasis", self._gp_vars),
-                )
+            basis_status = np.array(
+                [
+                    _parse_gurobi_vbasis(b)
+                    for b in model.getAttr("vbasis", self._gp_vars)
+                ],
+                dtype="S",
             )
 
             if with_sa:
@@ -513,7 +515,7 @@ class GurobiSolver(InternalSolver):
         self._apply_params(streams)
         assert self.model is not None
         for (i, var) in enumerate(self._gp_vars):
-            if self._var_types[i] == "B":
+            if self._var_types[i] == b"B":
                 var.vtype = self.gp.GRB.CONTINUOUS
                 var.lb = 0.0
                 var.ub = 1.0
@@ -521,7 +523,7 @@ class GurobiSolver(InternalSolver):
             self.model.optimize()
             self._dirty = False
         for (i, var) in enumerate(self._gp_vars):
-            if self._var_types[i] == "B":
+            if self._var_types[i] == b"B":
                 var.vtype = self.gp.GRB.BINARY
         log = streams[0].getvalue()
         self._has_lp_solution = self.model.solCount > 0
@@ -590,7 +592,10 @@ class GurobiSolver(InternalSolver):
             self.model.getAttr("varName", gp_vars),
             dtype="S",
         )
-        var_types: List[str] = self.model.getAttr("vtype", gp_vars)
+        var_types: np.ndarray = np.array(
+            self.model.getAttr("vtype", gp_vars),
+            dtype="S",
+        )
         var_ubs: np.ndarray = np.array(
             self.model.getAttr("ub", gp_vars),
             dtype=float,
@@ -611,7 +616,7 @@ class GurobiSolver(InternalSolver):
                 f"Duplicated variable name detected: {var_names[i]}. "
                 f"Unique variable names are currently required."
             )
-            if var_types[i] == "I":
+            if var_types[i] == b"I":
                 assert var_ubs[i] == 1.0, (
                     "Only binary and continuous variables are currently supported. "
                     f"Integer variable {var_names[i]} has upper bound {var_ubs[i]}."
@@ -620,8 +625,8 @@ class GurobiSolver(InternalSolver):
                     "Only binary and continuous variables are currently supported. "
                     f"Integer variable {var_names[i]} has lower bound {var_ubs[i]}."
                 )
-                var_types[i] = "B"
-            assert var_types[i] in ["B", "C"], (
+                var_types[i] = b"B"
+            assert var_types[i] in [b"B", b"C"], (
                 "Only binary and continuous variables are currently supported. "
                 f"Variable {var_names[i]} has type {var_types[i]}."
             )

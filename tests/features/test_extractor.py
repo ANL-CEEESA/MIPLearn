@@ -41,7 +41,10 @@ def test_knapsack() -> None:
     assert_equals(
         sample.get_vector("static_var_obj_coeffs"), [505.0, 352.0, 458.0, 220.0, 0.0]
     )
-    assert_equals(sample.get_vector("static_var_types"), ["B", "B", "B", "B", "C"])
+    assert_equals(
+        sample.get_array("static_var_types"),
+        np.array(["B", "B", "B", "B", "C"], dtype="S"),
+    )
     assert_equals(
         sample.get_vector("static_var_upper_bounds"), [1.0, 1.0, 1.0, 1.0, 67.0]
     )
@@ -76,8 +79,8 @@ def test_knapsack() -> None:
     solver.solve_lp()
     extractor.extract_after_lp_features(solver, sample)
     assert_equals(
-        sample.get_vector("lp_var_basis_status"),
-        ["U", "B", "U", "L", "U"],
+        sample.get_array("lp_var_basis_status"),
+        np.array(["U", "B", "U", "L", "U"], dtype="S"),
     )
     assert_equals(
         sample.get_vector("lp_var_reduced_costs"),
