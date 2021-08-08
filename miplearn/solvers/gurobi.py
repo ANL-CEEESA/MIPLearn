@@ -332,7 +332,7 @@ class GurobiSolver(InternalSolver):
             obj_coeffs = self._var_obj_coeffs
 
         if self._has_lp_solution:
-            reduced_costs = model.getAttr("rc", self._gp_vars)
+            reduced_costs = np.array(model.getAttr("rc", self._gp_vars), dtype=float)
             basis_status = list(
                 map(
                     _parse_gurobi_vbasis,

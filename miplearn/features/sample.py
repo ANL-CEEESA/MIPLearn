@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-
+import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import Dict, Optional, Any, Union, List, Tuple, cast, Set
@@ -39,11 +39,12 @@ class Sample(ABC):
 
     @abstractmethod
     def get_bytes(self, key: str) -> Optional[Bytes]:
-        pass
+        warnings.warn("Deprecated", DeprecationWarning)
+        return None
 
     @abstractmethod
     def put_bytes(self, key: str, value: Bytes) -> None:
-        pass
+        warnings.warn("Deprecated", DeprecationWarning)
 
     @abstractmethod
     def get_scalar(self, key: str) -> Optional[Any]:
@@ -55,18 +56,28 @@ class Sample(ABC):
 
     @abstractmethod
     def get_vector(self, key: str) -> Optional[Any]:
-        pass
+        warnings.warn("Deprecated", DeprecationWarning)
+        return None
 
     @abstractmethod
     def put_vector(self, key: str, value: Vector) -> None:
-        pass
+        warnings.warn("Deprecated", DeprecationWarning)
 
     @abstractmethod
     def get_vector_list(self, key: str) -> Optional[Any]:
-        pass
+        warnings.warn("Deprecated", DeprecationWarning)
+        return None
 
     @abstractmethod
     def put_vector_list(self, key: str, value: VectorList) -> None:
+        warnings.warn("Deprecated", DeprecationWarning)
+
+    @abstractmethod
+    def put_array(self, key: str, value: Optional[np.ndarray]) -> None:
+        pass
+
+    @abstractmethod
+    def get_array(self, key: str) -> Optional[np.ndarray]:
         pass
 
     def get_set(self, key: str) -> Set:
@@ -102,6 +113,10 @@ class Sample(ABC):
             if v is None:
                 continue
             self._assert_is_vector(v)
+
+    def _assert_supported(self, value: np.ndarray) -> None:
+        assert isinstance(value, np.ndarray)
+        assert value.dtype.kind in "biufS", f"Unsupported dtype: {value.dtype}"
 
 
 class MemorySample(Sample):
@@ -170,6 +185,17 @@ class MemorySample(Sample):
 
     def _put(self, key: str, value: Any) -> None:
         self._data[key] = value
+
+    @overrides
+    def put_array(self, key: str, value: Optional[np.ndarray]) -> None:
+        if value is None:
+            return
+        self._assert_supported(value)
+        self._put(key, value)
+
+    @overrides
+    def get_array(self, key: str) -> Optional[np.ndarray]:
+        return cast(Optional[np.ndarray], self._get(key))
 
 
 class Hdf5Sample(Sample):
@@ -309,6 +335,21 @@ class Hdf5Sample(Sample):
         else:
             ds = self.file.create_dataset(key, data=value)
         return ds
+
+    @overrides
+    def put_array(self, key: str, value: Optional[np.ndarray]) -> None:
+        if value is None:
+            return
+        self._assert_supported(value)
+        if key in self.file:
+            del self.file[key]
+        return self.file.create_dataset(key, data=value, compression="gzip")
+
+    @overrides
+    def get_array(self, key: str) -> Optional[np.ndarray]:
+        if key not in self.file:
+            return None
+        return self.file[key][:]
 
 
 def _pad(veclist: VectorList) -> Tuple[VectorList, List[int]]:
