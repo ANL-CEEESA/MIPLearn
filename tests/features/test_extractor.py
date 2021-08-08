@@ -33,7 +33,7 @@ def test_knapsack() -> None:
     extractor.extract_after_load_features(instance, solver, sample)
     assert_equals(
         sample.get_vector("static_var_names"),
-        ["x[0]", "x[1]", "x[2]", "x[3]", "z"],
+        np.array(["x[0]", "x[1]", "x[2]", "x[3]", "z"], dtype="S"),
     )
     assert_equals(
         sample.get_vector("static_var_lower_bounds"), [0.0, 0.0, 0.0, 0.0, 0.0]
@@ -126,16 +126,16 @@ def test_constraint_getindex() -> None:
         senses=["=", "<", ">"],
         lhs=[
             [
-                ("x1", 1.0),
-                ("x2", 1.0),
+                (b"x1", 1.0),
+                (b"x2", 1.0),
             ],
             [
-                ("x2", 2.0),
-                ("x3", 2.0),
+                (b"x2", 2.0),
+                (b"x3", 2.0),
             ],
             [
-                ("x3", 3.0),
-                ("x4", 3.0),
+                (b"x3", 3.0),
+                (b"x4", 3.0),
             ],
         ],
     )
@@ -147,12 +147,12 @@ def test_constraint_getindex() -> None:
             senses=["=", ">"],
             lhs=[
                 [
-                    ("x1", 1.0),
-                    ("x2", 1.0),
+                    (b"x1", 1.0),
+                    (b"x2", 1.0),
                 ],
                 [
-                    ("x3", 3.0),
-                    ("x4", 3.0),
+                    (b"x3", 3.0),
+                    (b"x4", 3.0),
                 ],
             ],
         ),

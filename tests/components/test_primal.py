@@ -22,7 +22,7 @@ from miplearn.solvers.tests import assert_equals
 def sample() -> Sample:
     sample = MemorySample(
         {
-            "static_var_names": ["x[0]", "x[1]", "x[2]", "x[3]"],
+            "static_var_names": np.array(["x[0]", "x[1]", "x[2]", "x[3]"], dtype="S"),
             "static_var_categories": ["default", None, "default", "default"],
             "mip_var_values": np.array([0.0, 1.0, 1.0, 0.0]),
             "static_instance_features": [5.0],
@@ -112,10 +112,10 @@ def test_usage() -> None:
 def test_evaluate(sample: Sample) -> None:
     comp = PrimalSolutionComponent()
     comp.sample_predict = lambda _: {  # type: ignore
-        "x[0]": 1.0,
-        "x[1]": 1.0,
-        "x[2]": 0.0,
-        "x[3]": None,
+        b"x[0]": 1.0,
+        b"x[1]": 1.0,
+        b"x[2]": 0.0,
+        b"x[3]": None,
     }
     ev = comp.sample_evaluate(None, sample)
     assert_equals(
@@ -150,8 +150,8 @@ def test_predict(sample: Sample) -> None:
     assert_array_equal(x["default"], clf.predict_proba.call_args[0][0])
     assert_array_equal(x["default"], thr.predict.call_args[0][0])
     assert pred == {
-        "x[0]": 0.0,
-        "x[1]": None,
-        "x[2]": None,
-        "x[3]": 1.0,
+        b"x[0]": 0.0,
+        b"x[1]": None,
+        b"x[2]": None,
+        b"x[3]": 1.0,
     }

@@ -34,8 +34,6 @@ from miplearn.types import (
     SolverParams,
     UserCutCallback,
     Solution,
-    VariableName,
-    Category,
 )
 
 logger = logging.getLogger(__name__)
@@ -59,7 +57,7 @@ class BasePyomoSolver(InternalSolver):
         self._is_warm_start_available: bool = False
         self._pyomo_solver: SolverFactory = solver_factory
         self._obj_sense: str = "min"
-        self._varname_to_var: Dict[str, pe.Var] = {}
+        self._varname_to_var: Dict[bytes, pe.Var] = {}
         self._cname_to_constr: Dict[str, pe.Constraint] = {}
         self._termination_condition: str = ""
         self._has_lp_solution = False
@@ -166,7 +164,7 @@ class BasePyomoSolver(InternalSolver):
 
         names: List[str] = []
         rhs: List[float] = []
-        lhs: List[List[Tuple[str, float]]] = []
+        lhs: List[List[Tuple[bytes, float]]] = []
         senses: List[str] = []
         dual_values: List[float] = []
         slacks: List[float] = []
@@ -199,18 +197,18 @@ class BasePyomoSolver(InternalSolver):
                             if isinstance(term, MonomialTermExpression):
                                 lhsc.append(
                                     (
-                                        term._args_[1].name,
+                                        term._args_[1].name.encode(),
                                         float(term._args_[0]),
                                     )
                                 )
                             elif isinstance(term, _GeneralVarData):
-                                lhsc.append((term.name, 1.0))
+                                lhsc.append((term.name.encode(), 1.0))
                             else:
                                 raise Exception(
                                     f"Unknown term type: {term.__class__.__name__}"
                                 )
                     elif isinstance(expr, _GeneralVarData):
-                        lhsc.append((expr.name, 1.0))
+                        lhsc.append((expr.name.encode(), 1.0))
                     else:
                         raise Exception(
                             f"Unknown expression type: {expr.__class__.__name__}"
@@ -264,7 +262,7 @@ class BasePyomoSolver(InternalSolver):
             for index in var:
                 if var[index].fixed:
                     continue
-                solution[f"{var}[{index}]"] = var[index].value
+                solution[f"{var}[{index}]".encode()] = var[index].value
         return solution
 
     @overrides
@@ -328,7 +326,7 @@ class BasePyomoSolver(InternalSolver):
                     values.append(v.value)
 
         return Variables(
-            names=_none_if_empty(names),
+            names=_none_if_empty(np.array(names, dtype="S")),
             types=_none_if_empty(types),
             upper_bounds=_none_if_empty(np.array(upper_bounds, dtype=float)),
             lower_bounds=_none_if_empty(np.array(lower_bounds, dtype=float)),
@@ -558,9 +556,9 @@ class BasePyomoSolver(InternalSolver):
         self._varname_to_var = {}
         for var in self.model.component_objects(Var):
             for idx in var:
-                varname = f"{var.name}[{idx}]"
+                varname = f"{var.name}[{idx}]".encode()
                 if idx is None:
-                    varname = var.name
+                    varname = var.name.encode()
                 self._varname_to_var[varname] = var[idx]
                 self._all_vars += [var[idx]]
                 if var[idx].domain == pyomo.core.base.set_types.Binary:

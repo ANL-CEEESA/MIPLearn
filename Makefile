@@ -2,7 +2,7 @@ PYTHON      := python3
 PYTEST      := pytest
 PIP         := $(PYTHON) -m pip
 MYPY        := $(PYTHON) -m mypy
-PYTEST_ARGS := -W ignore::DeprecationWarning -vv -x --log-level=DEBUG
+PYTEST_ARGS := -W ignore::DeprecationWarning -vv --log-level=DEBUG
 VERSION     := 0.2
 
 all: docs test

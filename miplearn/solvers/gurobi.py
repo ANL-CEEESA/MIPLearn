@@ -73,11 +73,11 @@ class GurobiSolver(InternalSolver):
         self._has_lp_solution = False
         self._has_mip_solution = False
 
-        self._varname_to_var: Dict[str, "gurobipy.Var"] = {}
+        self._varname_to_var: Dict[bytes, "gurobipy.Var"] = {}
         self._cname_to_constr: Dict[str, "gurobipy.Constr"] = {}
         self._gp_vars: List["gurobipy.Var"] = []
         self._gp_constrs: List["gurobipy.Constr"] = []
-        self._var_names: List[str] = []
+        self._var_names: np.ndarray = np.empty(0)
         self._constr_names: List[str] = []
         self._var_types: List[str] = []
         self._var_lbs: np.ndarray = np.empty(0)
@@ -263,11 +263,13 @@ class GurobiSolver(InternalSolver):
         if self.cb_where is not None:
             if self.cb_where == self.gp.GRB.Callback.MIPNODE:
                 return {
-                    v.varName: self.model.cbGetNodeRel(v) for v in self.model.getVars()
+                    v.varName.encode(): self.model.cbGetNodeRel(v)
+                    for v in self.model.getVars()
                 }
             elif self.cb_where == self.gp.GRB.Callback.MIPSOL:
                 return {
-                    v.varName: self.model.cbGetSolution(v) for v in self.model.getVars()
+                    v.varName.encode(): self.model.cbGetSolution(v)
+                    for v in self.model.getVars()
                 }
             else:
                 raise Exception(
@@ -276,7 +278,7 @@ class GurobiSolver(InternalSolver):
                 )
         if self.model.solCount == 0:
             return None
-        return {v.varName: v.x for v in self.model.getVars()}
+        return {v.varName.encode(): v.x for v in self.model.getVars()}
 
     @overrides
     def get_variable_attrs(self) -> List[str]:
@@ -584,7 +586,10 @@ class GurobiSolver(InternalSolver):
         assert self.model is not None
         gp_vars: List["gurobipy.Var"] = self.model.getVars()
         gp_constrs: List["gurobipy.Constr"] = self.model.getConstrs()
-        var_names: List[str] = self.model.getAttr("varName", gp_vars)
+        var_names: np.ndarray = np.array(
+            self.model.getAttr("varName", gp_vars),
+            dtype="S",
+        )
         var_types: List[str] = self.model.getAttr("vtype", gp_vars)
         var_ubs: np.ndarray = np.array(
             self.model.getAttr("ub", gp_vars),
@@ -599,7 +604,7 @@ class GurobiSolver(InternalSolver):
             dtype=float,
         )
         constr_names: List[str] = self.model.getAttr("constrName", gp_constrs)
-        varname_to_var: Dict = {}
+        varname_to_var: Dict[bytes, "gurobipy.Var"] = {}
         cname_to_constr: Dict = {}
         for (i, gp_var) in enumerate(gp_vars):
             assert var_names[i] not in varname_to_var, (

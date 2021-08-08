@@ -95,7 +95,7 @@ class PrimalSolutionComponent(Component):
         )
 
     def sample_predict(self, sample: Sample) -> Solution:
-        var_names = sample.get_vector("static_var_names")
+        var_names = sample.get_array("static_var_names")
         var_categories = sample.get_vector("static_var_categories")
         assert var_names is not None
         assert var_categories is not None
@@ -145,7 +145,7 @@ class PrimalSolutionComponent(Component):
         instance_features = sample.get_vector("static_instance_features")
         mip_var_values = sample.get_vector("mip_var_values")
         var_features = sample.get_vector_list("lp_var_features")
-        var_names = sample.get_vector("static_var_names")
+        var_names = sample.get_array("static_var_names")
         var_categories = sample.get_vector("static_var_categories")
         if var_features is None:
             var_features = sample.get_vector_list("static_var_features")
@@ -187,8 +187,8 @@ class PrimalSolutionComponent(Component):
         _: Optional[Instance],
         sample: Sample,
     ) -> Dict[str, Dict[str, float]]:
-        mip_var_values = sample.get_vector("mip_var_values")
-        var_names = sample.get_vector("static_var_names")
+        mip_var_values = sample.get_array("mip_var_values")
+        var_names = sample.get_array("static_var_names")
         assert mip_var_values is not None
         assert var_names is not None
 

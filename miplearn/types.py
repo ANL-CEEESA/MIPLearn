@@ -15,8 +15,7 @@ IterationCallback = Callable[[], bool]
 LazyCallback = Callable[[Any, Any], None]
 SolverParams = Dict[str, Any]
 UserCutCallback = Callable[["InternalSolver", Any], None]
-VariableName = str
-Solution = Dict[VariableName, Optional[float]]
+Solution = Dict[bytes, Optional[float]]
 
 LearningSolveStats = TypedDict(
     "LearningSolveStats",

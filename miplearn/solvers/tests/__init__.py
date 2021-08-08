@@ -10,6 +10,7 @@ from miplearn.solvers.internal import InternalSolver, Variables, Constraints
 
 inf = float("inf")
 
+
 # NOTE:
 # This file is in the main source folder, so that it can be called from Julia.
 
@@ -40,7 +41,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     assert_equals(
         solver.get_variables(),
         Variables(
-            names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
+            names=np.array(["x[0]", "x[1]", "x[2]", "x[3]", "z"], dtype="S"),
             lower_bounds=np.array([0.0, 0.0, 0.0, 0.0, 0.0]),
             upper_bounds=np.array([1.0, 1.0, 1.0, 1.0, 67.0]),
             types=["B", "B", "B", "B", "C"],
@@ -56,11 +57,11 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
             rhs=np.array([0.0]),
             lhs=[
                 [
-                    ("x[0]", 23.0),
-                    ("x[1]", 26.0),
-                    ("x[2]", 20.0),
-                    ("x[3]", 18.0),
-                    ("z", -1.0),
+                    (b"x[0]", 23.0),
+                    (b"x[1]", 26.0),
+                    (b"x[2]", 20.0),
+                    (b"x[3]", 18.0),
+                    (b"z", -1.0),
                 ],
             ],
             senses=["="],
@@ -83,7 +84,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         _filter_attrs(
             solver.get_variable_attrs(),
             Variables(
-                names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
+                names=np.array(["x[0]", "x[1]", "x[2]", "x[3]", "z"], dtype="S"),
                 basis_status=["U", "B", "U", "L", "U"],
                 reduced_costs=np.array(
                     [193.615385, 0.0, 187.230769, -23.692308, 13.538462]
@@ -140,7 +141,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         _filter_attrs(
             solver.get_variable_attrs(),
             Variables(
-                names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
+                names=np.array(["x[0]", "x[1]", "x[2]", "x[3]", "z"], dtype="S"),
                 values=np.array([1.0, 0.0, 1.0, 1.0, 61.0]),
             ),
         ),
@@ -161,7 +162,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # Build new constraint and verify that it is violated
     cf = Constraints(
         names=["cut"],
-        lhs=[[("x[0]", 1.0)]],
+        lhs=[[(b"x[0]", 1.0)]],
         rhs=np.array([0.0]),
         senses=["<"],
     )
@@ -178,14 +179,14 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
                 rhs=np.array([0.0, 0.0]),
                 lhs=[
                     [
-                        ("x[0]", 23.0),
-                        ("x[1]", 26.0),
-                        ("x[2]", 20.0),
-                        ("x[3]", 18.0),
-                        ("z", -1.0),
+                        (b"x[0]", 23.0),
+                        (b"x[1]", 26.0),
+                        (b"x[2]", 20.0),
+                        (b"x[3]", 18.0),
+                        (b"z", -1.0),
                     ],
                     [
-                        ("x[0]", 1.0),
+                        (b"x[0]", 1.0),
                     ],
                 ],
                 senses=["=", "<"],
@@ -208,16 +209,16 @@ def run_warm_start_tests(solver: InternalSolver) -> None:
     instance = solver.build_test_instance_knapsack()
     model = instance.to_model()
     solver.set_instance(instance, model)
-    solver.set_warm_start({"x[0]": 1.0, "x[1]": 0.0, "x[2]": 0.0, "x[3]": 1.0})
+    solver.set_warm_start({b"x[0]": 1.0, b"x[1]": 0.0, b"x[2]": 0.0, b"x[3]": 1.0})
     stats = solver.solve(tee=True)
     if stats.mip_warm_start_value is not None:
         assert_equals(stats.mip_warm_start_value, 725.0)
 
-    solver.set_warm_start({"x[0]": 1.0, "x[1]": 1.0, "x[2]": 1.0, "x[3]": 1.0})
+    solver.set_warm_start({b"x[0]": 1.0, b"x[1]": 1.0, b"x[2]": 1.0, b"x[3]": 1.0})
     stats = solver.solve(tee=True)
     assert stats.mip_warm_start_value is None
 
-    solver.fix({"x[0]": 1.0, "x[1]": 0.0, "x[2]": 0.0, "x[3]": 1.0})
+    solver.fix({b"x[0]": 1.0, b"x[1]": 0.0, b"x[2]": 0.0, b"x[3]": 1.0})
     stats = solver.solve(tee=True)
     assert_equals(stats.mip_lower_bound, 725.0)
     assert_equals(stats.mip_upper_bound, 725.0)
@@ -257,15 +258,15 @@ def run_lazy_cb_tests(solver: InternalSolver) -> None:
     def lazy_cb(cb_solver: InternalSolver, cb_model: Any) -> None:
         relsol = cb_solver.get_solution()
         assert relsol is not None
-        assert relsol["x[0]"] is not None
-        if relsol["x[0]"] > 0:
+        assert relsol[b"x[0]"] is not None
+        if relsol[b"x[0]"] > 0:
             instance.enforce_lazy_constraint(cb_solver, cb_model, "cut")
 
     solver.set_instance(instance, model)
     solver.solve(lazy_cb=lazy_cb)
     solution = solver.get_solution()
     assert solution is not None
-    assert_equals(solution["x[0]"], 0.0)
+    assert_equals(solution[b"x[0]"], 0.0)
 
 
 def _equals_preprocess(obj: Any) -> Any:
@@ -274,7 +275,7 @@ def _equals_preprocess(obj: Any) -> Any:
             return np.round(obj, decimals=6).tolist()
         else:
             return obj.tolist()
-    elif isinstance(obj, (int, str, bool, np.bool_)):
+    elif isinstance(obj, (int, str, bool, np.bool_, np.bytes_, bytes)):
         return obj
     elif isinstance(obj, float):
         return round(obj, 6)

@@ -50,7 +50,7 @@ class MIPSolveStats:
 
 @dataclass
 class Variables:
-    names: Optional[List[str]] = None
+    names: Optional[np.ndarray] = None
     basis_status: Optional[List[str]] = None
     lower_bounds: Optional[np.ndarray] = None
     obj_coeffs: Optional[np.ndarray] = None
@@ -71,7 +71,7 @@ class Constraints:
     basis_status: Optional[List[str]] = None
     dual_values: Optional[np.ndarray] = None
     lazy: Optional[List[bool]] = None
-    lhs: Optional[List[List[Tuple[str, float]]]] = None
+    lhs: Optional[List[List[Tuple[bytes, float]]]] = None
     names: Optional[List[str]] = None
     rhs: Optional[np.ndarray] = None
     sa_rhs_down: Optional[np.ndarray] = None
