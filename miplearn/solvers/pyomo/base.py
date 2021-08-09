@@ -96,7 +96,7 @@ class BasePyomoSolver(InternalSolver):
             else:
                 expr = lhs >= cf.rhs[i]
             cl = pe.Constraint(expr=expr, name=name)
-            self.model.add_component(name, cl)
+            self.model.add_component(name.decode(), cl)
             self._pyomo_solver.add_constraint(cl)
             self._cname_to_constr[name] = cl
         self._termination_condition = ""
@@ -233,7 +233,7 @@ class BasePyomoSolver(InternalSolver):
                 _parse_constraint(constr)
 
         return Constraints(
-            names=_none_if_empty(names),
+            names=_none_if_empty(np.array(names, dtype="S")),
             rhs=_none_if_empty(np.array(rhs, dtype=float)),
             senses=_none_if_empty(senses),
             lhs=_none_if_empty(lhs),

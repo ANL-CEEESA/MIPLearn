@@ -53,7 +53,10 @@ def test_knapsack() -> None:
         ["default", "default", "default", "default", None],
     )
     assert sample.get_vector_list("static_var_features") is not None
-    assert_equals(sample.get_vector("static_constr_names"), ["eq_capacity"])
+    assert_equals(
+        sample.get_vector("static_constr_names"),
+        np.array(["eq_capacity"], dtype="S"),
+    )
     # assert_equals(
     #     sample.get_vector("static_constr_lhs"),
     #     [
@@ -69,7 +72,10 @@ def test_knapsack() -> None:
     assert_equals(sample.get_vector("static_constr_rhs"), [0.0])
     assert_equals(sample.get_vector("static_constr_senses"), ["="])
     assert_equals(sample.get_vector("static_constr_features"), [None])
-    assert_equals(sample.get_vector("static_constr_categories"), ["eq_capacity"])
+    assert_equals(
+        sample.get_vector("static_constr_categories"),
+        np.array(["eq_capacity"], dtype="S"),
+    )
     assert_equals(sample.get_vector("static_constr_lazy"), [False])
     assert_equals(sample.get_vector("static_instance_features"), [67.0, 21.75])
     assert_equals(sample.get_scalar("static_constr_lazy_count"), 0)
@@ -124,7 +130,7 @@ def test_knapsack() -> None:
 
 def test_constraint_getindex() -> None:
     cf = Constraints(
-        names=["c1", "c2", "c3"],
+        names=np.array(["c1", "c2", "c3"], dtype="S"),
         rhs=np.array([1.0, 2.0, 3.0]),
         senses=["=", "<", ">"],
         lhs=[
@@ -145,7 +151,7 @@ def test_constraint_getindex() -> None:
     assert_equals(
         cf[[True, False, True]],
         Constraints(
-            names=["c1", "c3"],
+            names=np.array(["c1", "c3"], dtype="S"),
             rhs=np.array([1.0, 3.0]),
             senses=["=", ">"],
             lhs=[

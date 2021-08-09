@@ -211,7 +211,7 @@ class GurobiSolver(InternalSolver):
             raise Exception(f"unknown cbasis: {v}")
 
         gp_constrs = model.getConstrs()
-        constr_names = model.getAttr("constrName", gp_constrs)
+        constr_names = np.array(model.getAttr("constrName", gp_constrs), dtype="S")
         lhs: Optional[List] = None
         rhs, senses, slacks, basis_status = None, None, None, None
         dual_value, basis_status, sa_rhs_up, sa_rhs_down = None, None, None, None

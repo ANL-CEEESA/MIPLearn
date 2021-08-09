@@ -72,7 +72,7 @@ class Constraints:
     dual_values: Optional[np.ndarray] = None
     lazy: Optional[List[bool]] = None
     lhs: Optional[List[List[Tuple[bytes, float]]]] = None
-    names: Optional[List[str]] = None
+    names: Optional[np.ndarray] = None
     rhs: Optional[np.ndarray] = None
     sa_rhs_down: Optional[np.ndarray] = None
     sa_rhs_up: Optional[np.ndarray] = None
@@ -86,7 +86,7 @@ class Constraints:
             dual_values=sample.get_vector("lp_constr_dual_values"),
             lazy=sample.get_vector("static_constr_lazy"),
             # lhs=sample.get_vector("static_constr_lhs"),
-            names=sample.get_vector("static_constr_names"),
+            names=sample.get_array("static_constr_names"),
             rhs=sample.get_vector("static_constr_rhs"),
             sa_rhs_down=sample.get_vector("lp_constr_sa_rhs_down"),
             sa_rhs_up=sample.get_vector("lp_constr_sa_rhs_up"),
@@ -100,7 +100,7 @@ class Constraints:
             dual_values=(
                 None if self.dual_values is None else self.dual_values[selected]
             ),
-            names=self._filter(self.names, selected),
+            names=(None if self.names is None else self.names[selected]),
             lazy=self._filter(self.lazy, selected),
             lhs=self._filter(self.lhs, selected),
             rhs=(None if self.rhs is None else self.rhs[selected]),
@@ -254,7 +254,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def remove_constraints(self, names: List[str]) -> None:
+    def remove_constraints(self, names: np.ndarray) -> None:
         """
         Removes the given constraints from the model.
         """

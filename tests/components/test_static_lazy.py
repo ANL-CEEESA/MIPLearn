@@ -32,9 +32,9 @@ def sample() -> Sample:
                 "type-b",
             ],
             "static_constr_lazy": [True, True, True, True, False],
-            "static_constr_names": ["c1", "c2", "c3", "c4", "c5"],
+            "static_constr_names": np.array(["c1", "c2", "c3", "c4", "c5"], dtype="S"),
             "static_instance_features": [5.0],
-            "mip_constr_lazy_enforced": {"c1", "c2", "c4"},
+            "mip_constr_lazy_enforced": {b"c1", b"c2", b"c4"},
             "lp_constr_features": [
                 [1.0, 1.0],
                 [1.0, 2.0],
@@ -110,7 +110,7 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     # Should ask internal solver to remove some constraints
     assert internal.remove_constraints.call_count == 1
-    internal.remove_constraints.assert_has_calls([call(["c3"])])
+    internal.remove_constraints.assert_has_calls([call([b"c3"])])
 
     # LearningSolver calls after_iteration (first time)
     should_repeat = component.iteration_cb(solver, instance, None)
@@ -142,7 +142,7 @@ def test_usage_with_solver(instance: Instance) -> None:
     )
 
     # Should update training sample
-    assert sample.get_set("mip_constr_lazy_enforced") == {"c1", "c2", "c3", "c4"}
+    assert sample.get_set("mip_constr_lazy_enforced") == {b"c1", b"c2", b"c3", b"c4"}
     #
     # Should update stats
     assert stats["LazyStatic: Removed"] == 1
@@ -170,7 +170,7 @@ def test_sample_predict(sample: Sample) -> None:
         ]
     )
     pred = comp.sample_predict(sample)
-    assert pred == ["c1", "c2", "c4"]
+    assert pred == [b"c1", b"c2", b"c4"]
 
 
 def test_fit_xy() -> None:
