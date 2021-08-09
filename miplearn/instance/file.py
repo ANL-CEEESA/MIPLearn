@@ -6,6 +6,7 @@ import os
 from typing import Any, Optional, List, Dict, TYPE_CHECKING
 import pickle
 
+import numpy as np
 from overrides import overrides
 
 from miplearn.features.sample import Hdf5Sample, Sample
@@ -30,7 +31,7 @@ class FileInstance(Instance):
         return self.instance.to_model()
 
     @overrides
-    def get_instance_features(self) -> List[float]:
+    def get_instance_features(self) -> np.ndarray:
         assert self.instance is not None
         return self.instance.get_instance_features()
 

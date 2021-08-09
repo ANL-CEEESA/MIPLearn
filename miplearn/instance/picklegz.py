@@ -8,6 +8,7 @@ import os
 import pickle
 from typing import Optional, Any, List, cast, IO, TYPE_CHECKING, Dict
 
+import numpy as np
 from overrides import overrides
 
 from miplearn.features.sample import Sample
@@ -42,7 +43,7 @@ class PickleGzInstance(Instance):
         return self.instance.to_model()
 
     @overrides
-    def get_instance_features(self) -> List[float]:
+    def get_instance_features(self) -> np.ndarray:
         assert self.instance is not None
         return self.instance.get_instance_features()
 

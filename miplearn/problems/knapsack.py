@@ -94,8 +94,8 @@ class MultiKnapsackInstance(Instance):
         return model
 
     @overrides
-    def get_instance_features(self) -> List[float]:
-        return [float(np.mean(self.prices))] + list(self.capacities)
+    def get_instance_features(self) -> np.ndarray:
+        return np.array([float(np.mean(self.prices))] + list(self.capacities))
 
     @overrides
     def get_variable_features(self) -> Dict[str, List[float]]:

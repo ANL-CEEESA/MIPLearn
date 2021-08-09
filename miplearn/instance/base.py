@@ -6,6 +6,8 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, List, TYPE_CHECKING, Dict
 
+import numpy as np
+
 from miplearn.features.sample import Sample, MemorySample
 
 logger = logging.getLogger(__name__)
@@ -37,7 +39,7 @@ class Instance(ABC):
         """
         pass
 
-    def get_instance_features(self) -> List[float]:
+    def get_instance_features(self) -> np.ndarray:
         """
         Returns a 1-dimensional array of (numerical) features describing the
         entire instance.
@@ -59,7 +61,7 @@ class Instance(ABC):
 
         By default, returns [0.0].
         """
-        return [0.0]
+        return np.zeros(1)
 
     def get_variable_features(self) -> Dict[str, List[float]]:
         """

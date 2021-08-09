@@ -622,11 +622,13 @@ class PyomoTestInstanceKnapsack(Instance):
         return model
 
     @overrides
-    def get_instance_features(self) -> List[float]:
-        return [
-            self.capacity,
-            np.average(self.weights),
-        ]
+    def get_instance_features(self) -> np.ndarray:
+        return np.array(
+            [
+                self.capacity,
+                np.average(self.weights),
+            ]
+        )
 
     @overrides
     def get_variable_features(self) -> Dict[str, List[float]]:
