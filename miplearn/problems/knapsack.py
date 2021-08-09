@@ -98,11 +98,13 @@ class MultiKnapsackInstance(Instance):
         return np.array([float(np.mean(self.prices))] + list(self.capacities))
 
     @overrides
-    def get_variable_features(self) -> Dict[str, List[float]]:
-        return {
-            f"x[{i}]": [self.prices[i] + list(self.weights[:, i])]
-            for i in range(self.n)
-        }
+    def get_variable_features(self, names: np.ndarray) -> np.ndarray:
+        features = []
+        for i in range(len(self.weights)):
+            f = [self.prices[i]]
+            f.extend(self.weights[:, i])
+            features.append(f)
+        return np.array(features)
 
 
 # noinspection PyPep8Naming

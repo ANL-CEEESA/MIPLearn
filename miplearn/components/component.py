@@ -9,7 +9,7 @@ from p_tqdm import p_umap
 
 from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
-from miplearn.types import LearningSolveStats
+from miplearn.types import LearningSolveStats, Category
 
 if TYPE_CHECKING:
     from miplearn.solvers.learning import LearningSolver
@@ -101,8 +101,8 @@ class Component:
 
     def fit_xy(
         self,
-        x: Dict[str, np.ndarray],
-        y: Dict[str, np.ndarray],
+        x: Dict[Category, np.ndarray],
+        y: Dict[Category, np.ndarray],
     ) -> None:
         """
         Given two dictionaries x and y, mapping the name of the category to matrices

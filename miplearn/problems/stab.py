@@ -66,9 +66,11 @@ class MaxWeightStableSetInstance(Instance):
         return model
 
     @overrides
-    def get_variable_features(self) -> Dict[str, List[float]]:
-        features = {}
-        for v1 in self.nodes:
+    def get_variable_features(self, names: np.ndarray) -> np.ndarray:
+        features = []
+        assert len(names) == len(self.nodes)
+        for i, v1 in enumerate(self.nodes):
+            assert names[i] == f"x[{v1}]".encode()
             neighbor_weights = [0.0] * 15
             neighbor_degrees = [100.0] * 15
             for v2 in self.graph.neighbors(v1):
@@ -80,12 +82,12 @@ class MaxWeightStableSetInstance(Instance):
             f += neighbor_weights[:5]
             f += neighbor_degrees[:5]
             f += [self.graph.degree(v1)]
-            features[f"x[{v1}]"] = f
-        return features
+            features.append(f)
+        return np.array(features)
 
     @overrides
-    def get_variable_categories(self) -> Dict[str, str]:
-        return {f"x[{v}]": "default" for v in self.nodes}
+    def get_variable_categories(self, names: np.ndarray) -> np.ndarray:
+        return np.array(["default" for _ in names], dtype="S")
 
 
 class MaxWeightStableSetGenerator:

@@ -23,21 +23,28 @@ def sample() -> Sample:
     sample = MemorySample(
         {
             "static_var_names": np.array(["x[0]", "x[1]", "x[2]", "x[3]"], dtype="S"),
-            "static_var_categories": ["default", None, "default", "default"],
+            "static_var_categories": np.array(
+                ["default", "", "default", "default"],
+                dtype="S",
+            ),
             "mip_var_values": np.array([0.0, 1.0, 1.0, 0.0]),
-            "static_instance_features": [5.0],
-            "static_var_features": [
-                [0.0, 0.0],
-                None,
-                [1.0, 0.0],
-                [1.0, 1.0],
-            ],
-            "lp_var_features": [
-                [0.0, 0.0, 2.0, 2.0],
-                None,
-                [1.0, 0.0, 3.0, 2.0],
-                [1.0, 1.0, 3.0, 3.0],
-            ],
+            "static_instance_features": np.array([5.0]),
+            "static_var_features": np.array(
+                [
+                    [0.0, 0.0],
+                    [0.0, 0.0],
+                    [1.0, 0.0],
+                    [1.0, 1.0],
+                ]
+            ),
+            "lp_var_features": np.array(
+                [
+                    [0.0, 0.0, 2.0, 2.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [1.0, 0.0, 3.0, 2.0],
+                    [1.0, 1.0, 3.0, 3.0],
+                ]
+            ),
         },
     )
     return sample
@@ -45,14 +52,14 @@ def sample() -> Sample:
 
 def test_xy(sample: Sample) -> None:
     x_expected = {
-        "default": [
+        b"default": [
             [5.0, 0.0, 0.0, 2.0, 2.0],
             [5.0, 1.0, 0.0, 3.0, 2.0],
             [5.0, 1.0, 1.0, 3.0, 3.0],
         ]
     }
     y_expected = {
-        "default": [
+        b"default": [
             [True, False],
             [False, True],
             [True, False],
@@ -72,15 +79,15 @@ def test_fit_xy() -> None:
     thr.clone = lambda: Mock(spec=Threshold)
     comp = PrimalSolutionComponent(classifier=clf, threshold=thr)
     x = {
-        "type-a": np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]),
-        "type-b": np.array([[7.0, 8.0, 9.0]]),
+        b"type-a": np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        b"type-b": np.array([[7.0, 8.0, 9.0]]),
     }
     y = {
-        "type-a": np.array([[True, False], [False, True]]),
-        "type-b": np.array([[True, False]]),
+        b"type-a": np.array([[True, False], [False, True]]),
+        b"type-b": np.array([[True, False]]),
     }
     comp.fit_xy(x, y)
-    for category in ["type-a", "type-b"]:
+    for category in [b"type-a", b"type-b"]:
         assert category in comp.classifiers
         assert category in comp.thresholds
         clf = comp.classifiers[category]  # type: ignore
@@ -142,13 +149,13 @@ def test_predict(sample: Sample) -> None:
     thr.predict = Mock(return_value=[0.75, 0.75])
     comp = PrimalSolutionComponent()
     x, _ = comp.sample_xy(None, sample)
-    comp.classifiers = {"default": clf}
-    comp.thresholds = {"default": thr}
+    comp.classifiers = {b"default": clf}
+    comp.thresholds = {b"default": thr}
     pred = comp.sample_predict(sample)
     clf.predict_proba.assert_called_once()
     thr.predict.assert_called_once()
-    assert_array_equal(x["default"], clf.predict_proba.call_args[0][0])
-    assert_array_equal(x["default"], thr.predict.call_args[0][0])
+    assert_array_equal(x[b"default"], clf.predict_proba.call_args[0][0])
+    assert_array_equal(x[b"default"], thr.predict.call_args[0][0])
     assert pred == {
         b"x[0]": 0.0,
         b"x[1]": None,

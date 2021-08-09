@@ -46,20 +46,25 @@ class FeaturesExtractor:
         vars_features_user, var_categories = self._extract_user_features_vars(
             instance, sample
         )
-        sample.put_vector("static_var_categories", var_categories)
+        sample.put_array("static_var_categories", var_categories)
         self._extract_user_features_constrs(instance, sample)
         self._extract_user_features_instance(instance, sample)
         alw17 = self._extract_var_features_AlvLouWeh2017(sample)
-        sample.put_vector_list(
+
+        # Build static_var_features
+        assert variables.lower_bounds is not None
+        assert variables.obj_coeffs is not None
+        assert variables.upper_bounds is not None
+        sample.put_array(
             "static_var_features",
-            self._combine(
+            np.hstack(
                 [
-                    alw17,
                     vars_features_user,
-                    sample.get_array("static_var_lower_bounds"),
-                    sample.get_array("static_var_obj_coeffs"),
-                    sample.get_array("static_var_upper_bounds"),
-                ],
+                    alw17,
+                    variables.lower_bounds.reshape(-1, 1),
+                    variables.obj_coeffs.reshape(-1, 1),
+                    variables.upper_bounds.reshape(-1, 1),
+                ]
             ),
         )
 
@@ -88,23 +93,29 @@ class FeaturesExtractor:
         sample.put_array("lp_constr_sa_rhs_up", constraints.sa_rhs_up)
         sample.put_array("lp_constr_slacks", constraints.slacks)
         alw17 = self._extract_var_features_AlvLouWeh2017(sample)
-        sample.put_vector_list(
-            "lp_var_features",
-            self._combine(
-                [
-                    alw17,
-                    sample.get_array("lp_var_reduced_costs"),
-                    sample.get_array("lp_var_sa_lb_down"),
-                    sample.get_array("lp_var_sa_lb_up"),
-                    sample.get_array("lp_var_sa_obj_down"),
-                    sample.get_array("lp_var_sa_obj_up"),
-                    sample.get_array("lp_var_sa_ub_down"),
-                    sample.get_array("lp_var_sa_ub_up"),
-                    sample.get_array("lp_var_values"),
-                    sample.get_vector_list("static_var_features"),
-                ],
-            ),
-        )
+
+        # Build lp_var_features
+        lp_var_features_list = []
+        for f in [
+            sample.get_array("static_var_features"),
+            alw17,
+        ]:
+            if f is not None:
+                lp_var_features_list.append(f)
+        for f in [
+            variables.reduced_costs,
+            variables.sa_lb_down,
+            variables.sa_lb_up,
+            variables.sa_obj_down,
+            variables.sa_obj_up,
+            variables.sa_ub_down,
+            variables.sa_ub_up,
+            variables.values,
+        ]:
+            if f is not None:
+                lp_var_features_list.append(f.reshape(-1, 1))
+        sample.put_array("lp_var_features", np.hstack(lp_var_features_list))
+
         sample.put_vector_list(
             "lp_constr_features",
             self._combine(
@@ -148,60 +159,49 @@ class FeaturesExtractor:
         self,
         instance: "Instance",
         sample: Sample,
-    ) -> Tuple[List, List]:
+    ) -> Tuple[np.ndarray, np.ndarray]:
         # Query variable names
         var_names = sample.get_array("static_var_names")
         assert var_names is not None
 
-        # Query variable features and categories
-        var_features_dict = {
-            v.encode(): f for (v, f) in instance.get_variable_features().items()
-        }
-        var_categories_dict = {
-            v.encode(): f for (v, f) in instance.get_variable_categories().items()
-        }
+        # Query variable features
+        var_features = instance.get_variable_features(var_names)
+        assert isinstance(var_features, np.ndarray), (
+            f"Variable features must be a numpy array. "
+            f"Found {var_features.__class__} instead."
+        )
+        assert len(var_features.shape) == 2, (
+            f"Variable features must be 2-dimensional array. "
+            f"Found array with shape {var_features.shape} instead."
+        )
+        assert var_features.shape[0] == len(var_names), (
+            f"Variable features must have exactly {len(var_names)} rows. "
+            f"Found {var_features.shape[0]} rows instead."
+        )
+        assert var_features.dtype.kind in ["f"], (
+            f"Variable features must be floating point numbers. "
+            f"Found dtype: {var_features.dtype} instead."
+        )
 
-        # Assert that variables in user-provided dicts actually exist
-        var_names_set = set(var_names)
-        for keys in [var_features_dict.keys(), var_categories_dict.keys()]:
-            for vn in cast(KeysView, keys):
-                assert (
-                    vn in var_names_set
-                ), f"Variable {vn!r} not found in the problem; {var_names_set}"
-
-        # Assemble into compact lists
-        user_features: List[Optional[List[float]]] = []
-        categories: List[Optional[str]] = []
-        for (i, var_name) in enumerate(var_names):
-            if var_name not in var_categories_dict:
-                user_features.append(None)
-                categories.append(None)
-                continue
-            category: str = var_categories_dict[var_name]
-            assert isinstance(category, str), (
-                f"Variable category must be a string. "
-                f"Found {type(category).__name__} instead for var={var_name}."
-            )
-            categories.append(category)
-            user_features_i: Optional[List[float]] = None
-            if var_name in var_features_dict:
-                user_features_i = var_features_dict[var_name]
-                if isinstance(user_features_i, np.ndarray):
-                    user_features_i = user_features_i.tolist()
-                assert isinstance(user_features_i, list), (
-                    f"Variable features must be a list. "
-                    f"Found {type(user_features_i).__name__} instead for "
-                    f"var={var_name}."
-                )
-                for v in user_features_i:
-                    assert isinstance(v, numbers.Real), (
-                        f"Variable features must be a list of numbers. "
-                        f"Found {type(v).__name__} instead "
-                        f"for var={var_name}."
-                    )
-                user_features_i = list(user_features_i)
-            user_features.append(user_features_i)
-        return user_features, categories
+        # Query variable categories
+        var_categories = instance.get_variable_categories(var_names)
+        assert isinstance(var_categories, np.ndarray), (
+            f"Variable categories must be a numpy array. "
+            f"Found {var_categories.__class__} instead."
+        )
+        assert len(var_categories.shape) == 1, (
+            f"Variable categories must be a vector. "
+            f"Found array with shape {var_categories.shape} instead."
+        )
+        assert len(var_categories) == len(var_names), (
+            f"Variable categories must have exactly {len(var_names)} elements. "
+            f"Found {var_features.shape[0]} elements instead."
+        )
+        assert var_categories.dtype.kind == "S", (
+            f"Variable categories must be a numpy array with dtype='S'. "
+            f"Found {var_categories.dtype} instead."
+        )
+        return var_features, var_categories
 
     def _extract_user_features_constrs(
         self,
@@ -277,7 +277,7 @@ class FeaturesExtractor:
 
     # Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
     # approximation of strong branching. INFORMS Journal on Computing, 29(1), 185-195.
-    def _extract_var_features_AlvLouWeh2017(self, sample: Sample) -> List:
+    def _extract_var_features_AlvLouWeh2017(self, sample: Sample) -> np.ndarray:
         obj_coeffs = sample.get_array("static_var_obj_coeffs")
         obj_sa_down = sample.get_array("lp_var_sa_obj_down")
         obj_sa_up = sample.get_array("lp_var_sa_obj_up")
@@ -351,7 +351,7 @@ class FeaturesExtractor:
                     f[i] = 0.0
 
             features.append(f)
-        return features
+        return np.array(features, dtype=float)
 
     def _combine(
         self,

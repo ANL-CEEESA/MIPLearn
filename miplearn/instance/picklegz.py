@@ -48,14 +48,14 @@ class PickleGzInstance(Instance):
         return self.instance.get_instance_features()
 
     @overrides
-    def get_variable_features(self) -> Dict[str, List[float]]:
+    def get_variable_features(self, names: np.ndarray) -> np.ndarray:
         assert self.instance is not None
-        return self.instance.get_variable_features()
+        return self.instance.get_variable_features(names)
 
     @overrides
-    def get_variable_categories(self) -> Dict[str, str]:
+    def get_variable_categories(self, names: np.ndarray) -> np.ndarray:
         assert self.instance is not None
-        return self.instance.get_variable_categories()
+        return self.instance.get_variable_categories(names)
 
     @overrides
     def get_constraint_features(self) -> Dict[str, List[float]]:

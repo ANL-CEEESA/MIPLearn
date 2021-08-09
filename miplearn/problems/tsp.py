@@ -81,10 +81,6 @@ class TravelingSalesmanInstance(Instance):
         return model
 
     @overrides
-    def get_variable_categories(self) -> Dict[str, str]:
-        return {f"x[{e}]": f"x[{e}]" for e in self.edges}
-
-    @overrides
     def find_violated_lazy_constraints(
         self,
         solver: InternalSolver,

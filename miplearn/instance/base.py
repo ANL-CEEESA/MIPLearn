@@ -63,7 +63,7 @@ class Instance(ABC):
         """
         return np.zeros(1)
 
-    def get_variable_features(self) -> Dict[str, List[float]]:
+    def get_variable_features(self, names: np.ndarray) -> np.ndarray:
         """
         Returns dictionary mapping the name of each variable to a (1-dimensional) list
         of numerical features describing a particular decision variable.
@@ -81,11 +81,11 @@ class Instance(ABC):
         If features are not provided for a given variable, MIPLearn will use a
         default set of features.
 
-        By default, returns {}.
+        By default, returns [[0.0], ..., [0.0]].
         """
-        return {}
+        return np.zeros((len(names), 1))
 
-    def get_variable_categories(self) -> Dict[str, str]:
+    def get_variable_categories(self, names: np.ndarray) -> np.ndarray:
         """
         Returns a dictionary mapping the name of each variable to its category.
 
@@ -93,9 +93,9 @@ class Instance(ABC):
         internal ML model to predict the values of both variables. If a variable is not
         listed in the dictionary, ML models will ignore the variable.
 
-        By default, returns {}.
+        By default, returns `names`.
         """
-        return {}
+        return names
 
     def get_constraint_features(self) -> Dict[str, List[float]]:
         return {}

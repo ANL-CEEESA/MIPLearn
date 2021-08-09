@@ -49,8 +49,8 @@ def test_knapsack() -> None:
         sample.get_vector("static_var_upper_bounds"), [1.0, 1.0, 1.0, 1.0, 67.0]
     )
     assert_equals(
-        sample.get_vector("static_var_categories"),
-        ["default", "default", "default", "default", None],
+        sample.get_array("static_var_categories"),
+        np.array(["default", "default", "default", "default", ""], dtype="S"),
     )
     assert sample.get_vector_list("static_var_features") is not None
     assert_equals(
