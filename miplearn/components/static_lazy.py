@@ -206,7 +206,7 @@ class StaticLazyConstraintsComponent(Component):
         cids: Dict[str, List[str]] = {}
         instance_features = sample.get_vector("static_instance_features")
         constr_features = sample.get_vector_list("lp_constr_features")
-        constr_names = sample.get_vector("static_constr_names")
+        constr_names = sample.get_array("static_constr_names")
         constr_categories = sample.get_vector("static_constr_categories")
         constr_lazy = sample.get_vector("static_constr_lazy")
         lazy_enforced = sample.get_set("mip_constr_lazy_enforced")

@@ -54,7 +54,7 @@ def test_knapsack() -> None:
     )
     assert sample.get_vector_list("static_var_features") is not None
     assert_equals(
-        sample.get_vector("static_constr_names"),
+        sample.get_array("static_constr_names"),
         np.array(["eq_capacity"], dtype="S"),
     )
     # assert_equals(
@@ -70,7 +70,10 @@ def test_knapsack() -> None:
     #     ],
     # )
     assert_equals(sample.get_vector("static_constr_rhs"), [0.0])
-    assert_equals(sample.get_vector("static_constr_senses"), ["="])
+    assert_equals(
+        sample.get_array("static_constr_senses"),
+        np.array(["="], dtype="S"),
+    )
     assert_equals(sample.get_vector("static_constr_features"), [None])
     assert_equals(
         sample.get_vector("static_constr_categories"),
@@ -114,7 +117,10 @@ def test_knapsack() -> None:
     assert_equals(sample.get_vector("lp_var_sa_ub_up"), [2.043478, inf, 2.2, inf, 69.0])
     assert_equals(sample.get_vector("lp_var_values"), [1.0, 0.923077, 1.0, 0.0, 67.0])
     assert sample.get_vector_list("lp_var_features") is not None
-    assert_equals(sample.get_vector("lp_constr_basis_status"), ["N"])
+    assert_equals(
+        sample.get_array("lp_constr_basis_status"),
+        np.array(["N"], dtype="S"),
+    )
     assert_equals(sample.get_vector("lp_constr_dual_values"), [13.538462])
     assert_equals(sample.get_vector("lp_constr_sa_rhs_down"), [-24.0])
     assert_equals(sample.get_vector("lp_constr_sa_rhs_up"), [2.0])
@@ -132,7 +138,7 @@ def test_constraint_getindex() -> None:
     cf = Constraints(
         names=np.array(["c1", "c2", "c3"], dtype="S"),
         rhs=np.array([1.0, 2.0, 3.0]),
-        senses=["=", "<", ">"],
+        senses=np.array(["=", "<", ">"], dtype="S"),
         lhs=[
             [
                 (b"x1", 1.0),
@@ -153,7 +159,7 @@ def test_constraint_getindex() -> None:
         Constraints(
             names=np.array(["c1", "c3"], dtype="S"),
             rhs=np.array([1.0, 3.0]),
-            senses=["=", ">"],
+            senses=np.array(["=", ">"], dtype="S"),
             lhs=[
                 [
                     (b"x1", 1.0),

@@ -104,12 +104,14 @@ class GurobiSolver(InternalSolver):
             lhs = self.gp.quicksum(
                 self._varname_to_var[varname] * coeff for (varname, coeff) in cf.lhs[i]
             )
-            if sense == "=":
+            if sense == b"=":
                 self.model.addConstr(lhs == cf.rhs[i], name=cf.names[i])
-            elif sense == "<":
+            elif sense == b"<":
                 self.model.addConstr(lhs <= cf.rhs[i], name=cf.names[i])
-            else:
+            elif sense == b">":
                 self.model.addConstr(lhs >= cf.rhs[i], name=cf.names[i])
+            else:
+                raise Exception(f"Unknown sense: {sense}")
         self.model.update()
         self._dirty = True
         self._has_lp_solution = False
@@ -218,7 +220,7 @@ class GurobiSolver(InternalSolver):
 
         if with_static:
             rhs = np.array(model.getAttr("rhs", gp_constrs), dtype=float)
-            senses = model.getAttr("sense", gp_constrs)
+            senses = np.array(model.getAttr("sense", gp_constrs), dtype="S")
             if with_lhs:
                 lhs = [None for _ in gp_constrs]
                 for (i, gp_constr) in enumerate(gp_constrs):
@@ -230,11 +232,9 @@ class GurobiSolver(InternalSolver):
 
         if self._has_lp_solution:
             dual_value = np.array(model.getAttr("pi", gp_constrs), dtype=float)
-            basis_status = list(
-                map(
-                    _parse_gurobi_cbasis,
-                    model.getAttr("cbasis", gp_constrs),
-                )
+            basis_status = np.array(
+                [_parse_gurobi_cbasis(c) for c in model.getAttr("cbasis", gp_constrs)],
+                dtype="S",
             )
             if with_sa:
                 sa_rhs_up = np.array(model.getAttr("saRhsUp", gp_constrs), dtype=float)

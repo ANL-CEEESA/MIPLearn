@@ -38,10 +38,10 @@ class FeaturesExtractor:
         sample.put_array("static_var_obj_coeffs", variables.obj_coeffs)
         sample.put_array("static_var_types", variables.types)
         sample.put_array("static_var_upper_bounds", variables.upper_bounds)
-        sample.put_vector("static_constr_names", constraints.names)
+        sample.put_array("static_constr_names", constraints.names)
         # sample.put("static_constr_lhs", constraints.lhs)
         sample.put_array("static_constr_rhs", constraints.rhs)
-        sample.put_vector("static_constr_senses", constraints.senses)
+        sample.put_array("static_constr_senses", constraints.senses)
         vars_features_user, var_categories = self._extract_user_features_vars(
             instance, sample
         )
@@ -78,7 +78,7 @@ class FeaturesExtractor:
         sample.put_array("lp_var_sa_ub_down", variables.sa_ub_down)
         sample.put_array("lp_var_sa_ub_up", variables.sa_ub_up)
         sample.put_array("lp_var_values", variables.values)
-        sample.put_vector("lp_constr_basis_status", constraints.basis_status)
+        sample.put_array("lp_constr_basis_status", constraints.basis_status)
         sample.put_array("lp_constr_dual_values", constraints.dual_values)
         sample.put_array("lp_constr_sa_rhs_down", constraints.sa_rhs_down)
         sample.put_array("lp_constr_sa_rhs_up", constraints.sa_rhs_up)

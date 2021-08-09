@@ -64,7 +64,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
                     (b"z", -1.0),
                 ],
             ],
-            senses=["="],
+            senses=np.array(["="], dtype="S"),
         ),
     )
 
@@ -108,7 +108,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         _filter_attrs(
             solver.get_constraint_attrs(),
             Constraints(
-                basis_status=["N"],
+                basis_status=np.array(["N"], dtype="S"),
                 dual_values=np.array([13.538462]),
                 names=np.array(["eq_capacity"], dtype="S"),
                 sa_rhs_down=np.array([-24.0]),
@@ -164,7 +164,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         names=np.array(["cut"], dtype="S"),
         lhs=[[(b"x[0]", 1.0)]],
         rhs=np.array([0.0]),
-        senses=["<"],
+        senses=np.array(["<"], dtype="S"),
     )
     assert_equals(solver.are_constraints_satisfied(cf), [False])
 
@@ -189,7 +189,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
                         (b"x[0]", 1.0),
                     ],
                 ],
-                senses=["=", "<"],
+                senses=np.array(["=", "<"], dtype="S"),
             ),
         ),
     )

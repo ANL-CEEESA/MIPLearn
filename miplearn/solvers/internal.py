@@ -68,7 +68,7 @@ class Variables:
 
 @dataclass
 class Constraints:
-    basis_status: Optional[List[str]] = None
+    basis_status: Optional[np.ndarray] = None
     dual_values: Optional[np.ndarray] = None
     lazy: Optional[List[bool]] = None
     lhs: Optional[List[List[Tuple[bytes, float]]]] = None
@@ -76,13 +76,13 @@ class Constraints:
     rhs: Optional[np.ndarray] = None
     sa_rhs_down: Optional[np.ndarray] = None
     sa_rhs_up: Optional[np.ndarray] = None
-    senses: Optional[List[str]] = None
+    senses: Optional[np.ndarray] = None
     slacks: Optional[np.ndarray] = None
 
     @staticmethod
     def from_sample(sample: "Sample") -> "Constraints":
         return Constraints(
-            basis_status=sample.get_vector("lp_constr_basis_status"),
+            basis_status=sample.get_array("lp_constr_basis_status"),
             dual_values=sample.get_vector("lp_constr_dual_values"),
             lazy=sample.get_vector("static_constr_lazy"),
             # lhs=sample.get_vector("static_constr_lhs"),
@@ -90,13 +90,15 @@ class Constraints:
             rhs=sample.get_vector("static_constr_rhs"),
             sa_rhs_down=sample.get_vector("lp_constr_sa_rhs_down"),
             sa_rhs_up=sample.get_vector("lp_constr_sa_rhs_up"),
-            senses=sample.get_vector("static_constr_senses"),
+            senses=sample.get_array("static_constr_senses"),
             slacks=sample.get_vector("lp_constr_slacks"),
         )
 
     def __getitem__(self, selected: List[bool]) -> "Constraints":
         return Constraints(
-            basis_status=self._filter(self.basis_status, selected),
+            basis_status=(
+                None if self.basis_status is None else self.basis_status[selected]
+            ),
             dual_values=(
                 None if self.dual_values is None else self.dual_values[selected]
             ),
@@ -108,7 +110,7 @@ class Constraints:
                 None if self.sa_rhs_down is None else self.sa_rhs_down[selected]
             ),
             sa_rhs_up=(None if self.sa_rhs_up is None else self.sa_rhs_up[selected]),
-            senses=self._filter(self.senses, selected),
+            senses=(None if self.senses is None else self.senses[selected]),
             slacks=(None if self.slacks is None else self.slacks[selected]),
         )
 

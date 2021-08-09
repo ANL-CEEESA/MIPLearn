@@ -89,12 +89,14 @@ class BasePyomoSolver(InternalSolver):
             for (varname, coeff) in cf.lhs[i]:
                 var = self._varname_to_var[varname]
                 lhs += var * coeff
-            if cf.senses[i] == "=":
+            if cf.senses[i] == b"=":
                 expr = lhs == cf.rhs[i]
-            elif cf.senses[i] == "<":
+            elif cf.senses[i] == b"<":
                 expr = lhs <= cf.rhs[i]
-            else:
+            elif cf.senses[i] == b">":
                 expr = lhs >= cf.rhs[i]
+            else:
+                raise Exception(f"Unknown sense: {cf.senses[i]}")
             cl = pe.Constraint(expr=expr, name=name)
             self.model.add_component(name.decode(), cl)
             self._pyomo_solver.add_constraint(cl)
@@ -235,7 +237,7 @@ class BasePyomoSolver(InternalSolver):
         return Constraints(
             names=_none_if_empty(np.array(names, dtype="S")),
             rhs=_none_if_empty(np.array(rhs, dtype=float)),
-            senses=_none_if_empty(senses),
+            senses=_none_if_empty(np.array(senses, dtype="S")),
             lhs=_none_if_empty(lhs),
             slacks=_none_if_empty(np.array(slacks, dtype=float)),
             dual_values=_none_if_empty(np.array(dual_values, dtype=float)),
