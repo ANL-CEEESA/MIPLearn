@@ -42,7 +42,7 @@ def test_instance() -> None:
     solver.solve(instance)
     assert len(instance.get_samples()) == 1
     sample = instance.get_samples()[0]
-    assert_equals(sample.get_vector("mip_var_values"), [1.0, 0.0, 1.0, 1.0, 0.0, 1.0])
+    assert_equals(sample.get_array("mip_var_values"), [1.0, 0.0, 1.0, 1.0, 0.0, 1.0])
     assert sample.get_scalar("mip_lower_bound") == 4.0
     assert sample.get_scalar("mip_upper_bound") == 4.0
 
@@ -70,7 +70,7 @@ def test_subtour() -> None:
     assert lazy_enforced is not None
     assert len(lazy_enforced) > 0
     assert_equals(
-        sample.get_vector("mip_var_values"),
+        sample.get_array("mip_var_values"),
         [
             1.0,
             0.0,

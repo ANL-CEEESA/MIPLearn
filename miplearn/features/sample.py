@@ -94,21 +94,21 @@ class Sample(ABC):
     def _assert_is_scalar(self, value: Any) -> None:
         if value is None:
             return
-        if isinstance(value, (str, bool, int, float)):
+        if isinstance(value, (str, bool, int, float, np.bytes_)):
             return
-        assert False, f"scalar expected; found instead: {value}"
+        assert False, f"scalar expected; found instead: {value} ({value.__class__})"
 
     def _assert_is_vector(self, value: Any) -> None:
         assert isinstance(
             value, (list, np.ndarray)
-        ), f"list or numpy array expected; found instead: {value}"
+        ), f"list or numpy array expected; found instead: {value} ({value.__class__})"
         for v in value:
             self._assert_is_scalar(v)
 
     def _assert_is_vector_list(self, value: Any) -> None:
         assert isinstance(
             value, (list, np.ndarray)
-        ), f"list or numpy array expected; found instead: {value}"
+        ), f"list or numpy array expected; found instead: {value} ({value.__class__})"
         for v in value:
             if v is None:
                 continue
@@ -125,7 +125,7 @@ class MemorySample(Sample):
     def __init__(
         self,
         data: Optional[Dict[str, Any]] = None,
-        check_data: bool = False,
+        check_data: bool = True,
     ) -> None:
         if data is None:
             data = {}
@@ -210,7 +210,7 @@ class Hdf5Sample(Sample):
         self,
         filename: str,
         mode: str = "r+",
-        check_data: bool = False,
+        check_data: bool = True,
     ) -> None:
         self.file = h5py.File(filename, mode, libver="latest")
         self._check_data = check_data

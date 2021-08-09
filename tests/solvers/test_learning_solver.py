@@ -39,7 +39,7 @@ def test_learning_solver(
             sample = instance.get_samples()[0]
 
             assert_equals(
-                sample.get_vector("mip_var_values"), [1.0, 0.0, 1.0, 1.0, 61.0]
+                sample.get_array("mip_var_values"), [1.0, 0.0, 1.0, 1.0, 61.0]
             )
             assert sample.get_scalar("mip_lower_bound") == 1183.0
             assert sample.get_scalar("mip_upper_bound") == 1183.0
@@ -48,7 +48,7 @@ def test_learning_solver(
             assert len(mip_log) > 100
 
             assert_equals(
-                sample.get_vector("lp_var_values"), [1.0, 0.923077, 1.0, 0.0, 67.0]
+                sample.get_array("lp_var_values"), [1.0, 0.923077, 1.0, 0.0, 67.0]
             )
             assert_equals(sample.get_scalar("lp_value"), 1287.923077)
             lp_log = sample.get_scalar("lp_log")

@@ -183,7 +183,7 @@ class StaticLazyConstraintsComponent(Component):
         logger.info(f"Found {n_violated} violated lazy constraints found")
         if n_violated > 0:
             logger.info(
-                "Enforcing {n_violated} lazy constraints; "
+                f"Enforcing {n_violated} lazy constraints; "
                 f"{n_satisfied} left in the pool..."
             )
             solver.internal_solver.add_constraints(violated_constraints)
@@ -208,7 +208,7 @@ class StaticLazyConstraintsComponent(Component):
         constr_features = sample.get_vector_list("lp_constr_features")
         constr_names = sample.get_array("static_constr_names")
         constr_categories = sample.get_vector("static_constr_categories")
-        constr_lazy = sample.get_vector("static_constr_lazy")
+        constr_lazy = sample.get_array("static_constr_lazy")
         lazy_enforced = sample.get_set("mip_constr_lazy_enforced")
         if constr_features is None:
             constr_features = sample.get_vector_list("static_constr_features")

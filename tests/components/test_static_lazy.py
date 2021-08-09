@@ -31,7 +31,7 @@ def sample() -> Sample:
                 "type-b",
                 "type-b",
             ],
-            "static_constr_lazy": [True, True, True, True, False],
+            "static_constr_lazy": np.array([True, True, True, True, False]),
             "static_constr_names": np.array(["c1", "c2", "c3", "c4", "c5"], dtype="S"),
             "static_instance_features": [5.0],
             "mip_constr_lazy_enforced": {b"c1", b"c2", b"c4"},

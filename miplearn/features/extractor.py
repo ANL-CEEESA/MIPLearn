@@ -241,7 +241,7 @@ class FeaturesExtractor:
             else:
                 lazy.append(False)
         sample.put_vector_list("static_constr_features", user_features)
-        sample.put_vector("static_constr_lazy", lazy)
+        sample.put_array("static_constr_lazy", np.array(lazy, dtype=bool))
         sample.put_array("static_constr_categories", np.array(categories, dtype="S"))
 
     def _extract_user_features_instance(
@@ -261,18 +261,18 @@ class FeaturesExtractor:
                 f"Instance features must be a list of numbers. "
                 f"Found {type(v).__name__} instead."
             )
-        constr_lazy = sample.get_vector("static_constr_lazy")
+        constr_lazy = sample.get_array("static_constr_lazy")
         assert constr_lazy is not None
         sample.put_vector("static_instance_features", user_features)
-        sample.put_scalar("static_constr_lazy_count", sum(constr_lazy))
+        sample.put_scalar("static_constr_lazy_count", int(sum(constr_lazy)))
 
     # Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
     # approximation of strong branching. INFORMS Journal on Computing, 29(1), 185-195.
     def _extract_var_features_AlvLouWeh2017(self, sample: Sample) -> List:
-        obj_coeffs = sample.get_vector("static_var_obj_coeffs")
-        obj_sa_down = sample.get_vector("lp_var_sa_obj_down")
-        obj_sa_up = sample.get_vector("lp_var_sa_obj_up")
-        values = sample.get_vector(f"lp_var_values")
+        obj_coeffs = sample.get_array("static_var_obj_coeffs")
+        obj_sa_down = sample.get_array("lp_var_sa_obj_down")
+        obj_sa_up = sample.get_array("lp_var_sa_obj_up")
+        values = sample.get_array("lp_var_values")
         assert obj_coeffs is not None
 
         pos_obj_coeff_sum = 0.0

@@ -28,5 +28,5 @@ def test_usage() -> None:
     sample = FileInstance(filename).get_samples()[0]
     assert sample.get_scalar("mip_lower_bound") == 1183.0
     assert sample.get_scalar("mip_upper_bound") == 1183.0
-    assert len(sample.get_vector("lp_var_values")) == 5
-    assert len(sample.get_vector("mip_var_values")) == 5
+    assert len(sample.get_array("lp_var_values")) == 5
+    assert len(sample.get_array("mip_var_values")) == 5

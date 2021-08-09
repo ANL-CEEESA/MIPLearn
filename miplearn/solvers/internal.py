@@ -70,7 +70,7 @@ class Variables:
 class Constraints:
     basis_status: Optional[np.ndarray] = None
     dual_values: Optional[np.ndarray] = None
-    lazy: Optional[List[bool]] = None
+    lazy: Optional[np.ndarray] = None
     lhs: Optional[List[List[Tuple[bytes, float]]]] = None
     names: Optional[np.ndarray] = None
     rhs: Optional[np.ndarray] = None
@@ -83,15 +83,15 @@ class Constraints:
     def from_sample(sample: "Sample") -> "Constraints":
         return Constraints(
             basis_status=sample.get_array("lp_constr_basis_status"),
-            dual_values=sample.get_vector("lp_constr_dual_values"),
-            lazy=sample.get_vector("static_constr_lazy"),
+            dual_values=sample.get_array("lp_constr_dual_values"),
+            lazy=sample.get_array("static_constr_lazy"),
             # lhs=sample.get_vector("static_constr_lhs"),
             names=sample.get_array("static_constr_names"),
-            rhs=sample.get_vector("static_constr_rhs"),
-            sa_rhs_down=sample.get_vector("lp_constr_sa_rhs_down"),
-            sa_rhs_up=sample.get_vector("lp_constr_sa_rhs_up"),
+            rhs=sample.get_array("static_constr_rhs"),
+            sa_rhs_down=sample.get_array("lp_constr_sa_rhs_down"),
+            sa_rhs_up=sample.get_array("lp_constr_sa_rhs_up"),
             senses=sample.get_array("static_constr_senses"),
-            slacks=sample.get_vector("lp_constr_slacks"),
+            slacks=sample.get_array("lp_constr_slacks"),
         )
 
     def __getitem__(self, selected: List[bool]) -> "Constraints":
@@ -103,7 +103,7 @@ class Constraints:
                 None if self.dual_values is None else self.dual_values[selected]
             ),
             names=(None if self.names is None else self.names[selected]),
-            lazy=self._filter(self.lazy, selected),
+            lazy=(None if self.lazy is None else self.lazy[selected]),
             lhs=self._filter(self.lhs, selected),
             rhs=(None if self.rhs is None else self.rhs[selected]),
             sa_rhs_down=(

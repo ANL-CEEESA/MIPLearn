@@ -143,7 +143,7 @@ class PrimalSolutionComponent(Component):
         x: Dict = {}
         y: Dict = {}
         instance_features = sample.get_vector("static_instance_features")
-        mip_var_values = sample.get_vector("mip_var_values")
+        mip_var_values = sample.get_array("mip_var_values")
         var_features = sample.get_vector_list("lp_var_features")
         var_names = sample.get_array("static_var_names")
         var_categories = sample.get_vector("static_var_categories")

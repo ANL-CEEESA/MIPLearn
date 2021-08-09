@@ -39,7 +39,7 @@ def test_knapsack() -> None:
         sample.get_vector("static_var_lower_bounds"), [0.0, 0.0, 0.0, 0.0, 0.0]
     )
     assert_equals(
-        sample.get_vector("static_var_obj_coeffs"), [505.0, 352.0, 458.0, 220.0, 0.0]
+        sample.get_array("static_var_obj_coeffs"), [505.0, 352.0, 458.0, 220.0, 0.0]
     )
     assert_equals(
         sample.get_array("static_var_types"),
@@ -79,7 +79,7 @@ def test_knapsack() -> None:
         sample.get_vector("static_constr_categories"),
         np.array(["eq_capacity"], dtype="S"),
     )
-    assert_equals(sample.get_vector("static_constr_lazy"), [False])
+    assert_equals(sample.get_array("static_constr_lazy"), np.array([False]))
     assert_equals(sample.get_vector("static_instance_features"), [67.0, 21.75])
     assert_equals(sample.get_scalar("static_constr_lazy_count"), 0)
 
@@ -92,46 +92,46 @@ def test_knapsack() -> None:
         np.array(["U", "B", "U", "L", "U"], dtype="S"),
     )
     assert_equals(
-        sample.get_vector("lp_var_reduced_costs"),
+        sample.get_array("lp_var_reduced_costs"),
         [193.615385, 0.0, 187.230769, -23.692308, 13.538462],
     )
     assert_equals(
-        sample.get_vector("lp_var_sa_lb_down"),
+        sample.get_array("lp_var_sa_lb_down"),
         [-inf, -inf, -inf, -0.111111, -inf],
     )
     assert_equals(
-        sample.get_vector("lp_var_sa_lb_up"),
+        sample.get_array("lp_var_sa_lb_up"),
         [1.0, 0.923077, 1.0, 1.0, 67.0],
     )
     assert_equals(
-        sample.get_vector("lp_var_sa_obj_down"),
+        sample.get_array("lp_var_sa_obj_down"),
         [311.384615, 317.777778, 270.769231, -inf, -13.538462],
     )
     assert_equals(
-        sample.get_vector("lp_var_sa_obj_up"),
+        sample.get_array("lp_var_sa_obj_up"),
         [inf, 570.869565, inf, 243.692308, inf],
     )
     assert_equals(
-        sample.get_vector("lp_var_sa_ub_down"), [0.913043, 0.923077, 0.9, 0.0, 43.0]
+        sample.get_array("lp_var_sa_ub_down"), [0.913043, 0.923077, 0.9, 0.0, 43.0]
     )
-    assert_equals(sample.get_vector("lp_var_sa_ub_up"), [2.043478, inf, 2.2, inf, 69.0])
-    assert_equals(sample.get_vector("lp_var_values"), [1.0, 0.923077, 1.0, 0.0, 67.0])
+    assert_equals(sample.get_array("lp_var_sa_ub_up"), [2.043478, inf, 2.2, inf, 69.0])
+    assert_equals(sample.get_array("lp_var_values"), [1.0, 0.923077, 1.0, 0.0, 67.0])
     assert sample.get_vector_list("lp_var_features") is not None
     assert_equals(
         sample.get_array("lp_constr_basis_status"),
         np.array(["N"], dtype="S"),
     )
-    assert_equals(sample.get_vector("lp_constr_dual_values"), [13.538462])
-    assert_equals(sample.get_vector("lp_constr_sa_rhs_down"), [-24.0])
-    assert_equals(sample.get_vector("lp_constr_sa_rhs_up"), [2.0])
-    assert_equals(sample.get_vector("lp_constr_slacks"), [0.0])
+    assert_equals(sample.get_array("lp_constr_dual_values"), [13.538462])
+    assert_equals(sample.get_array("lp_constr_sa_rhs_down"), [-24.0])
+    assert_equals(sample.get_array("lp_constr_sa_rhs_up"), [2.0])
+    assert_equals(sample.get_array("lp_constr_slacks"), [0.0])
 
     # after-mip
     # -------------------------------------------------------
     solver.solve()
     extractor.extract_after_mip_features(solver, sample)
-    assert_equals(sample.get_vector("mip_var_values"), [1.0, 0.0, 1.0, 1.0, 61.0])
-    assert_equals(sample.get_vector("mip_constr_slacks"), [0.0])
+    assert_equals(sample.get_array("mip_var_values"), [1.0, 0.0, 1.0, 1.0, 61.0])
+    assert_equals(sample.get_array("mip_constr_slacks"), [0.0])
 
 
 def test_constraint_getindex() -> None:
