@@ -85,8 +85,8 @@ def test_knapsack() -> None:
 
     # after-lp
     # -------------------------------------------------------
-    solver.solve_lp()
-    extractor.extract_after_lp_features(solver, sample)
+    lp_stats = solver.solve_lp()
+    extractor.extract_after_lp_features(solver, sample, lp_stats)
     assert_equals(
         sample.get_array("lp_var_basis_status"),
         np.array(["U", "B", "U", "L", "U"], dtype="S"),
@@ -204,12 +204,12 @@ if __name__ == "__main__":
     solver = GurobiSolver()
     instance = MpsInstance(sys.argv[1])
     solver.set_instance(instance)
-    solver.solve_lp(tee=True)
+    lp_stats = solver.solve_lp(tee=True)
     extractor = FeaturesExtractor(with_lhs=False)
     sample = Hdf5Sample("tmp/prof.h5", mode="w")
 
     def run() -> None:
         extractor.extract_after_load_features(instance, solver, sample)
-        extractor.extract_after_lp_features(solver, sample)
+        extractor.extract_after_lp_features(solver, sample, lp_stats)
 
     cProfile.run("run()", filename="tmp/prof")

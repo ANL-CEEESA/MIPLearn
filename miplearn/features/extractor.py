@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Dict, Optional, List, Any, Tuple, KeysView, ca
 import numpy as np
 
 from miplearn.features.sample import Sample
+from miplearn.solvers.internal import LPSolveStats
 
 if TYPE_CHECKING:
     from miplearn.solvers.internal import InternalSolver
@@ -66,7 +67,10 @@ class FeaturesExtractor:
         self,
         solver: "InternalSolver",
         sample: Sample,
+        lp_stats: LPSolveStats,
     ) -> None:
+        for (k, v) in lp_stats.__dict__.items():
+            sample.put_scalar(k, v)
         variables = solver.get_variables(with_static=False, with_sa=self.with_sa)
         constraints = solver.get_constraints(with_static=False, with_sa=self.with_sa)
         sample.put_array("lp_var_basis_status", variables.basis_status)
@@ -113,15 +117,21 @@ class FeaturesExtractor:
                 ],
             ),
         )
-        static_instance_features = sample.get_vector("static_instance_features")
+
+        # Build lp_instance_features
+        static_instance_features = sample.get_array("static_instance_features")
         assert static_instance_features is not None
-        sample.put_vector(
+        assert lp_stats.lp_value is not None
+        assert lp_stats.lp_wallclock_time is not None
+        sample.put_array(
             "lp_instance_features",
-            static_instance_features
-            + [
-                sample.get_scalar("lp_value"),
-                sample.get_scalar("lp_wallclock_time"),
-            ],
+            np.hstack(
+                [
+                    static_instance_features,
+                    lp_stats.lp_value,
+                    lp_stats.lp_wallclock_time,
+                ]
+            ),
         )
 
     def extract_after_mip_features(
@@ -241,30 +251,22 @@ class FeaturesExtractor:
             else:
                 lazy.append(False)
         sample.put_vector_list("static_constr_features", user_features)
-        sample.put_array("static_constr_lazy", np.array(lazy, dtype=bool))
         sample.put_array("static_constr_categories", np.array(categories, dtype="S"))
+        constr_lazy = np.array(lazy, dtype=bool)
+        sample.put_array("static_constr_lazy", constr_lazy)
+        sample.put_scalar("static_constr_lazy_count", int(constr_lazy.sum()))
 
     def _extract_user_features_instance(
         self,
         instance: "Instance",
         sample: Sample,
     ) -> None:
-        user_features = instance.get_instance_features()
-        if isinstance(user_features, np.ndarray):
-            user_features = user_features.tolist()
-        assert isinstance(user_features, list), (
-            f"Instance features must be a list. "
-            f"Found {type(user_features).__name__} instead."
-        )
-        for v in user_features:
-            assert isinstance(v, numbers.Real), (
-                f"Instance features must be a list of numbers. "
-                f"Found {type(v).__name__} instead."
-            )
-        constr_lazy = sample.get_array("static_constr_lazy")
-        assert constr_lazy is not None
-        sample.put_vector("static_instance_features", user_features)
-        sample.put_scalar("static_constr_lazy_count", int(sum(constr_lazy)))
+        features = cast(np.ndarray, instance.get_instance_features())
+        if isinstance(features, list):
+            features = np.array(features, dtype=float)
+        assert isinstance(features, np.ndarray)
+        assert features.dtype.kind in ["f"], f"Unsupported dtype: {features.dtype}"
+        sample.put_array("static_instance_features", features)
 
     # Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
     # approximation of strong branching. INFORMS Journal on Computing, 29(1), 185-195.

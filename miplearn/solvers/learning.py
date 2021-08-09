@@ -3,8 +3,8 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-import traceback
 import time
+import traceback
 from typing import Optional, List, Any, cast, Dict, Tuple
 
 from p_tqdm import p_map
@@ -15,7 +15,6 @@ from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.features.extractor import FeaturesExtractor
-from miplearn.features.sample import Sample, MemorySample
 from miplearn.instance.base import Instance
 from miplearn.instance.picklegz import PickleGzInstance
 from miplearn.solvers import _RedirectOutput
@@ -208,9 +207,9 @@ class LearningSolver:
             # -------------------------------------------------------
             logger.info("Extracting features (after-lp)...")
             initial_time = time.time()
-            for (k, v) in lp_stats.__dict__.items():
-                sample.put_scalar(k, v)
-            self.extractor.extract_after_lp_features(self.internal_solver, sample)
+            self.extractor.extract_after_lp_features(
+                self.internal_solver, sample, lp_stats
+            )
             logger.info(
                 "Features (after-lp) extracted in %.2f seconds"
                 % (time.time() - initial_time)
