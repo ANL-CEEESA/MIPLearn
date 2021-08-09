@@ -5,6 +5,7 @@ import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import Dict, Optional, Any, Union, List, Tuple, cast, Set
+from scipy.sparse import coo_matrix
 
 import h5py
 import numpy as np
@@ -80,6 +81,14 @@ class Sample(ABC):
     def get_array(self, key: str) -> Optional[np.ndarray]:
         pass
 
+    @abstractmethod
+    def put_sparse(self, key: str, value: coo_matrix) -> None:
+        pass
+
+    @abstractmethod
+    def get_sparse(self, key: str) -> Optional[coo_matrix]:
+        pass
+
     def get_set(self, key: str) -> Set:
         v = self.get_vector(key)
         if v:
@@ -117,6 +126,10 @@ class Sample(ABC):
     def _assert_supported(self, value: np.ndarray) -> None:
         assert isinstance(value, np.ndarray)
         assert value.dtype.kind in "biufS", f"Unsupported dtype: {value.dtype}"
+
+    def _assert_is_sparse(self, value: Any) -> None:
+        assert isinstance(value, coo_matrix)
+        self._assert_supported(value.data)
 
 
 class MemorySample(Sample):
@@ -196,6 +209,17 @@ class MemorySample(Sample):
     @overrides
     def get_array(self, key: str) -> Optional[np.ndarray]:
         return cast(Optional[np.ndarray], self._get(key))
+
+    @overrides
+    def put_sparse(self, key: str, value: coo_matrix) -> None:
+        if value is None:
+            return
+        self._assert_is_sparse(value)
+        self._put(key, value)
+
+    @overrides
+    def get_sparse(self, key: str) -> Optional[coo_matrix]:
+        return cast(Optional[coo_matrix], self._get(key))
 
 
 class Hdf5Sample(Sample):
@@ -350,6 +374,26 @@ class Hdf5Sample(Sample):
         if key not in self.file:
             return None
         return self.file[key][:]
+
+    @overrides
+    def put_sparse(self, key: str, value: coo_matrix) -> None:
+        if value is None:
+            return
+        self._assert_is_sparse(value)
+        self.put_array(f"{key}_row", value.row)
+        self.put_array(f"{key}_col", value.col)
+        self.put_array(f"{key}_data", value.data)
+
+    @overrides
+    def get_sparse(self, key: str) -> Optional[coo_matrix]:
+        row = self.get_array(f"{key}_row")
+        if row is None:
+            return None
+        col = self.get_array(f"{key}_col")
+        data = self.get_array(f"{key}_data")
+        assert col is not None
+        assert data is not None
+        return coo_matrix((data, (row, col)))
 
 
 def _pad(veclist: VectorList) -> Tuple[VectorList, List[int]]:
