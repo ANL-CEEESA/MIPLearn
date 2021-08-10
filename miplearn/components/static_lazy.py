@@ -207,14 +207,14 @@ class StaticLazyConstraintsComponent(Component):
         x: Dict[ConstraintCategory, List[List[float]]] = {}
         y: Dict[ConstraintCategory, List[List[float]]] = {}
         cids: Dict[ConstraintCategory, List[ConstraintName]] = {}
-        instance_features = sample.get_vector("static_instance_features")
-        constr_features = sample.get_vector_list("lp_constr_features")
+        instance_features = sample.get_array("static_instance_features")
+        constr_features = sample.get_array("lp_constr_features")
         constr_names = sample.get_array("static_constr_names")
-        constr_categories = sample.get_vector("static_constr_categories")
+        constr_categories = sample.get_array("static_constr_categories")
         constr_lazy = sample.get_array("static_constr_lazy")
         lazy_enforced = sample.get_set("mip_constr_lazy_enforced")
         if constr_features is None:
-            constr_features = sample.get_vector_list("static_constr_features")
+            constr_features = sample.get_array("static_constr_features")
 
         assert instance_features is not None
         assert constr_features is not None
@@ -227,7 +227,7 @@ class StaticLazyConstraintsComponent(Component):
             if not constr_lazy[cidx]:
                 continue
             category = constr_categories[cidx]
-            if category is None:
+            if len(category) == 0:
                 continue
             if category not in x:
                 x[category] = []

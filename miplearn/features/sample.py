@@ -39,15 +39,6 @@ class Sample(ABC):
     """Abstract dictionary-like class that stores training data."""
 
     @abstractmethod
-    def get_bytes(self, key: str) -> Optional[Bytes]:
-        warnings.warn("Deprecated", DeprecationWarning)
-        return None
-
-    @abstractmethod
-    def put_bytes(self, key: str, value: Bytes) -> None:
-        warnings.warn("Deprecated", DeprecationWarning)
-
-    @abstractmethod
     def get_scalar(self, key: str) -> Optional[Any]:
         pass
 
@@ -62,15 +53,6 @@ class Sample(ABC):
 
     @abstractmethod
     def put_vector(self, key: str, value: Vector) -> None:
-        warnings.warn("Deprecated", DeprecationWarning)
-
-    @abstractmethod
-    def get_vector_list(self, key: str) -> Optional[Any]:
-        warnings.warn("Deprecated", DeprecationWarning)
-        return None
-
-    @abstractmethod
-    def put_vector_list(self, key: str, value: VectorList) -> None:
         warnings.warn("Deprecated", DeprecationWarning)
 
     @abstractmethod
@@ -90,6 +72,7 @@ class Sample(ABC):
         pass
 
     def get_set(self, key: str) -> Set:
+        warnings.warn("Deprecated", DeprecationWarning)
         v = self.get_vector(key)
         if v:
             return set(v)
@@ -97,6 +80,7 @@ class Sample(ABC):
             return set()
 
     def put_set(self, key: str, value: Set) -> None:
+        warnings.warn("Deprecated", DeprecationWarning)
         v = list(value)
         self.put_vector(key, v)
 
@@ -113,15 +97,6 @@ class Sample(ABC):
         ), f"list or numpy array expected; found instead: {value} ({value.__class__})"
         for v in value:
             self._assert_is_scalar(v)
-
-    def _assert_is_vector_list(self, value: Any) -> None:
-        assert isinstance(
-            value, (list, np.ndarray)
-        ), f"list or numpy array expected; found instead: {value} ({value.__class__})"
-        for v in value:
-            if v is None:
-                continue
-            self._assert_is_vector(v)
 
     def _assert_supported(self, value: np.ndarray) -> None:
         assert isinstance(value, np.ndarray)
@@ -146,27 +121,12 @@ class MemorySample(Sample):
         self._check_data = check_data
 
     @overrides
-    def get_bytes(self, key: str) -> Optional[Bytes]:
-        return self._get(key)
-
-    @overrides
     def get_scalar(self, key: str) -> Optional[Any]:
         return self._get(key)
 
     @overrides
     def get_vector(self, key: str) -> Optional[Any]:
         return self._get(key)
-
-    @overrides
-    def get_vector_list(self, key: str) -> Optional[Any]:
-        return self._get(key)
-
-    @overrides
-    def put_bytes(self, key: str, value: Bytes) -> None:
-        assert isinstance(
-            value, (bytes, bytearray)
-        ), f"bytes expected; found: {value}"  # type: ignore
-        self._put(key, value)
 
     @overrides
     def put_scalar(self, key: str, value: Scalar) -> None:
@@ -182,12 +142,6 @@ class MemorySample(Sample):
             return
         if self._check_data:
             self._assert_is_vector(value)
-        self._put(key, value)
-
-    @overrides
-    def put_vector_list(self, key: str, value: VectorList) -> None:
-        if self._check_data:
-            self._assert_is_vector_list(value)
         self._put(key, value)
 
     def _get(self, key: str) -> Optional[Any]:
@@ -240,16 +194,6 @@ class Hdf5Sample(Sample):
         self._check_data = check_data
 
     @overrides
-    def get_bytes(self, key: str) -> Optional[Bytes]:
-        if key not in self.file:
-            return None
-        ds = self.file[key]
-        assert (
-            len(ds.shape) == 1
-        ), f"1-dimensional array expected; found shape {ds.shape}"
-        return ds[()].tobytes()
-
-    @overrides
     def get_scalar(self, key: str) -> Optional[Any]:
         if key not in self.file:
             return None
@@ -276,26 +220,6 @@ class Hdf5Sample(Sample):
             return result
         else:
             return ds[:].tolist()
-
-    @overrides
-    def get_vector_list(self, key: str) -> Optional[Any]:
-        if key not in self.file:
-            return None
-        ds = self.file[key]
-        lens = self.get_vector(f"{key}_lengths")
-        if h5py.check_string_dtype(ds.dtype):
-            padded = ds.asstr()[:].tolist()
-        else:
-            padded = ds[:].tolist()
-        return _crop(padded, lens)
-
-    @overrides
-    def put_bytes(self, key: str, value: Bytes) -> None:
-        if self._check_data:
-            assert isinstance(
-                value, (bytes, bytearray)
-            ), f"bytes expected; found: {value}"  # type: ignore
-        self._put(key, np.frombuffer(value, dtype="uint8"), compress=True)
 
     @overrides
     def put_scalar(self, key: str, value: Any) -> None:
@@ -327,29 +251,6 @@ class Hdf5Sample(Sample):
                 break
 
         self._put(key, value, compress=True)
-
-    @overrides
-    def put_vector_list(self, key: str, value: VectorList) -> None:
-        if self._check_data:
-            self._assert_is_vector_list(value)
-        padded, lens = _pad(value)
-        self.put_vector(f"{key}_lengths", lens)
-        data = None
-        for v in value:
-            if v is None or len(v) == 0:
-                continue
-            if isinstance(v[0], str):
-                data = np.array(padded, dtype="S")
-            elif isinstance(v[0], float):
-                data = np.array(padded, dtype=np.dtype("f2"))
-            elif isinstance(v[0], bool):
-                data = np.array(padded, dtype=bool)
-            else:
-                data = np.array(padded)
-            break
-        if data is None:
-            data = np.array(padded)
-        self._put(key, data, compress=True)
 
     def _put(self, key: str, value: Any, compress: bool = False) -> Dataset:
         if key in self.file:
@@ -394,44 +295,3 @@ class Hdf5Sample(Sample):
         assert col is not None
         assert data is not None
         return coo_matrix((data, (row, col)))
-
-
-def _pad(veclist: VectorList) -> Tuple[VectorList, List[int]]:
-    veclist = deepcopy(veclist)
-    lens = [len(v) if v is not None else -1 for v in veclist]
-    maxlen = max(lens)
-
-    # Find appropriate constant to pad the vectors
-    constant: Union[int, float, str] = 0
-    for v in veclist:
-        if v is None or len(v) == 0:
-            continue
-        if isinstance(v[0], int):
-            constant = 0
-        elif isinstance(v[0], float):
-            constant = 0.0
-        elif isinstance(v[0], str):
-            constant = ""
-        else:
-            assert False, f"unsupported data type: {v[0]}"
-
-    # Pad vectors
-    for (i, vi) in enumerate(veclist):
-        if vi is None:
-            vi = veclist[i] = []
-        assert isinstance(vi, list), f"list expected; found: {vi}"
-        for k in range(len(vi), maxlen):
-            vi.append(constant)
-
-    return veclist, lens
-
-
-def _crop(veclist: VectorList, lens: List[int]) -> VectorList:
-    result: VectorList = cast(VectorList, [])
-    for (i, v) in enumerate(veclist):
-        if lens[i] < 0:
-            result.append(None)  # type: ignore
-        else:
-            assert isinstance(v, list)
-            result.append(v[: lens[i]])
-    return result

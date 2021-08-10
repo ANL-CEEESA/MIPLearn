@@ -111,14 +111,14 @@ class FileInstance(Instance):
     def load(self) -> None:
         if self.instance is not None:
             return
-        self.instance = pickle.loads(self.h5.get_bytes("pickled"))
+        self.instance = pickle.loads(self.h5.get_array("pickled").tobytes())
         assert isinstance(self.instance, Instance)
 
     @classmethod
     def save(cls, instance: Instance, filename: str) -> None:
         h5 = Hdf5Sample(filename, mode="w")
-        instance_pkl = pickle.dumps(instance)
-        h5.put_bytes("pickled", instance_pkl)
+        instance_pkl = np.frombuffer(pickle.dumps(instance), dtype=np.int8)
+        h5.put_array("pickled", instance_pkl)
 
     @overrides
     def create_sample(self) -> Sample:

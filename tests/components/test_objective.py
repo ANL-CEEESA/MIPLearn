@@ -13,6 +13,7 @@ from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.features.sample import Sample, MemorySample
 from miplearn.solvers.learning import LearningSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
+from miplearn.solvers.tests import assert_equals
 
 
 @pytest.fixture
@@ -21,7 +22,7 @@ def sample() -> Sample:
         {
             "mip_lower_bound": 1.0,
             "mip_upper_bound": 2.0,
-            "lp_instance_features": [1.0, 2.0, 3.0],
+            "lp_instance_features": np.array([1.0, 2.0, 3.0]),
         },
     )
     return sample
@@ -29,18 +30,18 @@ def sample() -> Sample:
 
 def test_sample_xy(sample: Sample) -> None:
     x_expected = {
-        "Lower bound": [[1.0, 2.0, 3.0]],
-        "Upper bound": [[1.0, 2.0, 3.0]],
+        "Lower bound": np.array([[1.0, 2.0, 3.0]]),
+        "Upper bound": np.array([[1.0, 2.0, 3.0]]),
     }
     y_expected = {
-        "Lower bound": [[1.0]],
-        "Upper bound": [[2.0]],
+        "Lower bound": np.array([[1.0]]),
+        "Upper bound": np.array([[2.0]]),
     }
     xy = ObjectiveValueComponent().sample_xy(None, sample)
     assert xy is not None
     x_actual, y_actual = xy
-    assert x_actual == x_expected
-    assert y_actual == y_expected
+    assert_equals(x_actual, x_expected)
+    assert_equals(y_actual, y_expected)
 
 
 def test_fit_xy() -> None:

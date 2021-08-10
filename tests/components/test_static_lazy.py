@@ -36,13 +36,15 @@ def sample() -> Sample:
             "static_constr_names": np.array(["c1", "c2", "c3", "c4", "c5"], dtype="S"),
             "static_instance_features": [5.0],
             "mip_constr_lazy_enforced": {b"c1", b"c2", b"c4"},
-            "lp_constr_features": [
-                [1.0, 1.0],
-                [1.0, 2.0],
-                [1.0, 3.0],
-                [1.0, 4.0, 0.0],
-                None,
-            ],
+            "lp_constr_features": np.array(
+                [
+                    [1.0, 1.0, 0.0],
+                    [1.0, 2.0, 0.0],
+                    [1.0, 3.0, 0.0],
+                    [1.0, 4.0, 0.0],
+                    [0.0, 0.0, 0.0],
+                ]
+            ),
             "static_constr_lazy_count": 4,
         },
     )
@@ -216,7 +218,7 @@ def test_fit_xy() -> None:
 
 def test_sample_xy(sample: Sample) -> None:
     x_expected = {
-        b"type-a": [[5.0, 1.0, 1.0], [5.0, 1.0, 2.0], [5.0, 1.0, 3.0]],
+        b"type-a": [[5.0, 1.0, 1.0, 0.0], [5.0, 1.0, 2.0, 0.0], [5.0, 1.0, 3.0, 0.0]],
         b"type-b": [[5.0, 1.0, 4.0, 0.0]],
     }
     y_expected = {

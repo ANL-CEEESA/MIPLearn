@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import List, Dict, Any, TYPE_CHECKING, Tuple, Optional
+from typing import List, Dict, Any, TYPE_CHECKING, Tuple, Optional, cast
 
 import numpy as np
 from overrides import overrides
@@ -77,10 +77,11 @@ class ObjectiveValueComponent(Component):
         _: Optional[Instance],
         sample: Sample,
     ) -> Tuple[Dict[str, List[List[float]]], Dict[str, List[List[float]]]]:
-        lp_instance_features = sample.get_vector("lp_instance_features")
-        if lp_instance_features is None:
-            lp_instance_features = sample.get_vector("static_instance_features")
-        assert lp_instance_features is not None
+        lp_instance_features_np = sample.get_array("lp_instance_features")
+        if lp_instance_features_np is None:
+            lp_instance_features_np = sample.get_array("static_instance_features")
+        assert lp_instance_features_np is not None
+        lp_instance_features = cast(List[float], lp_instance_features_np.tolist())
 
         # Features
         x: Dict[str, List[List[float]]] = {

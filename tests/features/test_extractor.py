@@ -61,7 +61,7 @@ def test_knapsack() -> None:
         np.array(["default", "default", "default", "default", ""], dtype="S"),
     )
     assert_equals(
-        sample.get_vector_list("static_var_features"),
+        sample.get_array("static_var_features"),
         np.array(
             [
                 [23.0, 505.0, 1.0, 0.32899, 0.0, 505.0, 1.0],
@@ -155,7 +155,7 @@ def test_knapsack() -> None:
         np.array([1.0, 0.923077, 1.0, 0.0, 67.0]),
     )
     assert_equals(
-        sample.get_vector_list("lp_var_features"),
+        sample.get_array("lp_var_features"),
         np.array(
             [
                 [

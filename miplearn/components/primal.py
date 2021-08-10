@@ -142,13 +142,13 @@ class PrimalSolutionComponent(Component):
     ) -> Tuple[Dict[Category, List[List[float]]], Dict[Category, List[List[float]]]]:
         x: Dict = {}
         y: Dict = {}
-        instance_features = sample.get_vector("static_instance_features")
+        instance_features = sample.get_array("static_instance_features")
         mip_var_values = sample.get_array("mip_var_values")
-        var_features = sample.get_vector_list("lp_var_features")
+        var_features = sample.get_array("lp_var_features")
         var_names = sample.get_array("static_var_names")
         var_categories = sample.get_array("static_var_categories")
         if var_features is None:
-            var_features = sample.get_vector_list("static_var_features")
+            var_features = sample.get_array("static_var_features")
         assert instance_features is not None
         assert var_features is not None
         assert var_names is not None
