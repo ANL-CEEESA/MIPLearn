@@ -14,6 +14,7 @@ from scipy.stats.distributions import rv_frozen
 from miplearn.instance.base import Instance
 from miplearn.solvers.learning import InternalSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
+from miplearn.types import ConstraintName
 
 
 class ChallengeA:
@@ -85,14 +86,14 @@ class TravelingSalesmanInstance(Instance):
         self,
         solver: InternalSolver,
         model: Any,
-    ) -> List[str]:
+    ) -> List[ConstraintName]:
         selected_edges = [e for e in self.edges if model.x[e].value > 0.5]
         graph = nx.Graph()
         graph.add_edges_from(selected_edges)
         violations = []
         for c in list(nx.connected_components(graph)):
             if len(c) < self.n_cities:
-                violations.append(",".join(map(str, c)))
+                violations.append(",".join(map(str, c)).encode())
         return violations
 
     @overrides
@@ -100,10 +101,10 @@ class TravelingSalesmanInstance(Instance):
         self,
         solver: InternalSolver,
         model: Any,
-        violation: str,
+        violation: ConstraintName,
     ) -> None:
         assert isinstance(solver, BasePyomoSolver)
-        component = [int(v) for v in violation.split(",")]
+        component = [int(v) for v in violation.decode().split(",")]
         cut_edges = [
             e
             for e in self.edges

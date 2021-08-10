@@ -15,7 +15,7 @@ from miplearn.components.component import Component
 from miplearn.features.sample import Sample
 from miplearn.solvers.internal import Constraints
 from miplearn.instance.base import Instance
-from miplearn.types import LearningSolveStats
+from miplearn.types import LearningSolveStats, ConstraintName, ConstraintCategory
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 
 class LazyConstraint:
-    def __init__(self, cid: str, obj: Any) -> None:
+    def __init__(self, cid: ConstraintName, obj: Any) -> None:
         self.cid = cid
         self.obj = obj
 
@@ -44,11 +44,11 @@ class StaticLazyConstraintsComponent(Component):
         assert isinstance(classifier, Classifier)
         self.classifier_prototype: Classifier = classifier
         self.threshold_prototype: Threshold = threshold
-        self.classifiers: Dict[str, Classifier] = {}
-        self.thresholds: Dict[str, Threshold] = {}
+        self.classifiers: Dict[ConstraintCategory, Classifier] = {}
+        self.thresholds: Dict[ConstraintCategory, Threshold] = {}
         self.pool: Constraints = Constraints()
         self.violation_tolerance: float = violation_tolerance
-        self.enforced_cids: Set[str] = set()
+        self.enforced_cids: Set[ConstraintName] = set()
         self.n_restored: int = 0
         self.n_iterations: int = 0
 
@@ -105,8 +105,8 @@ class StaticLazyConstraintsComponent(Component):
     @overrides
     def fit_xy(
         self,
-        x: Dict[str, np.ndarray],
-        y: Dict[str, np.ndarray],
+        x: Dict[ConstraintCategory, np.ndarray],
+        y: Dict[ConstraintCategory, np.ndarray],
     ) -> None:
         for c in y.keys():
             assert c in x
@@ -136,9 +136,9 @@ class StaticLazyConstraintsComponent(Component):
     ) -> None:
         self._check_and_add(solver)
 
-    def sample_predict(self, sample: Sample) -> List[str]:
+    def sample_predict(self, sample: Sample) -> List[ConstraintName]:
         x, y, cids = self._sample_xy_with_cids(sample)
-        enforced_cids: List[str] = []
+        enforced_cids: List[ConstraintName] = []
         for category in x.keys():
             if category not in self.classifiers:
                 continue
@@ -156,7 +156,10 @@ class StaticLazyConstraintsComponent(Component):
         self,
         _: Optional[Instance],
         sample: Sample,
-    ) -> Tuple[Dict[str, List[List[float]]], Dict[str, List[List[float]]]]:
+    ) -> Tuple[
+        Dict[ConstraintCategory, List[List[float]]],
+        Dict[ConstraintCategory, List[List[float]]],
+    ]:
         x, y, __ = self._sample_xy_with_cids(sample)
         return x, y
 
@@ -197,13 +200,13 @@ class StaticLazyConstraintsComponent(Component):
     def _sample_xy_with_cids(
         self, sample: Sample
     ) -> Tuple[
-        Dict[str, List[List[float]]],
-        Dict[str, List[List[float]]],
-        Dict[str, List[str]],
+        Dict[ConstraintCategory, List[List[float]]],
+        Dict[ConstraintCategory, List[List[float]]],
+        Dict[ConstraintCategory, List[ConstraintName]],
     ]:
-        x: Dict[str, List[List[float]]] = {}
-        y: Dict[str, List[List[float]]] = {}
-        cids: Dict[str, List[str]] = {}
+        x: Dict[ConstraintCategory, List[List[float]]] = {}
+        y: Dict[ConstraintCategory, List[List[float]]] = {}
+        cids: Dict[ConstraintCategory, List[ConstraintName]] = {}
         instance_features = sample.get_vector("static_instance_features")
         constr_features = sample.get_vector_list("lp_constr_features")
         constr_names = sample.get_array("static_constr_names")

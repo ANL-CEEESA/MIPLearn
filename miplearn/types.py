@@ -11,6 +11,8 @@ if TYPE_CHECKING:
     from miplearn.solvers.learning import InternalSolver
 
 Category = bytes
+ConstraintName = bytes
+ConstraintCategory = bytes
 IterationCallback = Callable[[], bool]
 LazyCallback = Callable[[Any, Any], None]
 SolverParams = Dict[str, Any]

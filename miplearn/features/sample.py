@@ -103,7 +103,7 @@ class Sample(ABC):
     def _assert_is_scalar(self, value: Any) -> None:
         if value is None:
             return
-        if isinstance(value, (str, bool, int, float, np.bytes_)):
+        if isinstance(value, (str, bool, int, float, bytes, np.bytes_)):
             return
         assert False, f"scalar expected; found instead: {value} ({value.__class__})"
 

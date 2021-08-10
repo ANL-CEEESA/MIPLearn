@@ -2,10 +2,8 @@
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-import collections
-import numbers
 from math import log, isfinite
-from typing import TYPE_CHECKING, Dict, Optional, List, Any, Tuple, KeysView, cast
+from typing import TYPE_CHECKING, List, Tuple
 
 import numpy as np
 
@@ -34,6 +32,7 @@ class FeaturesExtractor:
     ) -> None:
         variables = solver.get_variables(with_static=True)
         constraints = solver.get_constraints(with_static=True, with_lhs=self.with_lhs)
+        assert constraints.names is not None
         sample.put_array("static_var_lower_bounds", variables.lower_bounds)
         sample.put_array("static_var_names", variables.names)
         sample.put_array("static_var_obj_coeffs", variables.obj_coeffs)
@@ -43,15 +42,30 @@ class FeaturesExtractor:
         # sample.put("static_constr_lhs", constraints.lhs)
         sample.put_array("static_constr_rhs", constraints.rhs)
         sample.put_array("static_constr_senses", constraints.senses)
-        vars_features_user, var_categories = self._extract_user_features_vars(
-            instance, sample
-        )
-        sample.put_array("static_var_categories", var_categories)
-        self._extract_user_features_constrs(instance, sample)
-        self._extract_user_features_instance(instance, sample)
-        alw17 = self._extract_var_features_AlvLouWeh2017(sample)
 
-        # Build static_var_features
+        # Instance features
+        self._extract_user_features_instance(instance, sample)
+
+        # Constraint features
+        (
+            constr_features,
+            constr_categories,
+            constr_lazy,
+        ) = FeaturesExtractor._extract_user_features_constrs(
+            instance,
+            constraints.names,
+        )
+        sample.put_array("static_constr_features", constr_features)
+        sample.put_array("static_constr_categories", constr_categories)
+        sample.put_array("static_constr_lazy", constr_lazy)
+        sample.put_scalar("static_constr_lazy_count", int(constr_lazy.sum()))
+
+        # Variable features
+        (
+            vars_features_user,
+            var_categories,
+        ) = self._extract_user_features_vars(instance, sample)
+        sample.put_array("static_var_categories", var_categories)
         assert variables.lower_bounds is not None
         assert variables.obj_coeffs is not None
         assert variables.upper_bounds is not None
@@ -60,7 +74,7 @@ class FeaturesExtractor:
             np.hstack(
                 [
                     vars_features_user,
-                    alw17,
+                    self._extract_var_features_AlvLouWeh2017(sample),
                     variables.lower_bounds.reshape(-1, 1),
                     variables.obj_coeffs.reshape(-1, 1),
                     variables.upper_bounds.reshape(-1, 1),
@@ -92,13 +106,12 @@ class FeaturesExtractor:
         sample.put_array("lp_constr_sa_rhs_down", constraints.sa_rhs_down)
         sample.put_array("lp_constr_sa_rhs_up", constraints.sa_rhs_up)
         sample.put_array("lp_constr_slacks", constraints.slacks)
-        alw17 = self._extract_var_features_AlvLouWeh2017(sample)
 
-        # Build lp_var_features
+        # Variable features
         lp_var_features_list = []
         for f in [
             sample.get_array("static_var_features"),
-            alw17,
+            self._extract_var_features_AlvLouWeh2017(sample),
         ]:
             if f is not None:
                 lp_var_features_list.append(f)
@@ -116,18 +129,20 @@ class FeaturesExtractor:
                 lp_var_features_list.append(f.reshape(-1, 1))
         sample.put_array("lp_var_features", np.hstack(lp_var_features_list))
 
-        sample.put_vector_list(
-            "lp_constr_features",
-            self._combine(
-                [
-                    sample.get_vector_list("static_constr_features"),
-                    sample.get_array("lp_constr_dual_values"),
-                    sample.get_array("lp_constr_sa_rhs_down"),
-                    sample.get_array("lp_constr_sa_rhs_up"),
-                    sample.get_array("lp_constr_slacks"),
-                ],
-            ),
-        )
+        # Constraint features
+        lp_constr_features_list = []
+        for f in [sample.get_array("static_constr_features")]:
+            if f is not None:
+                lp_constr_features_list.append(f)
+        for f in [
+            sample.get_array("lp_constr_dual_values"),
+            sample.get_array("lp_constr_sa_rhs_down"),
+            sample.get_array("lp_constr_sa_rhs_up"),
+            sample.get_array("lp_constr_slacks"),
+        ]:
+            if f is not None:
+                lp_constr_features_list.append(f.reshape(-1, 1))
+        sample.put_array("lp_constr_features", np.hstack(lp_constr_features_list))
 
         # Build lp_instance_features
         static_instance_features = sample.get_array("static_instance_features")
@@ -155,6 +170,7 @@ class FeaturesExtractor:
         sample.put_array("mip_var_values", variables.values)
         sample.put_array("mip_constr_slacks", constraints.slacks)
 
+    # noinspection DuplicatedCode
     def _extract_user_features_vars(
         self,
         instance: "Instance",
@@ -180,7 +196,7 @@ class FeaturesExtractor:
         )
         assert var_features.dtype.kind in ["f"], (
             f"Variable features must be floating point numbers. "
-            f"Found dtype: {var_features.dtype} instead."
+            f"Found {var_features.dtype} instead."
         )
 
         # Query variable categories
@@ -195,7 +211,7 @@ class FeaturesExtractor:
         )
         assert len(var_categories) == len(var_names), (
             f"Variable categories must have exactly {len(var_names)} elements. "
-            f"Found {var_features.shape[0]} elements instead."
+            f"Found {var_categories.shape[0]} elements instead."
         )
         assert var_categories.dtype.kind == "S", (
             f"Variable categories must be a numpy array with dtype='S'. "
@@ -203,58 +219,71 @@ class FeaturesExtractor:
         )
         return var_features, var_categories
 
+    # noinspection DuplicatedCode
+    @classmethod
     def _extract_user_features_constrs(
-        self,
+        cls,
         instance: "Instance",
-        sample: Sample,
-    ) -> None:
-        has_static_lazy = instance.has_static_lazy_constraints()
-        user_features: List[Optional[List[float]]] = []
-        categories: List[Optional[bytes]] = []
-        lazy: List[bool] = []
-        constr_categories_dict = instance.get_constraint_categories()
-        constr_features_dict = instance.get_constraint_features()
-        constr_names = sample.get_array("static_constr_names")
-        assert constr_names is not None
+        constr_names: np.ndarray,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        # Query constraint features
+        constr_features = instance.get_constraint_features(constr_names)
+        assert isinstance(constr_features, np.ndarray), (
+            f"get_constraint_features must return a numpy array. "
+            f"Found {constr_features.__class__} instead."
+        )
+        assert len(constr_features.shape) == 2, (
+            f"get_constraint_features must return a 2-dimensional array. "
+            f"Found array with shape {constr_features.shape} instead."
+        )
+        assert constr_features.shape[0] == len(constr_names), (
+            f"get_constraint_features must return an array with {len(constr_names)} "
+            f"rows. Found {constr_features.shape[0]} rows instead."
+        )
+        assert constr_features.dtype.kind in ["f"], (
+            f"get_constraint_features must return floating point numbers. "
+            f"Found {constr_features.dtype} instead."
+        )
 
-        for (cidx, cname) in enumerate(constr_names):
-            category: Optional[str] = cname
-            if cname in constr_categories_dict:
-                category = constr_categories_dict[cname]
-            if category is None:
-                user_features.append(None)
-                categories.append(None)
-                continue
-            assert isinstance(category, bytes), (
-                f"Constraint category must be bytes. "
-                f"Found {type(category).__name__} instead for cname={cname}.",
-            )
-            categories.append(category)
-            cf: Optional[List[float]] = None
-            if cname in constr_features_dict:
-                cf = constr_features_dict[cname]
-                if isinstance(cf, np.ndarray):
-                    cf = cf.tolist()
-                assert isinstance(cf, list), (
-                    f"Constraint features must be a list. "
-                    f"Found {type(cf).__name__} instead for cname={cname}."
-                )
-                for f in cf:
-                    assert isinstance(f, numbers.Real), (
-                        f"Constraint features must be a list of numbers. "
-                        f"Found {type(f).__name__} instead for cname={cname}."
-                    )
-                cf = list(cf)
-            user_features.append(cf)
-            if has_static_lazy:
-                lazy.append(instance.is_constraint_lazy(cname))
-            else:
-                lazy.append(False)
-        sample.put_vector_list("static_constr_features", user_features)
-        sample.put_array("static_constr_categories", np.array(categories, dtype="S"))
-        constr_lazy = np.array(lazy, dtype=bool)
-        sample.put_array("static_constr_lazy", constr_lazy)
-        sample.put_scalar("static_constr_lazy_count", int(constr_lazy.sum()))
+        # Query constraint categories
+        constr_categories = instance.get_constraint_categories(constr_names)
+        assert isinstance(constr_categories, np.ndarray), (
+            f"get_constraint_categories must return a numpy array. "
+            f"Found {constr_categories.__class__} instead."
+        )
+        assert len(constr_categories.shape) == 1, (
+            f"get_constraint_categories must return a vector. "
+            f"Found array with shape {constr_categories.shape} instead."
+        )
+        assert len(constr_categories) == len(constr_names), (
+            f"get_constraint_categories must return a vector with {len(constr_names)} "
+            f"elements. Found {constr_categories.shape[0]} elements instead."
+        )
+        assert constr_categories.dtype.kind == "S", (
+            f"get_constraint_categories must return a numpy array with dtype='S'. "
+            f"Found {constr_categories.dtype} instead."
+        )
+
+        # Query constraint lazy attribute
+        constr_lazy = instance.are_constraints_lazy(constr_names)
+        assert isinstance(constr_lazy, np.ndarray), (
+            f"are_constraints_lazy must return a numpy array. "
+            f"Found {constr_lazy.__class__} instead."
+        )
+        assert len(constr_lazy.shape) == 1, (
+            f"are_constraints_lazy must return a vector. "
+            f"Found array with shape {constr_lazy.shape} instead."
+        )
+        assert constr_lazy.shape[0] == len(constr_names), (
+            f"are_constraints_lazy must return a vector with {len(constr_names)} "
+            f"elements. Found {constr_lazy.shape[0]} elements instead."
+        )
+        assert constr_lazy.dtype.kind == "b", (
+            f"are_constraints_lazy must return a boolean array. "
+            f"Found {constr_lazy.dtype} instead."
+        )
+
+        return constr_features, constr_categories, constr_lazy
 
     def _extract_user_features_instance(
         self,
@@ -272,7 +301,7 @@ class FeaturesExtractor:
         )
         assert features.dtype.kind in [
             "f"
-        ], f"Instance features have unsupported dtype: {features.dtype}"
+        ], f"Instance features have unsupported {features.dtype}"
         sample.put_array("static_instance_features", features)
 
     # Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
@@ -352,29 +381,3 @@ class FeaturesExtractor:
 
             features.append(f)
         return np.array(features, dtype=float)
-
-    def _combine(
-        self,
-        items: List,
-    ) -> List[List[float]]:
-        combined: List[List[float]] = []
-        for series in items:
-            if series is None:
-                continue
-            if len(combined) == 0:
-                for i in range(len(series)):
-                    combined.append([])
-            for (i, s) in enumerate(series):
-                if s is None:
-                    continue
-                elif isinstance(s, list):
-                    combined[i].extend([_clip(sj) for sj in s])
-                else:
-                    combined[i].append(_clip(s))
-        return combined
-
-
-def _clip(vi: float) -> float:
-    if not isfinite(vi):
-        return max(min(vi, 1e20), -1e20)
-    return vi

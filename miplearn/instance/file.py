@@ -11,6 +11,7 @@ from overrides import overrides
 
 from miplearn.features.sample import Hdf5Sample, Sample
 from miplearn.instance.base import Instance
+from miplearn.types import ConstraintName, ConstraintCategory
 
 if TYPE_CHECKING:
     from miplearn.solvers.learning import InternalSolver
@@ -46,19 +47,14 @@ class FileInstance(Instance):
         return self.instance.get_variable_categories(names)
 
     @overrides
-    def get_constraint_features(self) -> Dict[str, List[float]]:
+    def get_constraint_features(self, names: np.ndarray) -> np.ndarray:
         assert self.instance is not None
-        return self.instance.get_constraint_features()
+        return self.instance.get_constraint_features(names)
 
     @overrides
-    def get_constraint_categories(self) -> Dict[str, str]:
+    def get_constraint_categories(self, names: np.ndarray) -> np.ndarray:
         assert self.instance is not None
-        return self.instance.get_constraint_categories()
-
-    @overrides
-    def has_static_lazy_constraints(self) -> bool:
-        assert self.instance is not None
-        return self.instance.has_static_lazy_constraints()
+        return self.instance.get_constraint_categories(names)
 
     @overrides
     def has_dynamic_lazy_constraints(self) -> bool:
@@ -66,16 +62,16 @@ class FileInstance(Instance):
         return self.instance.has_dynamic_lazy_constraints()
 
     @overrides
-    def is_constraint_lazy(self, cid: str) -> bool:
+    def are_constraints_lazy(self, names: np.ndarray) -> np.ndarray:
         assert self.instance is not None
-        return self.instance.is_constraint_lazy(cid)
+        return self.instance.are_constraints_lazy(names)
 
     @overrides
     def find_violated_lazy_constraints(
         self,
         solver: "InternalSolver",
         model: Any,
-    ) -> List[str]:
+    ) -> List[ConstraintName]:
         assert self.instance is not None
         return self.instance.find_violated_lazy_constraints(solver, model)
 
@@ -84,13 +80,13 @@ class FileInstance(Instance):
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: str,
+        violation: ConstraintName,
     ) -> None:
         assert self.instance is not None
         self.instance.enforce_lazy_constraint(solver, model, violation)
 
     @overrides
-    def find_violated_user_cuts(self, model: Any) -> List[str]:
+    def find_violated_user_cuts(self, model: Any) -> List[ConstraintName]:
         assert self.instance is not None
         return self.instance.find_violated_user_cuts(model)
 
@@ -99,7 +95,7 @@ class FileInstance(Instance):
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: str,
+        violation: ConstraintName,
     ) -> None:
         assert self.instance is not None
         self.instance.enforce_user_cut(solver, model, violation)

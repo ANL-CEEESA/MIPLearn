@@ -17,6 +17,7 @@ from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.instance.base import Instance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.learning import LearningSolver
+from miplearn.types import ConstraintName, ConstraintCategory
 
 logger = logging.getLogger(__name__)
 
@@ -40,13 +41,13 @@ class GurobiStableSetProblem(Instance):
         return True
 
     @overrides
-    def find_violated_user_cuts(self, model: Any) -> List[str]:
+    def find_violated_user_cuts(self, model: Any) -> List[ConstraintName]:
         assert isinstance(model, gp.Model)
         vals = model.cbGetNodeRel(model.getVars())
         violations = []
         for clique in nx.find_cliques(self.graph):
             if sum(vals[i] for i in clique) > 1:
-                violations.append(",".join([str(i) for i in clique]))
+                violations.append(",".join([str(i) for i in clique]).encode())
         return violations
 
     @overrides
@@ -54,9 +55,9 @@ class GurobiStableSetProblem(Instance):
         self,
         solver: InternalSolver,
         model: Any,
-        cid: str,
+        cid: ConstraintName,
     ) -> Any:
-        clique = [int(i) for i in cid.split(",")]
+        clique = [int(i) for i in cid.decode().split(",")]
         x = model.getVars()
         model.addConstr(gp.quicksum([x[i] for i in clique]) <= 1)
 

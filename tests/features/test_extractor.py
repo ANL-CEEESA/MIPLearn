@@ -32,27 +32,45 @@ def test_knapsack() -> None:
     # -------------------------------------------------------
     extractor.extract_after_load_features(instance, solver, sample)
     assert_equals(
-        sample.get_vector("static_var_names"),
+        sample.get_array("static_instance_features"),
+        np.array([67.0, 21.75]),
+    )
+    assert_equals(
+        sample.get_array("static_var_names"),
         np.array(["x[0]", "x[1]", "x[2]", "x[3]", "z"], dtype="S"),
     )
     assert_equals(
-        sample.get_vector("static_var_lower_bounds"), [0.0, 0.0, 0.0, 0.0, 0.0]
+        sample.get_array("static_var_lower_bounds"),
+        np.array([0.0, 0.0, 0.0, 0.0, 0.0]),
     )
     assert_equals(
-        sample.get_array("static_var_obj_coeffs"), [505.0, 352.0, 458.0, 220.0, 0.0]
+        sample.get_array("static_var_obj_coeffs"),
+        np.array([505.0, 352.0, 458.0, 220.0, 0.0]),
     )
     assert_equals(
         sample.get_array("static_var_types"),
         np.array(["B", "B", "B", "B", "C"], dtype="S"),
     )
     assert_equals(
-        sample.get_vector("static_var_upper_bounds"), [1.0, 1.0, 1.0, 1.0, 67.0]
+        sample.get_array("static_var_upper_bounds"),
+        np.array([1.0, 1.0, 1.0, 1.0, 67.0]),
     )
     assert_equals(
         sample.get_array("static_var_categories"),
         np.array(["default", "default", "default", "default", ""], dtype="S"),
     )
-    assert sample.get_vector_list("static_var_features") is not None
+    assert_equals(
+        sample.get_vector_list("static_var_features"),
+        np.array(
+            [
+                [23.0, 505.0, 1.0, 0.32899, 0.0, 0.0, 505.0, 1.0],
+                [26.0, 352.0, 1.0, 0.229316, 0.0, 0.0, 352.0, 1.0],
+                [20.0, 458.0, 1.0, 0.298371, 0.0, 0.0, 458.0, 1.0],
+                [18.0, 220.0, 1.0, 0.143322, 0.0, 0.0, 220.0, 1.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 67.0],
+            ]
+        ),
+    )
     assert_equals(
         sample.get_array("static_constr_names"),
         np.array(["eq_capacity"], dtype="S"),
@@ -69,18 +87,30 @@ def test_knapsack() -> None:
     #         ],
     #     ],
     # )
-    assert_equals(sample.get_vector("static_constr_rhs"), [0.0])
+    assert_equals(
+        sample.get_vector("static_constr_rhs"),
+        np.array([0.0]),
+    )
     assert_equals(
         sample.get_array("static_constr_senses"),
         np.array(["="], dtype="S"),
     )
-    assert_equals(sample.get_vector("static_constr_features"), [None])
+    assert_equals(
+        sample.get_vector("static_constr_features"),
+        np.array([[0.0]]),
+    )
     assert_equals(
         sample.get_vector("static_constr_categories"),
         np.array(["eq_capacity"], dtype="S"),
     )
-    assert_equals(sample.get_array("static_constr_lazy"), np.array([False]))
-    assert_equals(sample.get_vector("static_instance_features"), [67.0, 21.75])
+    assert_equals(
+        sample.get_array("static_constr_lazy"),
+        np.array([False]),
+    )
+    assert_equals(
+        sample.get_vector("static_instance_features"),
+        np.array([67.0, 21.75]),
+    )
     assert_equals(sample.get_scalar("static_constr_lazy_count"), 0)
 
     # after-lp
@@ -112,26 +142,187 @@ def test_knapsack() -> None:
         [inf, 570.869565, inf, 243.692308, inf],
     )
     assert_equals(
-        sample.get_array("lp_var_sa_ub_down"), [0.913043, 0.923077, 0.9, 0.0, 43.0]
+        sample.get_array("lp_var_sa_ub_down"),
+        np.array([0.913043, 0.923077, 0.9, 0.0, 43.0]),
     )
-    assert_equals(sample.get_array("lp_var_sa_ub_up"), [2.043478, inf, 2.2, inf, 69.0])
-    assert_equals(sample.get_array("lp_var_values"), [1.0, 0.923077, 1.0, 0.0, 67.0])
-    assert sample.get_vector_list("lp_var_features") is not None
+    assert_equals(
+        sample.get_array("lp_var_sa_ub_up"),
+        np.array([2.043478, inf, 2.2, inf, 69.0]),
+    )
+    assert_equals(
+        sample.get_array("lp_var_values"),
+        np.array([1.0, 0.923077, 1.0, 0.0, 67.0]),
+    )
+    assert_equals(
+        sample.get_vector_list("lp_var_features"),
+        np.array(
+            [
+                [
+                    23.0,
+                    505.0,
+                    1.0,
+                    0.32899,
+                    0.0,
+                    0.0,
+                    505.0,
+                    1.0,
+                    1.0,
+                    0.32899,
+                    0.0,
+                    0.0,
+                    1.0,
+                    1.0,
+                    5.265874,
+                    46.051702,
+                    193.615385,
+                    -inf,
+                    1.0,
+                    311.384615,
+                    inf,
+                    0.913043,
+                    2.043478,
+                    1.0,
+                ],
+                [
+                    26.0,
+                    352.0,
+                    1.0,
+                    0.229316,
+                    0.0,
+                    0.0,
+                    352.0,
+                    1.0,
+                    1.0,
+                    0.229316,
+                    0.0,
+                    0.076923,
+                    1.0,
+                    1.0,
+                    3.532875,
+                    5.388476,
+                    0.0,
+                    -inf,
+                    0.923077,
+                    317.777778,
+                    570.869565,
+                    0.923077,
+                    inf,
+                    0.923077,
+                ],
+                [
+                    20.0,
+                    458.0,
+                    1.0,
+                    0.298371,
+                    0.0,
+                    0.0,
+                    458.0,
+                    1.0,
+                    1.0,
+                    0.298371,
+                    0.0,
+                    0.0,
+                    1.0,
+                    1.0,
+                    5.232342,
+                    46.051702,
+                    187.230769,
+                    -inf,
+                    1.0,
+                    270.769231,
+                    inf,
+                    0.9,
+                    2.2,
+                    1.0,
+                ],
+                [
+                    18.0,
+                    220.0,
+                    1.0,
+                    0.143322,
+                    0.0,
+                    0.0,
+                    220.0,
+                    1.0,
+                    1.0,
+                    0.143322,
+                    0.0,
+                    0.0,
+                    1.0,
+                    -1.0,
+                    46.051702,
+                    3.16515,
+                    -23.692308,
+                    -0.111111,
+                    1.0,
+                    -inf,
+                    243.692308,
+                    0.0,
+                    inf,
+                    0.0,
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    67.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                    -1.0,
+                    0.0,
+                    0.0,
+                    13.538462,
+                    -inf,
+                    67.0,
+                    -13.538462,
+                    inf,
+                    43.0,
+                    69.0,
+                    67.0,
+                ],
+            ]
+        ),
+    )
     assert_equals(
         sample.get_array("lp_constr_basis_status"),
         np.array(["N"], dtype="S"),
     )
-    assert_equals(sample.get_array("lp_constr_dual_values"), [13.538462])
-    assert_equals(sample.get_array("lp_constr_sa_rhs_down"), [-24.0])
-    assert_equals(sample.get_array("lp_constr_sa_rhs_up"), [2.0])
-    assert_equals(sample.get_array("lp_constr_slacks"), [0.0])
+    assert_equals(
+        sample.get_array("lp_constr_dual_values"),
+        np.array([13.538462]),
+    )
+    assert_equals(
+        sample.get_array("lp_constr_sa_rhs_down"),
+        np.array([-24.0]),
+    )
+    assert_equals(
+        sample.get_array("lp_constr_sa_rhs_up"),
+        np.array([2.0]),
+    )
+    assert_equals(
+        sample.get_array("lp_constr_slacks"),
+        np.array([0.0]),
+    )
+    assert_equals(
+        sample.get_array("lp_constr_features"),
+        np.array([[0.0, 13.538462, -24.0, 2.0, 0.0]]),
+    )
 
     # after-mip
     # -------------------------------------------------------
     solver.solve()
     extractor.extract_after_mip_features(solver, sample)
-    assert_equals(sample.get_array("mip_var_values"), [1.0, 0.0, 1.0, 1.0, 61.0])
-    assert_equals(sample.get_array("mip_constr_slacks"), [0.0])
+    assert_equals(
+        sample.get_array("mip_var_values"), np.array([1.0, 0.0, 1.0, 1.0, 61.0])
+    )
+    assert_equals(sample.get_array("mip_constr_slacks"), np.array([0.0]))
 
 
 def test_constraint_getindex() -> None:
@@ -200,7 +391,7 @@ class MpsInstance(Instance):
         return gp.read(self.filename)
 
 
-if __name__ == "__main__":
+def main() -> None:
     solver = GurobiSolver()
     instance = MpsInstance(sys.argv[1])
     solver.set_instance(instance)
@@ -213,3 +404,7 @@ if __name__ == "__main__":
         extractor.extract_after_lp_features(solver, sample, lp_stats)
 
     cProfile.run("run()", filename="tmp/prof")
+
+
+if __name__ == "__main__":
+    main()

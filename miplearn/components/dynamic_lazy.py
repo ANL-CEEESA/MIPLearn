@@ -15,7 +15,7 @@ from miplearn.components.component import Component
 from miplearn.components.dynamic_common import DynamicConstraintsComponent
 from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
-from miplearn.types import LearningSolveStats
+from miplearn.types import LearningSolveStats, ConstraintName, ConstraintCategory
 
 logger = logging.getLogger(__name__)
 
@@ -41,11 +41,11 @@ class DynamicLazyConstraintsComponent(Component):
         self.classifiers = self.dynamic.classifiers
         self.thresholds = self.dynamic.thresholds
         self.known_cids = self.dynamic.known_cids
-        self.lazy_enforced: Set[str] = set()
+        self.lazy_enforced: Set[ConstraintName] = set()
 
     @staticmethod
     def enforce(
-        cids: List[str],
+        cids: List[ConstraintName],
         instance: Instance,
         model: Any,
         solver: "LearningSolver",
@@ -117,7 +117,7 @@ class DynamicLazyConstraintsComponent(Component):
         self,
         instance: Instance,
         sample: Sample,
-    ) -> List[str]:
+    ) -> List[ConstraintName]:
         return self.dynamic.sample_predict(instance, sample)
 
     @overrides
@@ -127,8 +127,8 @@ class DynamicLazyConstraintsComponent(Component):
     @overrides
     def fit_xy(
         self,
-        x: Dict[str, np.ndarray],
-        y: Dict[str, np.ndarray],
+        x: Dict[ConstraintCategory, np.ndarray],
+        y: Dict[ConstraintCategory, np.ndarray],
     ) -> None:
         self.dynamic.fit_xy(x, y)
 
@@ -137,5 +137,5 @@ class DynamicLazyConstraintsComponent(Component):
         self,
         instance: Instance,
         sample: Sample,
-    ) -> Dict[str, Dict[str, float]]:
+    ) -> Dict[ConstraintCategory, Dict[str, float]]:
         return self.dynamic.sample_evaluate(instance, sample)
