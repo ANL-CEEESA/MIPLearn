@@ -11,7 +11,7 @@ import numpy as np
 import gurobipy as gp
 
 from miplearn.features.extractor import FeaturesExtractor
-from miplearn.features.sample import MemorySample, Hdf5Sample
+from miplearn.features.sample import Hdf5Sample
 from miplearn.instance.base import Instance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.internal import Variables, Constraints
@@ -382,17 +382,17 @@ class MpsInstance(Instance):
         return gp.read(self.filename)
 
 
-if __name__ == "__main__":
+def main() -> None:
     solver = GurobiSolver()
     instance = MpsInstance(sys.argv[1])
     solver.set_instance(instance)
-    lp_stats = solver.solve_lp(tee=True)
     extractor = FeaturesExtractor(with_lhs=False)
     sample = Hdf5Sample("tmp/prof.h5", mode="w")
+    extractor.extract_after_load_features(instance, solver, sample)
+    lp_stats = solver.solve_lp(tee=True)
+    extractor.extract_after_lp_features(solver, sample, lp_stats)
 
-    def run() -> None:
-        extractor.extract_after_load_features(instance, solver, sample)
-        extractor.extract_after_lp_features(solver, sample, lp_stats)
 
-    cProfile.run("run()", filename="tmp/prof")
+if __name__ == "__main__":
+    cProfile.run("main()", filename="tmp/prof")
     os.system("flameprof tmp/prof > tmp/prof.svg")
