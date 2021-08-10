@@ -127,7 +127,9 @@ class FeaturesExtractor:
         ]:
             if f is not None:
                 lp_var_features_list.append(f.reshape(-1, 1))
-        sample.put_array("lp_var_features", np.hstack(lp_var_features_list))
+        lp_var_features = np.hstack(lp_var_features_list)
+        _fix_infinity(lp_var_features)
+        sample.put_array("lp_var_features", lp_var_features)
 
         # Constraint features
         lp_constr_features_list = []
@@ -142,7 +144,9 @@ class FeaturesExtractor:
         ]:
             if f is not None:
                 lp_constr_features_list.append(f.reshape(-1, 1))
-        sample.put_array("lp_constr_features", np.hstack(lp_constr_features_list))
+        lp_constr_features = np.hstack(lp_constr_features_list)
+        _fix_infinity(lp_constr_features)
+        sample.put_array("lp_constr_features", lp_constr_features)
 
         # Build lp_instance_features
         static_instance_features = sample.get_array("static_instance_features")
@@ -311,73 +315,83 @@ class FeaturesExtractor:
         obj_sa_down = sample.get_array("lp_var_sa_obj_down")
         obj_sa_up = sample.get_array("lp_var_sa_obj_up")
         values = sample.get_array("lp_var_values")
+
         assert obj_coeffs is not None
+        obj_coeffs = obj_coeffs.astype(float)
+        _fix_infinity(obj_coeffs)
+        nvars = len(obj_coeffs)
 
-        pos_obj_coeff_sum = 0.0
-        neg_obj_coeff_sum = 0.0
-        for coeff in obj_coeffs:
-            if coeff > 0:
-                pos_obj_coeff_sum += coeff
-            if coeff < 0:
-                neg_obj_coeff_sum += -coeff
+        if obj_sa_down is not None:
+            obj_sa_down = obj_sa_down.astype(float)
+            _fix_infinity(obj_sa_down)
 
-        features = []
-        for i in range(len(obj_coeffs)):
-            f: List[float] = []
-            if obj_coeffs is not None:
-                # Feature 1
-                f.append(np.sign(obj_coeffs[i]))
+        if obj_sa_up is not None:
+            obj_sa_up = obj_sa_up.astype(float)
+            _fix_infinity(obj_sa_up)
 
-                # Feature 2
-                if pos_obj_coeff_sum > 0:
-                    f.append(abs(obj_coeffs[i]) / pos_obj_coeff_sum)
-                else:
-                    f.append(0.0)
+        if values is not None:
+            values = values.astype(float)
+            _fix_infinity(values)
 
-                # Feature 3
-                if neg_obj_coeff_sum > 0:
-                    f.append(abs(obj_coeffs[i]) / neg_obj_coeff_sum)
-                else:
-                    f.append(0.0)
+        pos_obj_coeffs_sum = obj_coeffs[obj_coeffs > 0].sum()
+        neg_obj_coeffs_sum = -obj_coeffs[obj_coeffs < 0].sum()
 
+        curr = 0
+        max_n_features = 8
+        features = np.zeros((nvars, max_n_features))
+        with np.errstate(divide="ignore", invalid="ignore"):
+            # Feature 1
+            features[:, curr] = np.sign(obj_coeffs)
+            curr += 1
+
+            # Feature 2
+            if abs(pos_obj_coeffs_sum) > 0:
+                features[:, curr] = np.abs(obj_coeffs) / pos_obj_coeffs_sum
+                curr += 1
+
+            # Feature 3
+            if abs(neg_obj_coeffs_sum) > 0:
+                features[:, curr] = np.abs(obj_coeffs) / neg_obj_coeffs_sum
+                curr += 1
+
+            # Feature 37
             if values is not None:
-                # Feature 37
-                f.append(
-                    min(
-                        values[i] - np.floor(values[i]),
-                        np.ceil(values[i]) - values[i],
-                    )
+                features[:, curr] = np.minimum(
+                    values - np.floor(values),
+                    np.ceil(values) - values,
                 )
+                curr += 1
 
+            # Feature 44
             if obj_sa_up is not None:
-                assert obj_sa_down is not None
-                assert obj_coeffs is not None
+                features[:, curr] = np.sign(obj_sa_up)
+                curr += 1
 
-                # Convert inf into large finite numbers
-                sd = max(-1e20, obj_sa_down[i])
-                su = min(1e20, obj_sa_up[i])
-                obj = obj_coeffs[i]
+            # Feature 46
+            if obj_sa_down is not None:
+                features[:, curr] = np.sign(obj_sa_down)
+                curr += 1
 
-                # Features 44 and 46
-                f.append(np.sign(obj_sa_up[i]))
-                f.append(np.sign(obj_sa_down[i]))
+            # Feature 47
+            if obj_sa_down is not None:
+                features[:, curr] = np.log(
+                    obj_coeffs - obj_sa_down / np.sign(obj_coeffs)
+                )
+                curr += 1
 
-                # Feature 47
-                csign = np.sign(obj)
-                if csign != 0 and ((obj - sd) / csign) > 0.001:
-                    f.append(log((obj - sd) / csign))
-                else:
-                    f.append(0.0)
+            # Feature 48
+            if obj_sa_up is not None:
+                features[:, curr] = np.log(obj_coeffs - obj_sa_up / np.sign(obj_coeffs))
+                curr += 1
 
-                # Feature 48
-                if csign != 0 and ((su - obj) / csign) > 0.001:
-                    f.append(log((su - obj) / csign))
-                else:
-                    f.append(0.0)
+        features = features[:, 0:curr]
+        _fix_infinity(features)
+        return features
 
-            for (i, v) in enumerate(f):
-                if not isfinite(v):
-                    f[i] = 0.0
 
-            features.append(f)
-        return np.array(features, dtype=float)
+def _fix_infinity(m: np.ndarray) -> None:
+    masked = np.ma.masked_invalid(m)
+    max_values = np.max(masked, axis=0)
+    min_values = np.min(masked, axis=0)
+    m[:] = np.maximum(np.minimum(m, max_values), min_values)
+    m[np.isnan(m)] = 0.0
