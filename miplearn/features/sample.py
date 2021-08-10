@@ -47,15 +47,6 @@ class Sample(ABC):
         pass
 
     @abstractmethod
-    def get_vector(self, key: str) -> Optional[Any]:
-        warnings.warn("Deprecated", DeprecationWarning)
-        return None
-
-    @abstractmethod
-    def put_vector(self, key: str, value: Vector) -> None:
-        warnings.warn("Deprecated", DeprecationWarning)
-
-    @abstractmethod
     def put_array(self, key: str, value: Optional[np.ndarray]) -> None:
         pass
 
@@ -71,19 +62,6 @@ class Sample(ABC):
     def get_sparse(self, key: str) -> Optional[coo_matrix]:
         pass
 
-    def get_set(self, key: str) -> Set:
-        warnings.warn("Deprecated", DeprecationWarning)
-        v = self.get_vector(key)
-        if v:
-            return set(v)
-        else:
-            return set()
-
-    def put_set(self, key: str, value: Set) -> None:
-        warnings.warn("Deprecated", DeprecationWarning)
-        v = list(value)
-        self.put_vector(key, v)
-
     def _assert_is_scalar(self, value: Any) -> None:
         if value is None:
             return
@@ -91,20 +69,13 @@ class Sample(ABC):
             return
         assert False, f"scalar expected; found instead: {value} ({value.__class__})"
 
-    def _assert_is_vector(self, value: Any) -> None:
-        assert isinstance(
-            value, (list, np.ndarray)
-        ), f"list or numpy array expected; found instead: {value} ({value.__class__})"
-        for v in value:
-            self._assert_is_scalar(v)
-
-    def _assert_supported(self, value: np.ndarray) -> None:
+    def _assert_is_array(self, value: np.ndarray) -> None:
         assert isinstance(value, np.ndarray)
         assert value.dtype.kind in "biufS", f"Unsupported dtype: {value.dtype}"
 
     def _assert_is_sparse(self, value: Any) -> None:
         assert isinstance(value, coo_matrix)
-        self._assert_supported(value.data)
+        self._assert_is_array(value.data)
 
 
 class MemorySample(Sample):
@@ -113,35 +84,20 @@ class MemorySample(Sample):
     def __init__(
         self,
         data: Optional[Dict[str, Any]] = None,
-        check_data: bool = True,
     ) -> None:
         if data is None:
             data = {}
         self._data: Dict[str, Any] = data
-        self._check_data = check_data
 
     @overrides
     def get_scalar(self, key: str) -> Optional[Any]:
         return self._get(key)
 
     @overrides
-    def get_vector(self, key: str) -> Optional[Any]:
-        return self._get(key)
-
-    @overrides
     def put_scalar(self, key: str, value: Scalar) -> None:
         if value is None:
             return
-        if self._check_data:
-            self._assert_is_scalar(value)
-        self._put(key, value)
-
-    @overrides
-    def put_vector(self, key: str, value: Vector) -> None:
-        if value is None:
-            return
-        if self._check_data:
-            self._assert_is_vector(value)
+        self._assert_is_scalar(value)
         self._put(key, value)
 
     def _get(self, key: str) -> Optional[Any]:
@@ -157,7 +113,7 @@ class MemorySample(Sample):
     def put_array(self, key: str, value: Optional[np.ndarray]) -> None:
         if value is None:
             return
-        self._assert_supported(value)
+        self._assert_is_array(value)
         self._put(key, value)
 
     @overrides
@@ -188,10 +144,8 @@ class Hdf5Sample(Sample):
         self,
         filename: str,
         mode: str = "r+",
-        check_data: bool = True,
     ) -> None:
         self.file = h5py.File(filename, mode, libver="latest")
-        self._check_data = check_data
 
     @overrides
     def get_scalar(self, key: str) -> Optional[Any]:
@@ -207,65 +161,19 @@ class Hdf5Sample(Sample):
             return ds[()].tolist()
 
     @overrides
-    def get_vector(self, key: str) -> Optional[Any]:
-        if key not in self.file:
-            return None
-        ds = self.file[key]
-        assert (
-            len(ds.shape) == 1
-        ), f"1-dimensional array expected; found shape {ds.shape}"
-        if h5py.check_string_dtype(ds.dtype):
-            result = ds.asstr()[:].tolist()
-            result = [r if len(r) > 0 else None for r in result]
-            return result
-        else:
-            return ds[:].tolist()
-
-    @overrides
     def put_scalar(self, key: str, value: Any) -> None:
         if value is None:
             return
-        if self._check_data:
-            self._assert_is_scalar(value)
-        self._put(key, value)
-
-    @overrides
-    def put_vector(self, key: str, value: Vector) -> None:
-        if value is None:
-            return
-        if self._check_data:
-            self._assert_is_vector(value)
-
-        for v in value:
-            # Convert strings to bytes
-            if isinstance(v, str) or v is None:
-                value = np.array(
-                    [u if u is not None else b"" for u in value],
-                    dtype="S",
-                )
-                break
-
-            # Convert all floating point numbers to half-precision
-            if isinstance(v, float):
-                value = np.array(value, dtype=np.dtype("f2"))
-                break
-
-        self._put(key, value, compress=True)
-
-    def _put(self, key: str, value: Any, compress: bool = False) -> Dataset:
+        self._assert_is_scalar(value)
         if key in self.file:
             del self.file[key]
-        if compress:
-            ds = self.file.create_dataset(key, data=value, compression="gzip")
-        else:
-            ds = self.file.create_dataset(key, data=value)
-        return ds
+        self.file.create_dataset(key, data=value)
 
     @overrides
     def put_array(self, key: str, value: Optional[np.ndarray]) -> None:
         if value is None:
             return
-        self._assert_supported(value)
+        self._assert_is_array(value)
         if key in self.file:
             del self.file[key]
         return self.file.create_dataset(key, data=value, compression="gzip")

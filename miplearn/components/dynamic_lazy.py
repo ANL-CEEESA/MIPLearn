@@ -3,6 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
+import pdb
 from typing import Dict, List, TYPE_CHECKING, Tuple, Any, Optional, Set
 
 import numpy as np
@@ -78,7 +79,10 @@ class DynamicLazyConstraintsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        sample.put_set("mip_constr_lazy_enforced", set(self.lazy_enforced))
+        sample.put_array(
+            "mip_constr_lazy_enforced",
+            np.array(list(self.lazy_enforced), dtype="S"),
+        )
 
     @overrides
     def iteration_cb(

@@ -24,13 +24,13 @@ def training_instances() -> List[Instance]:
     samples_0 = [
         MemorySample(
             {
-                "mip_constr_lazy_enforced": {b"c1", b"c2"},
+                "mip_constr_lazy_enforced": np.array(["c1", "c2"], dtype="S"),
                 "static_instance_features": np.array([5.0]),
             },
         ),
         MemorySample(
             {
-                "mip_constr_lazy_enforced": {b"c2", b"c3"},
+                "mip_constr_lazy_enforced": np.array(["c2", "c3"], dtype="S"),
                 "static_instance_features": np.array([5.0]),
             },
         ),
@@ -55,7 +55,7 @@ def training_instances() -> List[Instance]:
     samples_1 = [
         MemorySample(
             {
-                "mip_constr_lazy_enforced": {b"c3", b"c4"},
+                "mip_constr_lazy_enforced": np.array(["c3", "c4"], dtype="S"),
                 "static_instance_features": np.array([8.0]),
             },
         )
@@ -81,7 +81,12 @@ def training_instances() -> List[Instance]:
 
 def test_sample_xy(training_instances: List[Instance]) -> None:
     comp = DynamicLazyConstraintsComponent()
-    comp.pre_fit([{b"c1", b"c2", b"c3", b"c4"}])
+    comp.pre_fit(
+        [
+            np.array(["c1", "c3", "c4"], dtype="S"),
+            np.array(["c1", "c2", "c4"], dtype="S"),
+        ]
+    )
     x_expected = {
         b"type-a": np.array([[5.0, 1.0, 2.0, 3.0], [5.0, 4.0, 5.0, 6.0]]),
         b"type-b": np.array([[5.0, 1.0, 2.0, 0.0], [5.0, 3.0, 4.0, 0.0]]),

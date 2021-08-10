@@ -77,7 +77,7 @@ def test_knapsack() -> None:
         np.array(["eq_capacity"], dtype="S"),
     )
     # assert_equals(
-    #     sample.get_vector("static_constr_lhs"),
+    #     sample.get_array("static_constr_lhs"),
     #     [
     #         [
     #             ("x[0]", 23.0),
@@ -89,7 +89,7 @@ def test_knapsack() -> None:
     #     ],
     # )
     assert_equals(
-        sample.get_vector("static_constr_rhs"),
+        sample.get_array("static_constr_rhs"),
         np.array([0.0]),
     )
     assert_equals(
@@ -97,11 +97,11 @@ def test_knapsack() -> None:
         np.array(["="], dtype="S"),
     )
     assert_equals(
-        sample.get_vector("static_constr_features"),
+        sample.get_array("static_constr_features"),
         np.array([[0.0]]),
     )
     assert_equals(
-        sample.get_vector("static_constr_categories"),
+        sample.get_array("static_constr_categories"),
         np.array(["eq_capacity"], dtype="S"),
     )
     assert_equals(
@@ -109,7 +109,7 @@ def test_knapsack() -> None:
         np.array([False]),
     )
     assert_equals(
-        sample.get_vector("static_instance_features"),
+        sample.get_array("static_instance_features"),
         np.array([67.0, 21.75]),
     )
     assert_equals(sample.get_scalar("static_constr_lazy_count"), 0)

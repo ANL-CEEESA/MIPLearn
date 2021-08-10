@@ -87,7 +87,10 @@ class UserCutsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        sample.put_set("mip_user_cuts_enforced", set(self.enforced))
+        sample.put_array(
+            "mip_user_cuts_enforced",
+            np.array(list(self.enforced), dtype="S"),
+        )
         stats["UserCuts: Added in callback"] = self.n_added_in_callback
         if self.n_added_in_callback > 0:
             logger.info(f"{self.n_added_in_callback} user cuts added in callback")

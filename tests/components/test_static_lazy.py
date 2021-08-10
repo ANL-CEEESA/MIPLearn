@@ -19,6 +19,7 @@ from miplearn.types import (
     LearningSolveStats,
     ConstraintCategory,
 )
+from miplearn.solvers.tests import assert_equals
 
 
 @pytest.fixture
@@ -35,7 +36,7 @@ def sample() -> Sample:
             "static_constr_lazy": np.array([True, True, True, True, False]),
             "static_constr_names": np.array(["c1", "c2", "c3", "c4", "c5"], dtype="S"),
             "static_instance_features": [5.0],
-            "mip_constr_lazy_enforced": {b"c1", b"c2", b"c4"},
+            "mip_constr_lazy_enforced": np.array(["c1", "c2", "c4"], dtype="S"),
             "lp_constr_features": np.array(
                 [
                     [1.0, 1.0, 0.0],
@@ -96,7 +97,7 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     stats: LearningSolveStats = {}
     sample = instance.get_samples()[0]
-    assert sample.get_set("mip_constr_lazy_enforced") is not None
+    assert sample.get_array("mip_constr_lazy_enforced") is not None
 
     # LearningSolver calls before_solve_mip
     component.before_solve_mip(
@@ -145,8 +146,13 @@ def test_usage_with_solver(instance: Instance) -> None:
     )
 
     # Should update training sample
-    assert sample.get_set("mip_constr_lazy_enforced") == {b"c1", b"c2", b"c3", b"c4"}
-    #
+    mip_constr_lazy_enforced = sample.get_array("mip_constr_lazy_enforced")
+    assert mip_constr_lazy_enforced is not None
+    assert_equals(
+        sorted(mip_constr_lazy_enforced),
+        np.array(["c1", "c2", "c3", "c4"], dtype="S"),
+    )
+
     # Should update stats
     assert stats["LazyStatic: Removed"] == 1
     assert stats["LazyStatic: Kept"] == 3
