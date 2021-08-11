@@ -275,7 +275,7 @@ def _equals_preprocess(obj: Any) -> Any:
             return np.round(obj, decimals=6).tolist()
         else:
             return obj.tolist()
-    elif isinstance(obj, (int, str, bool, np.bool_, np.bytes_, bytes)):
+    elif isinstance(obj, (int, str, bool, np.bool_, np.bytes_, bytes, bytearray)):
         return obj
     elif isinstance(obj, float):
         return round(obj, 6)

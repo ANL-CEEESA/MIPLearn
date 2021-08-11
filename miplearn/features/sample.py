@@ -70,7 +70,9 @@ class Sample(ABC):
         assert False, f"scalar expected; found instead: {value} ({value.__class__})"
 
     def _assert_is_array(self, value: np.ndarray) -> None:
-        assert isinstance(value, np.ndarray)
+        assert isinstance(
+            value, np.ndarray
+        ), f"np.ndarray expected; found instead: {value.__class__}"
         assert value.dtype.kind in "biufS", f"Unsupported dtype: {value.dtype}"
 
     def _assert_is_sparse(self, value: Any) -> None:
@@ -205,3 +207,18 @@ class Hdf5Sample(Sample):
         assert col is not None
         assert data is not None
         return coo_matrix((data, (row, col)))
+
+    def get_bytes(self, key: str) -> Optional[Bytes]:
+        if key not in self.file:
+            return None
+        ds = self.file[key]
+        assert (
+            len(ds.shape) == 1
+        ), f"1-dimensional array expected; found shape {ds.shape}"
+        return ds[()].tobytes()
+
+    def put_bytes(self, key: str, value: Bytes) -> None:
+        assert isinstance(
+            value, (bytes, bytearray)
+        ), f"bytes expected; found: {value.__class__}"  # type: ignore
+        self.put_array(key, np.frombuffer(value, dtype="uint8"))

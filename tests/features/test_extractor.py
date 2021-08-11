@@ -11,7 +11,7 @@ import numpy as np
 import gurobipy as gp
 
 from miplearn.features.extractor import FeaturesExtractor
-from miplearn.features.sample import Hdf5Sample
+from miplearn.features.sample import Hdf5Sample, MemorySample
 from miplearn.instance.base import Instance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.internal import Variables, Constraints
