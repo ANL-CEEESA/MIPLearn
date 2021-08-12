@@ -26,13 +26,9 @@ def _test_sample(sample: Sample) -> None:
     _assert_roundtrip_scalar(sample, 1.0)
     assert sample.get_scalar("unknown-key") is None
 
-    _assert_roundtrip_array(sample, np.array([True, False], dtype="bool"))
-    _assert_roundtrip_array(sample, np.array([1, 2, 3], dtype="int16"))
-    _assert_roundtrip_array(sample, np.array([1, 2, 3], dtype="int32"))
-    _assert_roundtrip_array(sample, np.array([1, 2, 3], dtype="int64"))
-    _assert_roundtrip_array(sample, np.array([1.0, 2.0, 3.0], dtype="float16"))
-    _assert_roundtrip_array(sample, np.array([1.0, 2.0, 3.0], dtype="float32"))
-    _assert_roundtrip_array(sample, np.array([1.0, 2.0, 3.0], dtype="float64"))
+    _assert_roundtrip_array(sample, np.array([True, False]))
+    _assert_roundtrip_array(sample, np.array([1, 2, 3]))
+    _assert_roundtrip_array(sample, np.array([1.0, 2.0, 3.0]))
     _assert_roundtrip_array(sample, np.array(["A", "BB", "CCC"], dtype="S"))
     assert sample.get_array("unknown-key") is None
 
@@ -40,11 +36,10 @@ def _test_sample(sample: Sample) -> None:
         sample,
         coo_matrix(
             [
-                [1, 0, 0],
-                [0, 2, 3],
-                [0, 0, 4],
+                [1.0, 0.0, 0.0],
+                [0.0, 2.0, 3.0],
+                [0.0, 0.0, 4.0],
             ],
-            dtype=float,
         ),
     )
     assert sample.get_sparse("unknown-key") is None
@@ -55,7 +50,6 @@ def _assert_roundtrip_array(sample: Sample, original: np.ndarray) -> None:
     recovered = sample.get_array("key")
     assert recovered is not None
     assert isinstance(recovered, np.ndarray)
-    assert recovered.dtype == original.dtype
     assert (recovered == original).all()
 
 
@@ -74,5 +68,4 @@ def _assert_roundtrip_sparse(sample: Sample, original: coo_matrix) -> None:
     recovered = sample.get_sparse("key")
     assert recovered is not None
     assert isinstance(recovered, coo_matrix)
-    assert recovered.dtype == original.dtype
     assert (original != recovered).sum() == 0
