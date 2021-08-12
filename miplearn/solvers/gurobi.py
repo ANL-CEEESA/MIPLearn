@@ -231,7 +231,7 @@ class GurobiSolver(InternalSolver):
                 for (i, gp_constr) in enumerate(gp_constrs):
                     expr = model.getRow(gp_constr)
                     for j in range(expr.size()):
-                        tmp[i, j] = expr.getCoeff(j)
+                        tmp[i, expr.getVar(j).index] = expr.getCoeff(j)
                 lhs = tmp.tocoo()
 
         if self._has_lp_solution:
