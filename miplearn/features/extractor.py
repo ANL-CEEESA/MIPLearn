@@ -6,6 +6,7 @@ from math import log, isfinite
 from typing import TYPE_CHECKING, List, Tuple, Optional
 
 import numpy as np
+from scipy.sparse import coo_matrix
 
 from miplearn.features.sample import Sample
 from miplearn.solvers.internal import LPSolveStats
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
     from miplearn.instance.base import Instance
 
 
+# noinspection PyPep8Naming
 class FeaturesExtractor:
     def __init__(
         self,
@@ -23,6 +25,7 @@ class FeaturesExtractor:
     ) -> None:
         self.with_sa = with_sa
         self.with_lhs = with_lhs
+        self.var_features_user: Optional[np.ndarray] = None
 
     def extract_after_load_features(
         self,
@@ -65,6 +68,7 @@ class FeaturesExtractor:
             vars_features_user,
             var_categories,
         ) = self._extract_user_features_vars(instance, sample)
+        self.var_features_user = vars_features_user
         sample.put_array("static_var_categories", var_categories)
         assert variables.lower_bounds is not None
         assert variables.obj_coeffs is not None
@@ -74,12 +78,11 @@ class FeaturesExtractor:
             np.hstack(
                 [
                     vars_features_user,
-                    self._extract_var_features_AlvLouWeh2017(
-                        obj_coeffs=variables.obj_coeffs,
+                    self._compute_AlvLouWeh2017(
+                        A=constraints.lhs,
+                        b=constraints.rhs,
+                        c=variables.obj_coeffs,
                     ),
-                    variables.lower_bounds.reshape(-1, 1),
-                    variables.obj_coeffs.reshape(-1, 1),
-                    variables.upper_bounds.reshape(-1, 1),
                 ]
             ),
         )
@@ -112,11 +115,13 @@ class FeaturesExtractor:
         # Variable features
         lp_var_features_list = []
         for f in [
-            sample.get_array("static_var_features"),
-            self._extract_var_features_AlvLouWeh2017(
-                obj_coeffs=sample.get_array("static_var_obj_coeffs"),
-                obj_sa_up=variables.sa_obj_up,
-                obj_sa_down=variables.sa_obj_down,
+            self.var_features_user,
+            self._compute_AlvLouWeh2017(
+                A=sample.get_sparse("static_constr_lhs"),
+                b=sample.get_array("static_constr_rhs"),
+                c=sample.get_array("static_var_obj_coeffs"),
+                c_sa_up=variables.sa_obj_up,
+                c_sa_down=variables.sa_obj_down,
                 values=variables.values,
             ),
         ]:
@@ -315,90 +320,108 @@ class FeaturesExtractor:
         ], f"Instance features have unsupported {features.dtype}"
         sample.put_array("static_instance_features", features)
 
-    # Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
-    # approximation of strong branching. INFORMS Journal on Computing, 29(1), 185-195.
-    # noinspection PyPep8Naming
-    def _extract_var_features_AlvLouWeh2017(
-        self,
-        obj_coeffs: Optional[np.ndarray] = None,
-        obj_sa_down: Optional[np.ndarray] = None,
-        obj_sa_up: Optional[np.ndarray] = None,
+    @classmethod
+    def _compute_AlvLouWeh2017(
+        cls,
+        A: Optional[coo_matrix] = None,
+        b: Optional[np.ndarray] = None,
+        c: Optional[np.ndarray] = None,
+        c_sa_down: Optional[np.ndarray] = None,
+        c_sa_up: Optional[np.ndarray] = None,
         values: Optional[np.ndarray] = None,
     ) -> np.ndarray:
-        assert obj_coeffs is not None
-        obj_coeffs = obj_coeffs.astype(float)
-        _fix_infinity(obj_coeffs)
-        nvars = len(obj_coeffs)
+        """
+        Computes static variable features described in:
+            Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
+            approximation of strong branching. INFORMS Journal on Computing, 29(1),
+            185-195.
+        """
+        assert b is not None
+        assert c is not None
+        nvars = len(c)
 
-        if obj_sa_down is not None:
-            obj_sa_down = obj_sa_down.astype(float)
-            _fix_infinity(obj_sa_down)
-
-        if obj_sa_up is not None:
-            obj_sa_up = obj_sa_up.astype(float)
-            _fix_infinity(obj_sa_up)
-
-        if values is not None:
-            values = values.astype(float)
-            _fix_infinity(values)
-
-        pos_obj_coeffs_sum = obj_coeffs[obj_coeffs > 0].sum()
-        neg_obj_coeffs_sum = -obj_coeffs[obj_coeffs < 0].sum()
+        c_pos_sum = c[c > 0].sum()
+        c_neg_sum = -c[c < 0].sum()
 
         curr = 0
-        max_n_features = 8
+        max_n_features = 30
         features = np.zeros((nvars, max_n_features))
-        with np.errstate(divide="ignore", invalid="ignore"):
-            # Feature 1
-            features[:, curr] = np.sign(obj_coeffs)
+
+        def push(v: np.ndarray) -> None:
+            nonlocal curr
+            features[:, curr] = v
             curr += 1
 
+        with np.errstate(divide="ignore", invalid="ignore"):
+            # Feature 1
+            push(np.sign(c))
+
             # Feature 2
-            if abs(pos_obj_coeffs_sum) > 0:
-                features[:, curr] = np.abs(obj_coeffs) / pos_obj_coeffs_sum
-                curr += 1
+            push(np.abs(c) / c_pos_sum)
 
             # Feature 3
-            if abs(neg_obj_coeffs_sum) > 0:
-                features[:, curr] = np.abs(obj_coeffs) / neg_obj_coeffs_sum
-                curr += 1
+            push(np.abs(c) / c_neg_sum)
+
+            if A is not None:
+                M1 = A.T.multiply(1.0 / np.abs(b)).T.tocsr()
+                M1_pos = M1[b > 0, :]
+                if M1_pos.shape[0] > 0:
+                    M1_pos_max = M1_pos.max(axis=0).todense()
+                    M1_pos_min = M1_pos.min(axis=0).todense()
+                else:
+                    M1_pos_max = np.zeros(nvars)
+                    M1_pos_min = np.zeros(nvars)
+                M1_neg = M1[b < 0, :]
+                if M1_neg.shape[0] > 0:
+                    M1_neg_max = M1_neg.max(axis=0).todense()
+                    M1_neg_min = M1_neg.min(axis=0).todense()
+                else:
+                    M1_neg_max = np.zeros(nvars)
+                    M1_neg_min = np.zeros(nvars)
+
+                # Features 4-11
+                push(np.sign(M1_pos_min))
+                push(np.sign(M1_pos_max))
+                push(np.abs(M1_pos_min))
+                push(np.abs(M1_pos_max))
+                push(np.sign(M1_neg_min))
+                push(np.sign(M1_neg_max))
+                push(np.abs(M1_neg_min))
+                push(np.abs(M1_neg_max))
 
             # Feature 37
             if values is not None:
-                features[:, curr] = np.minimum(
-                    values - np.floor(values),
-                    np.ceil(values) - values,
+                push(
+                    np.minimum(
+                        values - np.floor(values),
+                        np.ceil(values) - values,
+                    )
                 )
-                curr += 1
 
             # Feature 44
-            if obj_sa_up is not None:
-                features[:, curr] = np.sign(obj_sa_up)
-                curr += 1
+            if c_sa_up is not None:
+                push(np.sign(c_sa_up))
 
             # Feature 46
-            if obj_sa_down is not None:
-                features[:, curr] = np.sign(obj_sa_down)
-                curr += 1
+            if c_sa_down is not None:
+                push(np.sign(c_sa_down))
 
             # Feature 47
-            if obj_sa_down is not None:
-                features[:, curr] = np.log(
-                    obj_coeffs - obj_sa_down / np.sign(obj_coeffs)
-                )
-                curr += 1
+            if c_sa_down is not None:
+                push(np.log(c - c_sa_down / np.sign(c)))
 
             # Feature 48
-            if obj_sa_up is not None:
-                features[:, curr] = np.log(obj_coeffs - obj_sa_up / np.sign(obj_coeffs))
-                curr += 1
+            if c_sa_up is not None:
+                push(np.log(c - c_sa_up / np.sign(c)))
 
         features = features[:, 0:curr]
         _fix_infinity(features)
         return features
 
 
-def _fix_infinity(m: np.ndarray) -> None:
+def _fix_infinity(m: Optional[np.ndarray]) -> None:
+    if m is None:
+        return
     masked = np.ma.masked_invalid(m)
     max_values = np.max(masked, axis=0)
     min_values = np.min(masked, axis=0)
