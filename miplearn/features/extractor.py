@@ -363,6 +363,9 @@ class FeaturesExtractor:
             push(np.abs(c) / c_neg_sum)
 
             if A is not None:
+                assert A.shape[1] == nvars
+                assert A.shape[0] == len(b)
+
                 M1 = A.T.multiply(1.0 / np.abs(b)).T.tocsr()
                 M1_pos = M1[b > 0, :]
                 if M1_pos.shape[0] > 0:
@@ -426,4 +429,4 @@ def _fix_infinity(m: Optional[np.ndarray]) -> None:
     max_values = np.max(masked, axis=0)
     min_values = np.min(masked, axis=0)
     m[:] = np.maximum(np.minimum(m, max_values), min_values)
-    m[np.isnan(m)] = 0.0
+    m[~np.isfinite(m)] = 0.0
