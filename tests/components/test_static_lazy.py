@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import Dict, cast, Hashable
+from typing import Dict, cast
 from unittest.mock import Mock, call
 
 import numpy as np
@@ -11,58 +11,43 @@ from numpy.testing import assert_array_equal
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold, MinProbabilityThreshold
 from miplearn.components.static_lazy import StaticLazyConstraintsComponent
-from miplearn.features import (
-    InstanceFeatures,
-    Features,
-    Sample,
-    ConstraintFeatures,
-)
+from miplearn.features.sample import Sample, MemorySample
 from miplearn.instance.base import Instance
-from miplearn.solvers.internal import InternalSolver
+from miplearn.solvers.internal import InternalSolver, Constraints
 from miplearn.solvers.learning import LearningSolver
 from miplearn.types import (
     LearningSolveStats,
+    ConstraintCategory,
 )
+from miplearn.solvers.tests import assert_equals
 
 
 @pytest.fixture
 def sample() -> Sample:
-    sample = Sample(
-        after_load=Features(
-            instance=InstanceFeatures(
-                lazy_constraint_count=4,
+    sample = MemorySample(
+        {
+            "static_constr_categories": [
+                b"type-a",
+                b"type-a",
+                b"type-a",
+                b"type-b",
+                b"type-b",
+            ],
+            "static_constr_lazy": np.array([True, True, True, True, False]),
+            "static_constr_names": np.array(["c1", "c2", "c3", "c4", "c5"], dtype="S"),
+            "static_instance_features": [5.0],
+            "mip_constr_lazy_enforced": np.array(["c1", "c2", "c4"], dtype="S"),
+            "lp_constr_features": np.array(
+                [
+                    [1.0, 1.0, 0.0],
+                    [1.0, 2.0, 0.0],
+                    [1.0, 3.0, 0.0],
+                    [1.0, 4.0, 0.0],
+                    [0.0, 0.0, 0.0],
+                ]
             ),
-            constraints=ConstraintFeatures(
-                names=["c1", "c2", "c3", "c4", "c5"],
-                categories=[
-                    "type-a",
-                    "type-a",
-                    "type-a",
-                    "type-b",
-                    "type-b",
-                ],
-                lazy=[True, True, True, True, False],
-            ),
-        ),
-        after_lp=Features(
-            instance=InstanceFeatures(),
-            constraints=ConstraintFeatures(names=["c1", "c2", "c3", "c4", "c5"]),
-        ),
-        after_mip=Features(
-            extra={
-                "lazy_enforced": {"c1", "c2", "c4"},
-            }
-        ),
-    )
-    sample.after_lp.instance.to_list = Mock(return_value=[5.0])  # type: ignore
-    sample.after_lp.constraints.to_list = Mock(  # type: ignore
-        side_effect=lambda idx: {
-            0: [1.0, 1.0],
-            1: [1.0, 2.0],
-            2: [1.0, 3.0],
-            3: [1.0, 4.0, 0.0],
-            4: None,
-        }[idx]
+            "static_constr_lazy_count": 4,
+        },
     )
     return sample
 
@@ -87,13 +72,13 @@ def test_usage_with_solver(instance: Instance) -> None:
     )
 
     component = StaticLazyConstraintsComponent(violation_tolerance=1.0)
-    component.thresholds["type-a"] = MinProbabilityThreshold([0.5, 0.5])
-    component.thresholds["type-b"] = MinProbabilityThreshold([0.5, 0.5])
+    component.thresholds[b"type-a"] = MinProbabilityThreshold([0.5, 0.5])
+    component.thresholds[b"type-b"] = MinProbabilityThreshold([0.5, 0.5])
     component.classifiers = {
-        "type-a": Mock(spec=Classifier),
-        "type-b": Mock(spec=Classifier),
+        b"type-a": Mock(spec=Classifier),
+        b"type-b": Mock(spec=Classifier),
     }
-    component.classifiers["type-a"].predict_proba = Mock(  # type: ignore
+    component.classifiers[b"type-a"].predict_proba = Mock(  # type: ignore
         return_value=np.array(
             [
                 [0.00, 1.00],  # c1
@@ -102,7 +87,7 @@ def test_usage_with_solver(instance: Instance) -> None:
             ]
         )
     )
-    component.classifiers["type-b"].predict_proba = Mock(  # type: ignore
+    component.classifiers[b"type-b"].predict_proba = Mock(  # type: ignore
         return_value=np.array(
             [
                 [0.02, 0.98],  # c4
@@ -112,10 +97,7 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     stats: LearningSolveStats = {}
     sample = instance.get_samples()[0]
-    assert sample.after_load is not None
-    assert sample.after_mip is not None
-    assert sample.after_mip.extra is not None
-    del sample.after_mip.extra["lazy_enforced"]
+    assert sample.get_array("mip_constr_lazy_enforced") is not None
 
     # LearningSolver calls before_solve_mip
     component.before_solve_mip(
@@ -127,12 +109,12 @@ def test_usage_with_solver(instance: Instance) -> None:
     )
 
     # Should ask ML to predict whether each lazy constraint should be enforced
-    component.classifiers["type-a"].predict_proba.assert_called_once()
-    component.classifiers["type-b"].predict_proba.assert_called_once()
+    component.classifiers[b"type-a"].predict_proba.assert_called_once()
+    component.classifiers[b"type-b"].predict_proba.assert_called_once()
 
     # Should ask internal solver to remove some constraints
     assert internal.remove_constraints.call_count == 1
-    internal.remove_constraints.assert_has_calls([call(["c3"])])
+    internal.remove_constraints.assert_has_calls([call([b"c3"])])
 
     # LearningSolver calls after_iteration (first time)
     should_repeat = component.iteration_cb(solver, instance, None)
@@ -140,8 +122,7 @@ def test_usage_with_solver(instance: Instance) -> None:
 
     # Should ask internal solver to verify if constraints in the pool are
     # satisfied and add the ones that are not
-    assert sample.after_load.constraints is not None
-    c = sample.after_load.constraints[[False, False, True, False, False]]
+    c = Constraints.from_sample(sample)[[False, False, True, False, False]]
     internal.are_constraints_satisfied.assert_called_once_with(c, tol=1.0)
     internal.are_constraints_satisfied.reset_mock()
     internal.add_constraints.assert_called_once_with(c)
@@ -165,8 +146,13 @@ def test_usage_with_solver(instance: Instance) -> None:
     )
 
     # Should update training sample
-    assert sample.after_mip.extra["lazy_enforced"] == {"c1", "c2", "c3", "c4"}
-    #
+    mip_constr_lazy_enforced = sample.get_array("mip_constr_lazy_enforced")
+    assert mip_constr_lazy_enforced is not None
+    assert_equals(
+        sorted(mip_constr_lazy_enforced),
+        np.array(["c1", "c2", "c3", "c4"], dtype="S"),
+    )
+
     # Should update stats
     assert stats["LazyStatic: Removed"] == 1
     assert stats["LazyStatic: Kept"] == 3
@@ -176,39 +162,39 @@ def test_usage_with_solver(instance: Instance) -> None:
 
 def test_sample_predict(sample: Sample) -> None:
     comp = StaticLazyConstraintsComponent()
-    comp.thresholds["type-a"] = MinProbabilityThreshold([0.5, 0.5])
-    comp.thresholds["type-b"] = MinProbabilityThreshold([0.5, 0.5])
-    comp.classifiers["type-a"] = Mock(spec=Classifier)
-    comp.classifiers["type-a"].predict_proba = lambda _: np.array(  # type:ignore
+    comp.thresholds[b"type-a"] = MinProbabilityThreshold([0.5, 0.5])
+    comp.thresholds[b"type-b"] = MinProbabilityThreshold([0.5, 0.5])
+    comp.classifiers[b"type-a"] = Mock(spec=Classifier)
+    comp.classifiers[b"type-a"].predict_proba = lambda _: np.array(  # type:ignore
         [
             [0.0, 1.0],  # c1
             [0.0, 0.9],  # c2
             [0.9, 0.1],  # c3
         ]
     )
-    comp.classifiers["type-b"] = Mock(spec=Classifier)
-    comp.classifiers["type-b"].predict_proba = lambda _: np.array(  # type:ignore
+    comp.classifiers[b"type-b"] = Mock(spec=Classifier)
+    comp.classifiers[b"type-b"].predict_proba = lambda _: np.array(  # type:ignore
         [
             [0.0, 1.0],  # c4
         ]
     )
     pred = comp.sample_predict(sample)
-    assert pred == ["c1", "c2", "c4"]
+    assert pred == [b"c1", b"c2", b"c4"]
 
 
 def test_fit_xy() -> None:
     x = cast(
-        Dict[Hashable, np.ndarray],
+        Dict[ConstraintCategory, np.ndarray],
         {
-            "type-a": np.array([[1.0, 1.0], [1.0, 2.0], [1.0, 3.0]]),
-            "type-b": np.array([[1.0, 4.0, 0.0]]),
+            b"type-a": np.array([[1.0, 1.0], [1.0, 2.0], [1.0, 3.0]]),
+            b"type-b": np.array([[1.0, 4.0, 0.0]]),
         },
     )
     y = cast(
-        Dict[Hashable, np.ndarray],
+        Dict[ConstraintCategory, np.ndarray],
         {
-            "type-a": np.array([[False, True], [False, True], [True, False]]),
-            "type-b": np.array([[False, True]]),
+            b"type-a": np.array([[False, True], [False, True], [True, False]]),
+            b"type-b": np.array([[False, True]]),
         },
     )
     clf: Classifier = Mock(spec=Classifier)
@@ -221,15 +207,15 @@ def test_fit_xy() -> None:
     )
     comp.fit_xy(x, y)
     assert clf.clone.call_count == 2
-    clf_a = comp.classifiers["type-a"]
-    clf_b = comp.classifiers["type-b"]
+    clf_a = comp.classifiers[b"type-a"]
+    clf_b = comp.classifiers[b"type-b"]
     assert clf_a.fit.call_count == 1  # type: ignore
     assert clf_b.fit.call_count == 1  # type: ignore
-    assert_array_equal(clf_a.fit.call_args[0][0], x["type-a"])  # type: ignore
-    assert_array_equal(clf_b.fit.call_args[0][0], x["type-b"])  # type: ignore
+    assert_array_equal(clf_a.fit.call_args[0][0], x[b"type-a"])  # type: ignore
+    assert_array_equal(clf_b.fit.call_args[0][0], x[b"type-b"])  # type: ignore
     assert thr.clone.call_count == 2
-    thr_a = comp.thresholds["type-a"]
-    thr_b = comp.thresholds["type-b"]
+    thr_a = comp.thresholds[b"type-a"]
+    thr_b = comp.thresholds[b"type-b"]
     assert thr_a.fit.call_count == 1  # type: ignore
     assert thr_b.fit.call_count == 1  # type: ignore
     assert thr_a.fit.call_args[0][0] == clf_a  # type: ignore
@@ -238,12 +224,12 @@ def test_fit_xy() -> None:
 
 def test_sample_xy(sample: Sample) -> None:
     x_expected = {
-        "type-a": [[5.0, 1.0, 1.0], [5.0, 1.0, 2.0], [5.0, 1.0, 3.0]],
-        "type-b": [[5.0, 1.0, 4.0, 0.0]],
+        b"type-a": [[5.0, 1.0, 1.0, 0.0], [5.0, 1.0, 2.0, 0.0], [5.0, 1.0, 3.0, 0.0]],
+        b"type-b": [[5.0, 1.0, 4.0, 0.0]],
     }
     y_expected = {
-        "type-a": [[False, True], [False, True], [True, False]],
-        "type-b": [[False, True]],
+        b"type-a": [[False, True], [False, True], [True, False]],
+        b"type-b": [[False, True]],
     }
     xy = StaticLazyConstraintsComponent().sample_xy(None, sample)
     assert xy is not None

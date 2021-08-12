@@ -3,7 +3,8 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Dict, List, TYPE_CHECKING, Hashable, Tuple, Any, Optional, Set
+import pdb
+from typing import Dict, List, TYPE_CHECKING, Tuple, Any, Optional, Set
 
 import numpy as np
 from overrides import overrides
@@ -13,9 +14,9 @@ from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold, Threshold
 from miplearn.components.component import Component
 from miplearn.components.dynamic_common import DynamicConstraintsComponent
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
-from miplearn.types import LearningSolveStats
+from miplearn.types import LearningSolveStats, ConstraintName, ConstraintCategory
 
 logger = logging.getLogger(__name__)
 
@@ -36,16 +37,16 @@ class DynamicLazyConstraintsComponent(Component):
         self.dynamic: DynamicConstraintsComponent = DynamicConstraintsComponent(
             classifier=classifier,
             threshold=threshold,
-            attr="lazy_enforced",
+            attr="mip_constr_lazy_enforced",
         )
         self.classifiers = self.dynamic.classifiers
         self.thresholds = self.dynamic.thresholds
         self.known_cids = self.dynamic.known_cids
-        self.lazy_enforced: Set[Hashable] = set()
+        self.lazy_enforced: Set[ConstraintName] = set()
 
     @staticmethod
     def enforce(
-        cids: List[Hashable],
+        cids: List[ConstraintName],
         instance: Instance,
         model: Any,
         solver: "LearningSolver",
@@ -78,9 +79,10 @@ class DynamicLazyConstraintsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        assert sample.after_mip is not None
-        assert sample.after_mip.extra is not None
-        sample.after_mip.extra["lazy_enforced"] = set(self.lazy_enforced)
+        sample.put_array(
+            "mip_constr_lazy_enforced",
+            np.array(list(self.lazy_enforced), dtype="S"),
+        )
 
     @overrides
     def iteration_cb(
@@ -119,7 +121,7 @@ class DynamicLazyConstraintsComponent(Component):
         self,
         instance: Instance,
         sample: Sample,
-    ) -> List[Hashable]:
+    ) -> List[ConstraintName]:
         return self.dynamic.sample_predict(instance, sample)
 
     @overrides
@@ -129,8 +131,8 @@ class DynamicLazyConstraintsComponent(Component):
     @overrides
     def fit_xy(
         self,
-        x: Dict[Hashable, np.ndarray],
-        y: Dict[Hashable, np.ndarray],
+        x: Dict[ConstraintCategory, np.ndarray],
+        y: Dict[ConstraintCategory, np.ndarray],
     ) -> None:
         self.dynamic.fit_xy(x, y)
 
@@ -139,5 +141,5 @@ class DynamicLazyConstraintsComponent(Component):
         self,
         instance: Instance,
         sample: Sample,
-    ) -> Dict[Hashable, Dict[str, float]]:
+    ) -> Dict[ConstraintCategory, Dict[str, float]]:
         return self.dynamic.sample_evaluate(instance, sample)

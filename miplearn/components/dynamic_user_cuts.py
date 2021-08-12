@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Any, TYPE_CHECKING, Hashable, Set, Tuple, Dict, List, Optional
+from typing import Any, TYPE_CHECKING, Set, Tuple, Dict, List, Optional
 
 import numpy as np
 from overrides import overrides
@@ -13,9 +13,9 @@ from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import Threshold, MinProbabilityThreshold
 from miplearn.components.component import Component
 from miplearn.components.dynamic_common import DynamicConstraintsComponent
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
-from miplearn.types import LearningSolveStats
+from miplearn.types import LearningSolveStats, ConstraintName, ConstraintCategory
 
 logger = logging.getLogger(__name__)
 
@@ -32,9 +32,9 @@ class UserCutsComponent(Component):
         self.dynamic = DynamicConstraintsComponent(
             classifier=classifier,
             threshold=threshold,
-            attr="user_cuts_enforced",
+            attr="mip_user_cuts_enforced",
         )
-        self.enforced: Set[Hashable] = set()
+        self.enforced: Set[ConstraintName] = set()
         self.n_added_in_callback = 0
 
     @overrides
@@ -71,7 +71,7 @@ class UserCutsComponent(Component):
         for cid in cids:
             if cid in self.enforced:
                 continue
-            assert isinstance(cid, Hashable)
+            assert isinstance(cid, ConstraintName)
             instance.enforce_user_cut(solver.internal_solver, model, cid)
             self.enforced.add(cid)
             self.n_added_in_callback += 1
@@ -87,9 +87,10 @@ class UserCutsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        assert sample.after_mip is not None
-        assert sample.after_mip.extra is not None
-        sample.after_mip.extra["user_cuts_enforced"] = set(self.enforced)
+        sample.put_array(
+            "mip_user_cuts_enforced",
+            np.array(list(self.enforced), dtype="S"),
+        )
         stats["UserCuts: Added in callback"] = self.n_added_in_callback
         if self.n_added_in_callback > 0:
             logger.info(f"{self.n_added_in_callback} user cuts added in callback")
@@ -112,7 +113,7 @@ class UserCutsComponent(Component):
         self,
         instance: "Instance",
         sample: Sample,
-    ) -> List[Hashable]:
+    ) -> List[ConstraintName]:
         return self.dynamic.sample_predict(instance, sample)
 
     @overrides
@@ -122,8 +123,8 @@ class UserCutsComponent(Component):
     @overrides
     def fit_xy(
         self,
-        x: Dict[Hashable, np.ndarray],
-        y: Dict[Hashable, np.ndarray],
+        x: Dict[ConstraintCategory, np.ndarray],
+        y: Dict[ConstraintCategory, np.ndarray],
     ) -> None:
         self.dynamic.fit_xy(x, y)
 
@@ -132,5 +133,5 @@ class UserCutsComponent(Component):
         self,
         instance: "Instance",
         sample: Sample,
-    ) -> Dict[Hashable, Dict[str, float]]:
+    ) -> Dict[ConstraintCategory, Dict[str, float]]:
         return self.dynamic.sample_evaluate(instance, sample)

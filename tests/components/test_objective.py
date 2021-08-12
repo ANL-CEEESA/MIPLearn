@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import Hashable, Dict
+from typing import Dict
 from unittest.mock import Mock
 
 import numpy as np
@@ -10,55 +10,46 @@ from numpy.testing import assert_array_equal
 
 from miplearn.classifiers import Regressor
 from miplearn.components.objective import ObjectiveValueComponent
-from miplearn.features import InstanceFeatures, Features, Sample
-from miplearn.solvers.internal import MIPSolveStats, LPSolveStats
+from miplearn.features.sample import Sample, MemorySample
 from miplearn.solvers.learning import LearningSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
+from miplearn.solvers.tests import assert_equals
 
 
 @pytest.fixture
 def sample() -> Sample:
-    sample = Sample(
-        after_load=Features(
-            instance=InstanceFeatures(),
-        ),
-        after_lp=Features(
-            lp_solve=LPSolveStats(),
-        ),
-        after_mip=Features(
-            mip_solve=MIPSolveStats(
-                mip_lower_bound=1.0,
-                mip_upper_bound=2.0,
-            )
-        ),
+    sample = MemorySample(
+        {
+            "mip_lower_bound": 1.0,
+            "mip_upper_bound": 2.0,
+            "lp_instance_features": np.array([1.0, 2.0, 3.0]),
+        },
     )
-    sample.after_load.instance.to_list = Mock(return_value=[1.0, 2.0])  # type: ignore
-    sample.after_lp.lp_solve.to_list = Mock(return_value=[3.0])  # type: ignore
     return sample
 
 
 def test_sample_xy(sample: Sample) -> None:
     x_expected = {
-        "Lower bound": [[1.0, 2.0, 3.0]],
-        "Upper bound": [[1.0, 2.0, 3.0]],
+        "Lower bound": np.array([[1.0, 2.0, 3.0]]),
+        "Upper bound": np.array([[1.0, 2.0, 3.0]]),
     }
     y_expected = {
-        "Lower bound": [[1.0]],
-        "Upper bound": [[2.0]],
+        "Lower bound": np.array([[1.0]]),
+        "Upper bound": np.array([[2.0]]),
     }
     xy = ObjectiveValueComponent().sample_xy(None, sample)
     assert xy is not None
     x_actual, y_actual = xy
-    assert x_actual == x_expected
-    assert y_actual == y_expected
+    assert_equals(x_actual, x_expected)
+    assert_equals(y_actual, y_expected)
 
 
 def test_fit_xy() -> None:
-    x: Dict[Hashable, np.ndarray] = {
+    x: Dict[str, np.ndarray] = {
         "Lower bound": np.array([[0.0, 0.0], [1.0, 2.0]]),
         "Upper bound": np.array([[0.0, 0.0], [1.0, 2.0]]),
     }
-    y: Dict[Hashable, np.ndarray] = {
+    y: Dict[str, np.ndarray] = {
         "Lower bound": np.array([[100.0]]),
         "Upper bound": np.array([[200.0]]),
     }

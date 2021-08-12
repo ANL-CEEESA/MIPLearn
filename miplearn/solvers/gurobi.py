@@ -6,11 +6,12 @@ import re
 import sys
 from io import StringIO
 from random import randint
-from typing import List, Any, Dict, Optional, Hashable, Tuple, TYPE_CHECKING
+from typing import List, Any, Dict, Optional, TYPE_CHECKING
 
+import numpy as np
 from overrides import overrides
+from scipy.sparse import coo_matrix, lil_matrix
 
-from miplearn.features import VariableFeatures, ConstraintFeatures
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import (
@@ -19,6 +20,8 @@ from miplearn.solvers.internal import (
     IterationCallback,
     LazyCallback,
     MIPSolveStats,
+    Variables,
+    Constraints,
 )
 from miplearn.solvers.pyomo.base import PyomoTestInstanceKnapsack
 from miplearn.types import (
@@ -71,16 +74,16 @@ class GurobiSolver(InternalSolver):
         self._has_lp_solution = False
         self._has_mip_solution = False
 
-        self._varname_to_var: Dict[str, "gurobipy.Var"] = {}
+        self._varname_to_var: Dict[bytes, "gurobipy.Var"] = {}
         self._cname_to_constr: Dict[str, "gurobipy.Constr"] = {}
         self._gp_vars: List["gurobipy.Var"] = []
         self._gp_constrs: List["gurobipy.Constr"] = []
-        self._var_names: List[str] = []
+        self._var_names: np.ndarray = np.empty(0)
         self._constr_names: List[str] = []
-        self._var_types: List[str] = []
-        self._var_lbs: List[float] = []
-        self._var_ubs: List[float] = []
-        self._var_obj_coeffs: List[float] = []
+        self._var_types: np.ndarray = np.empty(0)
+        self._var_lbs: np.ndarray = np.empty(0)
+        self._var_ubs: np.ndarray = np.empty(0)
+        self._var_obj_coeffs: np.ndarray = np.empty(0)
 
         if self.lazy_cb_frequency == 1:
             self.lazy_cb_where = [self.gp.GRB.Callback.MIPSOL]
@@ -91,23 +94,27 @@ class GurobiSolver(InternalSolver):
             ]
 
     @overrides
-    def add_constraints(self, cf: ConstraintFeatures) -> None:
+    def add_constraints(self, cf: Constraints) -> None:
         assert cf.names is not None
         assert cf.senses is not None
         assert cf.lhs is not None
         assert cf.rhs is not None
         assert self.model is not None
+        lhs = cf.lhs.tocsr()
         for i in range(len(cf.names)):
             sense = cf.senses[i]
-            lhs = self.gp.quicksum(
-                self._varname_to_var[varname] * coeff for (varname, coeff) in cf.lhs[i]
+            row = lhs[i, :]
+            row_expr = self.gp.quicksum(
+                self._gp_vars[row.indices[j]] * row.data[j] for j in range(row.getnnz())
             )
-            if sense == "=":
-                self.model.addConstr(lhs == cf.rhs[i], name=cf.names[i])
-            elif sense == "<":
-                self.model.addConstr(lhs <= cf.rhs[i], name=cf.names[i])
+            if sense == b"=":
+                self.model.addConstr(row_expr == cf.rhs[i], name=cf.names[i])
+            elif sense == b"<":
+                self.model.addConstr(row_expr <= cf.rhs[i], name=cf.names[i])
+            elif sense == b">":
+                self.model.addConstr(row_expr >= cf.rhs[i], name=cf.names[i])
             else:
-                self.model.addConstr(lhs >= cf.rhs[i], name=cf.names[i])
+                raise Exception(f"Unknown sense: {sense}")
         self.model.update()
         self._dirty = True
         self._has_lp_solution = False
@@ -120,7 +127,7 @@ class GurobiSolver(InternalSolver):
     @overrides
     def are_constraints_satisfied(
         self,
-        cf: ConstraintFeatures,
+        cf: Constraints,
         tol: float = 1e-5,
     ) -> List[bool]:
         assert cf.names is not None
@@ -129,18 +136,18 @@ class GurobiSolver(InternalSolver):
         assert cf.rhs is not None
         assert self.model is not None
         result = []
+        x = np.array(self.model.getAttr("x", self.model.getVars()))
+        lhs = cf.lhs.tocsr() * x
         for i in range(len(cf.names)):
             sense = cf.senses[i]
-            lhs = sum(
-                self._varname_to_var[varname].x * coeff
-                for (varname, coeff) in cf.lhs[i]
-            )
-            if sense == "<":
-                result.append(lhs <= cf.rhs[i] + tol)
-            elif sense == ">":
-                result.append(lhs >= cf.rhs[i] - tol)
+            if sense == b"<":
+                result.append(lhs[i] <= cf.rhs[i] + tol)
+            elif sense == b">":
+                result.append(lhs[i] >= cf.rhs[i] - tol)
+            elif sense == b"<":
+                result.append(abs(cf.rhs[i] - lhs[i]) <= tol)
             else:
-                result.append(abs(cf.rhs[i] - lhs) <= tol)
+                raise Exception(f"unknown sense: {sense}")
         return result
 
     @overrides
@@ -196,7 +203,7 @@ class GurobiSolver(InternalSolver):
         with_static: bool = True,
         with_sa: bool = True,
         with_lhs: bool = True,
-    ) -> ConstraintFeatures:
+    ) -> Constraints:
         model = self.model
         assert model is not None
         assert model.numVars == len(self._gp_vars)
@@ -209,39 +216,40 @@ class GurobiSolver(InternalSolver):
             raise Exception(f"unknown cbasis: {v}")
 
         gp_constrs = model.getConstrs()
-        constr_names = model.getAttr("constrName", gp_constrs)
-        lhs: Optional[List] = None
+        constr_names = np.array(model.getAttr("constrName", gp_constrs), dtype="S")
+        lhs: Optional[coo_matrix] = None
         rhs, senses, slacks, basis_status = None, None, None, None
         dual_value, basis_status, sa_rhs_up, sa_rhs_down = None, None, None, None
 
         if with_static:
-            rhs = model.getAttr("rhs", gp_constrs)
-            senses = model.getAttr("sense", gp_constrs)
+            rhs = np.array(model.getAttr("rhs", gp_constrs), dtype=float)
+            senses = np.array(model.getAttr("sense", gp_constrs), dtype="S")
             if with_lhs:
-                lhs = [None for _ in gp_constrs]
+                nrows = len(gp_constrs)
+                ncols = len(self._var_names)
+                tmp = lil_matrix((nrows, ncols), dtype=float)
                 for (i, gp_constr) in enumerate(gp_constrs):
                     expr = model.getRow(gp_constr)
-                    lhs[i] = [
-                        (self._var_names[expr.getVar(j).index], expr.getCoeff(j))
-                        for j in range(expr.size())
-                    ]
+                    for j in range(expr.size()):
+                        tmp[i, expr.getVar(j).index] = expr.getCoeff(j)
+                lhs = tmp.tocoo()
 
         if self._has_lp_solution:
-            dual_value = model.getAttr("pi", gp_constrs)
-            basis_status = list(
-                map(
-                    _parse_gurobi_cbasis,
-                    model.getAttr("cbasis", gp_constrs),
-                )
+            dual_value = np.array(model.getAttr("pi", gp_constrs), dtype=float)
+            basis_status = np.array(
+                [_parse_gurobi_cbasis(c) for c in model.getAttr("cbasis", gp_constrs)],
+                dtype="S",
             )
             if with_sa:
-                sa_rhs_up = model.getAttr("saRhsUp", gp_constrs)
-                sa_rhs_down = model.getAttr("saRhsLow", gp_constrs)
+                sa_rhs_up = np.array(model.getAttr("saRhsUp", gp_constrs), dtype=float)
+                sa_rhs_down = np.array(
+                    model.getAttr("saRhsLow", gp_constrs), dtype=float
+                )
 
         if self._has_lp_solution or self._has_mip_solution:
-            slacks = model.getAttr("slack", gp_constrs)
+            slacks = np.array(model.getAttr("slack", gp_constrs), dtype=float)
 
-        return ConstraintFeatures(
+        return Constraints(
             basis_status=basis_status,
             dual_values=dual_value,
             lhs=lhs,
@@ -259,11 +267,13 @@ class GurobiSolver(InternalSolver):
         if self.cb_where is not None:
             if self.cb_where == self.gp.GRB.Callback.MIPNODE:
                 return {
-                    v.varName: self.model.cbGetNodeRel(v) for v in self.model.getVars()
+                    v.varName.encode(): self.model.cbGetNodeRel(v)
+                    for v in self.model.getVars()
                 }
             elif self.cb_where == self.gp.GRB.Callback.MIPSOL:
                 return {
-                    v.varName: self.model.cbGetSolution(v) for v in self.model.getVars()
+                    v.varName.encode(): self.model.cbGetSolution(v)
+                    for v in self.model.getVars()
                 }
             else:
                 raise Exception(
@@ -272,7 +282,7 @@ class GurobiSolver(InternalSolver):
                 )
         if self.model.solCount == 0:
             return None
-        return {v.varName: v.x for v in self.model.getVars()}
+        return {v.varName.encode(): v.x for v in self.model.getVars()}
 
     @overrides
     def get_variable_attrs(self) -> List[str]:
@@ -300,7 +310,7 @@ class GurobiSolver(InternalSolver):
         self,
         with_static: bool = True,
         with_sa: bool = True,
-    ) -> VariableFeatures:
+    ) -> Variables:
         model = self.model
         assert model is not None
 
@@ -316,8 +326,9 @@ class GurobiSolver(InternalSolver):
             else:
                 raise Exception(f"unknown vbasis: {basis_status}")
 
+        basis_status: Optional[np.ndarray] = None
         upper_bounds, lower_bounds, types, values = None, None, None, None
-        obj_coeffs, reduced_costs, basis_status = None, None, None
+        obj_coeffs, reduced_costs = None, None
         sa_obj_up, sa_ub_up, sa_lb_up = None, None, None
         sa_obj_down, sa_ub_down, sa_lb_down = None, None, None
 
@@ -328,26 +339,45 @@ class GurobiSolver(InternalSolver):
             obj_coeffs = self._var_obj_coeffs
 
         if self._has_lp_solution:
-            reduced_costs = model.getAttr("rc", self._gp_vars)
-            basis_status = list(
-                map(
-                    _parse_gurobi_vbasis,
-                    model.getAttr("vbasis", self._gp_vars),
-                )
+            reduced_costs = np.array(model.getAttr("rc", self._gp_vars), dtype=float)
+            basis_status = np.array(
+                [
+                    _parse_gurobi_vbasis(b)
+                    for b in model.getAttr("vbasis", self._gp_vars)
+                ],
+                dtype="S",
             )
 
             if with_sa:
-                sa_obj_up = model.getAttr("saobjUp", self._gp_vars)
-                sa_obj_down = model.getAttr("saobjLow", self._gp_vars)
-                sa_ub_up = model.getAttr("saubUp", self._gp_vars)
-                sa_ub_down = model.getAttr("saubLow", self._gp_vars)
-                sa_lb_up = model.getAttr("salbUp", self._gp_vars)
-                sa_lb_down = model.getAttr("salbLow", self._gp_vars)
+                sa_obj_up = np.array(
+                    model.getAttr("saobjUp", self._gp_vars),
+                    dtype=float,
+                )
+                sa_obj_down = np.array(
+                    model.getAttr("saobjLow", self._gp_vars),
+                    dtype=float,
+                )
+                sa_ub_up = np.array(
+                    model.getAttr("saubUp", self._gp_vars),
+                    dtype=float,
+                )
+                sa_ub_down = np.array(
+                    model.getAttr("saubLow", self._gp_vars),
+                    dtype=float,
+                )
+                sa_lb_up = np.array(
+                    model.getAttr("salbUp", self._gp_vars),
+                    dtype=float,
+                )
+                sa_lb_down = np.array(
+                    model.getAttr("salbLow", self._gp_vars),
+                    dtype=float,
+                )
 
         if model.solCount > 0:
-            values = model.getAttr("x", self._gp_vars)
+            values = np.array(model.getAttr("x", self._gp_vars), dtype=float)
 
-        return VariableFeatures(
+        return Variables(
             names=self._var_names,
             upper_bounds=upper_bounds,
             lower_bounds=lower_bounds,
@@ -489,7 +519,7 @@ class GurobiSolver(InternalSolver):
         self._apply_params(streams)
         assert self.model is not None
         for (i, var) in enumerate(self._gp_vars):
-            if self._var_types[i] == "B":
+            if self._var_types[i] == b"B":
                 var.vtype = self.gp.GRB.CONTINUOUS
                 var.lb = 0.0
                 var.ub = 1.0
@@ -497,7 +527,7 @@ class GurobiSolver(InternalSolver):
             self.model.optimize()
             self._dirty = False
         for (i, var) in enumerate(self._gp_vars):
-            if self._var_types[i] == "B":
+            if self._var_types[i] == b"B":
                 var.vtype = self.gp.GRB.BINARY
         log = streams[0].getvalue()
         self._has_lp_solution = self.model.solCount > 0
@@ -562,32 +592,47 @@ class GurobiSolver(InternalSolver):
         assert self.model is not None
         gp_vars: List["gurobipy.Var"] = self.model.getVars()
         gp_constrs: List["gurobipy.Constr"] = self.model.getConstrs()
-        var_names: List[str] = self.model.getAttr("varName", gp_vars)
-        var_types: List[str] = self.model.getAttr("vtype", gp_vars)
-        var_ubs: List[float] = self.model.getAttr("ub", gp_vars)
-        var_lbs: List[float] = self.model.getAttr("lb", gp_vars)
-        var_obj_coeffs: List[float] = self.model.getAttr("obj", gp_vars)
+        var_names: np.ndarray = np.array(
+            self.model.getAttr("varName", gp_vars),
+            dtype="S",
+        )
+        var_types: np.ndarray = np.array(
+            self.model.getAttr("vtype", gp_vars),
+            dtype="S",
+        )
+        var_ubs: np.ndarray = np.array(
+            self.model.getAttr("ub", gp_vars),
+            dtype=float,
+        )
+        var_lbs: np.ndarray = np.array(
+            self.model.getAttr("lb", gp_vars),
+            dtype=float,
+        )
+        var_obj_coeffs: np.ndarray = np.array(
+            self.model.getAttr("obj", gp_vars),
+            dtype=float,
+        )
         constr_names: List[str] = self.model.getAttr("constrName", gp_constrs)
-        varname_to_var: Dict = {}
+        varname_to_var: Dict[bytes, "gurobipy.Var"] = {}
         cname_to_constr: Dict = {}
         for (i, gp_var) in enumerate(gp_vars):
             assert var_names[i] not in varname_to_var, (
                 f"Duplicated variable name detected: {var_names[i]}. "
                 f"Unique variable names are currently required."
             )
-            if var_types[i] == "I":
+            if var_types[i] == b"I":
                 assert var_ubs[i] == 1.0, (
                     "Only binary and continuous variables are currently supported. "
-                    "Integer variable {var.varName} has upper bound {var.ub}."
+                    f"Integer variable {var_names[i]} has upper bound {var_ubs[i]}."
                 )
                 assert var_lbs[i] == 0.0, (
                     "Only binary and continuous variables are currently supported. "
-                    "Integer variable {var.varName} has lower bound {var.ub}."
+                    f"Integer variable {var_names[i]} has lower bound {var_ubs[i]}."
                 )
-                var_types[i] = "B"
-            assert var_types[i] in ["B", "C"], (
+                var_types[i] = b"B"
+            assert var_types[i] in [b"B", b"C"], (
                 "Only binary and continuous variables are currently supported. "
-                "Variable {var.varName} has type {vtype}."
+                f"Variable {var_names[i]} has type {var_types[i]}."
             )
             varname_to_var[var_names[i]] = gp_var
         for (i, gp_constr) in enumerate(gp_constrs):
@@ -671,7 +716,7 @@ class GurobiTestInstanceKnapsack(PyomoTestInstanceKnapsack):
         self,
         solver: InternalSolver,
         model: Any,
-        violation: Hashable,
+        violation: str,
     ) -> None:
         x0 = model.getVarByName("x[0]")
         model.cbLazy(x0 <= 0)

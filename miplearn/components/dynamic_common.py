@@ -3,17 +3,19 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Dict, Hashable, List, Tuple, Optional, Any, Set
+from typing import Dict, List, Tuple, Optional, Any, Set
 
 import numpy as np
 from overrides import overrides
 
+from miplearn.features.extractor import FeaturesExtractor
 from miplearn.classifiers import Classifier
 from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
+from miplearn.types import ConstraintCategory, ConstraintName
 
 logger = logging.getLogger(__name__)
 
@@ -32,9 +34,9 @@ class DynamicConstraintsComponent(Component):
         assert isinstance(classifier, Classifier)
         self.threshold_prototype: Threshold = threshold
         self.classifier_prototype: Classifier = classifier
-        self.classifiers: Dict[Hashable, Classifier] = {}
-        self.thresholds: Dict[Hashable, Threshold] = {}
-        self.known_cids: List[str] = []
+        self.classifiers: Dict[ConstraintCategory, Classifier] = {}
+        self.thresholds: Dict[ConstraintCategory, Threshold] = {}
+        self.known_cids: List[ConstraintName] = []
         self.attr = attr
 
     def sample_xy_with_cids(
@@ -42,52 +44,48 @@ class DynamicConstraintsComponent(Component):
         instance: Optional[Instance],
         sample: Sample,
     ) -> Tuple[
-        Dict[Hashable, List[List[float]]],
-        Dict[Hashable, List[List[bool]]],
-        Dict[Hashable, List[str]],
+        Dict[ConstraintCategory, List[List[float]]],
+        Dict[ConstraintCategory, List[List[bool]]],
+        Dict[ConstraintCategory, List[ConstraintName]],
     ]:
+        if len(self.known_cids) == 0:
+            return {}, {}, {}
         assert instance is not None
-        x: Dict[Hashable, List[List[float]]] = {}
-        y: Dict[Hashable, List[List[bool]]] = {}
-        cids: Dict[Hashable, List[str]] = {}
-        constr_categories_dict = instance.get_constraint_categories()
-        constr_features_dict = instance.get_constraint_features()
-        for cid in self.known_cids:
-            # Initialize categories
-            if cid in constr_categories_dict:
-                category = constr_categories_dict[cid]
-            else:
-                category = cid
-            if category is None:
-                continue
-            if category not in x:
-                x[category] = []
-                y[category] = []
-                cids[category] = []
+        x: Dict[ConstraintCategory, List[List[float]]] = {}
+        y: Dict[ConstraintCategory, List[List[bool]]] = {}
+        cids: Dict[ConstraintCategory, List[ConstraintName]] = {}
+        known_cids = np.array(self.known_cids, dtype="S")
 
-            # Features
-            features = []
-            assert sample.after_load is not None
-            assert sample.after_load.instance is not None
-            features.extend(sample.after_load.instance.to_list())
-            if cid in constr_features_dict:
-                features.extend(constr_features_dict[cid])
-            for ci in features:
-                assert isinstance(ci, float), (
-                    f"Constraint features must be a list of floats. "
-                    f"Found {ci.__class__.__name__} instead."
-                )
-            x[category].append(features)
-            cids[category].append(cid)
+        enforced_cids = None
+        enforced_cids_np = sample.get_array(self.attr)
+        if enforced_cids_np is not None:
+            enforced_cids = list(enforced_cids_np)
 
-            # Labels
-            if sample.after_mip is not None:
-                assert sample.after_mip.extra is not None
-                if sample.after_mip.extra[self.attr] is not None:
-                    if cid in sample.after_mip.extra[self.attr]:
-                        y[category] += [[False, True]]
-                    else:
-                        y[category] += [[True, False]]
+        # Get user-provided constraint features
+        (
+            constr_features,
+            constr_categories,
+            constr_lazy,
+        ) = FeaturesExtractor._extract_user_features_constrs(instance, known_cids)
+
+        # Augment with instance features
+        instance_features = sample.get_array("static_instance_features")
+        assert instance_features is not None
+        constr_features = np.hstack(
+            [
+                instance_features.reshape(1, -1).repeat(len(known_cids), axis=0),
+                constr_features,
+            ]
+        )
+
+        categories = np.unique(constr_categories)
+        for c in categories:
+            x[c] = constr_features[constr_categories == c].tolist()
+            cids[c] = known_cids[constr_categories == c].tolist()
+            if enforced_cids is not None:
+                tmp = np.isin(cids[c], enforced_cids).reshape(-1, 1)
+                y[c] = np.hstack([~tmp, tmp]).tolist()  # type: ignore
+
         return x, y, cids
 
     @overrides
@@ -104,7 +102,7 @@ class DynamicConstraintsComponent(Component):
         assert pre is not None
         known_cids: Set = set()
         for cids in pre:
-            known_cids |= cids
+            known_cids |= set(list(cids))
         self.known_cids.clear()
         self.known_cids.extend(sorted(known_cids))
 
@@ -112,8 +110,8 @@ class DynamicConstraintsComponent(Component):
         self,
         instance: Instance,
         sample: Sample,
-    ) -> List[Hashable]:
-        pred: List[Hashable] = []
+    ) -> List[ConstraintName]:
+        pred: List[ConstraintName] = []
         if len(self.known_cids) == 0:
             logger.info("Classifiers not fitted. Skipping.")
             return pred
@@ -133,19 +131,13 @@ class DynamicConstraintsComponent(Component):
 
     @overrides
     def pre_sample_xy(self, instance: Instance, sample: Sample) -> Any:
-        if (
-            sample.after_mip is None
-            or sample.after_mip.extra is None
-            or sample.after_mip.extra[self.attr] is None
-        ):
-            return
-        return sample.after_mip.extra[self.attr]
+        return sample.get_array(self.attr)
 
     @overrides
     def fit_xy(
         self,
-        x: Dict[Hashable, np.ndarray],
-        y: Dict[Hashable, np.ndarray],
+        x: Dict[ConstraintCategory, np.ndarray],
+        y: Dict[ConstraintCategory, np.ndarray],
     ) -> None:
         for category in x.keys():
             self.classifiers[category] = self.classifier_prototype.clone()
@@ -160,42 +152,20 @@ class DynamicConstraintsComponent(Component):
         self,
         instance: Instance,
         sample: Sample,
-    ) -> Dict[Hashable, Dict[str, float]]:
-        assert sample.after_mip is not None
-        assert sample.after_mip.extra is not None
-        assert self.attr in sample.after_mip.extra
-        actual = sample.after_mip.extra[self.attr]
+    ) -> Dict[str, float]:
+        actual = sample.get_array(self.attr)
+        assert actual is not None
         pred = set(self.sample_predict(instance, sample))
-        tp: Dict[Hashable, int] = {}
-        tn: Dict[Hashable, int] = {}
-        fp: Dict[Hashable, int] = {}
-        fn: Dict[Hashable, int] = {}
-        constr_categories_dict = instance.get_constraint_categories()
+        tp, tn, fp, fn = 0, 0, 0, 0
         for cid in self.known_cids:
-            if cid not in constr_categories_dict:
-                continue
-            category = constr_categories_dict[cid]
-            if category not in tp.keys():
-                tp[category] = 0
-                tn[category] = 0
-                fp[category] = 0
-                fn[category] = 0
             if cid in pred:
                 if cid in actual:
-                    tp[category] += 1
+                    tp += 1
                 else:
-                    fp[category] += 1
+                    fp += 1
             else:
                 if cid in actual:
-                    fn[category] += 1
+                    fn += 1
                 else:
-                    tn[category] += 1
-        return {
-            category: classifier_evaluation_dict(
-                tp=tp[category],
-                tn=tn[category],
-                fp=fp[category],
-                fn=fn[category],
-            )
-            for category in tp.keys()
-        }
+                    tn += 1
+        return classifier_evaluation_dict(tp=tp, tn=tn, fp=fp, fn=fn)

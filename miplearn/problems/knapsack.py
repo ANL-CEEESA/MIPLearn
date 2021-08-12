@@ -1,7 +1,8 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List, Dict, Optional, Hashable, Any
+
+from typing import List, Dict, Optional
 
 import numpy as np
 import pyomo.environ as pe
@@ -10,7 +11,6 @@ from scipy.stats import uniform, randint, rv_discrete
 from scipy.stats.distributions import rv_frozen
 
 from miplearn.instance.base import Instance
-from miplearn.types import VariableName, Category
 
 
 class ChallengeA:
@@ -94,15 +94,17 @@ class MultiKnapsackInstance(Instance):
         return model
 
     @overrides
-    def get_instance_features(self) -> List[float]:
-        return [float(np.mean(self.prices))] + list(self.capacities)
+    def get_instance_features(self) -> np.ndarray:
+        return np.array([float(np.mean(self.prices))] + list(self.capacities))
 
     @overrides
-    def get_variable_features(self) -> Dict[str, List[float]]:
-        return {
-            f"x[{i}]": [self.prices[i] + list(self.weights[:, i])]
-            for i in range(self.n)
-        }
+    def get_variable_features(self, names: np.ndarray) -> np.ndarray:
+        features = []
+        for i in range(len(self.weights)):
+            f = [self.prices[i]]
+            f.extend(self.weights[:, i])
+            features.append(f)
+        return np.array(features)
 
 
 # noinspection PyPep8Naming

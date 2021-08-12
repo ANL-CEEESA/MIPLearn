@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="miplearn",
-    version="0.2.0.dev10",
+    version="0.2.0.dev11",
     author="Alinson S. Xavier",
     author_email="axavier@anl.gov",
     description="Extensible framework for Learning-Enhanced Mixed-Integer Optimization",
@@ -19,20 +19,21 @@ setup(
     packages=find_namespace_packages(),
     python_requires=">=3.7",
     install_requires=[
+        "decorator>=4,<5",
+        "h5py>=3,<4",
         "matplotlib>=3,<4",
+        "mypy==0.790",
         "networkx>=2,<3",
         "numpy>=1,<1.21",
+        "overrides>=3,<4",
         "p_tqdm>=1,<2",
         "pandas>=1,<2",
         "pyomo>=5,<6",
         "pytest>=6,<7",
         "python-markdown-math>=0.8,<0.9",
-        "seaborn>=0.11,<0.12",
         "scikit-learn>=0.24,<0.25",
+        "seaborn>=0.11,<0.12",
         "tqdm>=4,<5",
-        "mypy==0.790",
-        "decorator>=4,<5",
-        "overrides>=3,<4",
     ],
     extras_require={
         "dev": [

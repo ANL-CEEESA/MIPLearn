@@ -5,9 +5,11 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, List, Optional, List
+from typing import Any, Optional, List, TYPE_CHECKING
 
-from miplearn.features import VariableFeatures, ConstraintFeatures
+import numpy as np
+from scipy.sparse import coo_matrix
+
 from miplearn.instance.base import Instance
 from miplearn.types import (
     IterationCallback,
@@ -17,6 +19,9 @@ from miplearn.types import (
 )
 
 logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from miplearn.features.sample import Sample
 
 
 @dataclass
@@ -44,20 +49,87 @@ class MIPSolveStats:
     mip_warm_start_value: Optional[float] = None
 
 
+@dataclass
+class Variables:
+    names: Optional[np.ndarray] = None
+    basis_status: Optional[np.ndarray] = None
+    lower_bounds: Optional[np.ndarray] = None
+    obj_coeffs: Optional[np.ndarray] = None
+    reduced_costs: Optional[np.ndarray] = None
+    sa_lb_down: Optional[np.ndarray] = None
+    sa_lb_up: Optional[np.ndarray] = None
+    sa_obj_down: Optional[np.ndarray] = None
+    sa_obj_up: Optional[np.ndarray] = None
+    sa_ub_down: Optional[np.ndarray] = None
+    sa_ub_up: Optional[np.ndarray] = None
+    types: Optional[np.ndarray] = None
+    upper_bounds: Optional[np.ndarray] = None
+    values: Optional[np.ndarray] = None
+
+
+@dataclass
+class Constraints:
+    basis_status: Optional[np.ndarray] = None
+    dual_values: Optional[np.ndarray] = None
+    lazy: Optional[np.ndarray] = None
+    lhs: Optional[coo_matrix] = None
+    names: Optional[np.ndarray] = None
+    rhs: Optional[np.ndarray] = None
+    sa_rhs_down: Optional[np.ndarray] = None
+    sa_rhs_up: Optional[np.ndarray] = None
+    senses: Optional[np.ndarray] = None
+    slacks: Optional[np.ndarray] = None
+
+    @staticmethod
+    def from_sample(sample: "Sample") -> "Constraints":
+        return Constraints(
+            basis_status=sample.get_array("lp_constr_basis_status"),
+            dual_values=sample.get_array("lp_constr_dual_values"),
+            lazy=sample.get_array("static_constr_lazy"),
+            # lhs=sample.get_vector("static_constr_lhs"),
+            names=sample.get_array("static_constr_names"),
+            rhs=sample.get_array("static_constr_rhs"),
+            sa_rhs_down=sample.get_array("lp_constr_sa_rhs_down"),
+            sa_rhs_up=sample.get_array("lp_constr_sa_rhs_up"),
+            senses=sample.get_array("static_constr_senses"),
+            slacks=sample.get_array("lp_constr_slacks"),
+        )
+
+    def __getitem__(self, selected: List[bool]) -> "Constraints":
+        return Constraints(
+            basis_status=(
+                None if self.basis_status is None else self.basis_status[selected]
+            ),
+            dual_values=(
+                None if self.dual_values is None else self.dual_values[selected]
+            ),
+            names=(None if self.names is None else self.names[selected]),
+            lazy=(None if self.lazy is None else self.lazy[selected]),
+            lhs=(None if self.lhs is None else self.lhs.tocsr()[selected].tocoo()),
+            rhs=(None if self.rhs is None else self.rhs[selected]),
+            sa_rhs_down=(
+                None if self.sa_rhs_down is None else self.sa_rhs_down[selected]
+            ),
+            sa_rhs_up=(None if self.sa_rhs_up is None else self.sa_rhs_up[selected]),
+            senses=(None if self.senses is None else self.senses[selected]),
+            slacks=(None if self.slacks is None else self.slacks[selected]),
+        )
+
+
 class InternalSolver(ABC):
     """
     Abstract class representing the MIP solver used internally by LearningSolver.
     """
 
     @abstractmethod
-    def add_constraints(self, cf: ConstraintFeatures) -> None:
+    def add_constraints(self, cf: Constraints) -> None:
         """Adds the given constraints to the model."""
         pass
 
     @abstractmethod
     def are_constraints_satisfied(
         self,
-        cf: ConstraintFeatures,
+        cf: Constraints,
         tol: float = 1e-5,
     ) -> List[bool]:
         """
@@ -133,7 +205,7 @@ class InternalSolver(ABC):
         with_static: bool = True,
         with_sa: bool = True,
         with_lhs: bool = True,
-    ) -> ConstraintFeatures:
+    ) -> Constraints:
         pass
 
     @abstractmethod
@@ -149,7 +221,7 @@ class InternalSolver(ABC):
         self,
         with_static: bool = True,
         with_sa: bool = True,
-    ) -> VariableFeatures:
+    ) -> Variables:
         """
         Returns a description of the decision variables in the problem.
 
@@ -176,7 +248,7 @@ class InternalSolver(ABC):
         pass
 
     @abstractmethod
-    def remove_constraints(self, names: List[str]) -> None:
+    def remove_constraints(self, names: np.ndarray) -> None:
         """
         Removes the given constraints from the model.
         """

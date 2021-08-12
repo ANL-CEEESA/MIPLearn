@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Dict, Tuple, List, Hashable, Any, TYPE_CHECKING, Set, Optional
+from typing import Dict, Tuple, List, Any, TYPE_CHECKING, Set, Optional
 
 import numpy as np
 from overrides import overrides
@@ -12,9 +12,10 @@ from miplearn.classifiers import Classifier
 from miplearn.classifiers.counting import CountingClassifier
 from miplearn.classifiers.threshold import MinProbabilityThreshold, Threshold
 from miplearn.components.component import Component
-from miplearn.features import Sample, ConstraintFeatures
+from miplearn.features.sample import Sample
+from miplearn.solvers.internal import Constraints
 from miplearn.instance.base import Instance
-from miplearn.types import LearningSolveStats
+from miplearn.types import LearningSolveStats, ConstraintName, ConstraintCategory
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
 
 
 class LazyConstraint:
-    def __init__(self, cid: str, obj: Any) -> None:
+    def __init__(self, cid: ConstraintName, obj: Any) -> None:
         self.cid = cid
         self.obj = obj
 
@@ -43,11 +44,11 @@ class StaticLazyConstraintsComponent(Component):
         assert isinstance(classifier, Classifier)
         self.classifier_prototype: Classifier = classifier
         self.threshold_prototype: Threshold = threshold
-        self.classifiers: Dict[Hashable, Classifier] = {}
-        self.thresholds: Dict[Hashable, Threshold] = {}
-        self.pool: ConstraintFeatures = ConstraintFeatures()
+        self.classifiers: Dict[ConstraintCategory, Classifier] = {}
+        self.thresholds: Dict[ConstraintCategory, Threshold] = {}
+        self.pool: Constraints = Constraints()
         self.violation_tolerance: float = violation_tolerance
-        self.enforced_cids: Set[Hashable] = set()
+        self.enforced_cids: Set[ConstraintName] = set()
         self.n_restored: int = 0
         self.n_iterations: int = 0
 
@@ -60,9 +61,10 @@ class StaticLazyConstraintsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        assert sample.after_mip is not None
-        assert sample.after_mip.extra is not None
-        sample.after_mip.extra["lazy_enforced"] = self.enforced_cids
+        sample.put_array(
+            "mip_constr_lazy_enforced",
+            np.array(list(self.enforced_cids), dtype="S"),
+        )
         stats["LazyStatic: Restored"] = self.n_restored
         stats["LazyStatic: Iterations"] = self.n_iterations
 
@@ -76,16 +78,15 @@ class StaticLazyConstraintsComponent(Component):
         sample: Sample,
     ) -> None:
         assert solver.internal_solver is not None
-        assert sample.after_load is not None
-        assert sample.after_load.instance is not None
+        static_lazy_count = sample.get_scalar("static_constr_lazy_count")
+        assert static_lazy_count is not None
 
         logger.info("Predicting violated (static) lazy constraints...")
-        if sample.after_load.instance.lazy_constraint_count == 0:
+        if static_lazy_count == 0:
             logger.info("Instance does not have static lazy constraints. Skipping.")
         self.enforced_cids = set(self.sample_predict(sample))
         logger.info("Moving lazy constraints to the pool...")
-        constraints = sample.after_load.constraints
-        assert constraints is not None
+        constraints = Constraints.from_sample(sample)
         assert constraints.lazy is not None
         assert constraints.names is not None
         selected = [
@@ -107,8 +108,8 @@ class StaticLazyConstraintsComponent(Component):
     @overrides
     def fit_xy(
         self,
-        x: Dict[Hashable, np.ndarray],
-        y: Dict[Hashable, np.ndarray],
+        x: Dict[ConstraintCategory, np.ndarray],
+        y: Dict[ConstraintCategory, np.ndarray],
     ) -> None:
         for c in y.keys():
             assert c in x
@@ -138,9 +139,9 @@ class StaticLazyConstraintsComponent(Component):
     ) -> None:
         self._check_and_add(solver)
 
-    def sample_predict(self, sample: Sample) -> List[Hashable]:
+    def sample_predict(self, sample: Sample) -> List[ConstraintName]:
         x, y, cids = self._sample_xy_with_cids(sample)
-        enforced_cids: List[Hashable] = []
+        enforced_cids: List[ConstraintName] = []
         for category in x.keys():
             if category not in self.classifiers:
                 continue
@@ -158,7 +159,10 @@ class StaticLazyConstraintsComponent(Component):
         self,
         _: Optional[Instance],
         sample: Sample,
-    ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
+    ) -> Tuple[
+        Dict[ConstraintCategory, List[List[float]]],
+        Dict[ConstraintCategory, List[List[float]]],
+    ]:
         x, y, __ = self._sample_xy_with_cids(sample)
         return x, y
 
@@ -185,7 +189,7 @@ class StaticLazyConstraintsComponent(Component):
         logger.info(f"Found {n_violated} violated lazy constraints found")
         if n_violated > 0:
             logger.info(
-                "Enforcing {n_violated} lazy constraints; "
+                f"Enforcing {n_violated} lazy constraints; "
                 f"{n_satisfied} left in the pool..."
             )
             solver.internal_solver.add_constraints(violated_constraints)
@@ -199,25 +203,34 @@ class StaticLazyConstraintsComponent(Component):
     def _sample_xy_with_cids(
         self, sample: Sample
     ) -> Tuple[
-        Dict[Hashable, List[List[float]]],
-        Dict[Hashable, List[List[float]]],
-        Dict[Hashable, List[str]],
+        Dict[ConstraintCategory, List[List[float]]],
+        Dict[ConstraintCategory, List[List[float]]],
+        Dict[ConstraintCategory, List[ConstraintName]],
     ]:
-        x: Dict[Hashable, List[List[float]]] = {}
-        y: Dict[Hashable, List[List[float]]] = {}
-        cids: Dict[Hashable, List[str]] = {}
-        assert sample.after_load is not None
-        constraints = sample.after_load.constraints
-        assert constraints is not None
-        assert constraints.names is not None
-        assert constraints.lazy is not None
-        assert constraints.categories is not None
-        for (cidx, cname) in enumerate(constraints.names):
+        x: Dict[ConstraintCategory, List[List[float]]] = {}
+        y: Dict[ConstraintCategory, List[List[float]]] = {}
+        cids: Dict[ConstraintCategory, List[ConstraintName]] = {}
+        instance_features = sample.get_array("static_instance_features")
+        constr_features = sample.get_array("lp_constr_features")
+        constr_names = sample.get_array("static_constr_names")
+        constr_categories = sample.get_array("static_constr_categories")
+        constr_lazy = sample.get_array("static_constr_lazy")
+        lazy_enforced = sample.get_array("mip_constr_lazy_enforced")
+        if constr_features is None:
+            constr_features = sample.get_array("static_constr_features")
+
+        assert instance_features is not None
+        assert constr_features is not None
+        assert constr_names is not None
+        assert constr_categories is not None
+        assert constr_lazy is not None
+
+        for (cidx, cname) in enumerate(constr_names):
             # Initialize categories
-            if not constraints.lazy[cidx]:
+            if not constr_lazy[cidx]:
                 continue
-            category = constraints.categories[cidx]
-            if category is None:
+            category = constr_categories[cidx]
+            if len(category) == 0:
                 continue
             if category not in x:
                 x[category] = []
@@ -225,23 +238,14 @@ class StaticLazyConstraintsComponent(Component):
                 cids[category] = []
 
             # Features
-            sf = sample.after_load
-            if sample.after_lp is not None:
-                sf = sample.after_lp
-            assert sf.instance is not None
-            assert sf.constraints is not None
-            features = list(sf.instance.to_list())
-            features.extend(sf.constraints.to_list(cidx))
+            features = list(instance_features)
+            features.extend(constr_features[cidx])
             x[category].append(features)
             cids[category].append(cname)
 
             # Labels
-            if (
-                (sample.after_mip is not None)
-                and (sample.after_mip.extra is not None)
-                and ("lazy_enforced" in sample.after_mip.extra)
-            ):
-                if cname in sample.after_mip.extra["lazy_enforced"]:
+            if lazy_enforced is not None:
+                if cname in lazy_enforced:
                     y[category] += [[False, True]]
                 else:
                     y[category] += [[True, False]]

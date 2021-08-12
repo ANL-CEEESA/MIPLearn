@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List, Dict, Hashable
+from typing import List, Dict
 
 import networkx as nx
 import numpy as np
@@ -12,7 +12,6 @@ from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
 from miplearn.instance.base import Instance
-from miplearn.types import VariableName, Category
 
 
 class ChallengeA:
@@ -67,9 +66,11 @@ class MaxWeightStableSetInstance(Instance):
         return model
 
     @overrides
-    def get_variable_features(self) -> Dict[str, List[float]]:
-        features = {}
-        for v1 in self.nodes:
+    def get_variable_features(self, names: np.ndarray) -> np.ndarray:
+        features = []
+        assert len(names) == len(self.nodes)
+        for i, v1 in enumerate(self.nodes):
+            assert names[i] == f"x[{v1}]".encode()
             neighbor_weights = [0.0] * 15
             neighbor_degrees = [100.0] * 15
             for v2 in self.graph.neighbors(v1):
@@ -81,12 +82,12 @@ class MaxWeightStableSetInstance(Instance):
             f += neighbor_weights[:5]
             f += neighbor_degrees[:5]
             f += [self.graph.degree(v1)]
-            features[f"x[{v1}]"] = f
-        return features
+            features.append(f)
+        return np.array(features)
 
     @overrides
-    def get_variable_categories(self) -> Dict[str, Hashable]:
-        return {f"x[{v}]": "default" for v in self.nodes}
+    def get_variable_categories(self, names: np.ndarray) -> np.ndarray:
+        return np.array(["default" for _ in names], dtype="S")
 
 
 class MaxWeightStableSetGenerator:

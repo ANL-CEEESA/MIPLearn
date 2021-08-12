@@ -6,7 +6,7 @@ import logging
 import re
 import sys
 from io import StringIO
-from typing import Any, List, Dict, Optional, Tuple, Hashable
+from typing import Any, List, Dict, Optional
 
 import numpy as np
 import pyomo
@@ -18,8 +18,8 @@ from pyomo.core.base.constraint import ConstraintList
 from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
 from pyomo.opt import TerminationCondition
 from pyomo.opt.base.solvers import SolverFactory
+from scipy.sparse import coo_matrix
 
-from miplearn.features import VariableFeatures, ConstraintFeatures
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput, _none_if_empty
 from miplearn.solvers.internal import (
@@ -28,13 +28,13 @@ from miplearn.solvers.internal import (
     IterationCallback,
     LazyCallback,
     MIPSolveStats,
+    Variables,
+    Constraints,
 )
 from miplearn.types import (
     SolverParams,
     UserCutCallback,
     Solution,
-    VariableName,
-    Category,
 )
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,8 @@ class BasePyomoSolver(InternalSolver):
         self._is_warm_start_available: bool = False
         self._pyomo_solver: SolverFactory = solver_factory
         self._obj_sense: str = "min"
-        self._varname_to_var: Dict[str, pe.Var] = {}
+        self._varname_to_var: Dict[bytes, pe.Var] = {}
+        self._varname_to_idx: Dict[str, int] = {}
         self._cname_to_constr: Dict[str, pe.Constraint] = {}
         self._termination_condition: str = ""
         self._has_lp_solution = False
@@ -79,27 +80,30 @@ class BasePyomoSolver(InternalSolver):
         self._has_mip_solution = False
 
     @overrides
-    def add_constraints(self, cf: ConstraintFeatures) -> None:
+    def add_constraints(self, cf: Constraints) -> None:
         assert cf.names is not None
         assert cf.senses is not None
         assert cf.lhs is not None
         assert cf.rhs is not None
         assert self.model is not None
-        for (i, name) in enumerate(cf.names):
-            lhs = 0.0
-            for (varname, coeff) in cf.lhs[i]:
-                var = self._varname_to_var[varname]
-                lhs += var * coeff
-            if cf.senses[i] == "=":
-                expr = lhs == cf.rhs[i]
-            elif cf.senses[i] == "<":
-                expr = lhs <= cf.rhs[i]
+        lhs = cf.lhs.tocsr()
+        for i in range(len(cf.names)):
+            row = lhs[i, :]
+            lhsi = 0.0
+            for j in range(row.getnnz()):
+                lhsi += self._all_vars[row.indices[j]] * row.data[j]
+            if cf.senses[i] == b"=":
+                expr = lhsi == cf.rhs[i]
+            elif cf.senses[i] == b"<":
+                expr = lhsi <= cf.rhs[i]
+            elif cf.senses[i] == b">":
+                expr = lhsi >= cf.rhs[i]
             else:
-                expr = lhs >= cf.rhs[i]
-            cl = pe.Constraint(expr=expr, name=name)
-            self.model.add_component(name, cl)
+                raise Exception(f"Unknown sense: {cf.senses[i]}")
+            cl = pe.Constraint(expr=expr, name=cf.names[i])
+            self.model.add_component(cf.names[i].decode(), cl)
             self._pyomo_solver.add_constraint(cl)
-            self._cname_to_constr[name] = cl
+            self._cname_to_constr[cf.names[i]] = cl
         self._termination_condition = ""
         self._has_lp_solution = False
         self._has_mip_solution = False
@@ -111,25 +115,25 @@ class BasePyomoSolver(InternalSolver):
     @overrides
     def are_constraints_satisfied(
         self,
-        cf: ConstraintFeatures,
+        cf: Constraints,
         tol: float = 1e-5,
     ) -> List[bool]:
         assert cf.names is not None
         assert cf.lhs is not None
         assert cf.rhs is not None
         assert cf.senses is not None
+        x = [v.value for v in self._all_vars]
+        lhs = cf.lhs.tocsr() * x
         result = []
-        for (i, name) in enumerate(cf.names):
-            lhs = 0.0
-            for (varname, coeff) in cf.lhs[i]:
-                var = self._varname_to_var[varname]
-                lhs += var.value * coeff
-            if cf.senses[i] == "<":
-                result.append(lhs <= cf.rhs[i] + tol)
-            elif cf.senses[i] == ">":
-                result.append(lhs >= cf.rhs[i] - tol)
+        for i in range(len(lhs)):
+            if cf.senses[i] == b"<":
+                result.append(lhs[i] <= cf.rhs[i] + tol)
+            elif cf.senses[i] == b">":
+                result.append(lhs[i] >= cf.rhs[i] - tol)
+            elif cf.senses[i] == b"=":
+                result.append(abs(cf.rhs[i] - lhs[i]) < tol)
             else:
-                result.append(abs(cf.rhs[i] - lhs) < tol)
+                raise Exception(f"unknown sense: {cf.senses[i]}")
         return result
 
     @overrides
@@ -159,18 +163,20 @@ class BasePyomoSolver(InternalSolver):
         with_static: bool = True,
         with_sa: bool = True,
         with_lhs: bool = True,
-    ) -> ConstraintFeatures:
+    ) -> Constraints:
         model = self.model
         assert model is not None
-
         names: List[str] = []
         rhs: List[float] = []
-        lhs: List[List[Tuple[str, float]]] = []
         senses: List[str] = []
         dual_values: List[float] = []
         slacks: List[float] = []
+        lhs_row: List[int] = []
+        lhs_col: List[int] = []
+        lhs_data: List[float] = []
+        lhs: Optional[coo_matrix] = None
 
-        def _parse_constraint(c: pe.Constraint) -> None:
+        def _parse_constraint(c: pe.Constraint, row: int) -> None:
             assert model is not None
             if with_static:
                 # Extract RHS and sense
@@ -191,30 +197,31 @@ class BasePyomoSolver(InternalSolver):
 
                 if with_lhs:
                     # Extract LHS
-                    lhsc = []
                     expr = c.body
                     if isinstance(expr, SumExpression):
                         for term in expr._args_:
                             if isinstance(term, MonomialTermExpression):
-                                lhsc.append(
-                                    (
-                                        term._args_[1].name,
-                                        float(term._args_[0]),
-                                    )
+                                lhs_row.append(row)
+                                lhs_col.append(
+                                    self._varname_to_idx[term._args_[1].name]
                                 )
+                                lhs_data.append(float(term._args_[0]))
                             elif isinstance(term, _GeneralVarData):
-                                lhsc.append((term.name, 1.0))
+                                lhs_row.append(row)
+                                lhs_col.append(self._varname_to_idx[term.name])
+                                lhs_data.append(1.0)
                             else:
                                 raise Exception(
                                     f"Unknown term type: {term.__class__.__name__}"
                                 )
                     elif isinstance(expr, _GeneralVarData):
-                        lhsc.append((expr.name, 1.0))
+                        lhs_row.append(row)
+                        lhs_col.append(self._varname_to_idx[expr.name])
+                        lhs_data.append(1.0)
                     else:
                         raise Exception(
                             f"Unknown expression type: {expr.__class__.__name__}"
                         )
-                    lhs.append(lhsc)
 
             # Extract dual values
             if self._has_lp_solution:
@@ -224,22 +231,28 @@ class BasePyomoSolver(InternalSolver):
             if self._has_mip_solution or self._has_lp_solution:
                 slacks.append(model.slack[c])
 
-        for constr in model.component_objects(pyomo.core.Constraint):
+        curr_row = 0
+        for (i, constr) in enumerate(model.component_objects(pyomo.core.Constraint)):
             if isinstance(constr, pe.ConstraintList):
                 for idx in constr:
-                    names.append(f"{constr.name}[{idx}]")
-                    _parse_constraint(constr[idx])
+                    names.append(constr[idx].name)
+                    _parse_constraint(constr[idx], curr_row)
+                    curr_row += 1
             else:
                 names.append(constr.name)
-                _parse_constraint(constr)
+                _parse_constraint(constr, curr_row)
+                curr_row += 1
 
-        return ConstraintFeatures(
-            names=_none_if_empty(names),
-            rhs=_none_if_empty(rhs),
-            senses=_none_if_empty(senses),
-            lhs=_none_if_empty(lhs),
-            slacks=_none_if_empty(slacks),
-            dual_values=_none_if_empty(dual_values),
+        if len(lhs_data) > 0:
+            lhs = coo_matrix((lhs_data, (lhs_row, lhs_col))).tocoo()
+
+        return Constraints(
+            names=_none_if_empty(np.array(names, dtype="S")),
+            rhs=_none_if_empty(np.array(rhs, dtype=float)),
+            senses=_none_if_empty(np.array(senses, dtype="S")),
+            lhs=lhs,
+            slacks=_none_if_empty(np.array(slacks, dtype=float)),
+            dual_values=_none_if_empty(np.array(dual_values, dtype=float)),
         )
 
     @overrides
@@ -263,7 +276,7 @@ class BasePyomoSolver(InternalSolver):
             for index in var:
                 if var[index].fixed:
                     continue
-                solution[f"{var}[{index}]"] = var[index].value
+                solution[var[index].name.encode()] = var[index].value
         return solution
 
     @overrides
@@ -271,7 +284,7 @@ class BasePyomoSolver(InternalSolver):
         self,
         with_static: bool = True,
         with_sa: bool = True,
-    ) -> VariableFeatures:
+    ) -> Variables:
         assert self.model is not None
 
         names: List[str] = []
@@ -288,9 +301,9 @@ class BasePyomoSolver(InternalSolver):
 
                 # Variable name
                 if idx is None:
-                    names.append(str(var))
+                    names.append(var.name)
                 else:
-                    names.append(f"{var}[{idx}]")
+                    names.append(var[idx].name)
 
                 if with_static:
                     # Variable type
@@ -326,14 +339,14 @@ class BasePyomoSolver(InternalSolver):
                 if self._has_lp_solution or self._has_mip_solution:
                     values.append(v.value)
 
-        return VariableFeatures(
-            names=_none_if_empty(names),
-            types=_none_if_empty(types),
-            upper_bounds=_none_if_empty(upper_bounds),
-            lower_bounds=_none_if_empty(lower_bounds),
-            obj_coeffs=_none_if_empty(obj_coeffs),
-            reduced_costs=_none_if_empty(reduced_costs),
-            values=_none_if_empty(values),
+        return Variables(
+            names=_none_if_empty(np.array(names, dtype="S")),
+            types=_none_if_empty(np.array(types, dtype="S")),
+            upper_bounds=_none_if_empty(np.array(upper_bounds, dtype=float)),
+            lower_bounds=_none_if_empty(np.array(lower_bounds, dtype=float)),
+            obj_coeffs=_none_if_empty(np.array(obj_coeffs, dtype=float)),
+            reduced_costs=_none_if_empty(np.array(reduced_costs, dtype=float)),
+            values=_none_if_empty(np.array(values, dtype=float)),
         )
 
     @overrides
@@ -555,12 +568,14 @@ class BasePyomoSolver(InternalSolver):
         self._all_vars = []
         self._bin_vars = []
         self._varname_to_var = {}
+        self._varname_to_idx = {}
         for var in self.model.component_objects(Var):
             for idx in var:
-                varname = f"{var.name}[{idx}]"
-                if idx is None:
-                    varname = var.name
-                self._varname_to_var[varname] = var[idx]
+                varname = var.name
+                if idx is not None:
+                    varname = var[idx].name
+                self._varname_to_var[varname.encode()] = var[idx]
+                self._varname_to_idx[varname] = len(self._all_vars)
                 self._all_vars += [var[idx]]
                 if var[idx].domain == pyomo.core.base.set_types.Binary:
                     self._bin_vars += [var[idx]]
@@ -574,7 +589,7 @@ class BasePyomoSolver(InternalSolver):
         for constr in self.model.component_objects(pyomo.core.Constraint):
             if isinstance(constr, pe.ConstraintList):
                 for idx in constr:
-                    self._cname_to_constr[f"{constr.name}[{idx}]"] = constr[idx]
+                    self._cname_to_constr[constr[idx].name] = constr[idx]
             else:
                 self._cname_to_constr[constr.name] = constr
 
@@ -604,6 +619,7 @@ class PyomoTestInstanceKnapsack(Instance):
         self.weights = weights
         self.prices = prices
         self.capacity = capacity
+        self.n = len(weights)
 
     @overrides
     def to_model(self) -> pe.ConcreteModel:
@@ -621,22 +637,26 @@ class PyomoTestInstanceKnapsack(Instance):
         return model
 
     @overrides
-    def get_instance_features(self) -> List[float]:
-        return [
-            self.capacity,
-            np.average(self.weights),
-        ]
-
-    @overrides
-    def get_variable_features(self) -> Dict[str, List[float]]:
-        return {
-            f"x[{i}]": [
-                self.weights[i],
-                self.prices[i],
+    def get_instance_features(self) -> np.ndarray:
+        return np.array(
+            [
+                self.capacity,
+                np.average(self.weights),
             ]
-            for i in range(len(self.weights))
-        }
+        )
 
     @overrides
-    def get_variable_categories(self) -> Dict[str, Hashable]:
-        return {f"x[{i}]": "default" for i in range(len(self.weights))}
+    def get_variable_features(self, names: np.ndarray) -> np.ndarray:
+        return np.vstack(
+            [
+                [[self.weights[i], self.prices[i]] for i in range(self.n)],
+                [0.0, 0.0],
+            ]
+        )
+
+    @overrides
+    def get_variable_categories(self, names: np.ndarray) -> np.ndarray:
+        return np.array(
+            ["default" if n.decode().startswith("x") else "" for n in names],
+            dtype="S",
+        )

@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import List, Dict, Any, TYPE_CHECKING, Tuple, Hashable, Optional
+from typing import List, Dict, Any, TYPE_CHECKING, Tuple, Optional, cast
 
 import numpy as np
 from overrides import overrides
@@ -12,7 +12,7 @@ from sklearn.linear_model import LinearRegression
 from miplearn.classifiers import Regressor
 from miplearn.classifiers.sklearn import ScikitLearnRegressor
 from miplearn.components.component import Component
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
 from miplearn.types import LearningSolveStats
 
@@ -53,8 +53,8 @@ class ObjectiveValueComponent(Component):
     @overrides
     def fit_xy(
         self,
-        x: Dict[Hashable, np.ndarray],
-        y: Dict[Hashable, np.ndarray],
+        x: Dict[str, np.ndarray],
+        y: Dict[str, np.ndarray],
     ) -> None:
         for c in ["Upper bound", "Lower bound"]:
             if c in y:
@@ -76,32 +76,27 @@ class ObjectiveValueComponent(Component):
         self,
         _: Optional[Instance],
         sample: Sample,
-    ) -> Tuple[Dict[Hashable, List[List[float]]], Dict[Hashable, List[List[float]]]]:
-        # Instance features
-        assert sample.after_load is not None
-        assert sample.after_load.instance is not None
-        f = sample.after_load.instance.to_list()
-
-        # LP solve features
-        if sample.after_lp is not None:
-            assert sample.after_lp.lp_solve is not None
-            f.extend(sample.after_lp.lp_solve.to_list())
+    ) -> Tuple[Dict[str, List[List[float]]], Dict[str, List[List[float]]]]:
+        lp_instance_features_np = sample.get_array("lp_instance_features")
+        if lp_instance_features_np is None:
+            lp_instance_features_np = sample.get_array("static_instance_features")
+        assert lp_instance_features_np is not None
+        lp_instance_features = cast(List[float], lp_instance_features_np.tolist())
 
         # Features
-        x: Dict[Hashable, List[List[float]]] = {
-            "Upper bound": [f],
-            "Lower bound": [f],
+        x: Dict[str, List[List[float]]] = {
+            "Upper bound": [lp_instance_features],
+            "Lower bound": [lp_instance_features],
         }
 
         # Labels
-        y: Dict[Hashable, List[List[float]]] = {}
-        if sample.after_mip is not None:
-            mip_stats = sample.after_mip.mip_solve
-            assert mip_stats is not None
-            if mip_stats.mip_lower_bound is not None:
-                y["Lower bound"] = [[mip_stats.mip_lower_bound]]
-            if mip_stats.mip_upper_bound is not None:
-                y["Upper bound"] = [[mip_stats.mip_upper_bound]]
+        y: Dict[str, List[List[float]]] = {}
+        mip_lower_bound = sample.get_scalar("mip_lower_bound")
+        mip_upper_bound = sample.get_scalar("mip_upper_bound")
+        if mip_lower_bound is not None:
+            y["Lower bound"] = [[mip_lower_bound]]
+        if mip_upper_bound is not None:
+            y["Upper bound"] = [[mip_upper_bound]]
 
         return x, y
 
@@ -110,10 +105,7 @@ class ObjectiveValueComponent(Component):
         self,
         instance: Instance,
         sample: Sample,
-    ) -> Dict[Hashable, Dict[str, float]]:
-        assert sample.after_mip is not None
-        assert sample.after_mip.mip_solve is not None
-
+    ) -> Dict[str, Dict[str, float]]:
         def compare(y_pred: float, y_actual: float) -> Dict[str, float]:
             err = np.round(abs(y_pred - y_actual), 8)
             return {
@@ -123,10 +115,10 @@ class ObjectiveValueComponent(Component):
                 "Relative error": err / y_actual,
             }
 
-        result: Dict[Hashable, Dict[str, float]] = {}
+        result: Dict[str, Dict[str, float]] = {}
         pred = self.sample_predict(sample)
-        actual_ub = sample.after_mip.mip_solve.mip_upper_bound
-        actual_lb = sample.after_mip.mip_solve.mip_lower_bound
+        actual_ub = sample.get_scalar("mip_upper_bound")
+        actual_lb = sample.get_scalar("mip_lower_bound")
         if actual_ub is not None:
             result["Upper bound"] = compare(pred["Upper bound"], actual_ub)
         if actual_lb is not None:

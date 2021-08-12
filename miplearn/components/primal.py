@@ -3,15 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import (
-    Dict,
-    List,
-    Hashable,
-    Any,
-    TYPE_CHECKING,
-    Tuple,
-    Optional,
-)
+from typing import Dict, List, Any, TYPE_CHECKING, Tuple, Optional
 
 import numpy as np
 from overrides import overrides
@@ -21,7 +13,7 @@ from miplearn.classifiers.adaptive import AdaptiveClassifier
 from miplearn.classifiers.threshold import MinPrecisionThreshold, Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.component import Component
-from miplearn.features import Sample
+from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
 from miplearn.types import (
     LearningSolveStats,
@@ -55,8 +47,8 @@ class PrimalSolutionComponent(Component):
         assert isinstance(threshold, Threshold)
         assert mode in ["exact", "heuristic"]
         self.mode = mode
-        self.classifiers: Dict[Hashable, Classifier] = {}
-        self.thresholds: Dict[Hashable, Threshold] = {}
+        self.classifiers: Dict[Category, Classifier] = {}
+        self.thresholds: Dict[Category, Threshold] = {}
         self.threshold_prototype = threshold
         self.classifier_prototype = classifier
 
@@ -103,8 +95,10 @@ class PrimalSolutionComponent(Component):
         )
 
     def sample_predict(self, sample: Sample) -> Solution:
-        assert sample.after_load is not None
-        assert sample.after_load.variables is not None
+        var_names = sample.get_array("static_var_names")
+        var_categories = sample.get_array("static_var_categories")
+        assert var_names is not None
+        assert var_categories is not None
 
         # Compute y_pred
         x, _ = self.sample_xy(None, sample)
@@ -125,12 +119,10 @@ class PrimalSolutionComponent(Component):
             ).T
 
         # Convert y_pred into solution
-        assert sample.after_load.variables.names is not None
-        assert sample.after_load.variables.categories is not None
-        solution: Solution = {v: None for v in sample.after_load.variables.names}
-        category_offset: Dict[Hashable, int] = {cat: 0 for cat in x.keys()}
-        for (i, var_name) in enumerate(sample.after_load.variables.names):
-            category = sample.after_load.variables.categories[i]
+        solution: Solution = {v: None for v in var_names}
+        category_offset: Dict[Category, int] = {cat: 0 for cat in x.keys()}
+        for (i, var_name) in enumerate(var_names):
+            category = var_categories[i]
             if category not in category_offset:
                 continue
             offset = category_offset[category]
@@ -150,40 +142,41 @@ class PrimalSolutionComponent(Component):
     ) -> Tuple[Dict[Category, List[List[float]]], Dict[Category, List[List[float]]]]:
         x: Dict = {}
         y: Dict = {}
-        assert sample.after_load is not None
-        assert sample.after_load.instance is not None
-        assert sample.after_load.variables is not None
-        assert sample.after_load.variables.names is not None
-        assert sample.after_load.variables.categories is not None
+        instance_features = sample.get_array("static_instance_features")
+        mip_var_values = sample.get_array("mip_var_values")
+        var_features = sample.get_array("lp_var_features")
+        var_names = sample.get_array("static_var_names")
+        var_categories = sample.get_array("static_var_categories")
+        if var_features is None:
+            var_features = sample.get_array("static_var_features")
+        assert instance_features is not None
+        assert var_features is not None
+        assert var_names is not None
+        assert var_categories is not None
 
-        for (i, var_name) in enumerate(sample.after_load.variables.names):
+        for (i, var_name) in enumerate(var_names):
             # Initialize categories
-            category = sample.after_load.variables.categories[i]
-            if category is None:
+            category = var_categories[i]
+            if len(category) == 0:
                 continue
             if category not in x.keys():
                 x[category] = []
                 y[category] = []
 
             # Features
-            features = list(sample.after_load.instance.to_list())
-            features.extend(sample.after_load.variables.to_list(i))
-            if sample.after_lp is not None:
-                assert sample.after_lp.variables is not None
-                features.extend(sample.after_lp.variables.to_list(i))
+            features = list(instance_features)
+            features.extend(var_features[i])
             x[category].append(features)
 
             # Labels
-            if sample.after_mip is not None:
-                assert sample.after_mip.variables is not None
-                assert sample.after_mip.variables.values is not None
-                opt_value = sample.after_mip.variables.values[i]
+            if mip_var_values is not None:
+                opt_value = mip_var_values[i]
                 assert opt_value is not None
                 assert 0.0 - 1e-5 <= opt_value <= 1.0 + 1e-5, (
                     f"Variable {var_name} has non-binary value {opt_value} in the "
                     "optimal solution. Predicting values of non-binary "
                     "variables is not currently supported. Please set its "
-                    "category to None."
+                    "category to ''."
                 )
                 y[category].append([opt_value < 0.5, opt_value >= 0.5])
         return x, y
@@ -193,15 +186,14 @@ class PrimalSolutionComponent(Component):
         self,
         _: Optional[Instance],
         sample: Sample,
-    ) -> Dict[Hashable, Dict[str, float]]:
-        assert sample.after_mip is not None
-        assert sample.after_mip.variables is not None
-        assert sample.after_mip.variables.values is not None
-        assert sample.after_mip.variables.names is not None
+    ) -> Dict[str, Dict[str, float]]:
+        mip_var_values = sample.get_array("mip_var_values")
+        var_names = sample.get_array("static_var_names")
+        assert mip_var_values is not None
+        assert var_names is not None
 
         solution_actual = {
-            var_name: sample.after_mip.variables.values[i]
-            for (i, var_name) in enumerate(sample.after_mip.variables.names)
+            var_name: mip_var_values[i] for (i, var_name) in enumerate(var_names)
         }
         solution_pred = self.sample_predict(sample)
         vars_all, vars_one, vars_zero = set(), set(), set()
@@ -221,13 +213,13 @@ class PrimalSolutionComponent(Component):
         pred_one_negative = vars_all - pred_one_positive
         pred_zero_negative = vars_all - pred_zero_positive
         return {
-            0: classifier_evaluation_dict(
+            "0": classifier_evaluation_dict(
                 tp=len(pred_zero_positive & vars_zero),
                 tn=len(pred_zero_negative & vars_one),
                 fp=len(pred_zero_positive & vars_one),
                 fn=len(pred_zero_negative & vars_zero),
             ),
-            1: classifier_evaluation_dict(
+            "1": classifier_evaluation_dict(
                 tp=len(pred_one_positive & vars_one),
                 tn=len(pred_one_negative & vars_zero),
                 fp=len(pred_one_positive & vars_zero),
@@ -238,8 +230,8 @@ class PrimalSolutionComponent(Component):
     @overrides
     def fit_xy(
         self,
-        x: Dict[Hashable, np.ndarray],
-        y: Dict[Hashable, np.ndarray],
+        x: Dict[Category, np.ndarray],
+        y: Dict[Category, np.ndarray],
     ) -> None:
         for category in x.keys():
             clf = self.classifier_prototype.clone()

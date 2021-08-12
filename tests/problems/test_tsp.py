@@ -9,6 +9,7 @@ from scipy.stats import uniform, randint
 
 from miplearn.problems.tsp import TravelingSalesmanGenerator, TravelingSalesmanInstance
 from miplearn.solvers.learning import LearningSolver
+from miplearn.solvers.tests import assert_equals
 
 
 def test_generator() -> None:
@@ -41,14 +42,9 @@ def test_instance() -> None:
     solver.solve(instance)
     assert len(instance.get_samples()) == 1
     sample = instance.get_samples()[0]
-    assert sample.after_mip is not None
-    features = sample.after_mip
-    assert features is not None
-    assert features.variables is not None
-    assert features.variables.values == [1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
-    assert features.mip_solve is not None
-    assert features.mip_solve.mip_lower_bound == 4.0
-    assert features.mip_solve.mip_upper_bound == 4.0
+    assert_equals(sample.get_array("mip_var_values"), [1.0, 0.0, 1.0, 1.0, 0.0, 1.0])
+    assert sample.get_scalar("mip_lower_bound") == 4.0
+    assert sample.get_scalar("mip_upper_bound") == 4.0
 
 
 def test_subtour() -> None:
@@ -67,32 +63,31 @@ def test_subtour() -> None:
     instance = TravelingSalesmanInstance(n_cities, distances)
     solver = LearningSolver()
     solver.solve(instance)
-    assert len(instance.get_samples()) == 1
-    sample = instance.get_samples()[0]
-    assert sample.after_mip is not None
-    features = sample.after_mip
-    assert features.extra is not None
-    assert "lazy_enforced" in features.extra
-    lazy_enforced = features.extra["lazy_enforced"]
+    samples = instance.get_samples()
+    assert len(samples) == 1
+    sample = samples[0]
+    lazy_enforced = sample.get_array("mip_constr_lazy_enforced")
     assert lazy_enforced is not None
     assert len(lazy_enforced) > 0
-    assert features.variables is not None
-    assert features.variables.values == [
-        1.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        1.0,
-    ]
+    assert_equals(
+        sample.get_array("mip_var_values"),
+        [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+        ],
+    )
     solver.fit([instance])
     solver.solve(instance)

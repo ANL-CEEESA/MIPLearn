@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-from typing import Any, FrozenSet, Hashable, List
+from typing import Any, FrozenSet, List
 
 import gurobipy as gp
 import networkx as nx
@@ -17,6 +17,7 @@ from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.instance.base import Instance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.learning import LearningSolver
+from miplearn.types import ConstraintName, ConstraintCategory
 
 logger = logging.getLogger(__name__)
 
@@ -40,13 +41,13 @@ class GurobiStableSetProblem(Instance):
         return True
 
     @overrides
-    def find_violated_user_cuts(self, model: Any) -> List[FrozenSet]:
+    def find_violated_user_cuts(self, model: Any) -> List[ConstraintName]:
         assert isinstance(model, gp.Model)
         vals = model.cbGetNodeRel(model.getVars())
         violations = []
         for clique in nx.find_cliques(self.graph):
             if sum(vals[i] for i in clique) > 1:
-                violations += [frozenset(clique)]
+                violations.append(",".join([str(i) for i in clique]).encode())
         return violations
 
     @overrides
@@ -54,11 +55,11 @@ class GurobiStableSetProblem(Instance):
         self,
         solver: InternalSolver,
         model: Any,
-        cid: Hashable,
+        cid: ConstraintName,
     ) -> Any:
-        assert isinstance(cid, FrozenSet)
+        clique = [int(i) for i in cid.decode().split(",")]
         x = model.getVars()
-        model.addConstr(gp.quicksum([x[i] for i in cid]) <= 1)
+        model.addConstr(gp.quicksum([x[i] for i in clique]) <= 1)
 
 
 @pytest.fixture
@@ -81,10 +82,9 @@ def test_usage(
 ) -> None:
     stats_before = solver.solve(stab_instance)
     sample = stab_instance.get_samples()[0]
-    assert sample.after_mip is not None
-    assert sample.after_mip.extra is not None
-    assert len(sample.after_mip.extra["user_cuts_enforced"]) > 0
-    print(stats_before)
+    user_cuts_enforced = sample.get_array("mip_user_cuts_enforced")
+    assert user_cuts_enforced is not None
+    assert len(user_cuts_enforced) > 0
     assert stats_before["UserCuts: Added ahead-of-time"] == 0
     assert stats_before["UserCuts: Added in callback"] > 0
 

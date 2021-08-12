@@ -1,17 +1,15 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-
 import gc
-import gzip
 import os
+from typing import Any, Optional, List, Dict, TYPE_CHECKING
 import pickle
-from typing import Optional, Any, List, cast, IO, TYPE_CHECKING, Dict
 
 import numpy as np
 from overrides import overrides
 
-from miplearn.features.sample import Sample
+from miplearn.features.sample import Hdf5Sample, Sample
 from miplearn.instance.base import Instance
 from miplearn.types import ConstraintName, ConstraintCategory
 
@@ -19,25 +17,15 @@ if TYPE_CHECKING:
     from miplearn.solvers.learning import InternalSolver
 
 
-class PickleGzInstance(Instance):
-    """
-    An instance backed by a gzipped pickle file.
-
-    The instance is only loaded to memory after an operation is called (for example,
-    `to_model`).
-
-    Parameters
-    ----------
-    filename: str
-        Path of the gzipped pickle file that should be loaded.
-    """
-
-    # noinspection PyMissingConstructor
+class FileInstance(Instance):
     def __init__(self, filename: str) -> None:
+        super().__init__()
         assert os.path.exists(filename), f"File not found: {filename}"
+        self.h5 = Hdf5Sample(filename)
         self.instance: Optional[Instance] = None
-        self.filename: str = filename
 
+    # Delegation
+    # -------------------------------------------------------------------------
     @overrides
     def to_model(self) -> Any:
         assert self.instance is not None
@@ -112,44 +100,32 @@ class PickleGzInstance(Instance):
         assert self.instance is not None
         self.instance.enforce_user_cut(solver, model, violation)
 
-    @overrides
-    def load(self) -> None:
-        if self.instance is None:
-            obj = read_pickle_gz(self.filename)
-            assert isinstance(obj, Instance)
-            self.instance = obj
-
+    # Input & Output
+    # -------------------------------------------------------------------------
     @overrides
     def free(self) -> None:
-        self.instance = None  # type: ignore
+        self.instance = None
         gc.collect()
 
     @overrides
-    def flush(self) -> None:
-        write_pickle_gz(self.instance, self.filename)
+    def load(self) -> None:
+        if self.instance is not None:
+            return
+        pkl = self.h5.get_bytes("pickled")
+        assert pkl is not None
+        self.instance = pickle.loads(pkl)
+        assert isinstance(self.instance, Instance)
 
-    @overrides
-    def get_samples(self) -> List[Sample]:
-        assert self.instance is not None
-        return self.instance.get_samples()
+    @classmethod
+    def save(cls, instance: Instance, filename: str) -> None:
+        h5 = Hdf5Sample(filename, mode="w")
+        instance_pkl = pickle.dumps(instance)
+        h5.put_bytes("pickled", instance_pkl)
 
     @overrides
     def create_sample(self) -> Sample:
-        assert self.instance is not None
-        return self.instance.create_sample()
+        return self.h5
 
-
-def write_pickle_gz(obj: Any, filename: str) -> None:
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
-    with gzip.GzipFile(filename, "wb") as file:
-        pickle.dump(obj, cast(IO[bytes], file))
-
-
-def read_pickle_gz(filename: str) -> Any:
-    with gzip.GzipFile(filename, "rb") as file:
-        return pickle.load(cast(IO[bytes], file))
-
-
-def write_pickle_gz_multiple(objs: List[Any], dirname: str) -> None:
-    for (i, obj) in enumerate(objs):
-        write_pickle_gz(obj, f"{dirname}/{i:05d}.pkl.gz")
+    @overrides
+    def get_samples(self) -> List[Sample]:
+        return [self.h5]

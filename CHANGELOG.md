@@ -33,6 +33,7 @@
   )
   ```
 - `LazyConstraintComponent` has been renamed to `DynamicLazyConstraintsComponent`.
+- Categories, lazy constraints and cutting plane identifiers must now be strings, instead `Hashable`. This change was required for compatibility with HDF5 data format.
 
 ### Removed
 

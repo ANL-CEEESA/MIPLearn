@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List, Tuple, FrozenSet, Any, Optional, Hashable, Dict
+from typing import List, Tuple, FrozenSet, Any, Optional, Dict
 
 import networkx as nx
 import numpy as np
@@ -11,10 +11,10 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
+from miplearn.instance.base import Instance
 from miplearn.solvers.learning import InternalSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
-from miplearn.instance.base import Instance
-from miplearn.types import VariableName, Category
+from miplearn.types import ConstraintName
 
 
 class ChallengeA:
@@ -82,23 +82,18 @@ class TravelingSalesmanInstance(Instance):
         return model
 
     @overrides
-    def get_variable_categories(self) -> Dict[str, Hashable]:
-        return {f"x[{e}]": f"x[{e}]" for e in self.edges}
-
-    @overrides
     def find_violated_lazy_constraints(
         self,
         solver: InternalSolver,
         model: Any,
-    ) -> List[FrozenSet]:
+    ) -> List[ConstraintName]:
         selected_edges = [e for e in self.edges if model.x[e].value > 0.5]
         graph = nx.Graph()
         graph.add_edges_from(selected_edges)
-        components = [frozenset(c) for c in list(nx.connected_components(graph))]
         violations = []
-        for c in components:
+        for c in list(nx.connected_components(graph)):
             if len(c) < self.n_cities:
-                violations += [c]
+                violations.append(",".join(map(str, c)).encode())
         return violations
 
     @overrides
@@ -106,9 +101,10 @@ class TravelingSalesmanInstance(Instance):
         self,
         solver: InternalSolver,
         model: Any,
-        component: FrozenSet,
+        violation: ConstraintName,
     ) -> None:
         assert isinstance(solver, BasePyomoSolver)
+        component = [int(v) for v in violation.decode().split(",")]
         cut_edges = [
             e
             for e in self.edges

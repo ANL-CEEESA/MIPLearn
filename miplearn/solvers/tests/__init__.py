@@ -5,11 +5,12 @@
 from typing import Any, List
 
 import numpy as np
+from scipy.sparse import coo_matrix
 
-from miplearn.features import VariableFeatures, ConstraintFeatures
-from miplearn.solvers.internal import InternalSolver
+from miplearn.solvers.internal import InternalSolver, Variables, Constraints
 
 inf = float("inf")
+
 
 # NOTE:
 # This file is in the main source folder, so that it can be called from Julia.
@@ -40,31 +41,23 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # Fetch variables (after-load)
     assert_equals(
         solver.get_variables(),
-        VariableFeatures(
-            names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
-            lower_bounds=[0.0, 0.0, 0.0, 0.0, 0.0],
-            upper_bounds=[1.0, 1.0, 1.0, 1.0, 67.0],
-            types=["B", "B", "B", "B", "C"],
-            obj_coeffs=[505.0, 352.0, 458.0, 220.0, 0.0],
+        Variables(
+            names=np.array(["x[0]", "x[1]", "x[2]", "x[3]", "z"], dtype="S"),
+            lower_bounds=np.array([0.0, 0.0, 0.0, 0.0, 0.0]),
+            upper_bounds=np.array([1.0, 1.0, 1.0, 1.0, 67.0]),
+            types=np.array(["B", "B", "B", "B", "C"], dtype="S"),
+            obj_coeffs=np.array([505.0, 352.0, 458.0, 220.0, 0.0]),
         ),
     )
 
     # Fetch constraints (after-load)
     assert_equals(
         solver.get_constraints(),
-        ConstraintFeatures(
-            names=["eq_capacity"],
-            rhs=[0.0],
-            lhs=[
-                [
-                    ("x[0]", 23.0),
-                    ("x[1]", 26.0),
-                    ("x[2]", 20.0),
-                    ("x[3]", 18.0),
-                    ("z", -1.0),
-                ],
-            ],
-            senses=["="],
+        Constraints(
+            names=np.array(["eq_capacity"], dtype="S"),
+            rhs=np.array([0.0]),
+            lhs=coo_matrix([[23.0, 26.0, 20.0, 18.0, -1.0]]),
+            senses=np.array(["="], dtype="S"),
         ),
     )
 
@@ -83,17 +76,21 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         solver.get_variables(with_static=False),
         _filter_attrs(
             solver.get_variable_attrs(),
-            VariableFeatures(
-                names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
-                basis_status=["U", "B", "U", "L", "U"],
-                reduced_costs=[193.615385, 0.0, 187.230769, -23.692308, 13.538462],
-                sa_lb_down=[-inf, -inf, -inf, -0.111111, -inf],
-                sa_lb_up=[1.0, 0.923077, 1.0, 1.0, 67.0],
-                sa_obj_down=[311.384615, 317.777778, 270.769231, -inf, -13.538462],
-                sa_obj_up=[inf, 570.869565, inf, 243.692308, inf],
-                sa_ub_down=[0.913043, 0.923077, 0.9, 0.0, 43.0],
-                sa_ub_up=[2.043478, inf, 2.2, inf, 69.0],
-                values=[1.0, 0.923077, 1.0, 0.0, 67.0],
+            Variables(
+                names=np.array(["x[0]", "x[1]", "x[2]", "x[3]", "z"], dtype="S"),
+                basis_status=np.array(["U", "B", "U", "L", "U"], dtype="S"),
+                reduced_costs=np.array(
+                    [193.615385, 0.0, 187.230769, -23.692308, 13.538462]
+                ),
+                sa_lb_down=np.array([-inf, -inf, -inf, -0.111111, -inf]),
+                sa_lb_up=np.array([1.0, 0.923077, 1.0, 1.0, 67.0]),
+                sa_obj_down=np.array(
+                    [311.384615, 317.777778, 270.769231, -inf, -13.538462]
+                ),
+                sa_obj_up=np.array([inf, 570.869565, inf, 243.692308, inf]),
+                sa_ub_down=np.array([0.913043, 0.923077, 0.9, 0.0, 43.0]),
+                sa_ub_up=np.array([2.043478, inf, 2.2, inf, 69.0]),
+                values=np.array([1.0, 0.923077, 1.0, 0.0, 67.0]),
             ),
         ),
     )
@@ -103,13 +100,13 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         solver.get_constraints(with_static=False),
         _filter_attrs(
             solver.get_constraint_attrs(),
-            ConstraintFeatures(
-                basis_status=["N"],
-                dual_values=[13.538462],
-                names=["eq_capacity"],
-                sa_rhs_down=[-24.0],
-                sa_rhs_up=[2.0],
-                slacks=[0.0],
+            Constraints(
+                basis_status=np.array(["N"], dtype="S"),
+                dual_values=np.array([13.538462]),
+                names=np.array(["eq_capacity"], dtype="S"),
+                sa_rhs_down=np.array([-24.0]),
+                sa_rhs_up=np.array([2.0]),
+                slacks=np.array([0.0]),
             ),
         ),
     )
@@ -136,9 +133,9 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         solver.get_variables(with_static=False),
         _filter_attrs(
             solver.get_variable_attrs(),
-            VariableFeatures(
-                names=["x[0]", "x[1]", "x[2]", "x[3]", "z"],
-                values=[1.0, 0.0, 1.0, 1.0, 61.0],
+            Variables(
+                names=np.array(["x[0]", "x[1]", "x[2]", "x[3]", "z"], dtype="S"),
+                values=np.array([1.0, 0.0, 1.0, 1.0, 61.0]),
             ),
         ),
     )
@@ -148,19 +145,19 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         solver.get_constraints(with_static=False),
         _filter_attrs(
             solver.get_constraint_attrs(),
-            ConstraintFeatures(
-                names=["eq_capacity"],
-                slacks=[0.0],
+            Constraints(
+                names=np.array(["eq_capacity"], dtype="S"),
+                slacks=np.array([0.0]),
             ),
         ),
     )
 
     # Build new constraint and verify that it is violated
-    cf = ConstraintFeatures(
-        names=["cut"],
-        lhs=[[("x[0]", 1.0)]],
-        rhs=[0.0],
-        senses=["<"],
+    cf = Constraints(
+        names=np.array(["cut"], dtype="S"),
+        lhs=coo_matrix([[1.0, 0.0, 0.0, 0.0, 0.0]]),
+        rhs=np.array([0.0]),
+        senses=np.array(["<"], dtype="S"),
     )
     assert_equals(solver.are_constraints_satisfied(cf), [False])
 
@@ -170,22 +167,16 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         solver.get_constraints(with_static=True),
         _filter_attrs(
             solver.get_constraint_attrs(),
-            ConstraintFeatures(
-                names=["eq_capacity", "cut"],
-                rhs=[0.0, 0.0],
-                lhs=[
+            Constraints(
+                names=np.array(["eq_capacity", "cut"], dtype="S"),
+                rhs=np.array([0.0, 0.0]),
+                lhs=coo_matrix(
                     [
-                        ("x[0]", 23.0),
-                        ("x[1]", 26.0),
-                        ("x[2]", 20.0),
-                        ("x[3]", 18.0),
-                        ("z", -1.0),
-                    ],
-                    [
-                        ("x[0]", 1.0),
-                    ],
-                ],
-                senses=["=", "<"],
+                        [23.0, 26.0, 20.0, 18.0, -1.0],
+                        [1.0, 0.0, 0.0, 0.0, 0.0],
+                    ]
+                ),
+                senses=np.array(["=", "<"], dtype="S"),
             ),
         ),
     )
@@ -194,7 +185,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     assert_equals(solver.are_constraints_satisfied(cf), [True])
 
     # Remove the new constraint
-    solver.remove_constraints(["cut"])
+    solver.remove_constraints(np.array(["cut"], dtype="S"))
 
     # New constraint should no longer affect solution
     stats = solver.solve()
@@ -205,16 +196,16 @@ def run_warm_start_tests(solver: InternalSolver) -> None:
     instance = solver.build_test_instance_knapsack()
     model = instance.to_model()
     solver.set_instance(instance, model)
-    solver.set_warm_start({"x[0]": 1.0, "x[1]": 0.0, "x[2]": 0.0, "x[3]": 1.0})
+    solver.set_warm_start({b"x[0]": 1.0, b"x[1]": 0.0, b"x[2]": 0.0, b"x[3]": 1.0})
     stats = solver.solve(tee=True)
     if stats.mip_warm_start_value is not None:
         assert_equals(stats.mip_warm_start_value, 725.0)
 
-    solver.set_warm_start({"x[0]": 1.0, "x[1]": 1.0, "x[2]": 1.0, "x[3]": 1.0})
+    solver.set_warm_start({b"x[0]": 1.0, b"x[1]": 1.0, b"x[2]": 1.0, b"x[3]": 1.0})
     stats = solver.solve(tee=True)
     assert stats.mip_warm_start_value is None
 
-    solver.fix({"x[0]": 1.0, "x[1]": 0.0, "x[2]": 0.0, "x[3]": 1.0})
+    solver.fix({b"x[0]": 1.0, b"x[1]": 0.0, b"x[2]": 0.0, b"x[3]": 1.0})
     stats = solver.solve(tee=True)
     assert_equals(stats.mip_lower_bound, 725.0)
     assert_equals(stats.mip_upper_bound, 725.0)
@@ -254,15 +245,15 @@ def run_lazy_cb_tests(solver: InternalSolver) -> None:
     def lazy_cb(cb_solver: InternalSolver, cb_model: Any) -> None:
         relsol = cb_solver.get_solution()
         assert relsol is not None
-        assert relsol["x[0]"] is not None
-        if relsol["x[0]"] > 0:
-            instance.enforce_lazy_constraint(cb_solver, cb_model, "cut")
+        assert relsol[b"x[0]"] is not None
+        if relsol[b"x[0]"] > 0:
+            instance.enforce_lazy_constraint(cb_solver, cb_model, b"cut")
 
     solver.set_instance(instance, model)
     solver.solve(lazy_cb=lazy_cb)
     solution = solver.get_solution()
     assert solution is not None
-    assert_equals(solution["x[0]"], 0.0)
+    assert_equals(solution[b"x[0]"], 0.0)
 
 
 def _equals_preprocess(obj: Any) -> Any:
@@ -271,7 +262,9 @@ def _equals_preprocess(obj: Any) -> Any:
             return np.round(obj, decimals=6).tolist()
         else:
             return obj.tolist()
-    elif isinstance(obj, (int, str)):
+    elif isinstance(obj, coo_matrix):
+        return obj.todense().tolist()
+    elif isinstance(obj, (int, str, bool, np.bool_, np.bytes_, bytes, bytearray)):
         return obj
     elif isinstance(obj, float):
         return round(obj, 6)

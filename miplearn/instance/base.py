@@ -4,9 +4,12 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, List, Hashable, TYPE_CHECKING, Dict
+from typing import Any, List, TYPE_CHECKING, Dict
 
-from miplearn.features import Sample
+import numpy as np
+
+from miplearn.features.sample import Sample, MemorySample
+from miplearn.types import ConstraintName, ConstraintCategory
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +40,7 @@ class Instance(ABC):
         """
         pass
 
-    def get_instance_features(self) -> List[float]:
+    def get_instance_features(self) -> np.ndarray:
         """
         Returns a 1-dimensional array of (numerical) features describing the
         entire instance.
@@ -59,9 +62,9 @@ class Instance(ABC):
 
         By default, returns [0.0].
         """
-        return [0.0]
+        return np.zeros(1)
 
-    def get_variable_features(self) -> Dict[str, List[float]]:
+    def get_variable_features(self, names: np.ndarray) -> np.ndarray:
         """
         Returns dictionary mapping the name of each variable to a (1-dimensional) list
         of numerical features describing a particular decision variable.
@@ -79,11 +82,11 @@ class Instance(ABC):
         If features are not provided for a given variable, MIPLearn will use a
         default set of features.
 
-        By default, returns {}.
+        By default, returns [[0.0], ..., [0.0]].
         """
-        return {}
+        return np.zeros((len(names), 1))
 
-    def get_variable_categories(self) -> Dict[str, Hashable]:
+    def get_variable_categories(self, names: np.ndarray) -> np.ndarray:
         """
         Returns a dictionary mapping the name of each variable to its category.
 
@@ -91,31 +94,27 @@ class Instance(ABC):
         internal ML model to predict the values of both variables. If a variable is not
         listed in the dictionary, ML models will ignore the variable.
 
-        A category can be any hashable type, such as strings, numbers or tuples.
-        By default, returns {}.
+        By default, returns `names`.
         """
-        return {}
+        return names
 
-    def get_constraint_features(self) -> Dict[str, List[float]]:
-        return {}
+    def get_constraint_features(self, names: np.ndarray) -> np.ndarray:
+        return np.zeros((len(names), 1))
 
-    def get_constraint_categories(self) -> Dict[str, Hashable]:
-        return {}
-
-    def has_static_lazy_constraints(self) -> bool:
-        return False
+    def get_constraint_categories(self, names: np.ndarray) -> np.ndarray:
+        return names
 
     def has_dynamic_lazy_constraints(self) -> bool:
         return False
 
-    def is_constraint_lazy(self, cid: str) -> bool:
-        return False
+    def are_constraints_lazy(self, names: np.ndarray) -> np.ndarray:
+        return np.zeros(len(names), dtype=bool)
 
     def find_violated_lazy_constraints(
         self,
         solver: "InternalSolver",
         model: Any,
-    ) -> List[Hashable]:
+    ) -> List[ConstraintName]:
         """
         Returns lazy constraint violations found for the current solution.
 
@@ -125,10 +124,10 @@ class Instance(ABC):
         resolve the problem. The process repeats until no further lazy constraint
         violations are found.
 
-        Each "violation" is simply a string, a tuple or any other hashable type which
-        allows the instance to identify unambiguously which lazy constraint should be
-        generated. In the Traveling Salesman Problem, for example, a subtour
-        violation could be a frozen set containing the cities in the subtour.
+        Each "violation" is simply a string which allows the instance to identify
+        unambiguously which lazy constraint should be generated. In the Traveling
+        Salesman Problem, for example, a subtour violation could be a string
+        containing the cities in the subtour.
 
         The current solution can be queried with `solver.get_solution()`. If the solver
         is configured to use lazy callbacks, this solution may be non-integer.
@@ -141,7 +140,7 @@ class Instance(ABC):
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: Hashable,
+        violation: ConstraintName,
     ) -> None:
         """
         Adds constraints to the model to ensure that the given violation is fixed.
@@ -167,14 +166,14 @@ class Instance(ABC):
     def has_user_cuts(self) -> bool:
         return False
 
-    def find_violated_user_cuts(self, model: Any) -> List[Hashable]:
+    def find_violated_user_cuts(self, model: Any) -> List[ConstraintName]:
         return []
 
     def enforce_user_cut(
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: Hashable,
+        violation: ConstraintName,
     ) -> Any:
         return None
 
@@ -193,5 +192,7 @@ class Instance(ABC):
     def get_samples(self) -> List[Sample]:
         return self._samples
 
-    def push_sample(self, sample: Sample) -> None:
+    def create_sample(self) -> Sample:
+        sample = MemorySample()
         self._samples.append(sample)
+        return sample

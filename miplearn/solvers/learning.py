@@ -3,8 +3,8 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 import logging
-import traceback
 import time
+import traceback
 from typing import Optional, List, Any, cast, Dict, Tuple
 
 from p_tqdm import p_map
@@ -14,7 +14,7 @@ from miplearn.components.dynamic_lazy import DynamicLazyConstraintsComponent
 from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
-from miplearn.features import FeaturesExtractor, Sample
+from miplearn.features.extractor import FeaturesExtractor
 from miplearn.instance.base import Instance
 from miplearn.instance.picklegz import PickleGzInstance
 from miplearn.solvers import _RedirectOutput
@@ -149,8 +149,7 @@ class LearningSolver:
 
         # Initialize training sample
         # -------------------------------------------------------
-        sample = Sample()
-        instance.push_sample(sample)
+        sample = instance.create_sample()
 
         # Initialize stats
         # -------------------------------------------------------
@@ -168,13 +167,13 @@ class LearningSolver:
         # -------------------------------------------------------
         logger.info("Extracting features (after-load)...")
         initial_time = time.time()
-        features = self.extractor.extract(instance, self.internal_solver)
+        self.extractor.extract_after_load_features(
+            instance, self.internal_solver, sample
+        )
         logger.info(
             "Features (after-load) extracted in %.2f seconds"
             % (time.time() - initial_time)
         )
-        features.extra = {}
-        sample.after_load = features
 
         callback_args = (
             self,
@@ -208,18 +207,13 @@ class LearningSolver:
             # -------------------------------------------------------
             logger.info("Extracting features (after-lp)...")
             initial_time = time.time()
-            features = self.extractor.extract(
-                instance,
-                self.internal_solver,
-                with_static=False,
+            self.extractor.extract_after_lp_features(
+                self.internal_solver, sample, lp_stats
             )
             logger.info(
                 "Features (after-lp) extracted in %.2f seconds"
                 % (time.time() - initial_time)
             )
-            features.extra = {}
-            features.lp_solve = lp_stats
-            sample.after_lp = features
 
         # Callback wrappers
         # -------------------------------------------------------
@@ -281,18 +275,13 @@ class LearningSolver:
         # -------------------------------------------------------
         logger.info("Extracting features (after-mip)...")
         initial_time = time.time()
-        features = self.extractor.extract(
-            instance,
-            self.internal_solver,
-            with_static=False,
-        )
+        for (k, v) in mip_stats.__dict__.items():
+            sample.put_scalar(k, v)
+        self.extractor.extract_after_mip_features(self.internal_solver, sample)
         logger.info(
             "Features (after-mip) extracted in %.2f seconds"
             % (time.time() - initial_time)
         )
-        features.mip_solve = mip_stats
-        features.extra = {}
-        sample.after_mip = features
 
         # After-solve callbacks
         # -------------------------------------------------------
