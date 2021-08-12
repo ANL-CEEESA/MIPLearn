@@ -39,7 +39,7 @@ class FeaturesExtractor:
         sample.put_array("static_var_types", variables.types)
         sample.put_array("static_var_upper_bounds", variables.upper_bounds)
         sample.put_array("static_constr_names", constraints.names)
-        # sample.put("static_constr_lhs", constraints.lhs)
+        sample.put_sparse("static_constr_lhs", constraints.lhs)
         sample.put_array("static_constr_rhs", constraints.rhs)
         sample.put_array("static_constr_senses", constraints.senses)
 

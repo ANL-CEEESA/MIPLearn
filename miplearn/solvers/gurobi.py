@@ -10,6 +10,7 @@ from typing import List, Any, Dict, Optional, TYPE_CHECKING
 
 import numpy as np
 from overrides import overrides
+from scipy.sparse import coo_matrix, lil_matrix
 
 from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
@@ -99,17 +100,19 @@ class GurobiSolver(InternalSolver):
         assert cf.lhs is not None
         assert cf.rhs is not None
         assert self.model is not None
+        lhs = cf.lhs.tocsr()
         for i in range(len(cf.names)):
             sense = cf.senses[i]
-            lhs = self.gp.quicksum(
-                self._varname_to_var[varname] * coeff for (varname, coeff) in cf.lhs[i]
+            row = lhs[i, :]
+            row_expr = self.gp.quicksum(
+                self._gp_vars[row.indices[j]] * row.data[j] for j in range(row.getnnz())
             )
             if sense == b"=":
-                self.model.addConstr(lhs == cf.rhs[i], name=cf.names[i])
+                self.model.addConstr(row_expr == cf.rhs[i], name=cf.names[i])
             elif sense == b"<":
-                self.model.addConstr(lhs <= cf.rhs[i], name=cf.names[i])
+                self.model.addConstr(row_expr <= cf.rhs[i], name=cf.names[i])
             elif sense == b">":
-                self.model.addConstr(lhs >= cf.rhs[i], name=cf.names[i])
+                self.model.addConstr(row_expr >= cf.rhs[i], name=cf.names[i])
             else:
                 raise Exception(f"Unknown sense: {sense}")
         self.model.update()
@@ -133,18 +136,18 @@ class GurobiSolver(InternalSolver):
         assert cf.rhs is not None
         assert self.model is not None
         result = []
+        x = np.array(self.model.getAttr("x", self.model.getVars()))
+        lhs = cf.lhs.tocsr() * x
         for i in range(len(cf.names)):
             sense = cf.senses[i]
-            lhs = sum(
-                self._varname_to_var[varname].x * coeff
-                for (varname, coeff) in cf.lhs[i]
-            )
-            if sense == "<":
-                result.append(lhs <= cf.rhs[i] + tol)
-            elif sense == ">":
-                result.append(lhs >= cf.rhs[i] - tol)
+            if sense == b"<":
+                result.append(lhs[i] <= cf.rhs[i] + tol)
+            elif sense == b">":
+                result.append(lhs[i] >= cf.rhs[i] - tol)
+            elif sense == b"<":
+                result.append(abs(cf.rhs[i] - lhs[i]) <= tol)
             else:
-                result.append(abs(cf.rhs[i] - lhs) <= tol)
+                raise Exception(f"unknown sense: {sense}")
         return result
 
     @overrides
@@ -214,7 +217,7 @@ class GurobiSolver(InternalSolver):
 
         gp_constrs = model.getConstrs()
         constr_names = np.array(model.getAttr("constrName", gp_constrs), dtype="S")
-        lhs: Optional[List] = None
+        lhs: Optional[coo_matrix] = None
         rhs, senses, slacks, basis_status = None, None, None, None
         dual_value, basis_status, sa_rhs_up, sa_rhs_down = None, None, None, None
 
@@ -222,13 +225,14 @@ class GurobiSolver(InternalSolver):
             rhs = np.array(model.getAttr("rhs", gp_constrs), dtype=float)
             senses = np.array(model.getAttr("sense", gp_constrs), dtype="S")
             if with_lhs:
-                lhs = [None for _ in gp_constrs]
+                nrows = len(gp_constrs)
+                ncols = len(self._var_names)
+                tmp = lil_matrix((nrows, ncols), dtype=float)
                 for (i, gp_constr) in enumerate(gp_constrs):
                     expr = model.getRow(gp_constr)
-                    lhs[i] = [
-                        (self._var_names[expr.getVar(j).index], expr.getCoeff(j))
-                        for j in range(expr.size())
-                    ]
+                    for j in range(expr.size()):
+                        tmp[i, j] = expr.getCoeff(j)
+                lhs = tmp.tocoo()
 
         if self._has_lp_solution:
             dual_value = np.array(model.getAttr("pi", gp_constrs), dtype=float)

@@ -9,6 +9,7 @@ from typing import Any
 
 import numpy as np
 import gurobipy as gp
+from scipy.sparse import coo_matrix
 
 from miplearn.features.extractor import FeaturesExtractor
 from miplearn.features.sample import Hdf5Sample, MemorySample
@@ -76,18 +77,10 @@ def test_knapsack() -> None:
         sample.get_array("static_constr_names"),
         np.array(["eq_capacity"], dtype="S"),
     )
-    # assert_equals(
-    #     sample.get_array("static_constr_lhs"),
-    #     [
-    #         [
-    #             ("x[0]", 23.0),
-    #             ("x[1]", 26.0),
-    #             ("x[2]", 20.0),
-    #             ("x[3]", 18.0),
-    #             ("z", -1.0),
-    #         ],
-    #     ],
-    # )
+    assert_equals(
+        sample.get_sparse("static_constr_lhs"),
+        [[23.0, 26.0, 20.0, 18.0, -1.0]],
+    )
     assert_equals(
         sample.get_array("static_constr_rhs"),
         np.array([0.0]),
@@ -321,20 +314,13 @@ def test_constraint_getindex() -> None:
         names=np.array(["c1", "c2", "c3"], dtype="S"),
         rhs=np.array([1.0, 2.0, 3.0]),
         senses=np.array(["=", "<", ">"], dtype="S"),
-        lhs=[
+        lhs=coo_matrix(
             [
-                (b"x1", 1.0),
-                (b"x2", 1.0),
-            ],
-            [
-                (b"x2", 2.0),
-                (b"x3", 2.0),
-            ],
-            [
-                (b"x3", 3.0),
-                (b"x4", 3.0),
-            ],
-        ],
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9],
+            ]
+        ),
     )
     assert_equals(
         cf[[True, False, True]],
@@ -342,16 +328,12 @@ def test_constraint_getindex() -> None:
             names=np.array(["c1", "c3"], dtype="S"),
             rhs=np.array([1.0, 3.0]),
             senses=np.array(["=", ">"], dtype="S"),
-            lhs=[
+            lhs=coo_matrix(
                 [
-                    (b"x1", 1.0),
-                    (b"x2", 1.0),
-                ],
-                [
-                    (b"x3", 3.0),
-                    (b"x4", 3.0),
-                ],
-            ],
+                    [1, 2, 3],
+                    [7, 8, 9],
+                ]
+            ),
         ),
     )
 

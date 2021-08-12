@@ -76,7 +76,9 @@ class Sample(ABC):
         assert value.dtype.kind in "biufS", f"Unsupported dtype: {value.dtype}"
 
     def _assert_is_sparse(self, value: Any) -> None:
-        assert isinstance(value, coo_matrix)
+        assert isinstance(
+            value, coo_matrix
+        ), f"coo_matrix expected; found: {value.__class__}"
         self._assert_is_array(value.data)
 
 

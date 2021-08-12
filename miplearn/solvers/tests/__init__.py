@@ -5,6 +5,7 @@
 from typing import Any, List
 
 import numpy as np
+from scipy.sparse import coo_matrix
 
 from miplearn.solvers.internal import InternalSolver, Variables, Constraints
 
@@ -55,15 +56,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
         Constraints(
             names=np.array(["eq_capacity"], dtype="S"),
             rhs=np.array([0.0]),
-            lhs=[
-                [
-                    (b"x[0]", 23.0),
-                    (b"x[1]", 26.0),
-                    (b"x[2]", 20.0),
-                    (b"x[3]", 18.0),
-                    (b"z", -1.0),
-                ],
-            ],
+            lhs=coo_matrix([[23.0, 26.0, 20.0, 18.0, -1.0]]),
             senses=np.array(["="], dtype="S"),
         ),
     )
@@ -162,7 +155,7 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
     # Build new constraint and verify that it is violated
     cf = Constraints(
         names=np.array(["cut"], dtype="S"),
-        lhs=[[(b"x[0]", 1.0)]],
+        lhs=coo_matrix([[1.0, 0.0, 0.0, 0.0, 0.0]]),
         rhs=np.array([0.0]),
         senses=np.array(["<"], dtype="S"),
     )
@@ -177,18 +170,12 @@ def run_basic_usage_tests(solver: InternalSolver) -> None:
             Constraints(
                 names=np.array(["eq_capacity", "cut"], dtype="S"),
                 rhs=np.array([0.0, 0.0]),
-                lhs=[
+                lhs=coo_matrix(
                     [
-                        (b"x[0]", 23.0),
-                        (b"x[1]", 26.0),
-                        (b"x[2]", 20.0),
-                        (b"x[3]", 18.0),
-                        (b"z", -1.0),
-                    ],
-                    [
-                        (b"x[0]", 1.0),
-                    ],
-                ],
+                        [23.0, 26.0, 20.0, 18.0, -1.0],
+                        [1.0, 0.0, 0.0, 0.0, 0.0],
+                    ]
+                ),
                 senses=np.array(["=", "<"], dtype="S"),
             ),
         ),
@@ -275,6 +262,8 @@ def _equals_preprocess(obj: Any) -> Any:
             return np.round(obj, decimals=6).tolist()
         else:
             return obj.tolist()
+    elif isinstance(obj, coo_matrix):
+        return obj.todense().tolist()
     elif isinstance(obj, (int, str, bool, np.bool_, np.bytes_, bytes, bytearray)):
         return obj
     elif isinstance(obj, float):

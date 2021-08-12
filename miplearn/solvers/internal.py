@@ -5,9 +5,10 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Optional, List, Tuple, TYPE_CHECKING
+from typing import Any, Optional, List, TYPE_CHECKING
 
 import numpy as np
+from scipy.sparse import coo_matrix
 
 from miplearn.instance.base import Instance
 from miplearn.types import (
@@ -71,7 +72,7 @@ class Constraints:
     basis_status: Optional[np.ndarray] = None
     dual_values: Optional[np.ndarray] = None
     lazy: Optional[np.ndarray] = None
-    lhs: Optional[List[List[Tuple[bytes, float]]]] = None
+    lhs: Optional[coo_matrix] = None
     names: Optional[np.ndarray] = None
     rhs: Optional[np.ndarray] = None
     sa_rhs_down: Optional[np.ndarray] = None
@@ -104,7 +105,7 @@ class Constraints:
             ),
             names=(None if self.names is None else self.names[selected]),
             lazy=(None if self.lazy is None else self.lazy[selected]),
-            lhs=self._filter(self.lhs, selected),
+            lhs=(None if self.lhs is None else self.lhs.tocsr()[selected].tocoo()),
             rhs=(None if self.rhs is None else self.rhs[selected]),
             sa_rhs_down=(
                 None if self.sa_rhs_down is None else self.sa_rhs_down[selected]
@@ -113,15 +114,6 @@ class Constraints:
             senses=(None if self.senses is None else self.senses[selected]),
             slacks=(None if self.slacks is None else self.slacks[selected]),
         )
-
-    def _filter(
-        self,
-        obj: Optional[List],
-        selected: List[bool],
-    ) -> Optional[List]:
-        if obj is None:
-            return None
-        return [obj[i] for (i, selected_i) in enumerate(selected) if selected_i]
 
 
 class InternalSolver(ABC):
