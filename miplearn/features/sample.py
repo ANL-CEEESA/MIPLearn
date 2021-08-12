@@ -178,8 +178,8 @@ class Hdf5Sample(Sample):
         if value is None:
             return
         self._assert_is_array(value)
-        if len(value.shape) > 1 and value.dtype.kind == "f":
-            value = value.astype("float16")
+        if value.dtype.kind == "f":
+            value = value.astype("float32")
         if key in self.file:
             del self.file[key]
         return self.file.create_dataset(key, data=value, compression="gzip")
