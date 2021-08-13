@@ -352,6 +352,10 @@ class FeaturesExtractor:
             features[:, curr] = v
             curr += 1
 
+        def push_sign_abs(v: np.ndarray) -> None:
+            push(np.sign(v))
+            push(np.abs(v))
+
         with np.errstate(divide="ignore", invalid="ignore"):
             # Feature 1
             push(np.sign(c))
@@ -363,10 +367,10 @@ class FeaturesExtractor:
             push(np.abs(c) / c_neg_sum)
 
             if A is not None:
-                assert A.shape[1] == nvars
-                assert A.shape[0] == len(b)
-
+                # Compute A_ji / |b_j|
                 M1 = A.T.multiply(1.0 / np.abs(b)).T.tocsr()
+
+                # Select rows with positive b_j and compute max/min
                 M1_pos = M1[b > 0, :]
                 if M1_pos.shape[0] > 0:
                     M1_pos_max = M1_pos.max(axis=0).todense()
@@ -374,6 +378,8 @@ class FeaturesExtractor:
                 else:
                     M1_pos_max = np.zeros(nvars)
                     M1_pos_min = np.zeros(nvars)
+
+                # Select rows with negative b_j and compute max/min
                 M1_neg = M1[b < 0, :]
                 if M1_neg.shape[0] > 0:
                     M1_neg_max = M1_neg.max(axis=0).todense()
@@ -383,14 +389,34 @@ class FeaturesExtractor:
                     M1_neg_min = np.zeros(nvars)
 
                 # Features 4-11
-                push(np.sign(M1_pos_min))
-                push(np.sign(M1_pos_max))
-                push(np.abs(M1_pos_min))
-                push(np.abs(M1_pos_max))
-                push(np.sign(M1_neg_min))
-                push(np.sign(M1_neg_max))
-                push(np.abs(M1_neg_min))
-                push(np.abs(M1_neg_max))
+                push_sign_abs(M1_pos_min)
+                push_sign_abs(M1_pos_max)
+                push_sign_abs(M1_neg_min)
+                push_sign_abs(M1_neg_max)
+
+            if A is not None:
+                # Compute |c_i| / A_ij
+                M2 = A.power(-1).multiply(np.abs(c)).tocsc()
+
+                # Compute max/min
+                M2_max = np.ravel(M2.max(axis=0).todense())
+                M2_min = np.array([M2[:, j].data.min() for j in range(nvars)])
+
+                # Make copies of M2 and erase elements based on sign(c)
+                M2_pos_max = M2_max.copy()
+                M2_neg_max = M2_max.copy()
+                M2_pos_min = M2_min.copy()
+                M2_neg_min = M2_min.copy()
+                M2_pos_max[c <= 0] = 0
+                M2_pos_min[c <= 0] = 0
+                M2_neg_max[c >= 0] = 0
+                M2_neg_min[c >= 0] = 0
+
+                # Features 12-19
+                push_sign_abs(M2_pos_min)
+                push_sign_abs(M2_pos_max)
+                push_sign_abs(M2_neg_min)
+                push_sign_abs(M2_neg_max)
 
             # Feature 37
             if values is not None:

@@ -2,13 +2,13 @@
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import cProfile
 import os
 import sys
-import time
 from typing import Any
 
-import numpy as np
 import gurobipy as gp
+import numpy as np
 from scipy.sparse import coo_matrix
 
 from miplearn.features.extractor import FeaturesExtractor
@@ -17,7 +17,6 @@ from miplearn.instance.base import Instance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.internal import Variables, Constraints
 from miplearn.solvers.tests import assert_equals
-import cProfile
 
 inf = float("inf")
 
@@ -79,6 +78,14 @@ def test_knapsack() -> None:
                     0.0,
                     0.0,
                     0.0,
+                    1.0,
+                    21.956522,
+                    1.0,
+                    21.956522,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
                 ],
                 [
                     26.0,
@@ -90,6 +97,14 @@ def test_knapsack() -> None:
                     0.0,
                     0.0,
                     0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                    13.538462,
+                    1.0,
+                    13.538462,
                     0.0,
                     0.0,
                     0.0,
@@ -109,6 +124,14 @@ def test_knapsack() -> None:
                     0.0,
                     0.0,
                     0.0,
+                    1.0,
+                    22.9,
+                    1.0,
+                    22.9,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
                 ],
                 [
                     18.0,
@@ -124,8 +147,38 @@ def test_knapsack() -> None:
                     0.0,
                     0.0,
                     0.0,
+                    1.0,
+                    12.222222,
+                    1.0,
+                    12.222222,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
                 ],
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                ],
             ]
         ),
     )
@@ -221,6 +274,14 @@ def test_knapsack() -> None:
                     0.0,
                     0.0,
                     0.0,
+                    1.0,
+                    21.956522,
+                    1.0,
+                    21.956522,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
                     0.0,
                     1.0,
                     1.0,
@@ -245,6 +306,14 @@ def test_knapsack() -> None:
                     0.0,
                     0.0,
                     0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                    13.538462,
+                    1.0,
+                    13.538462,
                     0.0,
                     0.0,
                     0.0,
@@ -277,6 +346,14 @@ def test_knapsack() -> None:
                     0.0,
                     0.0,
                     0.0,
+                    1.0,
+                    22.9,
+                    1.0,
+                    22.9,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
                     0.0,
                     1.0,
                     1.0,
@@ -305,6 +382,14 @@ def test_knapsack() -> None:
                     0.0,
                     0.0,
                     0.0,
+                    1.0,
+                    12.222222,
+                    1.0,
+                    12.222222,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
                     0.0,
                     1.0,
                     -1.0,
@@ -320,6 +405,14 @@ def test_knapsack() -> None:
                     0.0,
                 ],
                 [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
                     0.0,
                     0.0,
                     0.0,
