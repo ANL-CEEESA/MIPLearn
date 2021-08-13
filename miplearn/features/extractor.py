@@ -356,17 +356,8 @@ class FeaturesExtractor:
             push(np.abs(v))
 
         def maxmin(M: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-            # Compute max using regular numpy operations
             M_max = np.ravel(M.max(axis=0).todense())
-
-            # Compute min by iterating through the sparse matrix data, so that
-            # we skip non-zero entries
-            M_min = np.array(
-                [
-                    0.0 if len(M[:, j].data) == 0 else M[:, j].data.min()
-                    for j in range(M.shape[1])
-                ]
-            )
+            M_min = np.ravel(M.min(axis=0).todense())
             return M_max, M_min
 
         with np.errstate(divide="ignore", invalid="ignore"):
