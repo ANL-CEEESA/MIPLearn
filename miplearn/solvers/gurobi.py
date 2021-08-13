@@ -523,12 +523,16 @@ class GurobiSolver(InternalSolver):
                 var.vtype = self.gp.GRB.CONTINUOUS
                 var.lb = 0.0
                 var.ub = 1.0
+            elif self._var_types[i] == b"I":
+                var.vtype = self.gp.GRB.CONTINUOUS
         with _RedirectOutput(streams):
             self.model.optimize()
             self._dirty = False
         for (i, var) in enumerate(self._gp_vars):
             if self._var_types[i] == b"B":
                 var.vtype = self.gp.GRB.BINARY
+            elif self._var_types[i] == b"I":
+                var.vtype = self.gp.GRB.INTEGER
         log = streams[0].getvalue()
         self._has_lp_solution = self.model.solCount > 0
         self._has_mip_solution = False
@@ -620,17 +624,7 @@ class GurobiSolver(InternalSolver):
                 f"Duplicated variable name detected: {var_names[i]}. "
                 f"Unique variable names are currently required."
             )
-            if var_types[i] == b"I":
-                assert var_ubs[i] == 1.0, (
-                    "Only binary and continuous variables are currently supported. "
-                    f"Integer variable {var_names[i]} has upper bound {var_ubs[i]}."
-                )
-                assert var_lbs[i] == 0.0, (
-                    "Only binary and continuous variables are currently supported. "
-                    f"Integer variable {var_names[i]} has lower bound {var_ubs[i]}."
-                )
-                var_types[i] = b"B"
-            assert var_types[i] in [b"B", b"C"], (
+            assert var_types[i] in [b"B", b"C", b"I"], (
                 "Only binary and continuous variables are currently supported. "
                 f"Variable {var_names[i]} has type {var_types[i]}."
             )
