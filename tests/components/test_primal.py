@@ -23,6 +23,7 @@ def sample() -> Sample:
     sample = MemorySample(
         {
             "static_var_names": np.array(["x[0]", "x[1]", "x[2]", "x[3]"], dtype="S"),
+            "static_var_types": np.array(["B", "B", "B", "B"], dtype="S"),
             "static_var_categories": np.array(
                 ["default", "", "default", "default"],
                 dtype="S",
