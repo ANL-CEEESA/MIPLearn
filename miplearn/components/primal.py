@@ -146,15 +146,21 @@ class PrimalSolutionComponent(Component):
         mip_var_values = sample.get_array("mip_var_values")
         var_features = sample.get_array("lp_var_features")
         var_names = sample.get_array("static_var_names")
+        var_types = sample.get_array("static_var_types")
         var_categories = sample.get_array("static_var_categories")
         if var_features is None:
             var_features = sample.get_array("static_var_features")
         assert instance_features is not None
         assert var_features is not None
         assert var_names is not None
+        assert var_types is not None
         assert var_categories is not None
 
         for (i, var_name) in enumerate(var_names):
+            # Skip non-binary variables
+            if var_types[i] != b"B":
+                continue
+
             # Initialize categories
             category = var_categories[i]
             if len(category) == 0:
@@ -172,12 +178,6 @@ class PrimalSolutionComponent(Component):
             if mip_var_values is not None:
                 opt_value = mip_var_values[i]
                 assert opt_value is not None
-                assert 0.0 - 1e-5 <= opt_value <= 1.0 + 1e-5, (
-                    f"Variable {var_name} has non-binary value {opt_value} in the "
-                    "optimal solution. Predicting values of non-binary "
-                    "variables is not currently supported. Please set its "
-                    "category to ''."
-                )
                 y[category].append([opt_value < 0.5, opt_value >= 0.5])
         return x, y
 
