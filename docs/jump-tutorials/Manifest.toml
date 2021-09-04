@@ -364,7 +364,9 @@ version = "5.1.0+5"
 
 [[MIPLearn]]
 deps = ["CSV", "Cbc", "Clp", "Conda", "DataFrames", "Distributed", "JLD2", "JSON", "JuMP", "Logging", "MathOptInterface", "PackageCompiler", "Printf", "PyCall", "SparseArrays", "TimerOutputs"]
-path = "/home/axavier/Packages/MIPLearn.jl/dev"
+git-tree-sha1 = "72b65e08fbad874b2849ade94590ce315d9c2e4f"
+repo-rev = "dev"
+repo-url = "https://github.com/ANL-CEEESA/MIPLearn.jl.git"
 uuid = "2b1277c3-b477-4c49-a15e-7ba350325c68"
 version = "0.2.0"
 
