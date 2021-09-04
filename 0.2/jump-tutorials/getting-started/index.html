@@ -178,8 +178,8 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Installing-MIPLearn">
-   1.2. Installing MIPLearn
+  <a class="reference internal nav-link" href="#Installation">
+   1.2. Installation
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -479,15 +479,15 @@ div.rendered_html tbody tr:hover {
 </ol>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>We use SCIP in this tutorial because it is a fast and widely available noncommercial MIP solver. All the steps shown here also work for Gurobi, CPLEX and XPRESS, although the performance impact might be different.</p>
+<p>In this tutorial, we use SCIP because it is more widely available than commercial MIP solvers. However, all the steps below should work for Gurobi, CPLEX or XPRESS, as long as you have a license for these solvers. The performance impact of MIPLearn may also change for different solvers.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>MIPLearn is still in early development stage. If run into any bugs or issues, please submit a bug report in our GitHub repository. Comments, suggestions and pull requests are also very welcome!</p>
 </div>
 </div>
-<div class="section" id="Installing-MIPLearn">
-<h2><span class="section-number">1.2. </span>Installing MIPLearn<a class="headerlink" href="#Installing-MIPLearn" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="Installation">
+<h2><span class="section-number">1.2. </span>Installation<a class="headerlink" href="#Installation" title="Permalink to this headline">¶</a></h2>
 <p>MIPLearn is available in two versions:</p>
 <ul class="simple">
 <li><p>Python version, compatible with the Pyomo modeling language,</p></li>
@@ -500,7 +500,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
 <span></span><span class="k">using</span> <span class="n">Pkg</span>
-<span class="n">Pkg</span><span class="o">.</span><span class="n">develop</span><span class="p">(</span><span class="n">PackageSpec</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s">&quot;/home/axavier/Packages/MIPLearn.jl/dev&quot;</span><span class="p">))</span>
+<span class="n">Pkg</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">PackageSpec</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">&quot;https://github.com/ANL-CEEESA/MIPLearn.jl.git&quot;</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -509,7 +509,9 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Path `/home/axavier/Packages/MIPLearn.jl/dev` exists and looks like the correct package. Using existing path.
+<span class="ansi-green-intense-fg ansi-bold">    Updating</span> git-repo `https://github.com/ANL-CEEESA/MIPLearn.jl.git`
+<span class="ansi-green-intense-fg ansi-bold">    Updating</span> registry at `~/.julia/registries/General`
+<span class="ansi-green-intense-fg ansi-bold">    Updating</span> git-repo `https://github.com/JuliaRegistries/General.git`
 <span class="ansi-green-intense-fg ansi-bold">   Resolving</span> package versions...
 <span class="ansi-green-intense-fg ansi-bold">  No Changes</span> to `~/Packages/MIPLearn/dev/docs/jump-tutorials/Project.toml`
 <span class="ansi-green-intense-fg ansi-bold">  No Changes</span> to `~/Packages/MIPLearn/dev/docs/jump-tutorials/Manifest.toml`
@@ -517,10 +519,10 @@ Path `/home/axavier/Packages/MIPLearn.jl/dev` exists and looks like the correct 
 </div>
 <p>In addition to MIPLearn itself, we will also install a few other packages that are required for this tutorial:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">SCIP</span></code>, a non-commercial mixed-integer programming solver</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">JuMP</span></code>, an open-source modeling language for Julia</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Distributions</span></code>, a statistics package that we will use to generate random inputs</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Glob</span></code>, a package that retrieves all files in a directory matching a certain pattern</p></li>
+<li><p><a class="reference external" href="https://www.scipopt.org/">SCIP</a>, one of the fastest non-commercial MIP solvers currently available</p></li>
+<li><p><a class="reference external" href="https://jump.dev/">JuMP</a>, an open source modeling language for Julia</p></li>
+<li><p><a class="reference external" href="https://github.com/JuliaStats/Distributions.jl">Distributions.jl</a>, a statistics package that we will use to generate random inputs</p></li>
+<li><p><a class="reference external" href="https://github.com/vtjnash/Glob.jl">Glob.jl</a>, a package that retrieves all files in a directory matching a certain pattern</p></li>
 </ul>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -534,7 +536,6 @@ Path `/home/axavier/Packages/MIPLearn.jl/dev` exists and looks like the correct 
     <span class="n">PackageSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Distributions&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&quot;0.25&quot;</span><span class="p">),</span>
     <span class="n">PackageSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Glob&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&quot;1&quot;</span><span class="p">),</span>
 <span class="p">])</span>
-<span class="k">using</span> <span class="n">Revise</span>
 </pre></div>
 </div>
 </div>
@@ -543,14 +544,9 @@ Path `/home/axavier/Packages/MIPLearn.jl/dev` exists and looks like the correct 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-<span class="ansi-green-intense-fg ansi-bold">    Updating</span> registry at `~/.julia/registries/General`
-<span class="ansi-green-intense-fg ansi-bold">    Updating</span> git-repo `https://github.com/JuliaRegistries/General.git`
 <span class="ansi-green-intense-fg ansi-bold">   Resolving</span> package versions...
 <span class="ansi-green-intense-fg ansi-bold">  No Changes</span> to `~/Packages/MIPLearn/dev/docs/jump-tutorials/Project.toml`
 <span class="ansi-green-intense-fg ansi-bold">  No Changes</span> to `~/Packages/MIPLearn/dev/docs/jump-tutorials/Manifest.toml`
-<span class="ansi-green-intense-fg ansi-bold">Precompiling</span> project...
-<span class="ansi-green-fg">  ✓ </span>MIPLearn
-1 dependency successfully precompiled in 10 seconds (96 already precompiled)
 </pre></div></div>
 </div>
 <div class="admonition note">
@@ -561,9 +557,9 @@ Path `/home/axavier/Packages/MIPLearn.jl/dev` exists and looks like the correct 
 <div class="section" id="Modeling-a-simple-optimization-problem">
 <h2><span class="section-number">1.3. </span>Modeling a simple optimization problem<a class="headerlink" href="#Modeling-a-simple-optimization-problem" title="Permalink to this headline">¶</a></h2>
 <p>To illustrate how can MIPLearn be used, we will model and solve a small optimization problem related to power systems optimization. The problem we discuss below is a simplification of the <strong>unit commitment problem,</strong> a practical optimization problem solved daily by electric grid operators around the world.</p>
-<p>Suppose that you work at a utility company, and that it is your job to decide which electrical generators should be online at a certain hour of the day, and how much power should each generator produce. More specifically, assume that your company owns <span class="math notranslate nohighlight">\(n\)</span> generators, denoted by <span class="math notranslate nohighlight">\(g_1, \ldots, g_n\)</span>. Each generator can either be online or offline. An online generator <span class="math notranslate nohighlight">\(g_i\)</span> can produce between <span class="math notranslate nohighlight">\(p^\text{min}_i\)</span> to <span class="math notranslate nohighlight">\(p^\text{max}_i\)</span> megawatts of power, and it costs your
-company <span class="math notranslate nohighlight">\(c^\text{fixed}_i + c^\text{var}_i y_i\)</span>, where <span class="math notranslate nohighlight">\(y_i\)</span> is the amount of power produced. An offline generator produces nothing, and costs nothing. You also know that the total amount of power to be produced needs to be exactly equal to the total demand <span class="math notranslate nohighlight">\(d\)</span> (in megawatts). To minimize the costs to your company, which generators should be online, and how much power should they produce?</p>
-<p>This simple problem be modeled as a <em>mixed-integer linear optimization</em> problem as follows. For each generator <span class="math notranslate nohighlight">\(g_i\)</span>, let <span class="math notranslate nohighlight">\(x_i \in \{0,1\}\)</span> be a decision variable indicating whether <span class="math notranslate nohighlight">\(g_i\)</span> is online, and let <span class="math notranslate nohighlight">\(y_i \geq 0\)</span> be a decision variable indicating how much power does <span class="math notranslate nohighlight">\(g_i\)</span> produce. The problem we need to solve is given by:</p>
+<p>Suppose that you work at a utility company, and that it is your job to decide which electrical generators should be online at a certain hour of the day, as well as how much power should each generator produce. More specifically, assume that your company owns <span class="math notranslate nohighlight">\(n\)</span> generators, denoted by <span class="math notranslate nohighlight">\(g_1, \ldots, g_n\)</span>. Each generator can either be online or offline. An online generator <span class="math notranslate nohighlight">\(g_i\)</span> can produce between <span class="math notranslate nohighlight">\(p^\text{min}_i\)</span> to <span class="math notranslate nohighlight">\(p^\text{max}_i\)</span> megawatts of power, and it costs
+your company <span class="math notranslate nohighlight">\(c^\text{fix}_i + c^\text{var}_i y_i\)</span>, where <span class="math notranslate nohighlight">\(y_i\)</span> is the amount of power produced. An offline generator produces nothing and costs nothing. You also know that the total amount of power to be produced needs to be exactly equal to the total demand <span class="math notranslate nohighlight">\(d\)</span> (in megawatts). To minimize the costs to your company, which generators should be online, and how much power should they produce?</p>
+<p>This simple problem can be modeled as a <em>mixed-integer linear optimization</em> problem as follows. For each generator <span class="math notranslate nohighlight">\(g_i\)</span>, let <span class="math notranslate nohighlight">\(x_i \in \{0,1\}\)</span> be a decision variable indicating whether <span class="math notranslate nohighlight">\(g_i\)</span> is online, and let <span class="math notranslate nohighlight">\(y_i \geq 0\)</span> be a decision variable indicating how much power does <span class="math notranslate nohighlight">\(g_i\)</span> produce. The problem is then given by:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align}
 \text{minimize } \quad &amp; \sum_{i=1}^n \left( c^\text{fix}_i x_i + c^\text{var}_i y_i \right) \\
@@ -575,9 +571,9 @@ company <span class="math notranslate nohighlight">\(c^\text{fixed}_i + c^\text{
 \end{align}\end{split}\]</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>We use a simplified version of the unit commitment problem in this tutorial just to make it easier to follow. MIPLearn can also handle realistic, large-scale versions of this problem. See the benchmark sections for more details.</p>
+<p>We use a simplified version of the unit commitment problem in this tutorial just to make it easier to follow. MIPLearn can also handle realistic, large-scale versions of this problem. See benchmarks for more details.</p>
 </div>
-<p>Next, let us convert this abstract mathematical formulation into a concrete optimization model, using the Julia and the JuMP modeling language. We start by defining a data structure that holds all input data:</p>
+<p>Next, let us convert this abstract mathematical formulation into a concrete optimization model, using Julia and JuMP. We start by defining a data structure that holds all the input data.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -593,7 +589,7 @@ company <span class="math notranslate nohighlight">\(c^\text{fixed}_i + c^\text{
 </pre></div>
 </div>
 </div>
-<p>Next, we create a function that converts this data into a concrete JuMP model:</p>
+<p>Next, we create a function that converts this data structure into a concrete JuMP model. For more details on the JuMP syntax, see <a class="reference external" href="https://jump.dev/JuMP.jl/stable/">the official JuMP documentation</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -630,7 +626,6 @@ company <span class="math notranslate nohighlight">\(c^\text{fixed}_i + c^\text{
 </div>
 <div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
 <span></span><span class="k">using</span> <span class="n">SCIP</span>
-<span class="k">using</span> <span class="n">Printf</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">build_uc_model</span><span class="p">(</span>
     <span class="n">UnitCommitmentData</span><span class="p">(</span>
@@ -711,19 +706,18 @@ obj = 1320.0
 </pre></div>
 </div>
 </div>
-<p>Next, we will write these data structures to individual files. MIPLearn uses files during the training process because, for large-scale optimization problems, it is often impractical to hold the entire training data, as well as the concrete JuMP models, in memory. Files also make it much easier to solve multiple instances simultaneously, potentially even on multiple machines. We will cover parallel and distributed computing in a future tutorial.</p>
-<p>The code below generates the files <code class="docutils literal notranslate"><span class="pre">uc/train/000001.jld2</span></code>, <code class="docutils literal notranslate"><span class="pre">uc/train/000002.jld2</span></code>, etc.</p>
+<p>Next, we write these data structures to individual files. MIPLearn uses files during the training process because, for large-scale optimization problems, it is often impractical to hold the entire training data, as well as the concrete JuMP models, in memory. Files also make it much easier to solve multiple instances simultaneously, potentially even on multiple machines. We will cover parallel and distributed computing in a future tutorial.</p>
+<p>The code below generates the files <code class="docutils literal notranslate"><span class="pre">uc/train/000001.jld2</span></code>, <code class="docutils literal notranslate"><span class="pre">uc/train/000002.jld2</span></code>, etc., which contain the input data in <a class="reference external" href="https://github.com/JuliaIO/JLD2.jl">JLD2 format</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
 <span></span><span class="k">using</span> <span class="n">MIPLearn</span>
-<span class="k">using</span> <span class="n">Glob</span>
-
 <span class="n">MIPLearn</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="mi">90</span><span class="p">],</span> <span class="s">&quot;uc/train/&quot;</span><span class="p">)</span>
 <span class="n">MIPLearn</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">91</span><span class="o">:</span><span class="mi">100</span><span class="p">],</span> <span class="s">&quot;uc/test/&quot;</span><span class="p">)</span>
 
+<span class="k">using</span> <span class="n">Glob</span>
 <span class="n">train_files</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="s">&quot;uc/train/*.jld2&quot;</span><span class="p">)</span>
 <span class="n">test_files</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="s">&quot;uc/test/*.jld2&quot;</span><span class="p">);</span>
 </pre></div>
@@ -746,7 +740,7 @@ obj = 1320.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-101.279699 seconds (93.52 M allocations: 3.599 GiB, 1.23% gc time, 0.52% compilation time)
+103.808547 seconds (93.52 M allocations: 3.604 GiB, 1.19% gc time, 0.52% compilation time)
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -757,11 +751,11 @@ obj = 1320.0
 WARNING: Dual bound 1.98665e+07 is larger than the objective of the primal solution 1.98665e+07. The solution might not be optimal.
 </pre></div></div>
 </div>
-<p>The macro <code class="docutils literal notranslate"><span class="pre">&#64;time</span></code> shows us how long did the code take to run. We can see that SCIP was able to solve all training instances in about 2 minutes. The solutions, and other useful training data, is stored by MIPLearn in <code class="docutils literal notranslate"><span class="pre">.h5</span></code> files, stored side-by-side with the original <code class="docutils literal notranslate"><span class="pre">.jld2</span></code> files.</p>
+<p>The macro <code class="docutils literal notranslate"><span class="pre">&#64;time</span></code> shows us how long did the code take to run. We can see that SCIP was able to solve all training instances in about 2 minutes. The solutions, and other useful training data, are stored by MIPLearn in <code class="docutils literal notranslate"><span class="pre">.h5</span></code> files, stored side-by-side with the original <code class="docutils literal notranslate"><span class="pre">.jld2</span></code> files.</p>
 </div>
 <div class="section" id="Solving-new-instances">
 <h2><span class="section-number">1.5. </span>Solving new instances<a class="headerlink" href="#Solving-new-instances" title="Permalink to this headline">¶</a></h2>
-<p>Now that we have training data, we can fit the ML models using <code class="docutils literal notranslate"><span class="pre">MIPLearn.fit!</span></code>, then solve the test instances with <code class="docutils literal notranslate"><span class="pre">MIPLearn.solve!</span></code>, as shown below:</p>
+<p>With training data in hand, we can now fit the ML models using <code class="docutils literal notranslate"><span class="pre">MIPLearn.fit!</span></code>, then solve the test instances with <code class="docutils literal notranslate"><span class="pre">MIPLearn.solve!</span></code>, as shown below:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
@@ -778,10 +772,10 @@ WARNING: Dual bound 1.98665e+07 is larger than the objective of the primal solut
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  5.693951 seconds (9.33 M allocations: 334.689 MiB, 1.62% gc time)
+  5.951264 seconds (9.33 M allocations: 334.657 MiB, 1.51% gc time)
 </pre></div></div>
 </div>
-<p>The trained MIP solver was able to solve all test instances in about 5 seconds. To see that ML is being helpful here, let us repeat the code above, but remove the <code class="docutils literal notranslate"><span class="pre">fit!</span></code> line:</p>
+<p>The trained MIP solver was able to solve all test instances in about 6 seconds. To see that ML is being helpful here, let us repeat the code above, but remove the <code class="docutils literal notranslate"><span class="pre">fit!</span></code> line:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
@@ -797,10 +791,10 @@ WARNING: Dual bound 1.98665e+07 is larger than the objective of the primal solut
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  9.829350 seconds (8.17 M allocations: 278.008 MiB, 0.47% gc time)
+ 10.390325 seconds (8.17 M allocations: 278.042 MiB, 0.89% gc time)
 </pre></div></div>
 </div>
-<p>Without the help of the ML models, SCIP took around 10 seconds to solve the same test instances, or about twice as long.</p>
+<p>Without the help of the ML models, SCIP took around 10 seconds to solve the same test instances.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Note that is is not necessary to specify what ML models to use. MIPLearn, by default, will try a number of classical ML models and will choose the one that performs the best, based on k-fold cross validation. MIPLearn is also able to automatically collect features based on the MIP formulation of the problem and the solution to the LP relaxation, among other things, so it does not require handcrafted features. If you do want to customize the models and features, however, that is also possible, as
@@ -809,7 +803,7 @@ we will see in a later tutorial.</p>
 </div>
 <div class="section" id="Understanding-the-acceleration">
 <h2><span class="section-number">1.6. </span>Understanding the acceleration<a class="headerlink" href="#Understanding-the-acceleration" title="Permalink to this headline">¶</a></h2>
-<p>Let us know go a bit deeper and try to understand how exactly did MIPLearn accelerate SCIP’s performance. First, we are going to solve one of the training instances again, using the trained solver, but this time using the <code class="docutils literal notranslate"><span class="pre">tee=true</span></code> parameter, so that we can see SCIP’s log:</p>
+<p>Let us go a bit deeper and try to understand how exactly did MIPLearn accelerate SCIP’s performance. First, we are going to solve one of the test instances again, using the trained solver, but this time using the <code class="docutils literal notranslate"><span class="pre">tee=true</span></code> parameter, so that we can see SCIP’s log:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -864,7 +858,7 @@ presolving (4 rounds: 4 fast, 3 medium, 3 exhaustive):
 presolved problem has 2000 variables (1000 bin, 0 int, 0 impl, 1000 cont) and 2001 constraints
    2000 constraints of type &lt;varbound&gt;
       1 constraints of type &lt;linear&gt;
-Presolving Time: 0.10
+Presolving Time: 0.11
 transformed 1/1 original solutions to the transformed problem space
 
  time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl.
@@ -879,9 +873,9 @@ Gap                : 0.01 %
 
 </pre></div></div>
 </div>
-<p>The log above is quite complicated if you have never seen it before, but the important line in the one starting with <code class="docutils literal notranslate"><span class="pre">feasible</span> <span class="pre">solution</span> <span class="pre">found</span> <span class="pre">[...]</span> <span class="pre">objective</span> <span class="pre">value</span> <span class="pre">1.705169e+07</span></code>. This line indicates that MIPLearn was able to construct a warm start with value <code class="docutils literal notranslate"><span class="pre">1.705169e+07</span></code>. Using this warm start, SCIP then proceeded with the branch-and-cut process to either prove its optimality or find an even better solution. Very quickly, however, SCIP proved that the solution produced by MIPLearn was
-indeed optimal and terminated. It was able to do this without generating a single cutting plane or running any other heuristics; it could tell the optimality by the root LP relaxation alone, which was very fast.</p>
-<p>Let us now do the same thing again, but using the untrained solver this time:</p>
+<p>The log above is quite complicated if you have never seen it before, but the important line is the one starting with <code class="docutils literal notranslate"><span class="pre">feasible</span> <span class="pre">solution</span> <span class="pre">found</span> <span class="pre">[...]</span> <span class="pre">objective</span> <span class="pre">value</span> <span class="pre">1.705169e+07</span></code>. This line indicates that MIPLearn was able to construct a warm start with value <code class="docutils literal notranslate"><span class="pre">1.705169e+07</span></code>. Using this warm start, SCIP then used the branch-and-cut method to either prove its optimality or to find an even better solution. Very quickly, however, SCIP proved that the solution produced by MIPLearn was indeed
+optimal. It was able to do this without generating a single cutting plane or running any other heuristics; it could tell the optimality by the root LP relaxation alone, which was very fast.</p>
+<p>Let us now repeat the process, but using the untrained solver this time:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
@@ -960,7 +954,7 @@ L 0.6s|     1 |     0 |  1707 |     - |    rens|   0 |2000 |2001 |2015 |  14 | 1
 L 0.7s|     1 |     0 |  1707 |     - |    alns|   0 |2000 |2001 |2015 |  14 | 11 |   0 |   0 | 1.705038e+07 | 1.705178e+07 |   0.01%| unknown
 
 SCIP Status        : solving was interrupted [gap limit reached]
-Solving Time (sec) : 0.67
+Solving Time (sec) : 0.68
 Solving Nodes      : 1
 Primal Bound       : +1.70517823853380e+07 (13 solutions)
 Dual Bound         : +1.70503798271962e+07
@@ -968,7 +962,9 @@ Gap                : 0.01 %
 
 </pre></div></div>
 </div>
-<p>In this log file, notice how the line we saw before is now missing; SCIP needs to find an initial solution using its own internal heuristics. The solution SCIP initially found has value <code class="docutils literal notranslate"><span class="pre">2.335200e+07</span></code>, which is significantly worse than the one MIPLearn constructed before. SCIP then proceeds to improve this solution by generating a number of cutting planes and repeatedly running primal heuristics. In the end, it is able to find the optimal solution, as expected, but it takes longer.</p>
+<p>In this log file, notice how the previous line about warm starts is missing. Since no warm starts were provided, SCIP had to find an initial solution using its own internal heuristics, which are not specifically tailored for this problem. The initial solution found by SCIP’s heuristics has value <code class="docutils literal notranslate"><span class="pre">2.335200e+07</span></code>, which is significantly worse than the one constructed by MIPLearn. SCIP then proceeded to improve this solution, by generating cutting planes and repeatedly running additional primal
+heuristics. In the end, it was able to find the optimal solution, as expected, but it took longer.</p>
+<p>In summary, MIPLearn accelerated the solution process by constructing a high-quality initial solution. In the following tutorials, we will see other strategies that MIPLearn can use to accelerate MIP performance, besides warm starts.</p>
 </div>
 <div class="section" id="Accessing-the-solution">
 <h2><span class="section-number">1.7. </span>Accessing the solution<a class="headerlink" href="#Accessing-the-solution" title="Permalink to this headline">¶</a></h2>
