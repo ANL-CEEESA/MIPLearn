@@ -32,11 +32,11 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
-    <link rel="author" title="About these documents" href="about/" />
     <link rel="index" title="Index" href="genindex/" />
     <link rel="search" title="Search" href="search/" />
-    <link rel="next" title="1. Using MIPLearn" href="usage/" />
+    <link rel="next" title="1. Getting started with MIPLearn" href="jump-tutorials/getting-started/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
     
@@ -64,37 +64,42 @@
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
     <div class="bd-toc-item active">
-        <ul class="nav bd-sidenav">
+        <p class="caption">
+ <span class="caption-text">
+  Julia Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
  <li class="toctree-l1">
-  <a class="reference internal" href="usage/">
-   <span class="sectnum">
-    1.
-   </span>
-   Using MIPLearn
+  <a class="reference internal" href="jump-tutorials/getting-started/">
+   1. Getting started with MIPLearn
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Benchmarks
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="benchmarks/preliminaries/">
+   1. Preliminaries
   </a>
  </li>
  <li class="toctree-l1">
-  <a class="reference internal" href="benchmark/">
-   <span class="sectnum">
-    2.
-   </span>
-   Benchmarks
+  <a class="reference internal" href="benchmarks/stab/">
+   2. Maximum Weight Stable Set
   </a>
  </li>
  <li class="toctree-l1">
-  <a class="reference internal" href="customization/">
-   <span class="sectnum">
-    3.
-   </span>
-   Customization
+  <a class="reference internal" href="benchmarks/knapsack/">
+   3. Multidimensional Knapsack
   </a>
  </li>
  <li class="toctree-l1">
-  <a class="reference internal" href="about/">
-   <span class="sectnum">
-    4.
-   </span>
-   About
+  <a class="reference internal" href="benchmarks/tsp/">
+   4. Traveling Salesman
   </a>
  </li>
 </ul>
@@ -145,19 +150,6 @@
 
             <!-- Source interaction buttons -->
 
-<div class="dropdown-buttons-trigger">
-    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
-        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
-    <div class="dropdown-buttons sourcebuttons">
-        <a class="repository-button"
-            href="https://github.com/ANL-CEEESA/MIPLearn/"><button type="button" class="btn btn-secondary topbarbtn"
-                data-toggle="tooltip" data-placement="left" title="Source repository"><i
-                    class="fab fa-github"></i>repository</button></a>
-        
-        
-    </div>
-</div>
-
             <!-- Full screen (wrap in <a> to have style consistency -->
 
 <a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
@@ -178,18 +170,35 @@
             <nav id="bd-toc-nav">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#features">
-   Features
+  <a class="reference internal nav-link" href="#table-of-contents">
+   Table of Contents
   </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#site-contents">
-   Site contents
-  </a>
+  <ul class="nav section-nav flex-column">
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#source-code">
    Source Code
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#authors">
+   Authors
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#acknowledgments">
+   Acknowledgments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#references">
+   References
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#license">
+   License
   </a>
  </li>
 </ul>
@@ -208,51 +217,24 @@
 <p><strong>MIPLearn</strong> is an extensible framework for solving discrete optimization problems using a combination of Mixed-Integer Linear Programming (MIP) and Machine Learning (ML). The framework uses ML methods to automatically identify patterns in previously solved instances of the problem, then uses these patterns to accelerate the performance of conventional state-of-the-art MIP solvers (such as CPLEX, Gurobi or XPRESS).</p>
 <p>Unlike pure ML methods, MIPLearn is not only able to find high-quality solutions to discrete optimization problems, but it can also prove the optimality and feasibility of these solutions.
 Unlike conventional MIP solvers, MIPLearn can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value).</p>
-<p>For certain classes of problems, this approach has been shown to provide significant performance benefits (see <a class="reference internal" href="benchmark/"><span class="doc std std-doc">benchmarks</span></a> and <a class="reference internal" href="about/"><span class="doc std std-doc">references</span></a>).</p>
-<div class="section" id="features">
-<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p><strong>MIPLearn proposes a flexible problem specification format,</strong> which allows users to describe their particular optimization problems to a Learning-Enhanced MIP solver, both from the MIP perspective and from the ML perspective, without making any assumptions on the problem being modeled, the mathematical formulation of the problem, or ML encoding. While the format is very flexible, some constraints are enforced to ensure that it is usable by an actual solver.</p></li>
-<li><p><strong>MIPLearn provides a reference implementation of a <em>Learning-Enhanced Solver</em>,</strong> which can use the above problem specification format to automatically predict, based on previously solved instances, a number of hints to accelerate MIP performance. Currently, the reference solver is able to predict: (i) partial solutions which are likely to work well as MIP starts; (ii) an initial set of lazy constraints to enforce; (iii) variable branching priorities to accelerate the exploration of the branch-and-bound tree; (iv) the optimal objective value based on the solution to the LP relaxation. The usage of the solver is very straightforward. The most suitable ML models are automatically selected, trained, cross-validated and applied to the problem with no user intervention.</p></li>
-<li><p><strong>MIPLearn provides a set of benchmark problems and random instance generators,</strong> covering applications from different domains, which can be used to quickly evaluate new learning-enhanced MIP techniques in a measurable and reproducible way.</p></li>
-<li><p><strong>MIPLearn is customizable and extensible</strong>. For MIP and ML researchers exploring new techniques to accelerate MIP performance based on historical data, each component of the reference solver can be individually replaced, extended or customized.</p></li>
+<div class="section" id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Julia Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="jump-tutorials/getting-started/">1. Getting started with MIPLearn</a></li>
 </ul>
 </div>
-<div class="section" id="site-contents">
-<h2>Site contents<a class="headerlink" href="#site-contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Benchmarks</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="usage/"><span class="sectnum">1.</span> Using MIPLearn</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usage/#installation"><span class="sectnum">1.1.</span> Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/#using-learningsolver"><span class="sectnum">1.2.</span> Using <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/#describing-problem-instances"><span class="sectnum">1.3.</span> Describing problem instances</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/#describing-lazy-constraints"><span class="sectnum">1.4.</span> Describing lazy constraints</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/#obtaining-heuristic-solutions"><span class="sectnum">1.5.</span> Obtaining heuristic solutions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/#scaling-up"><span class="sectnum">1.6.</span> Scaling Up</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/#running-benchmarks"><span class="sectnum">1.7.</span> Running benchmarks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/#current-limitations"><span class="sectnum">1.8.</span> Current Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks/preliminaries/">1. Preliminaries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks/stab/">2. Maximum Weight Stable Set</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks/knapsack/">3. Multidimensional Knapsack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks/tsp/">4. Traveling Salesman</a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="benchmark/"><span class="sectnum">2.</span> Benchmarks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="benchmark/#preliminaries"><span class="sectnum">2.1.</span> Preliminaries</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchmark/#maximum-weight-stable-set-problem"><span class="sectnum">2.2.</span> Maximum Weight Stable Set Problem</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchmark/#traveling-salesman-problem"><span class="sectnum">2.3.</span> Traveling Salesman Problem</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchmark/#multidimensional-0-1-knapsack-problem"><span class="sectnum">2.4.</span> Multidimensional 0-1 Knapsack Problem</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="customization/"><span class="sectnum">3.</span> Customization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="customization/#customizing-solver-parameters"><span class="sectnum">3.1.</span> Customizing solver parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="customization/#customizing-solver-components"><span class="sectnum">3.2.</span> Customizing solver components</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="about/"><span class="sectnum">4.</span> About</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="about/#authors"><span class="sectnum">4.1.</span> Authors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="about/#acknowledgments"><span class="sectnum">4.2.</span> Acknowledgments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="about/#references"><span class="sectnum">4.3.</span> References</a></li>
-<li class="toctree-l2"><a class="reference internal" href="about/#license"><span class="sectnum">4.4.</span> License</a></li>
-</ul>
-</li>
-</ul>
+</div>
+<div class="toctree-wrapper compound">
 </div>
 </div>
 <div class="section" id="source-code">
@@ -260,6 +242,59 @@ Unlike conventional MIP solvers, MIPLearn can take full advantage of very specif
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/ANL-CEEESA/MIPLearn">https://github.com/ANL-CEEESA/MIPLearn</a></p></li>
 </ul>
+</div>
+<div class="section" id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Alinson S. Xavier,</strong> Argonne National Laboratory &lt;<a class="reference external" href="mailto:axavier&#37;&#52;&#48;anl&#46;gov">mailto:axavier<span>&#64;</span>anl<span>&#46;</span>gov</a>&gt;</p></li>
+<li><p><strong>Feng Qiu,</strong> Argonne National Laboratory &lt;<a class="reference external" href="mailto:fqiu&#37;&#52;&#48;anl&#46;gov">mailto:fqiu<span>&#64;</span>anl<span>&#46;</span>gov</a>&gt;</p></li>
+</ul>
+</div>
+<div class="section" id="acknowledgments">
+<h2>Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Based upon work supported by <strong>Laboratory Directed Research and Development</strong> (LDRD) funding from Argonne National Laboratory, provided by the Director, Office of Science, of the U.S. Department of Energy under Contract No. DE-AC02-06CH11357, and the <strong>U.S. Department of Energy Advanced Grid Modeling Program</strong> under Grant DE-OE0000875.</p></li>
+</ul>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<p>If you use MIPLearn in your research, or the included problem generators, we kindly request that you cite the package as follows:</p>
+<ul class="simple">
+<li><p><strong>Alinson S. Xavier, Feng Qiu.</strong> <em>MIPLearn: An Extensible Framework for Learning-Enhanced Optimization</em>. Zenodo (2020). DOI: <a class="reference external" href="https://doi.org/10.5281/zenodo.4287567">10.5281/zenodo.4287567</a></p></li>
+</ul>
+<p>If you use MIPLearn in the field of power systems optimization, we kindly request that you cite the reference below, in which the main techniques implemented in MIPLearn were first developed:</p>
+<ul class="simple">
+<li><p><strong>Alinson S. Xavier, Feng Qiu, Shabbir Ahmed.</strong> <em>Learning to Solve Large-Scale Unit Commitment Problems.</em> INFORMS Journal on Computing (2021). DOI: <a class="reference external" href="https://doi.org/10.1287/ijoc.2020.0976">10.1287/ijoc.2020.0976</a></p></li>
+</ul>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>MIPLearn, an extensible framework for Learning-Enhanced Mixed-Integer Optimization
+Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted
+provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of
+   conditions and the following disclaimer in the documentation and/or other materials provided
+   with the distribution.
+3. Neither the name of the copyright holder nor the names of its contributors may be used to
+   endorse or promote products derived from this software without specific prior written
+   permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -269,7 +304,7 @@ Unlike conventional MIP solvers, MIPLearn can take full advantage of very specif
         
         <div class='prev-next-bottom'>
             
-    <a class='right-next' id="next-link" href="usage/" title="next page"><span class="sectnum">1.</span> Using MIPLearn</a>
+    <a class='right-next' id="next-link" href="jump-tutorials/getting-started/" title="next page"><span class="section-number">1. </span>Getting started with MIPLearn</a>
 
         </div>
         

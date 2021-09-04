@@ -5,31 +5,96 @@
 Unlike pure ML methods, MIPLearn is not only able to find high-quality solutions to discrete optimization problems, but it can also prove the optimality and feasibility of these solutions.
 Unlike conventional MIP solvers, MIPLearn can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value). 
 
-For certain classes of problems, this approach has been shown to provide significant performance benefits (see [benchmarks](benchmark.md) and [references](about.md)).
-
-## Features
-
-* **MIPLearn proposes a flexible problem specification format,** which allows users to describe their particular optimization problems to a Learning-Enhanced MIP solver, both from the MIP perspective and from the ML perspective, without making any assumptions on the problem being modeled, the mathematical formulation of the problem, or ML encoding. While the format is very flexible, some constraints are enforced to ensure that it is usable by an actual solver.
-
-* **MIPLearn provides a reference implementation of a *Learning-Enhanced Solver*,** which can use the above problem specification format to automatically predict, based on previously solved instances, a number of hints to accelerate MIP performance. Currently, the reference solver is able to predict: (i) partial solutions which are likely to work well as MIP starts; (ii) an initial set of lazy constraints to enforce; (iii) variable branching priorities to accelerate the exploration of the branch-and-bound tree; (iv) the optimal objective value based on the solution to the LP relaxation. The usage of the solver is very straightforward. The most suitable ML models are automatically selected, trained, cross-validated and applied to the problem with no user intervention.
-
-* **MIPLearn provides a set of benchmark problems and random instance generators,** covering applications from different domains, which can be used to quickly evaluate new learning-enhanced MIP techniques in a measurable and reproducible way.
-
-* **MIPLearn is customizable and extensible**. For MIP and ML researchers exploring new techniques to accelerate MIP performance based on historical data, each component of the reference solver can be individually replaced, extended or customized.
-
-## Site contents
+## Table of Contents
 
 ```{toctree}
 ---
-maxdepth: 2
+maxdepth: 1
+caption: Julia Tutorials
+numbered: true
 ---
-usage.md
-benchmark.md
-customization.md
-about.md
+jump-tutorials/getting-started.ipynb
+#jump-tutorials/lazy-constraints.ipynb
+#jump-tutorials/user-cuts.ipynb
+#jump-tutorials/customizing-ml.ipynb
+```
+
+```{toctree}
+---
+maxdepth: 1
+caption: Benchmarks
+numbered: true
+---
+benchmarks/preliminaries.ipynb
+benchmarks/stab.ipynb
+#benchmarks/uc.ipynb
+#benchmarks/facility.ipynb
+benchmarks/knapsack.ipynb
+benchmarks/tsp.ipynb
+```
+
+
+```{toctree}
+---
+maxdepth: 1
+caption: MIPLearn Internals
+numbered: true
+---
+#internals/solver-interfaces.ipynb
+#internals/data-collection.ipynb
+#internals/abstract-component.ipynb
+#internals/primal.ipynb
+#internals/static-lazy.ipynb
+#internals/dynamic-lazy.ipynb
 ```
 
 ## Source Code
 
 * [https://github.com/ANL-CEEESA/MIPLearn](https://github.com/ANL-CEEESA/MIPLearn)
 
+## Authors
+
+* **Alinson S. Xavier,** Argonne National Laboratory <<axavier@anl.gov>>
+* **Feng Qiu,** Argonne National Laboratory <<fqiu@anl.gov>>
+
+## Acknowledgments
+
+* Based upon work supported by **Laboratory Directed Research and Development** (LDRD) funding from Argonne National Laboratory, provided by the Director, Office of Science, of the U.S. Department of Energy under Contract No. DE-AC02-06CH11357, and the **U.S. Department of Energy Advanced Grid Modeling Program** under Grant DE-OE0000875.
+
+## References
+
+
+If you use MIPLearn in your research, or the included problem generators, we kindly request that you cite the package as follows:
+- **Alinson S. Xavier, Feng Qiu.** *MIPLearn: An Extensible Framework for Learning-Enhanced Optimization*. Zenodo (2020). DOI: [10.5281/zenodo.4287567](https://doi.org/10.5281/zenodo.4287567)
+
+If you use MIPLearn in the field of power systems optimization, we kindly request that you cite the reference below, in which the main techniques implemented in MIPLearn were first developed:
+- **Alinson S. Xavier, Feng Qiu, Shabbir Ahmed.** *Learning to Solve Large-Scale Unit Commitment Problems.* INFORMS Journal on Computing (2021). DOI: [10.1287/ijoc.2020.0976](https://doi.org/10.1287/ijoc.2020.0976)
+
+## License
+
+```text
+MIPLearn, an extensible framework for Learning-Enhanced Mixed-Integer Optimization
+Copyright © 2020, UChicago Argonne, LLC. All Rights Reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted
+provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of
+   conditions and the following disclaimer in the documentation and/or other materials provided
+   with the distribution.
+3. Neither the name of the copyright holder nor the names of its contributors may be used to
+   endorse or promote products derived from this software without specific prior written
+   permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+```

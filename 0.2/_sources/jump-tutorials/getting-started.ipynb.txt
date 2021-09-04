@@ -1,0 +1,758 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "c5a596fb",
+   "metadata": {},
+   "source": [
+    "# Getting started with MIPLearn\n",
+    "\n",
+    "## Introduction\n",
+    "\n",
+    "**MIPLearn** is an open source framework that uses machine learning (ML) to accelerate the performance of both commercial and open source mixed-integer programming solvers (e.g. Gurobi, CPLEX, XPRESS, Cbc or SCIP). In this tutorial, we will:\n",
+    "\n",
+    "1. Install the Julia/JuMP version of MIPLearn\n",
+    "2. Model a simple optimization problem using JuMP\n",
+    "3. Generate training data and train the ML models\n",
+    "4. Use the ML models together with SCIP to solve new instances\n",
+    "\n",
+    "<div class=\"alert alert-info\">\n",
+    "Note\n",
+    "    \n",
+    "We use SCIP in this tutorial because it is a fast and widely available noncommercial MIP solver. All the steps shown here also work for Gurobi, CPLEX and XPRESS, although the performance impact might be different.\n",
+    "    \n",
+    "</div>\n",
+    "\n",
+    "<div class=\"alert alert-warning\">\n",
+    "Warning\n",
+    "    \n",
+    "MIPLearn is still in early development stage. If run into any bugs or issues, please submit a bug report in our GitHub repository. Comments, suggestions and pull requests are also very welcome!\n",
+    "    \n",
+    "</div>\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1f59417f",
+   "metadata": {},
+   "source": [
+    "## Installing MIPLearn\n",
+    "\n",
+    "MIPLearn is available in two versions:\n",
+    "\n",
+    "- Python version, compatible with the Pyomo modeling language,\n",
+    "- Julia version, compatible with the JuMP modeling language.\n",
+    "\n",
+    "In this tutorial, we will demonstrate how to use and install the Julia/JuMP version of the package. The first step is to install the Julia programming language in your computer. [See the official instructions for more details](https://julialang.org/downloads/). Note that MIPLearn was developed and tested with Julia 1.6, and may not be compatible with newer versions of the language. After Julia is installed, launch its console and run the following commands to download and install the package:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "1ddeeb8e",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Path `/home/axavier/Packages/MIPLearn.jl/dev` exists and looks like the correct package. Using existing path.\n",
+      "\u001b[32m\u001b[1m   Resolving\u001b[22m\u001b[39m package versions...\n",
+      "\u001b[32m\u001b[1m  No Changes\u001b[22m\u001b[39m to `~/Packages/MIPLearn/dev/docs/jump-tutorials/Project.toml`\n",
+      "\u001b[32m\u001b[1m  No Changes\u001b[22m\u001b[39m to `~/Packages/MIPLearn/dev/docs/jump-tutorials/Manifest.toml`\n"
+     ]
+    }
+   ],
+   "source": [
+    "using Pkg\n",
+    "Pkg.develop(PackageSpec(path=\"/home/axavier/Packages/MIPLearn.jl/dev\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "de7ab489",
+   "metadata": {},
+   "source": [
+    "In addition to MIPLearn itself, we will also install a few other packages that are required for this tutorial:\n",
+    "\n",
+    "- `SCIP`, a non-commercial mixed-integer programming solver\n",
+    "- `JuMP`, an open-source modeling language for Julia\n",
+    "- `Distributions`, a statistics package that we will use to generate random inputs\n",
+    "- `Glob`, a package that retrieves all files in a directory matching a certain pattern"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "29d29925",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[32m\u001b[1m    Updating\u001b[22m\u001b[39m registry at `~/.julia/registries/General`\n",
+      "\u001b[32m\u001b[1m    Updating\u001b[22m\u001b[39m git-repo `https://github.com/JuliaRegistries/General.git`\n",
+      "\u001b[32m\u001b[1m   Resolving\u001b[22m\u001b[39m package versions...\n",
+      "\u001b[32m\u001b[1m  No Changes\u001b[22m\u001b[39m to `~/Packages/MIPLearn/dev/docs/jump-tutorials/Project.toml`\n",
+      "\u001b[32m\u001b[1m  No Changes\u001b[22m\u001b[39m to `~/Packages/MIPLearn/dev/docs/jump-tutorials/Manifest.toml`\n",
+      "\u001b[32m\u001b[1mPrecompiling\u001b[22m\u001b[39m project...\n",
+      "\u001b[32m  ✓ \u001b[39mMIPLearn\n",
+      "1 dependency successfully precompiled in 10 seconds (96 already precompiled)\n"
+     ]
+    }
+   ],
+   "source": [
+    "using Pkg\n",
+    "Pkg.add([\n",
+    "    PackageSpec(url=\"https://github.com/scipopt/SCIP.jl.git\", rev=\"7aa79aaa\"),\n",
+    "    PackageSpec(name=\"JuMP\", version=\"0.21\"),\n",
+    "    PackageSpec(name=\"Distributions\", version=\"0.25\"),\n",
+    "    PackageSpec(name=\"Glob\", version=\"1\"),\n",
+    "])\n",
+    "using Revise"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "88074d87",
+   "metadata": {},
+   "source": [
+    "<div class=\"alert alert-info\">\n",
+    "    \n",
+    "Note\n",
+    "    \n",
+    "In the code above, we install specific version of all packages to ensure that this tutorial keeps running in the future, even when newer (and possibly incompatible) versions of the packages are released. This is usually a recommended practice for all Julia projects.\n",
+    "    \n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "78482747",
+   "metadata": {},
+   "source": [
+    "## Modeling a simple optimization problem\n",
+    "\n",
+    "To illustrate how can MIPLearn be used, we will model and solve a small optimization problem related to power systems optimization. The problem we discuss below is a simplification of the **unit commitment problem,** a practical optimization problem solved daily by electric grid operators around the world. \n",
+    "\n",
+    "Suppose that you work at a utility company, and that it is your job to decide which electrical generators should be online at a certain hour of the day, and how much power should each generator produce. More specifically, assume that your company owns $n$ generators, denoted by $g_1, \\ldots, g_n$. Each generator can either be online or offline. An online generator $g_i$ can produce between $p^\\text{min}_i$ to $p^\\text{max}_i$ megawatts of power, and it costs your company $c^\\text{fixed}_i + c^\\text{var}_i y_i$, where $y_i$ is the amount of power produced. An offline generator produces nothing, and costs nothing. You also know that the total amount of power to be produced needs to be exactly equal to the total demand $d$ (in megawatts). To minimize the costs to your company, which generators should be online, and how much power should they produce?\n",
+    "\n",
+    "This simple problem be modeled as a *mixed-integer linear optimization* problem as follows. For each generator $g_i$, let $x_i \\in \\{0,1\\}$ be a decision variable indicating whether $g_i$ is online, and let $y_i \\geq 0$ be a decision variable indicating how much power does $g_i$ produce. The problem we need to solve is given by:\n",
+    "\n",
+    "$$\n",
+    "\\begin{align}\n",
+    "\\text{minimize } \\quad & \\sum_{i=1}^n \\left( c^\\text{fix}_i x_i + c^\\text{var}_i y_i \\right) \\\\\n",
+    "\\text{subject to } \\quad & y_i \\leq p^\\text{max}_i x_i & i=1,\\ldots,n \\\\\n",
+    "& y_i \\geq p^\\text{min}_i x_i & i=1,\\ldots,n \\\\\n",
+    "& \\sum_{i=1}^n y_i = d \\\\\n",
+    "& x_i \\in \\{0,1\\} & i=1,\\ldots,n \\\\\n",
+    "& y_i \\geq 0 & i=1,\\ldots,n\n",
+    "\\end{align}\n",
+    "$$\n",
+    "\n",
+    "<div class=\"alert alert-info\">\n",
+    "    \n",
+    "Note\n",
+    "    \n",
+    "We use a simplified version of the unit commitment problem in this tutorial just to make it easier to follow. MIPLearn can also handle realistic, large-scale versions of this problem. See the benchmark sections for more details.\n",
+    "    \n",
+    "</div>\n",
+    "\n",
+    "Next, let us convert this abstract mathematical formulation into a concrete optimization model, using the Julia and the JuMP modeling language. We start by defining a data structure that holds all input data:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "ec7dbab4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "Base.@kwdef struct UnitCommitmentData\n",
+    "    demand::Float64\n",
+    "    pmin::Vector{Float64}\n",
+    "    pmax::Vector{Float64}\n",
+    "    cfix::Vector{Float64}\n",
+    "    cvar::Vector{Float64}\n",
+    "end;"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c8f6a5b8",
+   "metadata": {},
+   "source": [
+    "Next, we create a function that converts this data into a concrete JuMP model:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "14e84c92",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "using JuMP\n",
+    "\n",
+    "function build_uc_model(data::UnitCommitmentData)::Model\n",
+    "    model = Model()\n",
+    "    n = length(data.pmin)\n",
+    "    @variable(model, x[1:n], Bin)\n",
+    "    @variable(model, y[1:n] >= 0)\n",
+    "    @objective(\n",
+    "        model,\n",
+    "        Min,\n",
+    "        sum(\n",
+    "            data.cfix[i] * x[i] +\n",
+    "            data.cvar[i] * y[i]\n",
+    "            for i in 1:n\n",
+    "        )\n",
+    "    )\n",
+    "    @constraint(model, eq_max_power[i in 1:n], y[i] <= data.pmax[i] * x[i])\n",
+    "    @constraint(model, eq_min_power[i in 1:n], y[i] >= data.pmin[i] * x[i])\n",
+    "    @constraint(model, eq_demand, sum(y[i] for i in 1:n) == data.demand)\n",
+    "    return model\n",
+    "end;"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f647734f",
+   "metadata": {},
+   "source": [
+    "At this point, we can already use JuMP and any mixed-integer linear programming solver to find optimal solutions to any instance of this problem. To illustrate this, let us solve a small instance with three generators, using SCIP:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "b2abe5e2",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "obj = 1320.0\n",
+      "  x = [0.0, 1.0, 1.0]\n",
+      "  y = [0.0, 60.0, 40.0]\n"
+     ]
+    }
+   ],
+   "source": [
+    "using SCIP\n",
+    "using Printf\n",
+    "\n",
+    "model = build_uc_model(\n",
+    "    UnitCommitmentData(\n",
+    "        demand = 100.0,\n",
+    "        pmin = [10, 20, 30],\n",
+    "        pmax = [50, 60, 70],\n",
+    "        cfix = [700, 600, 500],\n",
+    "        cvar = [1.5, 2.0, 2.5],\n",
+    "    )\n",
+    ")\n",
+    "\n",
+    "scip = optimizer_with_attributes(SCIP.Optimizer, \"limits/gap\" => 1e-4)\n",
+    "set_optimizer(model, scip)\n",
+    "set_silent(model)\n",
+    "optimize!(model)\n",
+    "\n",
+    "println(\"obj = \", objective_value(model))\n",
+    "println(\"  x = \", round.(value.(model[:x])))\n",
+    "println(\"  y = \", round.(value.(model[:y]), digits=2));"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5be976f5",
+   "metadata": {},
+   "source": [
+    "Running the code above, we found that the optimal solution for our small problem instance costs \\$1320. It is achieve by keeping generators 2 and 3 online and producing, respectively, 60 MW and 40 MW of power."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "96a1f952",
+   "metadata": {},
+   "source": [
+    "## Generating training data\n",
+    "\n",
+    "Although SCIP could solve the small example above in a fraction of a second, it gets slower for larger and more complex versions of the problem. If this is a problem that needs to be solved frequently, as it is often the case in practice, it could make sense to spend some time upfront generating a **trained** version of SCIP, which can solve new instances (similar to the ones it was trained on) faster.\n",
+    "\n",
+    "In the following, we will use MIPLearn to train machine learning models that can be used to accelerate SCIP's performance on a particular set of instances. More specifically, MIPLearn will train a model that is able to predict the optimal solution for instances that follow a given probability distribution, then it will provide this predicted solution to SCIP as a warm start.\n",
+    "\n",
+    "Before we can train the model, we need to collect training data by solving a large number of instances. In real-world situations, we may construct these training instances based on historical data. In this tutorial, we will construct them using a random instance generator:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "353e6199",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "using Distributions\n",
+    "using Random\n",
+    "\n",
+    "function random_uc_data(; samples::Int, n::Int, seed=42)\n",
+    "    Random.seed!(seed)\n",
+    "    pmin = rand(Uniform(100, 500.0), n)\n",
+    "    pmax = pmin .* rand(Uniform(2.0, 2.5), n)\n",
+    "    cfix = pmin .* rand(Uniform(100.0, 125.0), n)\n",
+    "    cvar = rand(Uniform(1.25, 1.5), n)\n",
+    "    return [\n",
+    "        UnitCommitmentData(;\n",
+    "            pmin,\n",
+    "            pmax,\n",
+    "            cfix,\n",
+    "            cvar,\n",
+    "            demand = sum(pmax) * rand(Uniform(0.5, 0.75)),\n",
+    "        )\n",
+    "        for i in 1:samples\n",
+    "    ]\n",
+    "end;"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2140968d",
+   "metadata": {},
+   "source": [
+    "In this example, for simplicity, only the demands change from one instance to the next. We could also have made the prices and the production limits random. The more randomization we have in the training data, however, the more challenging it is for the machine learning models to learn solution patterns.\n",
+    "\n",
+    "Now we generate 100 instances of this problem, each one with 1,000 generators. We will use the first 90 instances for training, and the remaining 10 instances to evaluate SCIP's performance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "1bb24909",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data = random_uc_data(samples=100, n=1000);\n",
+    "train_data = data[1:90]\n",
+    "test_data = data[91:100];"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "96bc0e42",
+   "metadata": {},
+   "source": [
+    "Next, we will write these data structures to individual files. MIPLearn uses files during the training process because, for large-scale optimization problems, it is often impractical to hold the entire training data, as well as the concrete JuMP models, in memory. Files also make it much easier to solve multiple instances simultaneously, potentially even on multiple machines. We will cover parallel and distributed computing in a future tutorial.\n",
+    "\n",
+    "The code below generates the files `uc/train/000001.jld2`, `uc/train/000002.jld2`, etc."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "8ec476b1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "using MIPLearn\n",
+    "using Glob\n",
+    "\n",
+    "MIPLearn.save(data[1:90], \"uc/train/\")\n",
+    "MIPLearn.save(data[91:100], \"uc/test/\")\n",
+    "\n",
+    "train_files = glob(\"uc/train/*.jld2\")\n",
+    "test_files = glob(\"uc/test/*.jld2\");"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5d53a783",
+   "metadata": {},
+   "source": [
+    "Finally, we use `MIPLearn.LearningSolver` and `MIPLearn.solve!` to solve all the training instances. `LearningSolver` is the main component provided by MIPLearn, which integrates MIP solvers and ML. The `solve!` function can be used to solve either one or multiple instances, and requires: (i) the list of files containing the training data; and (ii) the function that converts the data structure into a concrete JuMP model:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "514a3b3a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "101.279699 seconds (93.52 M allocations: 3.599 GiB, 1.23% gc time, 0.52% compilation time)\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "WARNING: Dual bound 1.98665e+07 is larger than the objective of the primal solution 1.98665e+07. The solution might not be optimal.\n"
+     ]
+    }
+   ],
+   "source": [
+    "using Glob\n",
+    "solver = LearningSolver(scip)\n",
+    "@time solve!(solver, train_files, build_uc_model);"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "72eb09f4",
+   "metadata": {},
+   "source": [
+    "The macro `@time` shows us how long did the code take to run. We can see that SCIP was able to solve all training instances in about 2 minutes. The solutions, and other useful training data, is stored by MIPLearn in `.h5` files, stored side-by-side with the original `.jld2` files."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "90406b90",
+   "metadata": {},
+   "source": [
+    "## Solving new instances\n",
+    "\n",
+    "Now that we have training data, we can fit the ML models using `MIPLearn.fit!`, then solve the test instances with `MIPLearn.solve!`, as shown below:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "e4de94db",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "  5.693951 seconds (9.33 M allocations: 334.689 MiB, 1.62% gc time)\n"
+     ]
+    }
+   ],
+   "source": [
+    "solver_ml = LearningSolver(scip)\n",
+    "fit!(solver_ml, train_files, build_uc_model)\n",
+    "@time solve!(solver_ml, test_files, build_uc_model);"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "247c1087",
+   "metadata": {},
+   "source": [
+    "The trained MIP solver was able to solve all test instances in about 5 seconds. To see that ML is being helpful here, let us repeat the code above, but remove the `fit!` line:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "62061b12",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "  9.829350 seconds (8.17 M allocations: 278.008 MiB, 0.47% gc time)\n"
+     ]
+    }
+   ],
+   "source": [
+    "solver_baseline = LearningSolver(scip)\n",
+    "@time solve!(solver_baseline, test_files, build_uc_model);"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ea5c423",
+   "metadata": {},
+   "source": [
+    "Without the help of the ML models, SCIP took around 10 seconds to solve the same test instances, or about twice as long.\n",
+    "\n",
+    "<div class=\"alert alert-info\">\n",
+    "Note\n",
+    "    \n",
+    "Note that is is not necessary to specify what ML models to use. MIPLearn, by default, will try a number of classical ML models and will choose the one that performs the best, based on k-fold cross validation. MIPLearn is also able to automatically collect features based on the MIP formulation of the problem and the solution to the LP relaxation, among other things, so it does not require handcrafted features. If you do want to customize the models and features, however, that is also possible, as we will see in a later tutorial.\n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "569f7c7a",
+   "metadata": {},
+   "source": [
+    "## Understanding the acceleration\n",
+    "\n",
+    "Let us know go a bit deeper and try to understand how exactly did MIPLearn accelerate SCIP's performance. First, we are going to solve one of the training instances again, using the trained solver, but this time using the `tee=true` parameter, so that we can see SCIP's log:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "46739739",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "presolving:\n",
+      "(round 1, fast)       861 del vars, 861 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs\n",
+      "(round 2, fast)       861 del vars, 1722 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs\n",
+      "(round 3, fast)       862 del vars, 1722 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs\n",
+      "presolving (4 rounds: 4 fast, 1 medium, 1 exhaustive):\n",
+      " 862 deleted vars, 1722 deleted constraints, 0 added constraints, 2000 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients\n",
+      " 0 implications, 0 cliques\n",
+      "presolved problem has 1138 variables (0 bin, 0 int, 0 impl, 1138 cont) and 279 constraints\n",
+      "    279 constraints of type <linear>\n",
+      "Presolving Time: 0.03\n",
+      "\n",
+      " time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. \n",
+      "* 0.0s|     1 |     0 |   203 |     - |    LP  |   0 |1138 | 279 | 279 |   0 |  0 |   0 |   0 | 1.705035e+07 | 1.705035e+07 |   0.00%| unknown\n",
+      "  0.0s|     1 |     0 |   203 |     - |  8950k |   0 |1138 | 279 | 279 |   0 |  0 |   0 |   0 | 1.705035e+07 | 1.705035e+07 |   0.00%| unknown\n",
+      "\n",
+      "SCIP Status        : problem is solved [optimal solution found]\n",
+      "Solving Time (sec) : 0.04\n",
+      "Solving Nodes      : 1\n",
+      "Primal Bound       : +1.70503465600131e+07 (1 solutions)\n",
+      "Dual Bound         : +1.70503465600131e+07\n",
+      "Gap                : 0.00 %\n",
+      "\n",
+      "violation: integrality condition of variable <> = 0.338047247943162\n",
+      "all 1 solutions given by solution candidate storage are infeasible\n",
+      "\n",
+      "feasible solution found by completesol heuristic after 0.1 seconds, objective value 1.705169e+07\n",
+      "presolving:\n",
+      "(round 1, fast)       0 del vars, 0 del conss, 0 add conss, 3000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs\n",
+      "(round 2, exhaustive) 0 del vars, 0 del conss, 0 add conss, 3000 chg bounds, 0 chg sides, 0 chg coeffs, 1000 upgd conss, 0 impls, 0 clqs\n",
+      "(round 3, exhaustive) 0 del vars, 0 del conss, 0 add conss, 3000 chg bounds, 0 chg sides, 0 chg coeffs, 2000 upgd conss, 1000 impls, 0 clqs\n",
+      "   (0.1s) probing: 51/1000 (5.1%) - 0 fixings, 0 aggregations, 0 implications, 0 bound changes\n",
+      "   (0.1s) probing aborted: 50/50 successive totally useless probings\n",
+      "   (0.1s) symmetry computation started: requiring (bin +, int -, cont +), (fixed: bin -, int +, cont -)\n",
+      "   (0.1s) no symmetry present\n",
+      "presolving (4 rounds: 4 fast, 3 medium, 3 exhaustive):\n",
+      " 0 deleted vars, 0 deleted constraints, 0 added constraints, 3000 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients\n",
+      " 2000 implications, 0 cliques\n",
+      "presolved problem has 2000 variables (1000 bin, 0 int, 0 impl, 1000 cont) and 2001 constraints\n",
+      "   2000 constraints of type <varbound>\n",
+      "      1 constraints of type <linear>\n",
+      "Presolving Time: 0.10\n",
+      "transformed 1/1 original solutions to the transformed problem space\n",
+      "\n",
+      " time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. \n",
+      "  0.2s|     1 |     0 |  1201 |     - |    20M |   0 |2000 |2001 |2001 |   0 |  0 |   0 |   0 | 1.705035e+07 | 1.705169e+07 |   0.01%| unknown\n",
+      "\n",
+      "SCIP Status        : solving was interrupted [gap limit reached]\n",
+      "Solving Time (sec) : 0.21\n",
+      "Solving Nodes      : 1\n",
+      "Primal Bound       : +1.70516871251443e+07 (1 solutions)\n",
+      "Dual Bound         : +1.70503465600130e+07\n",
+      "Gap                : 0.01 %\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "solve!(solver_ml, test_files[1], build_uc_model, tee=true);"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9cdc02d0",
+   "metadata": {},
+   "source": [
+    "The log above is quite complicated if you have never seen it before, but the important line in the one starting with `feasible solution found [...] objective value 1.705169e+07`. This line indicates that MIPLearn was able to construct a warm start with value `1.705169e+07`. Using this warm start, SCIP then proceeded with the branch-and-cut process to either prove its optimality or find an even better solution. Very quickly, however, SCIP proved that the solution produced by MIPLearn was indeed optimal and terminated. It was able to do this without generating a single cutting plane or running any other heuristics; it could tell the optimality by the root LP relaxation alone, which was very fast. \n",
+    "\n",
+    "Let us now do the same thing again, but using the untrained solver this time:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "555af477",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "presolving:\n",
+      "(round 1, fast)       861 del vars, 861 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs\n",
+      "(round 2, fast)       861 del vars, 1722 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs\n",
+      "(round 3, fast)       862 del vars, 1722 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs\n",
+      "presolving (4 rounds: 4 fast, 1 medium, 1 exhaustive):\n",
+      " 862 deleted vars, 1722 deleted constraints, 0 added constraints, 2000 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients\n",
+      " 0 implications, 0 cliques\n",
+      "presolved problem has 1138 variables (0 bin, 0 int, 0 impl, 1138 cont) and 279 constraints\n",
+      "    279 constraints of type <linear>\n",
+      "Presolving Time: 0.03\n",
+      "\n",
+      " time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. \n",
+      "* 0.0s|     1 |     0 |   203 |     - |    LP  |   0 |1138 | 279 | 279 |   0 |  0 |   0 |   0 | 1.705035e+07 | 1.705035e+07 |   0.00%| unknown\n",
+      "  0.0s|     1 |     0 |   203 |     - |  8950k |   0 |1138 | 279 | 279 |   0 |  0 |   0 |   0 | 1.705035e+07 | 1.705035e+07 |   0.00%| unknown\n",
+      "\n",
+      "SCIP Status        : problem is solved [optimal solution found]\n",
+      "Solving Time (sec) : 0.04\n",
+      "Solving Nodes      : 1\n",
+      "Primal Bound       : +1.70503465600131e+07 (1 solutions)\n",
+      "Dual Bound         : +1.70503465600131e+07\n",
+      "Gap                : 0.00 %\n",
+      "\n",
+      "violation: integrality condition of variable <> = 0.338047247943162\n",
+      "all 1 solutions given by solution candidate storage are infeasible\n",
+      "\n",
+      "presolving:\n",
+      "(round 1, fast)       0 del vars, 0 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs\n",
+      "(round 2, exhaustive) 0 del vars, 0 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 1000 upgd conss, 0 impls, 0 clqs\n",
+      "(round 3, exhaustive) 0 del vars, 0 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 2000 upgd conss, 1000 impls, 0 clqs\n",
+      "   (0.0s) probing: 51/1000 (5.1%) - 0 fixings, 0 aggregations, 0 implications, 0 bound changes\n",
+      "   (0.0s) probing aborted: 50/50 successive totally useless probings\n",
+      "   (0.0s) symmetry computation started: requiring (bin +, int -, cont +), (fixed: bin -, int +, cont -)\n",
+      "   (0.0s) no symmetry present\n",
+      "presolving (4 rounds: 4 fast, 3 medium, 3 exhaustive):\n",
+      " 0 deleted vars, 0 deleted constraints, 0 added constraints, 2000 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients\n",
+      " 2000 implications, 0 cliques\n",
+      "presolved problem has 2000 variables (1000 bin, 0 int, 0 impl, 1000 cont) and 2001 constraints\n",
+      "   2000 constraints of type <varbound>\n",
+      "      1 constraints of type <linear>\n",
+      "Presolving Time: 0.03\n",
+      "\n",
+      " time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. \n",
+      "p 0.0s|     1 |     0 |     1 |     - |   locks|   0 |2000 |2001 |2001 |   0 |  0 |   0 |   0 | 0.000000e+00 | 2.335200e+07 |    Inf | unknown\n",
+      "p 0.0s|     1 |     0 |     2 |     - | vbounds|   0 |2000 |2001 |2001 |   0 |  0 |   0 |   0 | 0.000000e+00 | 1.839873e+07 |    Inf | unknown\n",
+      "  0.1s|     1 |     0 |  1204 |     - |    20M |   0 |2000 |2001 |2001 |   0 |  0 |   0 |   0 | 1.705035e+07 | 1.839873e+07 |   7.91%| unknown\n",
+      "  0.1s|     1 |     0 |  1207 |     - |    22M |   0 |2000 |2001 |2002 |   1 |  1 |   0 |   0 | 1.705036e+07 | 1.839873e+07 |   7.91%| unknown\n",
+      "r 0.1s|     1 |     0 |  1207 |     - |shifting|   0 |2000 |2001 |2002 |   1 |  1 |   0 |   0 | 1.705036e+07 | 1.711399e+07 |   0.37%| unknown\n",
+      "  0.1s|     1 |     0 |  1209 |     - |    22M |   0 |2000 |2001 |2003 |   2 |  2 |   0 |   0 | 1.705037e+07 | 1.711399e+07 |   0.37%| unknown\n",
+      "r 0.1s|     1 |     0 |  1209 |     - |shifting|   0 |2000 |2001 |2003 |   2 |  2 |   0 |   0 | 1.705037e+07 | 1.706492e+07 |   0.09%| unknown\n",
+      "  0.1s|     1 |     0 |  1210 |     - |    22M |   0 |2000 |2001 |2004 |   3 |  3 |   0 |   0 | 1.705037e+07 | 1.706492e+07 |   0.09%| unknown\n",
+      "  0.1s|     1 |     0 |  1211 |     - |    23M |   0 |2000 |2001 |2005 |   4 |  4 |   0 |   0 | 1.705037e+07 | 1.706492e+07 |   0.09%| unknown\n",
+      "  0.1s|     1 |     0 |  1212 |     - |    23M |   0 |2000 |2001 |2006 |   5 |  5 |   0 |   0 | 1.705037e+07 | 1.706492e+07 |   0.09%| unknown\n",
+      "r 0.1s|     1 |     0 |  1212 |     - |shifting|   0 |2000 |2001 |2006 |   5 |  5 |   0 |   0 | 1.705037e+07 | 1.706228e+07 |   0.07%| unknown\n",
+      "  0.1s|     1 |     0 |  1214 |     - |    24M |   0 |2000 |2001 |2007 |   6 |  7 |   0 |   0 | 1.705037e+07 | 1.706228e+07 |   0.07%| unknown\n",
+      "  0.2s|     1 |     0 |  1216 |     - |    24M |   0 |2000 |2001 |2009 |   8 |  8 |   0 |   0 | 1.705037e+07 | 1.706228e+07 |   0.07%| unknown\n",
+      "  0.2s|     1 |     0 |  1220 |     - |    25M |   0 |2000 |2001 |2011 |  10 |  9 |   0 |   0 | 1.705037e+07 | 1.706228e+07 |   0.07%| unknown\n",
+      "  0.2s|     1 |     0 |  1223 |     - |    25M |   0 |2000 |2001 |2014 |  13 | 10 |   0 |   0 | 1.705037e+07 | 1.706228e+07 |   0.07%| unknown\n",
+      " time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. \n",
+      "  0.2s|     1 |     0 |  1229 |     - |    26M |   0 |2000 |2001 |2015 |  14 | 11 |   0 |   0 | 1.705038e+07 | 1.706228e+07 |   0.07%| unknown\n",
+      "r 0.2s|     1 |     0 |  1403 |     - |intshift|   0 |2000 |2001 |2015 |  14 | 11 |   0 |   0 | 1.705038e+07 | 1.705687e+07 |   0.04%| unknown\n",
+      "L 0.6s|     1 |     0 |  1707 |     - |    rens|   0 |2000 |2001 |2015 |  14 | 11 |   0 |   0 | 1.705038e+07 | 1.705332e+07 |   0.02%| unknown\n",
+      "L 0.7s|     1 |     0 |  1707 |     - |    alns|   0 |2000 |2001 |2015 |  14 | 11 |   0 |   0 | 1.705038e+07 | 1.705178e+07 |   0.01%| unknown\n",
+      "\n",
+      "SCIP Status        : solving was interrupted [gap limit reached]\n",
+      "Solving Time (sec) : 0.67\n",
+      "Solving Nodes      : 1\n",
+      "Primal Bound       : +1.70517823853380e+07 (13 solutions)\n",
+      "Dual Bound         : +1.70503798271962e+07\n",
+      "Gap                : 0.01 %\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "solve!(solver_baseline, test_files[1], build_uc_model, tee=true);"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "72a52d26",
+   "metadata": {},
+   "source": [
+    "In this log file, notice how the line we saw before is now missing; SCIP needs to find an initial solution using its own internal heuristics. The solution SCIP initially found has value `2.335200e+07`, which is significantly worse than the one MIPLearn constructed before. SCIP then proceeds to improve this solution by generating a number of cutting planes and repeatedly running primal heuristics. In the end, it is able to find the optimal solution, as expected, but it takes longer."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "36fb5f02",
+   "metadata": {},
+   "source": [
+    "## Accessing the solution\n",
+    "\n",
+    "In the example above, we used `MIPLearn.solve!` together with data files to solve both the training and the test instances. The solutions were saved to a `.h5` files in the train/test folders, and could be retrieved by reading theses files, but that is not very convenient. In this section we will use an easier method.\n",
+    "\n",
+    "We can use the function `MIPLearn.load!` to obtain a regular JuMP model:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "f62f28b4",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "A JuMP Model\n",
+       "Minimization problem with:\n",
+       "Variables: 2000\n",
+       "Objective function type: AffExpr\n",
+       "`AffExpr`-in-`MathOptInterface.EqualTo{Float64}`: 1 constraint\n",
+       "`AffExpr`-in-`MathOptInterface.GreaterThan{Float64}`: 1000 constraints\n",
+       "`AffExpr`-in-`MathOptInterface.LessThan{Float64}`: 1000 constraints\n",
+       "`VariableRef`-in-`MathOptInterface.GreaterThan{Float64}`: 1000 constraints\n",
+       "`VariableRef`-in-`MathOptInterface.ZeroOne`: 1000 constraints\n",
+       "Model mode: AUTOMATIC\n",
+       "CachingOptimizer state: NO_OPTIMIZER\n",
+       "Solver name: No optimizer attached.\n",
+       "Names registered in the model: eq_demand, eq_max_power, eq_min_power, x, y"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "model = MIPLearn.load(\"uc/test/000001.jld2\", build_uc_model)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d5722dcf",
+   "metadata": {},
+   "source": [
+    "We can then solve this model as before, with `MIPLearn.solve!`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "e49f9e60",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "obj = 1.7051217395548128e7\n",
+      "  x = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0]\n",
+      "  y = [767.11, 646.61, 230.28, 365.46, 1150.99, 1103.36, 0.0, 0.0, 0.0, 0.0]\n"
+     ]
+    }
+   ],
+   "source": [
+    "solve!(solver_ml, model)\n",
+    "println(\"obj = \", objective_value(model))\n",
+    "println(\"  x = \", round.(value.(model[:x][1:10])))\n",
+    "println(\"  y = \", round.(value.(model[:y][1:10]), digits=2))"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Julia 1.6.0",
+   "language": "julia",
+   "name": "julia-1.6"
+  },
+  "language_info": {
+   "file_extension": ".jl",
+   "mimetype": "application/julia",
+   "name": "julia",
+   "version": "1.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -1,0 +1,1064 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1. Getting started with MIPLearn &#8212; MIPLearn&lt;br/&gt;&lt;small&gt;0.2.0&lt;/small&gt;</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="1. Preliminaries" href="../../benchmarks/preliminaries/" />
+    <link rel="prev" title="MIPLearn" href="../../" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn<br/><small>0.2.0</small></h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <p class="caption">
+ <span class="caption-text">
+  Julia Tutorials
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   1. Getting started with MIPLearn
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Benchmarks
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../benchmarks/preliminaries/">
+   1. Preliminaries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../benchmarks/stab/">
+   2. Maximum Weight Stable Set
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../benchmarks/knapsack/">
+   3. Multidimensional Knapsack
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../benchmarks/tsp/">
+   4. Traveling Salesman
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../../_sources/jump-tutorials/getting-started.ipynb.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Introduction">
+   1.1. Introduction
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Installing-MIPLearn">
+   1.2. Installing MIPLearn
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Modeling-a-simple-optimization-problem">
+   1.3. Modeling a simple optimization problem
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Generating-training-data">
+   1.4. Generating training data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Solving-new-instances">
+   1.5. Solving new instances
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Understanding-the-acceleration">
+   1.6. Understanding the acceleration
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Accessing-the-solution">
+   1.7. Accessing the solution
+  </a>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Getting-started-with-MIPLearn">
+<h1><span class="section-number">1. </span>Getting started with MIPLearn<a class="headerlink" href="#Getting-started-with-MIPLearn" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Introduction">
+<h2><span class="section-number">1.1. </span>Introduction<a class="headerlink" href="#Introduction" title="Permalink to this headline">¶</a></h2>
+<p><strong>MIPLearn</strong> is an open source framework that uses machine learning (ML) to accelerate the performance of both commercial and open source mixed-integer programming solvers (e.g. Gurobi, CPLEX, XPRESS, Cbc or SCIP). In this tutorial, we will:</p>
+<ol class="arabic simple">
+<li><p>Install the Julia/JuMP version of MIPLearn</p></li>
+<li><p>Model a simple optimization problem using JuMP</p></li>
+<li><p>Generate training data and train the ML models</p></li>
+<li><p>Use the ML models together with SCIP to solve new instances</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We use SCIP in this tutorial because it is a fast and widely available noncommercial MIP solver. All the steps shown here also work for Gurobi, CPLEX and XPRESS, although the performance impact might be different.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>MIPLearn is still in early development stage. If run into any bugs or issues, please submit a bug report in our GitHub repository. Comments, suggestions and pull requests are also very welcome!</p>
+</div>
+</div>
+<div class="section" id="Installing-MIPLearn">
+<h2><span class="section-number">1.2. </span>Installing MIPLearn<a class="headerlink" href="#Installing-MIPLearn" title="Permalink to this headline">¶</a></h2>
+<p>MIPLearn is available in two versions:</p>
+<ul class="simple">
+<li><p>Python version, compatible with the Pyomo modeling language,</p></li>
+<li><p>Julia version, compatible with the JuMP modeling language.</p></li>
+</ul>
+<p>In this tutorial, we will demonstrate how to use and install the Julia/JuMP version of the package. The first step is to install the Julia programming language in your computer. <a class="reference external" href="https://julialang.org/downloads/">See the official instructions for more details</a>. Note that MIPLearn was developed and tested with Julia 1.6, and may not be compatible with newer versions of the language. After Julia is installed, launch its console and run the following commands to download and install the package:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="k">using</span> <span class="n">Pkg</span>
+<span class="n">Pkg</span><span class="o">.</span><span class="n">develop</span><span class="p">(</span><span class="n">PackageSpec</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s">&quot;/home/axavier/Packages/MIPLearn.jl/dev&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Path `/home/axavier/Packages/MIPLearn.jl/dev` exists and looks like the correct package. Using existing path.
+<span class="ansi-green-intense-fg ansi-bold">   Resolving</span> package versions...
+<span class="ansi-green-intense-fg ansi-bold">  No Changes</span> to `~/Packages/MIPLearn/dev/docs/jump-tutorials/Project.toml`
+<span class="ansi-green-intense-fg ansi-bold">  No Changes</span> to `~/Packages/MIPLearn/dev/docs/jump-tutorials/Manifest.toml`
+</pre></div></div>
+</div>
+<p>In addition to MIPLearn itself, we will also install a few other packages that are required for this tutorial:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SCIP</span></code>, a non-commercial mixed-integer programming solver</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">JuMP</span></code>, an open-source modeling language for Julia</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Distributions</span></code>, a statistics package that we will use to generate random inputs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Glob</span></code>, a package that retrieves all files in a directory matching a certain pattern</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="k">using</span> <span class="n">Pkg</span>
+<span class="n">Pkg</span><span class="o">.</span><span class="n">add</span><span class="p">([</span>
+    <span class="n">PackageSpec</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">&quot;https://github.com/scipopt/SCIP.jl.git&quot;</span><span class="p">,</span> <span class="n">rev</span><span class="o">=</span><span class="s">&quot;7aa79aaa&quot;</span><span class="p">),</span>
+    <span class="n">PackageSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;JuMP&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&quot;0.21&quot;</span><span class="p">),</span>
+    <span class="n">PackageSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Distributions&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&quot;0.25&quot;</span><span class="p">),</span>
+    <span class="n">PackageSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Glob&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&quot;1&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+<span class="k">using</span> <span class="n">Revise</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-intense-fg ansi-bold">    Updating</span> registry at `~/.julia/registries/General`
+<span class="ansi-green-intense-fg ansi-bold">    Updating</span> git-repo `https://github.com/JuliaRegistries/General.git`
+<span class="ansi-green-intense-fg ansi-bold">   Resolving</span> package versions...
+<span class="ansi-green-intense-fg ansi-bold">  No Changes</span> to `~/Packages/MIPLearn/dev/docs/jump-tutorials/Project.toml`
+<span class="ansi-green-intense-fg ansi-bold">  No Changes</span> to `~/Packages/MIPLearn/dev/docs/jump-tutorials/Manifest.toml`
+<span class="ansi-green-intense-fg ansi-bold">Precompiling</span> project...
+<span class="ansi-green-fg">  ✓ </span>MIPLearn
+1 dependency successfully precompiled in 10 seconds (96 already precompiled)
+</pre></div></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the code above, we install specific version of all packages to ensure that this tutorial keeps running in the future, even when newer (and possibly incompatible) versions of the packages are released. This is usually a recommended practice for all Julia projects.</p>
+</div>
+</div>
+<div class="section" id="Modeling-a-simple-optimization-problem">
+<h2><span class="section-number">1.3. </span>Modeling a simple optimization problem<a class="headerlink" href="#Modeling-a-simple-optimization-problem" title="Permalink to this headline">¶</a></h2>
+<p>To illustrate how can MIPLearn be used, we will model and solve a small optimization problem related to power systems optimization. The problem we discuss below is a simplification of the <strong>unit commitment problem,</strong> a practical optimization problem solved daily by electric grid operators around the world.</p>
+<p>Suppose that you work at a utility company, and that it is your job to decide which electrical generators should be online at a certain hour of the day, and how much power should each generator produce. More specifically, assume that your company owns <span class="math notranslate nohighlight">\(n\)</span> generators, denoted by <span class="math notranslate nohighlight">\(g_1, \ldots, g_n\)</span>. Each generator can either be online or offline. An online generator <span class="math notranslate nohighlight">\(g_i\)</span> can produce between <span class="math notranslate nohighlight">\(p^\text{min}_i\)</span> to <span class="math notranslate nohighlight">\(p^\text{max}_i\)</span> megawatts of power, and it costs your
+company <span class="math notranslate nohighlight">\(c^\text{fixed}_i + c^\text{var}_i y_i\)</span>, where <span class="math notranslate nohighlight">\(y_i\)</span> is the amount of power produced. An offline generator produces nothing, and costs nothing. You also know that the total amount of power to be produced needs to be exactly equal to the total demand <span class="math notranslate nohighlight">\(d\)</span> (in megawatts). To minimize the costs to your company, which generators should be online, and how much power should they produce?</p>
+<p>This simple problem be modeled as a <em>mixed-integer linear optimization</em> problem as follows. For each generator <span class="math notranslate nohighlight">\(g_i\)</span>, let <span class="math notranslate nohighlight">\(x_i \in \{0,1\}\)</span> be a decision variable indicating whether <span class="math notranslate nohighlight">\(g_i\)</span> is online, and let <span class="math notranslate nohighlight">\(y_i \geq 0\)</span> be a decision variable indicating how much power does <span class="math notranslate nohighlight">\(g_i\)</span> produce. The problem we need to solve is given by:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\text{minimize } \quad &amp; \sum_{i=1}^n \left( c^\text{fix}_i x_i + c^\text{var}_i y_i \right) \\
+\text{subject to } \quad &amp; y_i \leq p^\text{max}_i x_i &amp; i=1,\ldots,n \\
+&amp; y_i \geq p^\text{min}_i x_i &amp; i=1,\ldots,n \\
+&amp; \sum_{i=1}^n y_i = d \\
+&amp; x_i \in \{0,1\} &amp; i=1,\ldots,n \\
+&amp; y_i \geq 0 &amp; i=1,\ldots,n
+\end{align}\end{split}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We use a simplified version of the unit commitment problem in this tutorial just to make it easier to follow. MIPLearn can also handle realistic, large-scale versions of this problem. See the benchmark sections for more details.</p>
+</div>
+<p>Next, let us convert this abstract mathematical formulation into a concrete optimization model, using the Julia and the JuMP modeling language. We start by defining a data structure that holds all input data:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="n">Base</span><span class="o">.</span><span class="nd">@kwdef</span> <span class="k">struct</span> <span class="kt">UnitCommitmentData</span>
+    <span class="n">demand</span><span class="o">::</span><span class="kt">Float64</span>
+    <span class="n">pmin</span><span class="o">::</span><span class="kt">Vector</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}</span>
+    <span class="n">pmax</span><span class="o">::</span><span class="kt">Vector</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}</span>
+    <span class="n">cfix</span><span class="o">::</span><span class="kt">Vector</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}</span>
+    <span class="n">cvar</span><span class="o">::</span><span class="kt">Vector</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}</span>
+<span class="k">end</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>Next, we create a function that converts this data into a concrete JuMP model:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="k">using</span> <span class="n">JuMP</span>
+
+<span class="k">function</span> <span class="n">build_uc_model</span><span class="p">(</span><span class="n">data</span><span class="o">::</span><span class="kt">UnitCommitmentData</span><span class="p">)</span><span class="o">::</span><span class="kt">Model</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pmin</span><span class="p">)</span>
+    <span class="nd">@variable</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="n">n</span><span class="p">],</span> <span class="n">Bin</span><span class="p">)</span>
+    <span class="nd">@variable</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="n">n</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="nd">@objective</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">Min</span><span class="p">,</span>
+        <span class="n">sum</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">cfix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">cvar</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">n</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="nd">@constraint</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">eq_max_power</span><span class="p">[</span><span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">n</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">pmax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="nd">@constraint</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">eq_min_power</span><span class="p">[</span><span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">n</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">pmin</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="nd">@constraint</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">eq_demand</span><span class="p">,</span> <span class="n">sum</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">demand</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+<span class="k">end</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>At this point, we can already use JuMP and any mixed-integer linear programming solver to find optimal solutions to any instance of this problem. To illustrate this, let us solve a small instance with three generators, using SCIP:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="k">using</span> <span class="n">SCIP</span>
+<span class="k">using</span> <span class="n">Printf</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_uc_model</span><span class="p">(</span>
+    <span class="n">UnitCommitmentData</span><span class="p">(</span>
+        <span class="n">demand</span> <span class="o">=</span> <span class="mf">100.0</span><span class="p">,</span>
+        <span class="n">pmin</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+        <span class="n">pmax</span> <span class="o">=</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">],</span>
+        <span class="n">cfix</span> <span class="o">=</span> <span class="p">[</span><span class="mi">700</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span>
+        <span class="n">cvar</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">],</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">scip</span> <span class="o">=</span> <span class="n">optimizer_with_attributes</span><span class="p">(</span><span class="n">SCIP</span><span class="o">.</span><span class="n">Optimizer</span><span class="p">,</span> <span class="s">&quot;limits/gap&quot;</span> <span class="o">=&gt;</span> <span class="mf">1e-4</span><span class="p">)</span>
+<span class="n">set_optimizer</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">scip</span><span class="p">)</span>
+<span class="n">set_silent</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">optimize!</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;obj = &quot;</span><span class="p">,</span> <span class="n">objective_value</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;  x = &quot;</span><span class="p">,</span> <span class="n">round</span><span class="o">.</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="ss">:x</span><span class="p">])))</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;  y = &quot;</span><span class="p">,</span> <span class="n">round</span><span class="o">.</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="ss">:y</span><span class="p">]),</span> <span class="n">digits</span><span class="o">=</span><span class="mi">2</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+obj = 1320.0
+  x = [0.0, 1.0, 1.0]
+  y = [0.0, 60.0, 40.0]
+</pre></div></div>
+</div>
+<p>Running the code above, we found that the optimal solution for our small problem instance costs $1320. It is achieve by keeping generators 2 and 3 online and producing, respectively, 60 MW and 40 MW of power.</p>
+</div>
+<div class="section" id="Generating-training-data">
+<h2><span class="section-number">1.4. </span>Generating training data<a class="headerlink" href="#Generating-training-data" title="Permalink to this headline">¶</a></h2>
+<p>Although SCIP could solve the small example above in a fraction of a second, it gets slower for larger and more complex versions of the problem. If this is a problem that needs to be solved frequently, as it is often the case in practice, it could make sense to spend some time upfront generating a <strong>trained</strong> version of SCIP, which can solve new instances (similar to the ones it was trained on) faster.</p>
+<p>In the following, we will use MIPLearn to train machine learning models that can be used to accelerate SCIP’s performance on a particular set of instances. More specifically, MIPLearn will train a model that is able to predict the optimal solution for instances that follow a given probability distribution, then it will provide this predicted solution to SCIP as a warm start.</p>
+<p>Before we can train the model, we need to collect training data by solving a large number of instances. In real-world situations, we may construct these training instances based on historical data. In this tutorial, we will construct them using a random instance generator:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="k">using</span> <span class="n">Distributions</span>
+<span class="k">using</span> <span class="n">Random</span>
+
+<span class="k">function</span> <span class="n">random_uc_data</span><span class="p">(;</span> <span class="n">samples</span><span class="o">::</span><span class="kt">Int</span><span class="p">,</span> <span class="n">n</span><span class="o">::</span><span class="kt">Int</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">Random</span><span class="o">.</span><span class="n">seed!</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">pmin</span> <span class="o">=</span> <span class="n">rand</span><span class="p">(</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mf">500.0</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">pmax</span> <span class="o">=</span> <span class="n">pmin</span> <span class="o">.*</span> <span class="n">rand</span><span class="p">(</span><span class="n">Uniform</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">cfix</span> <span class="o">=</span> <span class="n">pmin</span> <span class="o">.*</span> <span class="n">rand</span><span class="p">(</span><span class="n">Uniform</span><span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">125.0</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">cvar</span> <span class="o">=</span> <span class="n">rand</span><span class="p">(</span><span class="n">Uniform</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">UnitCommitmentData</span><span class="p">(;</span>
+            <span class="n">pmin</span><span class="p">,</span>
+            <span class="n">pmax</span><span class="p">,</span>
+            <span class="n">cfix</span><span class="p">,</span>
+            <span class="n">cvar</span><span class="p">,</span>
+            <span class="n">demand</span> <span class="o">=</span> <span class="n">sum</span><span class="p">(</span><span class="n">pmax</span><span class="p">)</span> <span class="o">*</span> <span class="n">rand</span><span class="p">(</span><span class="n">Uniform</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">)),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">samples</span>
+    <span class="p">]</span>
+<span class="k">end</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>In this example, for simplicity, only the demands change from one instance to the next. We could also have made the prices and the production limits random. The more randomization we have in the training data, however, the more challenging it is for the machine learning models to learn solution patterns.</p>
+<p>Now we generate 100 instances of this problem, each one with 1,000 generators. We will use the first 90 instances for training, and the remaining 10 instances to evaluate SCIP’s performance.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">random_uc_data</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">);</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="mi">90</span><span class="p">]</span>
+<span class="n">test_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">91</span><span class="o">:</span><span class="mi">100</span><span class="p">];</span>
+</pre></div>
+</div>
+</div>
+<p>Next, we will write these data structures to individual files. MIPLearn uses files during the training process because, for large-scale optimization problems, it is often impractical to hold the entire training data, as well as the concrete JuMP models, in memory. Files also make it much easier to solve multiple instances simultaneously, potentially even on multiple machines. We will cover parallel and distributed computing in a future tutorial.</p>
+<p>The code below generates the files <code class="docutils literal notranslate"><span class="pre">uc/train/000001.jld2</span></code>, <code class="docutils literal notranslate"><span class="pre">uc/train/000002.jld2</span></code>, etc.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="k">using</span> <span class="n">MIPLearn</span>
+<span class="k">using</span> <span class="n">Glob</span>
+
+<span class="n">MIPLearn</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="mi">90</span><span class="p">],</span> <span class="s">&quot;uc/train/&quot;</span><span class="p">)</span>
+<span class="n">MIPLearn</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">91</span><span class="o">:</span><span class="mi">100</span><span class="p">],</span> <span class="s">&quot;uc/test/&quot;</span><span class="p">)</span>
+
+<span class="n">train_files</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="s">&quot;uc/train/*.jld2&quot;</span><span class="p">)</span>
+<span class="n">test_files</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="s">&quot;uc/test/*.jld2&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>Finally, we use <code class="docutils literal notranslate"><span class="pre">MIPLearn.LearningSolver</span></code> and <code class="docutils literal notranslate"><span class="pre">MIPLearn.solve!</span></code> to solve all the training instances. <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code> is the main component provided by MIPLearn, which integrates MIP solvers and ML. The <code class="docutils literal notranslate"><span class="pre">solve!</span></code> function can be used to solve either one or multiple instances, and requires: (i) the list of files containing the training data; and (ii) the function that converts the data structure into a concrete JuMP model:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="k">using</span> <span class="n">Glob</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="n">scip</span><span class="p">)</span>
+<span class="nd">@time</span> <span class="n">solve!</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">train_files</span><span class="p">,</span> <span class="n">build_uc_model</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+101.279699 seconds (93.52 M allocations: 3.599 GiB, 1.23% gc time, 0.52% compilation time)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING: Dual bound 1.98665e+07 is larger than the objective of the primal solution 1.98665e+07. The solution might not be optimal.
+</pre></div></div>
+</div>
+<p>The macro <code class="docutils literal notranslate"><span class="pre">&#64;time</span></code> shows us how long did the code take to run. We can see that SCIP was able to solve all training instances in about 2 minutes. The solutions, and other useful training data, is stored by MIPLearn in <code class="docutils literal notranslate"><span class="pre">.h5</span></code> files, stored side-by-side with the original <code class="docutils literal notranslate"><span class="pre">.jld2</span></code> files.</p>
+</div>
+<div class="section" id="Solving-new-instances">
+<h2><span class="section-number">1.5. </span>Solving new instances<a class="headerlink" href="#Solving-new-instances" title="Permalink to this headline">¶</a></h2>
+<p>Now that we have training data, we can fit the ML models using <code class="docutils literal notranslate"><span class="pre">MIPLearn.fit!</span></code>, then solve the test instances with <code class="docutils literal notranslate"><span class="pre">MIPLearn.solve!</span></code>, as shown below:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="n">solver_ml</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="n">scip</span><span class="p">)</span>
+<span class="n">fit!</span><span class="p">(</span><span class="n">solver_ml</span><span class="p">,</span> <span class="n">train_files</span><span class="p">,</span> <span class="n">build_uc_model</span><span class="p">)</span>
+<span class="nd">@time</span> <span class="n">solve!</span><span class="p">(</span><span class="n">solver_ml</span><span class="p">,</span> <span class="n">test_files</span><span class="p">,</span> <span class="n">build_uc_model</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+  5.693951 seconds (9.33 M allocations: 334.689 MiB, 1.62% gc time)
+</pre></div></div>
+</div>
+<p>The trained MIP solver was able to solve all test instances in about 5 seconds. To see that ML is being helpful here, let us repeat the code above, but remove the <code class="docutils literal notranslate"><span class="pre">fit!</span></code> line:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="n">solver_baseline</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="n">scip</span><span class="p">)</span>
+<span class="nd">@time</span> <span class="n">solve!</span><span class="p">(</span><span class="n">solver_baseline</span><span class="p">,</span> <span class="n">test_files</span><span class="p">,</span> <span class="n">build_uc_model</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+  9.829350 seconds (8.17 M allocations: 278.008 MiB, 0.47% gc time)
+</pre></div></div>
+</div>
+<p>Without the help of the ML models, SCIP took around 10 seconds to solve the same test instances, or about twice as long.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that is is not necessary to specify what ML models to use. MIPLearn, by default, will try a number of classical ML models and will choose the one that performs the best, based on k-fold cross validation. MIPLearn is also able to automatically collect features based on the MIP formulation of the problem and the solution to the LP relaxation, among other things, so it does not require handcrafted features. If you do want to customize the models and features, however, that is also possible, as
+we will see in a later tutorial.</p>
+</div>
+</div>
+<div class="section" id="Understanding-the-acceleration">
+<h2><span class="section-number">1.6. </span>Understanding the acceleration<a class="headerlink" href="#Understanding-the-acceleration" title="Permalink to this headline">¶</a></h2>
+<p>Let us know go a bit deeper and try to understand how exactly did MIPLearn accelerate SCIP’s performance. First, we are going to solve one of the training instances again, using the trained solver, but this time using the <code class="docutils literal notranslate"><span class="pre">tee=true</span></code> parameter, so that we can see SCIP’s log:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="n">solve!</span><span class="p">(</span><span class="n">solver_ml</span><span class="p">,</span> <span class="n">test_files</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">build_uc_model</span><span class="p">,</span> <span class="n">tee</span><span class="o">=</span><span class="nb">true</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+presolving:
+(round 1, fast)       861 del vars, 861 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 2, fast)       861 del vars, 1722 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 3, fast)       862 del vars, 1722 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+presolving (4 rounds: 4 fast, 1 medium, 1 exhaustive):
+ 862 deleted vars, 1722 deleted constraints, 0 added constraints, 2000 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 0 implications, 0 cliques
+presolved problem has 1138 variables (0 bin, 0 int, 0 impl, 1138 cont) and 279 constraints
+    279 constraints of type &lt;linear&gt;
+Presolving Time: 0.03
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl.
+* 0.0s|     1 |     0 |   203 |     - |    LP  |   0 |1138 | 279 | 279 |   0 |  0 |   0 |   0 | 1.705035e+07 | 1.705035e+07 |   0.00%| unknown
+  0.0s|     1 |     0 |   203 |     - |  8950k |   0 |1138 | 279 | 279 |   0 |  0 |   0 |   0 | 1.705035e+07 | 1.705035e+07 |   0.00%| unknown
+
+SCIP Status        : problem is solved [optimal solution found]
+Solving Time (sec) : 0.04
+Solving Nodes      : 1
+Primal Bound       : +1.70503465600131e+07 (1 solutions)
+Dual Bound         : +1.70503465600131e+07
+Gap                : 0.00 %
+
+violation: integrality condition of variable &lt;&gt; = 0.338047247943162
+all 1 solutions given by solution candidate storage are infeasible
+
+feasible solution found by completesol heuristic after 0.1 seconds, objective value 1.705169e+07
+presolving:
+(round 1, fast)       0 del vars, 0 del conss, 0 add conss, 3000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 2, exhaustive) 0 del vars, 0 del conss, 0 add conss, 3000 chg bounds, 0 chg sides, 0 chg coeffs, 1000 upgd conss, 0 impls, 0 clqs
+(round 3, exhaustive) 0 del vars, 0 del conss, 0 add conss, 3000 chg bounds, 0 chg sides, 0 chg coeffs, 2000 upgd conss, 1000 impls, 0 clqs
+   (0.1s) probing: 51/1000 (5.1%) - 0 fixings, 0 aggregations, 0 implications, 0 bound changes
+   (0.1s) probing aborted: 50/50 successive totally useless probings
+   (0.1s) symmetry computation started: requiring (bin +, int -, cont +), (fixed: bin -, int +, cont -)
+   (0.1s) no symmetry present
+presolving (4 rounds: 4 fast, 3 medium, 3 exhaustive):
+ 0 deleted vars, 0 deleted constraints, 0 added constraints, 3000 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 2000 implications, 0 cliques
+presolved problem has 2000 variables (1000 bin, 0 int, 0 impl, 1000 cont) and 2001 constraints
+   2000 constraints of type &lt;varbound&gt;
+      1 constraints of type &lt;linear&gt;
+Presolving Time: 0.10
+transformed 1/1 original solutions to the transformed problem space
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl.
+  0.2s|     1 |     0 |  1201 |     - |    20M |   0 |2000 |2001 |2001 |   0 |  0 |   0 |   0 | 1.705035e+07 | 1.705169e+07 |   0.01%| unknown
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.21
+Solving Nodes      : 1
+Primal Bound       : +1.70516871251443e+07 (1 solutions)
+Dual Bound         : +1.70503465600130e+07
+Gap                : 0.01 %
+
+</pre></div></div>
+</div>
+<p>The log above is quite complicated if you have never seen it before, but the important line in the one starting with <code class="docutils literal notranslate"><span class="pre">feasible</span> <span class="pre">solution</span> <span class="pre">found</span> <span class="pre">[...]</span> <span class="pre">objective</span> <span class="pre">value</span> <span class="pre">1.705169e+07</span></code>. This line indicates that MIPLearn was able to construct a warm start with value <code class="docutils literal notranslate"><span class="pre">1.705169e+07</span></code>. Using this warm start, SCIP then proceeded with the branch-and-cut process to either prove its optimality or find an even better solution. Very quickly, however, SCIP proved that the solution produced by MIPLearn was
+indeed optimal and terminated. It was able to do this without generating a single cutting plane or running any other heuristics; it could tell the optimality by the root LP relaxation alone, which was very fast.</p>
+<p>Let us now do the same thing again, but using the untrained solver this time:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="n">solve!</span><span class="p">(</span><span class="n">solver_baseline</span><span class="p">,</span> <span class="n">test_files</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">build_uc_model</span><span class="p">,</span> <span class="n">tee</span><span class="o">=</span><span class="nb">true</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+presolving:
+(round 1, fast)       861 del vars, 861 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 2, fast)       861 del vars, 1722 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 3, fast)       862 del vars, 1722 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+presolving (4 rounds: 4 fast, 1 medium, 1 exhaustive):
+ 862 deleted vars, 1722 deleted constraints, 0 added constraints, 2000 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 0 implications, 0 cliques
+presolved problem has 1138 variables (0 bin, 0 int, 0 impl, 1138 cont) and 279 constraints
+    279 constraints of type &lt;linear&gt;
+Presolving Time: 0.03
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl.
+* 0.0s|     1 |     0 |   203 |     - |    LP  |   0 |1138 | 279 | 279 |   0 |  0 |   0 |   0 | 1.705035e+07 | 1.705035e+07 |   0.00%| unknown
+  0.0s|     1 |     0 |   203 |     - |  8950k |   0 |1138 | 279 | 279 |   0 |  0 |   0 |   0 | 1.705035e+07 | 1.705035e+07 |   0.00%| unknown
+
+SCIP Status        : problem is solved [optimal solution found]
+Solving Time (sec) : 0.04
+Solving Nodes      : 1
+Primal Bound       : +1.70503465600131e+07 (1 solutions)
+Dual Bound         : +1.70503465600131e+07
+Gap                : 0.00 %
+
+violation: integrality condition of variable &lt;&gt; = 0.338047247943162
+all 1 solutions given by solution candidate storage are infeasible
+
+presolving:
+(round 1, fast)       0 del vars, 0 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 2, exhaustive) 0 del vars, 0 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 1000 upgd conss, 0 impls, 0 clqs
+(round 3, exhaustive) 0 del vars, 0 del conss, 0 add conss, 2000 chg bounds, 0 chg sides, 0 chg coeffs, 2000 upgd conss, 1000 impls, 0 clqs
+   (0.0s) probing: 51/1000 (5.1%) - 0 fixings, 0 aggregations, 0 implications, 0 bound changes
+   (0.0s) probing aborted: 50/50 successive totally useless probings
+   (0.0s) symmetry computation started: requiring (bin +, int -, cont +), (fixed: bin -, int +, cont -)
+   (0.0s) no symmetry present
+presolving (4 rounds: 4 fast, 3 medium, 3 exhaustive):
+ 0 deleted vars, 0 deleted constraints, 0 added constraints, 2000 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 2000 implications, 0 cliques
+presolved problem has 2000 variables (1000 bin, 0 int, 0 impl, 1000 cont) and 2001 constraints
+   2000 constraints of type &lt;varbound&gt;
+      1 constraints of type &lt;linear&gt;
+Presolving Time: 0.03
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl.
+p 0.0s|     1 |     0 |     1 |     - |   locks|   0 |2000 |2001 |2001 |   0 |  0 |   0 |   0 | 0.000000e+00 | 2.335200e+07 |    Inf | unknown
+p 0.0s|     1 |     0 |     2 |     - | vbounds|   0 |2000 |2001 |2001 |   0 |  0 |   0 |   0 | 0.000000e+00 | 1.839873e+07 |    Inf | unknown
+  0.1s|     1 |     0 |  1204 |     - |    20M |   0 |2000 |2001 |2001 |   0 |  0 |   0 |   0 | 1.705035e+07 | 1.839873e+07 |   7.91%| unknown
+  0.1s|     1 |     0 |  1207 |     - |    22M |   0 |2000 |2001 |2002 |   1 |  1 |   0 |   0 | 1.705036e+07 | 1.839873e+07 |   7.91%| unknown
+r 0.1s|     1 |     0 |  1207 |     - |shifting|   0 |2000 |2001 |2002 |   1 |  1 |   0 |   0 | 1.705036e+07 | 1.711399e+07 |   0.37%| unknown
+  0.1s|     1 |     0 |  1209 |     - |    22M |   0 |2000 |2001 |2003 |   2 |  2 |   0 |   0 | 1.705037e+07 | 1.711399e+07 |   0.37%| unknown
+r 0.1s|     1 |     0 |  1209 |     - |shifting|   0 |2000 |2001 |2003 |   2 |  2 |   0 |   0 | 1.705037e+07 | 1.706492e+07 |   0.09%| unknown
+  0.1s|     1 |     0 |  1210 |     - |    22M |   0 |2000 |2001 |2004 |   3 |  3 |   0 |   0 | 1.705037e+07 | 1.706492e+07 |   0.09%| unknown
+  0.1s|     1 |     0 |  1211 |     - |    23M |   0 |2000 |2001 |2005 |   4 |  4 |   0 |   0 | 1.705037e+07 | 1.706492e+07 |   0.09%| unknown
+  0.1s|     1 |     0 |  1212 |     - |    23M |   0 |2000 |2001 |2006 |   5 |  5 |   0 |   0 | 1.705037e+07 | 1.706492e+07 |   0.09%| unknown
+r 0.1s|     1 |     0 |  1212 |     - |shifting|   0 |2000 |2001 |2006 |   5 |  5 |   0 |   0 | 1.705037e+07 | 1.706228e+07 |   0.07%| unknown
+  0.1s|     1 |     0 |  1214 |     - |    24M |   0 |2000 |2001 |2007 |   6 |  7 |   0 |   0 | 1.705037e+07 | 1.706228e+07 |   0.07%| unknown
+  0.2s|     1 |     0 |  1216 |     - |    24M |   0 |2000 |2001 |2009 |   8 |  8 |   0 |   0 | 1.705037e+07 | 1.706228e+07 |   0.07%| unknown
+  0.2s|     1 |     0 |  1220 |     - |    25M |   0 |2000 |2001 |2011 |  10 |  9 |   0 |   0 | 1.705037e+07 | 1.706228e+07 |   0.07%| unknown
+  0.2s|     1 |     0 |  1223 |     - |    25M |   0 |2000 |2001 |2014 |  13 | 10 |   0 |   0 | 1.705037e+07 | 1.706228e+07 |   0.07%| unknown
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl.
+  0.2s|     1 |     0 |  1229 |     - |    26M |   0 |2000 |2001 |2015 |  14 | 11 |   0 |   0 | 1.705038e+07 | 1.706228e+07 |   0.07%| unknown
+r 0.2s|     1 |     0 |  1403 |     - |intshift|   0 |2000 |2001 |2015 |  14 | 11 |   0 |   0 | 1.705038e+07 | 1.705687e+07 |   0.04%| unknown
+L 0.6s|     1 |     0 |  1707 |     - |    rens|   0 |2000 |2001 |2015 |  14 | 11 |   0 |   0 | 1.705038e+07 | 1.705332e+07 |   0.02%| unknown
+L 0.7s|     1 |     0 |  1707 |     - |    alns|   0 |2000 |2001 |2015 |  14 | 11 |   0 |   0 | 1.705038e+07 | 1.705178e+07 |   0.01%| unknown
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.67
+Solving Nodes      : 1
+Primal Bound       : +1.70517823853380e+07 (13 solutions)
+Dual Bound         : +1.70503798271962e+07
+Gap                : 0.01 %
+
+</pre></div></div>
+</div>
+<p>In this log file, notice how the line we saw before is now missing; SCIP needs to find an initial solution using its own internal heuristics. The solution SCIP initially found has value <code class="docutils literal notranslate"><span class="pre">2.335200e+07</span></code>, which is significantly worse than the one MIPLearn constructed before. SCIP then proceeds to improve this solution by generating a number of cutting planes and repeatedly running primal heuristics. In the end, it is able to find the optimal solution, as expected, but it takes longer.</p>
+</div>
+<div class="section" id="Accessing-the-solution">
+<h2><span class="section-number">1.7. </span>Accessing the solution<a class="headerlink" href="#Accessing-the-solution" title="Permalink to this headline">¶</a></h2>
+<p>In the example above, we used <code class="docutils literal notranslate"><span class="pre">MIPLearn.solve!</span></code> together with data files to solve both the training and the test instances. The solutions were saved to a <code class="docutils literal notranslate"><span class="pre">.h5</span></code> files in the train/test folders, and could be retrieved by reading theses files, but that is not very convenient. In this section we will use an easier method.</p>
+<p>We can use the function <code class="docutils literal notranslate"><span class="pre">MIPLearn.load!</span></code> to obtain a regular JuMP model:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="n">model</span> <span class="o">=</span> <span class="n">MIPLearn</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&quot;uc/test/000001.jld2&quot;</span><span class="p">,</span> <span class="n">build_uc_model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+A JuMP Model
+Minimization problem with:
+Variables: 2000
+Objective function type: AffExpr
+`AffExpr`-in-`MathOptInterface.EqualTo{Float64}`: 1 constraint
+`AffExpr`-in-`MathOptInterface.GreaterThan{Float64}`: 1000 constraints
+`AffExpr`-in-`MathOptInterface.LessThan{Float64}`: 1000 constraints
+`VariableRef`-in-`MathOptInterface.GreaterThan{Float64}`: 1000 constraints
+`VariableRef`-in-`MathOptInterface.ZeroOne`: 1000 constraints
+Model mode: AUTOMATIC
+CachingOptimizer state: NO_OPTIMIZER
+Solver name: No optimizer attached.
+Names registered in the model: eq_demand, eq_max_power, eq_min_power, x, y
+</pre></div></div>
+</div>
+<p>We can then solve this model as before, with <code class="docutils literal notranslate"><span class="pre">MIPLearn.solve!</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-julia notranslate"><div class="highlight"><pre>
+<span></span><span class="n">solve!</span><span class="p">(</span><span class="n">solver_ml</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;obj = &quot;</span><span class="p">,</span> <span class="n">objective_value</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;  x = &quot;</span><span class="p">,</span> <span class="n">round</span><span class="o">.</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="ss">:x</span><span class="p">][</span><span class="mi">1</span><span class="o">:</span><span class="mi">10</span><span class="p">])))</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;  y = &quot;</span><span class="p">,</span> <span class="n">round</span><span class="o">.</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="ss">:y</span><span class="p">][</span><span class="mi">1</span><span class="o">:</span><span class="mi">10</span><span class="p">]),</span> <span class="n">digits</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+obj = 1.7051217395548128e7
+  x = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+  y = [767.11, 646.61, 230.28, 365.46, 1150.99, 1103.36, 0.0, 0.0, 0.0, 0.0]
+</pre></div></div>
+</div>
+</div>
+</div>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="../../" title="previous page">MIPLearn</a>
+    <a class='right-next' id="next-link" href="../../benchmarks/preliminaries/" title="next page"><span class="section-number">1. </span>Preliminaries</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2021, UChicago Argonne, LLC.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

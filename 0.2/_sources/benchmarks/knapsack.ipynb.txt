@@ -1,0 +1,111 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "d236e2a0",
+   "metadata": {},
+   "source": [
+    "# Multidimensional Knapsack\n",
+    "\n",
+    "### Problem definition\n",
+    "\n",
+    "Given a set of $n$ items and $m$ types of resources (also called *knapsacks*), the problem is to find a subset of items that maximizes profit without consuming more resources than it is available. More precisely, the problem is:\n",
+    "\n",
+    "$$\n",
+    "\\begin{align*}\n",
+    "    \\text{maximize}\n",
+    "        & \\sum_{j=1}^n p_j x_j\n",
+    "        \\\\\n",
+    "    \\text{subject to}\n",
+    "        & \\sum_{j=1}^n w_{ij} x_j \\leq b_i\n",
+    "        & \\forall i=1,\\ldots,m \\\\\n",
+    "    & x_j \\in \\{0,1\\}\n",
+    "        & \\forall j=1,\\ldots,n\n",
+    "\\end{align*}\n",
+    "$$\n",
+    "\n",
+    "### Random instance generator\n",
+    "\n",
+    "The class `MultiKnapsackGenerator` can be used to generate random instances of this problem. The number of items $n$ and knapsacks $m$ are sampled from the user-provided probability distributions `n` and `m`. The weights $w_{ij}$ are sampled independently from the provided distribution `w`. The capacity of knapsack $i$ is set to\n",
+    "\n",
+    "$$\n",
+    "    b_i = \\alpha_i \\sum_{j=1}^n w_{ij}\n",
+    "$$\n",
+    "\n",
+    "where $\\alpha_i$, the tightness ratio, is sampled from the provided probability\n",
+    "distribution `alpha`. To make the instances more challenging, the costs of the items\n",
+    "are linearly correlated to their average weights. More specifically, the price of each\n",
+    "item $j$ is set to:\n",
+    "\n",
+    "$$\n",
+    "    p_j = \\sum_{i=1}^m \\frac{w_{ij}}{m} + K  u_j,\n",
+    "$$\n",
+    "\n",
+    "where $K$, the correlation coefficient, and $u_j$, the correlation multiplier, are sampled\n",
+    "from the provided probability distributions `K` and `u`.\n",
+    "\n",
+    "If `fix_w=True` is provided, then $w_{ij}$ are kept the same in all generated instances. This also implies that $n$ and $m$ are kept fixed. Although the prices and capacities are derived from $w_{ij}$, as long as `u` and `K` are not constants, the generated instances will still not be completely identical.\n",
+    "\n",
+    "\n",
+    "If a probability distribution `w_jitter` is provided, then item weights will be set to $w_{ij} \\gamma_{ij}$ where $\\gamma_{ij}$ is sampled from `w_jitter`. When combined with `fix_w=True`, this argument may be used to generate instances where the weight of each item is roughly the same, but not exactly identical, across all instances. The prices of the items and the capacities of the knapsacks will be calculated as above, but using these perturbed weights instead.\n",
+    "\n",
+    "By default, all generated prices, weights and capacities are rounded to the nearest integer number. If `round=False` is provided, this rounding will be disabled.\n",
+    "\n",
+    "\n",
+    "<div class=\"alert alert-info\">\n",
+    "References\n",
+    "\n",
+    "* **Freville, Arnaud, and Gérard Plateau.** *An efficient preprocessing procedure for the multidimensional 0–1 knapsack problem.* Discrete applied mathematics 49.1-3 (1994): 189-212.\n",
+    "* **Fréville, Arnaud.** *The multidimensional 0–1 knapsack problem: An overview.* European Journal of Operational Research 155.1 (2004): 1-21.\n",
+    "</div>\n",
+    "    \n",
+    "### Challenge A\n",
+    "\n",
+    "* 250 variables, 10 constraints, fixed weights\n",
+    "* $w \\sim U(0, 1000), \\gamma \\sim U(0.95, 1.05)$\n",
+    "* $K = 500, u \\sim U(0, 1), \\alpha = 0.25$\n",
+    "* 500 training instances, 50 test instances\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "39be5cda",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "MultiKnapsackGenerator(\n",
+    "    n=randint(low=250, high=251),\n",
+    "    m=randint(low=10, high=11),\n",
+    "    w=uniform(loc=0.0, scale=1000.0),\n",
+    "    K=uniform(loc=500.0, scale=0.0),\n",
+    "    u=uniform(loc=0.0, scale=1.0),\n",
+    "    alpha=uniform(loc=0.25, scale=0.0),\n",
+    "    fix_w=True,\n",
+    "    w_jitter=uniform(loc=0.95, scale=0.1),\n",
+    ")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "miplearn",
+   "language": "python",
+   "name": "miplearn"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.10"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
