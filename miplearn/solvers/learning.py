@@ -293,6 +293,7 @@ class LearningSolver:
         # -------------------------------------------------------
         if not discard_output:
             instance.flush()
+        instance.free()
 
         return stats
 
