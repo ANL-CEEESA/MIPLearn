@@ -1,6 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+
 from typing import List, Dict
 
 import networkx as nx
@@ -12,28 +13,6 @@ from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
 from miplearn.instance.base import Instance
-
-
-class ChallengeA:
-    def __init__(
-        self,
-        seed: int = 42,
-        n_training_instances: int = 500,
-        n_test_instances: int = 50,
-    ) -> None:
-        np.random.seed(seed)
-        self.generator = MaxWeightStableSetGenerator(
-            w=uniform(loc=100.0, scale=50.0),
-            n=randint(low=200, high=201),
-            p=uniform(loc=0.05, scale=0.0),
-            fix_graph=True,
-        )
-
-        np.random.seed(seed + 1)
-        self.training_instances = self.generator.generate(n_training_instances)
-
-        np.random.seed(seed + 2)
-        self.test_instances = self.generator.generate(n_test_instances)
 
 
 class MaxWeightStableSetInstance(Instance):
@@ -64,30 +43,6 @@ class MaxWeightStableSetInstance(Instance):
         for clique in nx.find_cliques(self.graph):
             model.clique_eqs.add(sum(model.x[v] for v in clique) <= 1)
         return model
-
-    @overrides
-    def get_variable_features(self, names: np.ndarray) -> np.ndarray:
-        features = []
-        assert len(names) == len(self.nodes)
-        for i, v1 in enumerate(self.nodes):
-            assert names[i] == f"x[{v1}]".encode()
-            neighbor_weights = [0.0] * 15
-            neighbor_degrees = [100.0] * 15
-            for v2 in self.graph.neighbors(v1):
-                neighbor_weights += [self.weights[v2] / self.weights[v1]]
-                neighbor_degrees += [self.graph.degree(v2) / self.graph.degree(v1)]
-            neighbor_weights.sort(reverse=True)
-            neighbor_degrees.sort()
-            f = []
-            f += neighbor_weights[:5]
-            f += neighbor_degrees[:5]
-            f += [self.graph.degree(v1)]
-            features.append(f)
-        return np.array(features)
-
-    @overrides
-    def get_variable_categories(self, names: np.ndarray) -> np.ndarray:
-        return np.array(["default" for _ in names], dtype="S")
 
 
 class MaxWeightStableSetGenerator:

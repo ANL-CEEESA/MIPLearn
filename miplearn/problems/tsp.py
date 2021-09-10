@@ -17,30 +17,6 @@ from miplearn.solvers.pyomo.base import BasePyomoSolver
 from miplearn.types import ConstraintName
 
 
-class ChallengeA:
-    def __init__(
-        self,
-        seed: int = 42,
-        n_training_instances: int = 500,
-        n_test_instances: int = 50,
-    ) -> None:
-        np.random.seed(seed)
-        self.generator = TravelingSalesmanGenerator(
-            x=uniform(loc=0.0, scale=1000.0),
-            y=uniform(loc=0.0, scale=1000.0),
-            n=randint(low=350, high=351),
-            gamma=uniform(loc=0.95, scale=0.1),
-            fix_cities=True,
-            round=True,
-        )
-
-        np.random.seed(seed + 1)
-        self.training_instances = self.generator.generate(n_training_instances)
-
-        np.random.seed(seed + 2)
-        self.test_instances = self.generator.generate(n_test_instances)
-
-
 class TravelingSalesmanInstance(Instance):
     """An instance ot the Traveling Salesman Problem.
 
