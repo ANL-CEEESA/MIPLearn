@@ -439,14 +439,16 @@ class BasePyomoSolver(InternalSolver):
                     tee=True,
                     warmstart=self._is_warm_start_available,
                 )
+            self._termination_condition = results["Solver"][0]["Termination condition"]
             total_wallclock_time += results["Solver"][0]["Wallclock time"]
+            if self.is_infeasible():
+                break
             should_repeat = iteration_cb()
             if not should_repeat:
                 break
         log = streams[0].getvalue()
         node_count = self._extract_node_count(log)
         ws_value = self._extract_warm_start_value(log)
-        self._termination_condition = results["Solver"][0]["Termination condition"]
         lb, ub = None, None
         self._has_mip_solution = False
         self._has_lp_solution = False

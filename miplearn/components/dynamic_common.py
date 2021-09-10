@@ -102,6 +102,8 @@ class DynamicConstraintsComponent(Component):
         assert pre is not None
         known_cids: Set = set()
         for cids in pre:
+            if cids is None:
+                continue
             known_cids |= set(list(cids))
         self.known_cids.clear()
         self.known_cids.extend(sorted(known_cids))

@@ -68,5 +68,7 @@ def setup_logger(
     handler.setFormatter(TimeFormatter(start_time, log_colors))
     logging.getLogger().addHandler(handler)
     logging.getLogger("miplearn").setLevel(logging.INFO)
+    logging.getLogger("gurobipy").setLevel(logging.ERROR)
+    logging.getLogger("pyomo.core").setLevel(logging.ERROR)
     warnings.formatwarning = formatwarning_tb
     logging.captureWarnings(True)

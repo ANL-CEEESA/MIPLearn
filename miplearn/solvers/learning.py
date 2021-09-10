@@ -7,7 +7,8 @@ import time
 import traceback
 from typing import Optional, List, Any, cast, Dict, Tuple
 
-from p_tqdm import p_map
+from p_tqdm import p_map, p_umap
+from tqdm.auto import tqdm
 
 from miplearn.components.component import Component
 from miplearn.components.dynamic_lazy import DynamicLazyConstraintsComponent
@@ -40,7 +41,7 @@ _GLOBAL = [_GlobalVariables()]
 
 def _parallel_solve(
     idx: int,
-) -> Tuple[Optional[LearningSolveStats], Optional[Instance]]:
+) -> Tuple[Optional[int], Optional[LearningSolveStats], Optional[Instance]]:
     solver = _GLOBAL[0].solver
     instances = _GLOBAL[0].instances
     discard_outputs = _GLOBAL[0].discard_outputs
@@ -52,11 +53,11 @@ def _parallel_solve(
             discard_output=discard_outputs,
         )
         instances[idx].free()
-        return stats, instances[idx]
+        return idx, stats, instances[idx]
     except Exception as e:
         traceback.print_exc()
         logger.exception(f"Exception while solving {instances[idx]}. Ignoring.")
-        return None, None
+        return None, None, None
 
 
 class LearningSolver:
@@ -363,8 +364,9 @@ class LearningSolver:
         self,
         instances: List[Instance],
         n_jobs: int = 4,
-        label: str = "Solve",
+        label: str = "solve",
         discard_outputs: bool = False,
+        progress: bool = False,
     ) -> List[LearningSolveStats]:
         """
         Solves multiple instances in parallel.
@@ -394,23 +396,31 @@ class LearningSolver:
             `[solver.solve(p) for p in instances]`
         """
         if n_jobs == 1:
-            return [self.solve(p) for p in instances]
+            return [
+                self.solve(p)
+                for p in tqdm(
+                    instances,
+                    disable=not progress,
+                    desc=label,
+                )
+            ]
         else:
             self.internal_solver = None
             self._silence_miplearn_logger()
             _GLOBAL[0].solver = self
             _GLOBAL[0].instances = instances
             _GLOBAL[0].discard_outputs = discard_outputs
-            results = p_map(
+            results = p_umap(
                 _parallel_solve,
                 list(range(len(instances))),
                 num_cpus=n_jobs,
                 desc=label,
+                disable=not progress,
             )
-            results = [r for r in results if r[0]]
-            stats = []
-            for (idx, (s, instance)) in enumerate(results):
-                stats.append(s)
+            results = [r for r in results if r[1]]
+            stats: List[LearningSolveStats] = [{} for _ in range(len(results))]
+            for (idx, s, instance) in results:
+                stats[idx] = s
                 instances[idx] = instance
             self._restore_miplearn_logger()
             return stats
@@ -419,6 +429,7 @@ class LearningSolver:
         self,
         training_instances: List[Instance],
         n_jobs: int = 1,
+        progress: bool = False,
     ) -> None:
         if len(training_instances) == 0:
             logger.warning("Empty list of training instances provided. Skipping.")
@@ -427,6 +438,7 @@ class LearningSolver:
             list(self.components.values()),
             training_instances,
             n_jobs=n_jobs,
+            progress=progress,
         )
 
     def _add_component(self, component: Component) -> None:
