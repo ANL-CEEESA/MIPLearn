@@ -27,7 +27,7 @@ docs:
 
 install-deps:
 	$(PIP) install --upgrade pip
-	$(PIP) install --upgrade -i https://pypi.gurobi.com gurobipy
+	$(PIP) install --upgrade -i https://pypi.gurobi.com 'gurobipy>=9.1,<9.2'
 	$(PIP) install --upgrade xpress
 	$(PIP) install --upgrade -r requirements.txt
 
