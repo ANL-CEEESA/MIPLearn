@@ -13,7 +13,7 @@ from overrides import overrides
 
 from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
-from miplearn.types import ConstraintName, ConstraintCategory
+from miplearn.types import ConstraintName
 
 if TYPE_CHECKING:
     from miplearn.solvers.learning import InternalSolver
@@ -83,7 +83,7 @@ class PickleGzInstance(Instance):
         self,
         solver: "InternalSolver",
         model: Any,
-    ) -> List[ConstraintName]:
+    ) -> Dict[ConstraintName, Any]:
         assert self.instance is not None
         return self.instance.find_violated_lazy_constraints(solver, model)
 
@@ -92,13 +92,13 @@ class PickleGzInstance(Instance):
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: ConstraintName,
+        violation_data: Any,
     ) -> None:
         assert self.instance is not None
-        self.instance.enforce_lazy_constraint(solver, model, violation)
+        self.instance.enforce_lazy_constraint(solver, model, violation_data)
 
     @overrides
-    def find_violated_user_cuts(self, model: Any) -> List[ConstraintName]:
+    def find_violated_user_cuts(self, model: Any) -> Dict[ConstraintName, Any]:
         assert self.instance is not None
         return self.instance.find_violated_user_cuts(model)
 
@@ -107,10 +107,10 @@ class PickleGzInstance(Instance):
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: ConstraintName,
+        violation_name: Any,
     ) -> None:
         assert self.instance is not None
-        self.instance.enforce_user_cut(solver, model, violation)
+        self.instance.enforce_user_cut(solver, model, violation_name)
 
     @overrides
     def load(self) -> None:

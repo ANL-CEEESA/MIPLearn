@@ -710,7 +710,7 @@ class GurobiTestInstanceKnapsack(PyomoTestInstanceKnapsack):
         self,
         solver: InternalSolver,
         model: Any,
-        violation: str,
+        violation_data: Any,
     ) -> None:
         x0 = model.getVarByName("x[0]")
         model.cbLazy(x0 <= 0)

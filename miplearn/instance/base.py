@@ -9,7 +9,7 @@ from typing import Any, List, TYPE_CHECKING, Dict
 import numpy as np
 
 from miplearn.features.sample import Sample, MemorySample
-from miplearn.types import ConstraintName, ConstraintCategory
+from miplearn.types import ConstraintName
 
 logger = logging.getLogger(__name__)
 
@@ -114,7 +114,7 @@ class Instance(ABC):
         self,
         solver: "InternalSolver",
         model: Any,
-    ) -> List[ConstraintName]:
+    ) -> Dict[ConstraintName, Any]:
         """
         Returns lazy constraint violations found for the current solution.
 
@@ -124,40 +124,46 @@ class Instance(ABC):
         resolve the problem. The process repeats until no further lazy constraint
         violations are found.
 
-        Each "violation" is simply a string which allows the instance to identify
-        unambiguously which lazy constraint should be generated. In the Traveling
-        Salesman Problem, for example, a subtour violation could be a string
-        containing the cities in the subtour.
+        Violations should be returned in a dictionary mapping the name of the violation
+        to some user-specified data that allows the instance to unambiguously generate
+        the lazy constraints at a later time. In the Traveling Salesman Problem, for
+        example, this function could return a dictionary identifying violated subtour
+        inequalities. More concretely, it could return:
+            {
+                "s1": [1, 2, 3],
+                "s2": [4, 5, 6, 7],
+            }
+        where "s1" and "s2" are the names of the subtours, and [1,2,3] and [4,5,6,7]
+        are the cities in each subtour. The names of the violations should be kept
+        stable across instances. In our example, "s1" should always correspond to
+        [1,2,3] across all instances. The user-provided data should be picklable.
 
         The current solution can be queried with `solver.get_solution()`. If the solver
         is configured to use lazy callbacks, this solution may be non-integer.
 
         For a concrete example, see TravelingSalesmanInstance.
         """
-        return []
+        return {}
 
     def enforce_lazy_constraint(
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: ConstraintName,
+        violation_data: Any,
     ) -> None:
         """
         Adds constraints to the model to ensure that the given violation is fixed.
 
         This method is typically called immediately after
-        find_violated_lazy_constraints. The violation object provided to this method
-        is exactly the same object returned earlier by
-        find_violated_lazy_constraints. After some training, LearningSolver may
-        decide to proactively build some lazy constraints at the beginning of the
-        optimization process, before a solution is even available. In this case,
-        enforce_lazy_constraints will be called without a corresponding call to
-        find_violated_lazy_constraints.
+        `find_violated_lazy_constraints`. The argument `violation_data` is the
+        user-provided data, previously returned by `find_violated_lazy_constraints`.
+        In the Traveling Salesman Problem, for example, it could be a list of cities
+        in the subtour.
 
-        Note that this method can be called either before the optimization starts or
-        from within a callback. To ensure that constraints are added correctly in
-        either case, it is recommended to use `solver.add_constraint`, instead of
-        modifying the `model` object directly.
+        After some training, LearningSolver may decide to proactively build some lazy
+        constraints at the beginning of the optimization process, before a solution
+        is even available. In this case, `enforce_lazy_constraints` will be called
+        without a corresponding call to `find_violated_lazy_constraints`.
 
         For a concrete example, see TravelingSalesmanInstance.
         """
@@ -166,14 +172,14 @@ class Instance(ABC):
     def has_user_cuts(self) -> bool:
         return False
 
-    def find_violated_user_cuts(self, model: Any) -> List[ConstraintName]:
-        return []
+    def find_violated_user_cuts(self, model: Any) -> Dict[ConstraintName, Any]:
+        return {}
 
     def enforce_user_cut(
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: ConstraintName,
+        violation_data: Any,
     ) -> Any:
         return None
 

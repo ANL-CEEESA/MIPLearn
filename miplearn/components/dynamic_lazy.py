@@ -1,10 +1,8 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-
 import logging
-import pdb
-from typing import Dict, List, TYPE_CHECKING, Tuple, Any, Optional, Set
+from typing import Dict, List, TYPE_CHECKING, Tuple, Any, Optional
 
 import numpy as np
 from overrides import overrides
@@ -37,23 +35,23 @@ class DynamicLazyConstraintsComponent(Component):
         self.dynamic: DynamicConstraintsComponent = DynamicConstraintsComponent(
             classifier=classifier,
             threshold=threshold,
-            attr="mip_constr_lazy_enforced",
+            attr="mip_constr_lazy",
         )
         self.classifiers = self.dynamic.classifiers
         self.thresholds = self.dynamic.thresholds
-        self.known_cids = self.dynamic.known_cids
-        self.lazy_enforced: Set[ConstraintName] = set()
+        self.known_violations = self.dynamic.known_violations
+        self.lazy_enforced: Dict[ConstraintName, Any] = {}
 
     @staticmethod
     def enforce(
-        cids: List[ConstraintName],
+        violations: Dict[ConstraintName, Any],
         instance: Instance,
         model: Any,
         solver: "LearningSolver",
     ) -> None:
         assert solver.internal_solver is not None
-        for cid in cids:
-            instance.enforce_lazy_constraint(solver.internal_solver, model, cid)
+        for (vname, vdata) in violations.items():
+            instance.enforce_lazy_constraint(solver.internal_solver, model, vdata)
 
     @overrides
     def before_solve_mip(
@@ -66,9 +64,10 @@ class DynamicLazyConstraintsComponent(Component):
     ) -> None:
         self.lazy_enforced.clear()
         logger.info("Predicting violated (dynamic) lazy constraints...")
-        cids = self.dynamic.sample_predict(instance, sample)
-        logger.info("Enforcing %d lazy constraints..." % len(cids))
-        self.enforce(cids, instance, model, solver)
+        vnames = self.dynamic.sample_predict(instance, sample)
+        violations = {c: self.dynamic.known_violations[c] for c in vnames}
+        logger.info("Enforcing %d lazy constraints..." % len(vnames))
+        self.enforce(violations, instance, model, solver)
 
     @overrides
     def after_solve_mip(
@@ -79,10 +78,7 @@ class DynamicLazyConstraintsComponent(Component):
         stats: LearningSolveStats,
         sample: Sample,
     ) -> None:
-        sample.put_array(
-            "mip_constr_lazy_enforced",
-            np.array(list(self.lazy_enforced), dtype="S"),
-        )
+        sample.put_scalar("mip_constr_lazy", self.dynamic.encode(self.lazy_enforced))
 
     @overrides
     def iteration_cb(
@@ -93,14 +89,17 @@ class DynamicLazyConstraintsComponent(Component):
     ) -> bool:
         assert solver.internal_solver is not None
         logger.debug("Finding violated lazy constraints...")
-        cids = instance.find_violated_lazy_constraints(solver.internal_solver, model)
-        if len(cids) == 0:
+        violations = instance.find_violated_lazy_constraints(
+            solver.internal_solver, model
+        )
+        if len(violations) == 0:
             logger.debug("No violations found")
             return False
         else:
-            self.lazy_enforced |= set(cids)
-            logger.debug("    %d violations found" % len(cids))
-            self.enforce(cids, instance, model, solver)
+            for v in violations:
+                self.lazy_enforced[v] = violations[v]
+            logger.debug("    %d violations found" % len(violations))
+            self.enforce(violations, instance, model, solver)
             return True
 
     # Delegate ML methods to self.dynamic

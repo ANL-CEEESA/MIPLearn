@@ -247,7 +247,7 @@ def run_lazy_cb_tests(solver: InternalSolver) -> None:
         assert relsol is not None
         assert relsol[b"x[0]"] is not None
         if relsol[b"x[0]"] > 0:
-            instance.enforce_lazy_constraint(cb_solver, cb_model, b"cut")
+            instance.enforce_lazy_constraint(cb_solver, cb_model, None)
 
     solver.set_instance(instance, model)
     solver.solve(lazy_cb=lazy_cb)

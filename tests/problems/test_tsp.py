@@ -1,6 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+import json
 
 import numpy as np
 from numpy.linalg import norm
@@ -66,9 +67,15 @@ def test_subtour() -> None:
     samples = instance.get_samples()
     assert len(samples) == 1
     sample = samples[0]
-    lazy_enforced = sample.get_array("mip_constr_lazy_enforced")
-    assert lazy_enforced is not None
-    assert len(lazy_enforced) > 0
+
+    lazy_encoded = sample.get_scalar("mip_constr_lazy")
+    assert lazy_encoded is not None
+    lazy = json.loads(lazy_encoded)
+    assert lazy == {
+        "st[0,1,4]": [0, 1, 4],
+        "st[2,3,5]": [2, 3, 5],
+    }
+
     assert_equals(
         sample.get_array("mip_var_values"),
         [

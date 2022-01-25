@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List, Tuple, FrozenSet, Any, Optional, Dict
+from typing import List, Tuple, Any, Optional, Dict
 
 import networkx as nx
 import numpy as np
@@ -86,14 +86,15 @@ class TravelingSalesmanInstance(Instance):
         self,
         solver: InternalSolver,
         model: Any,
-    ) -> List[ConstraintName]:
+    ) -> Dict[ConstraintName, List]:
         selected_edges = [e for e in self.edges if model.x[e].value > 0.5]
         graph = nx.Graph()
         graph.add_edges_from(selected_edges)
-        violations = []
+        violations = {}
         for c in list(nx.connected_components(graph)):
             if len(c) < self.n_cities:
-                violations.append(",".join(map(str, c)).encode())
+                cname = ("st[" + ",".join(map(str, c)) + "]").encode()
+                violations[cname] = list(c)
         return violations
 
     @overrides
@@ -101,10 +102,9 @@ class TravelingSalesmanInstance(Instance):
         self,
         solver: InternalSolver,
         model: Any,
-        violation: ConstraintName,
+        component: List,
     ) -> None:
         assert isinstance(solver, BasePyomoSolver)
-        component = [int(v) for v in violation.decode().split(",")]
         cut_edges = [
             e
             for e in self.edges
