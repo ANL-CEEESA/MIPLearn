@@ -53,13 +53,17 @@ class GurobiStableSetProblem(Instance):
     @overrides
     def enforce_user_cut(
         self,
-        solver: InternalSolver,
+        solver: GurobiSolver,
         model: Any,
         cid: ConstraintName,
     ) -> Any:
         clique = [int(i) for i in cid.decode().split(",")]
         x = model.getVars()
-        model.addConstr(gp.quicksum([x[i] for i in clique]) <= 1)
+        constr = gp.quicksum([x[i] for i in clique]) <= 1
+        if solver.cb_where:
+            model.cbCut(constr)
+        else:
+            model.addConstr(constr)
 
 
 @pytest.fixture
