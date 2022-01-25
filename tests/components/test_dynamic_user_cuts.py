@@ -5,6 +5,7 @@ import json
 import logging
 from typing import Any, List, Dict
 
+import gurobipy
 import gurobipy as gp
 import networkx as nx
 import pytest
@@ -42,7 +43,10 @@ class GurobiStableSetProblem(Instance):
     @overrides
     def find_violated_user_cuts(self, model: Any) -> Dict[ConstraintName, Any]:
         assert isinstance(model, gp.Model)
-        vals = model.cbGetNodeRel(model.getVars())
+        try:
+            vals = model.cbGetNodeRel(model.getVars())
+        except gurobipy.GurobiError:
+            return {}
         violations = {}
         for clique in nx.find_cliques(self.graph):
             if sum(vals[i] for i in clique) > 1:
@@ -74,7 +78,7 @@ def stab_instance() -> Instance:
 @pytest.fixture
 def solver() -> LearningSolver:
     return LearningSolver(
-        solver=GurobiSolver(),
+        solver=GurobiSolver(params={"Threads": 1}),
         components=[UserCutsComponent()],
     )
 
