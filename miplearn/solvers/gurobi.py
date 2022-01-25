@@ -649,12 +649,12 @@ class GurobiSolver(InternalSolver):
     def __getstate__(self) -> Dict:
         return {
             "params": self.params,
-            "lazy_cb_where": self.lazy_cb_where,
+            "lazy_cb_frequency": self.lazy_cb_frequency,
         }
 
     def __setstate__(self, state: Dict) -> None:
         self.params = state["params"]
-        self.lazy_cb_where = state["lazy_cb_where"]
+        self.lazy_cb_frequency = state["lazy_cb_frequency"]
         self.instance = None
         self.model = None
         self.cb_where = None

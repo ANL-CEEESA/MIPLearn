@@ -1,7 +1,7 @@
 project = "MIPLearn"
 copyright = "2020-2021, UChicago Argonne, LLC"
 author = ""
-release = "0.2.0"
+release = "0.2"
 extensions = ["myst_parser", "nbsphinx"]
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
@@ -15,5 +15,5 @@ html_theme_options = {
     "use_repository_button": False,
     "extra_navbar": "",
 }
-html_title = f"MIPLearn<br/><small>{release}</small>"
+html_title = f"MIPLearn {release}"
 nbsphinx_execute = 'never'
