@@ -134,8 +134,8 @@ def test_sample_evaluate(sample: Sample) -> None:
 def test_usage() -> None:
     solver = LearningSolver(components=[ObjectiveValueComponent()])
     instance = GurobiPyomoSolver().build_test_instance_knapsack()
-    solver.solve(instance)
-    solver.fit([instance])
-    stats = solver.solve(instance)
+    solver._solve(instance)
+    solver._fit([instance])
+    stats = solver._solve(instance)
     assert stats["mip_lower_bound"] == stats["Objective: Predicted lower bound"]
     assert stats["mip_upper_bound"] == stats["Objective: Predicted upper bound"]

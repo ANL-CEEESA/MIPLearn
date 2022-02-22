@@ -87,7 +87,7 @@ def test_usage(
     stab_instance: Instance,
     solver: LearningSolver,
 ) -> None:
-    stats_before = solver.solve(stab_instance)
+    stats_before = solver._solve(stab_instance)
     sample = stab_instance.get_samples()[0]
     user_cuts_encoded = sample.get_scalar("mip_user_cuts")
     assert user_cuts_encoded is not None
@@ -97,8 +97,8 @@ def test_usage(
     assert stats_before["UserCuts: Added ahead-of-time"] == 0
     assert stats_before["UserCuts: Added in callback"] > 0
 
-    solver.fit([stab_instance])
-    stats_after = solver.solve(stab_instance)
+    solver._fit([stab_instance])
+    stats_after = solver._solve(stab_instance)
     assert (
         stats_after["UserCuts: Added ahead-of-time"]
         == stats_before["UserCuts: Added in callback"]

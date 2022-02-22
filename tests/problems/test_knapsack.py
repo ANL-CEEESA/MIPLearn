@@ -36,4 +36,4 @@ def test_knapsack() -> None:
         weights=data[0].weights,
     )
     solver = LearningSolver()
-    solver.solve(instance)
+    solver._solve(instance)

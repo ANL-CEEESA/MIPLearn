@@ -5,10 +5,12 @@
 import logging
 import time
 import traceback
-from typing import Optional, List, Any, cast, Dict, Tuple
+from typing import Optional, List, Any, cast, Dict, Tuple, Callable, IO
 
+from overrides import overrides
 from p_tqdm import p_map
 
+from miplearn.features.sample import Hdf5Sample, Sample
 from miplearn.components.component import Component
 from miplearn.components.dynamic_lazy import DynamicLazyConstraintsComponent
 from miplearn.components.dynamic_user_cuts import UserCutsComponent
@@ -16,13 +18,42 @@ from miplearn.components.objective import ObjectiveValueComponent
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.features.extractor import FeaturesExtractor
 from miplearn.instance.base import Instance
-from miplearn.instance.picklegz import PickleGzInstance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
 from miplearn.types import LearningSolveStats
+import gzip
+import pickle
+from os.path import exists
 
 logger = logging.getLogger(__name__)
+
+
+class InstanceWrapper(Instance):
+    def __init__(self, data_filename: Any, build_model: Callable):
+        super().__init__()
+        assert data_filename.endswith(".pkl.gz")
+        self.filename = data_filename
+        self.sample_filename = data_filename.replace(".pkl.gz", ".h5")
+        self.sample = Hdf5Sample(
+            self.sample_filename,
+            mode="r+" if exists(self.sample_filename) else "w",
+        )
+        self.build_model = build_model
+
+    @overrides
+    def to_model(self) -> Any:
+        with gzip.GzipFile(self.filename, "rb") as file:
+            data = pickle.load(cast(IO[bytes], file))
+            return self.build_model(data)
+
+    @overrides
+    def create_sample(self) -> Sample:
+        return self.sample
+
+    @overrides
+    def get_samples(self) -> List[Sample]:
+        return [self.sample]
 
 
 class _GlobalVariables:
@@ -47,7 +78,7 @@ def _parallel_solve(
     assert solver is not None
     assert instances is not None
     try:
-        stats = solver.solve(
+        stats = solver._solve(
             instances[idx],
             discard_output=discard_outputs,
         )
@@ -86,11 +117,6 @@ class LearningSolver:
         option should be activated if the LP relaxation is not very
         expensive to solve and if it provides good hints for the integer
         solution.
-    simulate_perfect: bool
-        If true, each call to solve actually performs three actions: solve
-        the original problem, train the ML models on the data that was just
-        collected, and solve the problem again. This is useful for evaluating
-        the theoretical performance of perfect ML models.
     """
 
     def __init__(
@@ -100,7 +126,6 @@ class LearningSolver:
         solver: Optional[InternalSolver] = None,
         use_lazy_cb: bool = False,
         solve_lp: bool = True,
-        simulate_perfect: bool = False,
         extractor: Optional[FeaturesExtractor] = None,
         extract_lhs: bool = True,
         extract_sa: bool = True,
@@ -117,7 +142,6 @@ class LearningSolver:
         self.internal_solver: Optional[InternalSolver] = None
         self.internal_solver_prototype: InternalSolver = solver
         self.mode: str = mode
-        self.simulate_perfect: bool = simulate_perfect
         self.solve_lp: bool = solve_lp
         self.tee = False
         self.use_lazy_cb: bool = use_lazy_cb
@@ -139,6 +163,44 @@ class LearningSolver:
         discard_output: bool = False,
         tee: bool = False,
     ) -> LearningSolveStats:
+        """
+        Solves the given instance. If trained machine-learning models are
+        available, they will be used to accelerate the solution process.
+
+        The argument `instance` may be either an Instance object or a
+        filename pointing to a pickled Instance object.
+
+        This method adds a new training sample to `instance.training_sample`.
+        If a filename is provided, then the file is modified in-place. That is,
+        the original file is overwritten.
+
+        If `solver.solve_lp_first` is False, the properties lp_solution and
+        lp_value will be set to dummy values.
+
+        Parameters
+        ----------
+        instance: Instance
+            The instance to be solved.
+        model: Any
+            The corresponding Pyomo model. If not provided, it will be created.
+        discard_output: bool
+            If True, do not write the modified instances anywhere; simply discard
+            them. Useful during benchmarking.
+        tee: bool
+            If true, prints solver log to screen.
+
+        Returns
+        -------
+        LearningSolveStats
+            A dictionary of solver statistics containing at least the following
+            keys: "Lower bound", "Upper bound", "Wallclock time", "Nodes",
+            "Sense", "Log", "Warm start value" and "LP value".
+
+            Additional components may generate additional keys. For example,
+            ObjectiveValueComponent adds the keys "Predicted LB" and
+            "Predicted UB". See the documentation of each component for more
+            details.
+        """
 
         # Generate model
         # -------------------------------------------------------
@@ -299,65 +361,19 @@ class LearningSolver:
 
     def solve(
         self,
-        instance: Instance,
-        model: Any = None,
-        discard_output: bool = False,
-        tee: bool = False,
-    ) -> LearningSolveStats:
-        """
-        Solves the given instance. If trained machine-learning models are
-        available, they will be used to accelerate the solution process.
+        filenames: List[str],
+        build_model: Callable,
+        tee: bool = True,
+    ) -> List[LearningSolveStats]:
+        stats = []
+        for f in filenames:
+            s = self._solve(InstanceWrapper(f, build_model), tee=tee)
+            stats.append(s)
+        return stats
 
-        The argument `instance` may be either an Instance object or a
-        filename pointing to a pickled Instance object.
-
-        This method adds a new training sample to `instance.training_sample`.
-        If a filename is provided, then the file is modified in-place. That is,
-        the original file is overwritten.
-
-        If `solver.solve_lp_first` is False, the properties lp_solution and
-        lp_value will be set to dummy values.
-
-        Parameters
-        ----------
-        instance: Instance
-            The instance to be solved.
-        model: Any
-            The corresponding Pyomo model. If not provided, it will be created.
-        discard_output: bool
-            If True, do not write the modified instances anywhere; simply discard
-            them. Useful during benchmarking.
-        tee: bool
-            If true, prints solver log to screen.
-
-        Returns
-        -------
-        LearningSolveStats
-            A dictionary of solver statistics containing at least the following
-            keys: "Lower bound", "Upper bound", "Wallclock time", "Nodes",
-            "Sense", "Log", "Warm start value" and "LP value".
-
-            Additional components may generate additional keys. For example,
-            ObjectiveValueComponent adds the keys "Predicted LB" and
-            "Predicted UB". See the documentation of each component for more
-            details.
-        """
-        if self.simulate_perfect:
-            if not isinstance(instance, PickleGzInstance):
-                raise Exception("Not implemented")
-            self._solve(
-                instance=instance,
-                model=model,
-                tee=tee,
-            )
-            self.fit([instance])
-            instance.instance = None
-        return self._solve(
-            instance=instance,
-            model=model,
-            discard_output=discard_output,
-            tee=tee,
-        )
+    def fit(self, filenames: List[str], build_model: Callable) -> None:
+        instances: List[Instance] = [InstanceWrapper(f, build_model) for f in filenames]
+        self._fit(instances)
 
     def parallel_solve(
         self,
@@ -394,7 +410,7 @@ class LearningSolver:
             `[solver.solve(p) for p in instances]`
         """
         if n_jobs == 1:
-            return [self.solve(p) for p in instances]
+            return [self._solve(p) for p in instances]
         else:
             self.internal_solver = None
             self._silence_miplearn_logger()
@@ -415,7 +431,7 @@ class LearningSolver:
             self._restore_miplearn_logger()
             return stats
 
-    def fit(
+    def _fit(
         self,
         training_instances: List[Instance],
         n_jobs: int = 1,

@@ -15,7 +15,7 @@ def test_stab() -> None:
     weights = np.array([1.0, 1.0, 1.0, 1.0, 1.0])
     instance = MaxWeightStableSetInstance(graph, weights)
     solver = LearningSolver()
-    stats = solver.solve(instance)
+    stats = solver._solve(instance)
     assert stats["mip_lower_bound"] == 2.0
 
 

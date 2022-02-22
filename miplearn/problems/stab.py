@@ -131,3 +131,17 @@ class MaxWeightStableSetGenerator:
 
     def _generate_graph(self) -> Graph:
         return nx.generators.random_graphs.binomial_graph(self.n.rvs(), self.p.rvs())
+
+
+def build_stab_model(data: MaxWeightStableSetData) -> pe.ConcreteModel:
+    model = pe.ConcreteModel()
+    nodes = list(data.graph.nodes)
+    model.x = pe.Var(nodes, domain=pe.Binary)
+    model.OBJ = pe.Objective(
+        expr=sum(model.x[v] * data.weights[v] for v in nodes),
+        sense=pe.maximize,
+    )
+    model.clique_eqs = pe.ConstraintList()
+    for clique in nx.find_cliques(data.graph):
+        model.clique_eqs.add(sum(model.x[v] for v in clique) <= 1)
+    return model

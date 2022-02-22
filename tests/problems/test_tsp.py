@@ -40,7 +40,7 @@ def test_instance() -> None:
     )
     instance = TravelingSalesmanInstance(n_cities, distances)
     solver = LearningSolver()
-    solver.solve(instance)
+    solver._solve(instance)
     assert len(instance.get_samples()) == 1
     sample = instance.get_samples()[0]
     assert_equals(sample.get_array("mip_var_values"), [1.0, 0.0, 1.0, 1.0, 0.0, 1.0])
@@ -63,7 +63,7 @@ def test_subtour() -> None:
     distances = squareform(pdist(cities))
     instance = TravelingSalesmanInstance(n_cities, distances)
     solver = LearningSolver()
-    solver.solve(instance)
+    solver._solve(instance)
     samples = instance.get_samples()
     assert len(samples) == 1
     sample = samples[0]
@@ -96,5 +96,5 @@ def test_subtour() -> None:
             1.0,
         ],
     )
-    solver.fit([instance])
-    solver.solve(instance)
+    solver._fit([instance])
+    solver._solve(instance)

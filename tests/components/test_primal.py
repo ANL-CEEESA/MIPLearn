@@ -110,9 +110,9 @@ def test_usage() -> None:
     gen = TravelingSalesmanGenerator(n=randint(low=5, high=6))
     data = gen.generate(1)
     instance = TravelingSalesmanInstance(data[0].n_cities, data[0].distances)
-    solver.solve(instance)
-    solver.fit([instance])
-    stats = solver.solve(instance)
+    solver._solve(instance)
+    solver._fit([instance])
+    stats = solver._solve(instance)
     assert stats["Primal: Free"] == 0
     assert stats["Primal: One"] + stats["Primal: Zero"] == 10
     assert stats["mip_lower_bound"] == stats["mip_warm_start_value"]
