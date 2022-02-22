@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-
+from dataclasses import dataclass
 from typing import List, Dict, Optional
 
 import numpy as np
@@ -13,36 +13,11 @@ from scipy.stats.distributions import rv_frozen
 from miplearn.instance.base import Instance
 
 
-class ChallengeA:
-    """
-    - 250 variables, 10 constraints, fixed weights
-    - w ~ U(0, 1000), jitter ~ U(0.95, 1.05)
-    - K = 500, u ~ U(0., 1.)
-    - alpha = 0.25
-    """
-
-    def __init__(
-        self,
-        seed: int = 42,
-        n_training_instances: int = 500,
-        n_test_instances: int = 50,
-    ) -> None:
-        np.random.seed(seed)
-        self.gen = MultiKnapsackGenerator(
-            n=randint(low=250, high=251),
-            m=randint(low=10, high=11),
-            w=uniform(loc=0.0, scale=1000.0),
-            K=uniform(loc=500.0, scale=0.0),
-            u=uniform(loc=0.0, scale=1.0),
-            alpha=uniform(loc=0.25, scale=0.0),
-            fix_w=True,
-            w_jitter=uniform(loc=0.95, scale=0.1),
-        )
-        np.random.seed(seed + 1)
-        self.training_instances = self.gen.generate(n_training_instances)
-
-        np.random.seed(seed + 2)
-        self.test_instances = self.gen.generate(n_test_instances)
+@dataclass
+class MultiKnapsackData:
+    prices: np.ndarray
+    capacities: np.ndarray
+    weights: np.ndarray
 
 
 class MultiKnapsackInstance(Instance):
