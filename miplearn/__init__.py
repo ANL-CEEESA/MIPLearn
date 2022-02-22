@@ -19,6 +19,7 @@ from .instance.picklegz import (
     write_pickle_gz,
     read_pickle_gz,
     write_pickle_gz_multiple,
+    save,
 )
 from .log import setup_logger
 from .solvers.gurobi import GurobiSolver

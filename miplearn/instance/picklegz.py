@@ -153,3 +153,27 @@ def read_pickle_gz(filename: str) -> Any:
 def write_pickle_gz_multiple(objs: List[Any], dirname: str) -> None:
     for (i, obj) in enumerate(objs):
         write_pickle_gz(obj, f"{dirname}/{i:05d}.pkl.gz")
+
+
+def save(objs: List[Any], dirname: str) -> List[str]:
+    """
+    Saves the provided objects to gzipped pickled files. Files are named sequentially
+    as `dirname/00000.pkl.gz`, `dirname/00001.pkl.gz`, etc.
+
+    Parameters
+    ----------
+    objs: List[any]
+        List of files to save
+    dirname: str
+        Output directory
+
+    Returns
+    -------
+    List containing the relative paths of the saved files.
+    """
+    filenames = []
+    for (i, obj) in enumerate(objs):
+        filename = f"{dirname}/{i:05d}.pkl.gz"
+        filenames.append(filename)
+        write_pickle_gz(obj, filename)
+    return filenames
