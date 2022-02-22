@@ -14,17 +14,17 @@ from miplearn.solvers.tests import assert_equals
 
 
 def test_generator() -> None:
-    instances = TravelingSalesmanGenerator(
+    data = TravelingSalesmanGenerator(
         x=uniform(loc=0.0, scale=1000.0),
         y=uniform(loc=0.0, scale=1000.0),
         n=randint(low=100, high=101),
         gamma=uniform(loc=0.95, scale=0.1),
         fix_cities=True,
     ).generate(100)
-    assert len(instances) == 100
-    assert instances[0].n_cities == 100
-    assert norm(instances[0].distances - instances[0].distances.T) < 1e-6
-    d = [instance.distances[0, 1] for instance in instances]
+    assert len(data) == 100
+    assert data[0].n_cities == 100
+    assert norm(data[0].distances - data[0].distances.T) < 1e-6
+    d = [d.distances[0, 1] for d in data]
     assert np.std(d) > 0
 
 
