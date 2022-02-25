@@ -322,8 +322,14 @@ class BasePyomoSolver(InternalSolver):
 
                     # Bounds
                     lb, ub = v.bounds
-                    upper_bounds.append(float(ub))
-                    lower_bounds.append(float(lb))
+                    if ub is not None:
+                        upper_bounds.append(float(ub))
+                    else:
+                        upper_bounds.append(float("inf"))
+                    if lb is not None:
+                        lower_bounds.append(float(lb))
+                    else:
+                        lower_bounds.append(-float("inf"))
 
                     # Objective coefficient
                     if v.name in self._obj:
@@ -391,7 +397,9 @@ class BasePyomoSolver(InternalSolver):
     ) -> None:
         if model is None:
             model = instance.to_model()
-        assert isinstance(model, pe.ConcreteModel)
+        assert isinstance(
+            model, pe.ConcreteModel
+        ), f"expected pe.ConcreteModel; found {model.__class__} instead"
         self.instance = instance
         self.model = model
         self.model.extra_constraints = ConstraintList()
