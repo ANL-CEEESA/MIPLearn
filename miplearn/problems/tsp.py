@@ -1,7 +1,9 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from typing import List, Tuple, FrozenSet, Any, Optional, Dict
+
+from dataclasses import dataclass
+from typing import List, Tuple, Any, Optional, Dict
 
 import networkx as nx
 import numpy as np
@@ -15,6 +17,12 @@ from miplearn.instance.base import Instance
 from miplearn.solvers.learning import InternalSolver
 from miplearn.solvers.pyomo.base import BasePyomoSolver
 from miplearn.types import ConstraintName
+
+
+@dataclass
+class TravelingSalesmanData:
+    n_cities: int
+    distances: np.ndarray
 
 
 class TravelingSalesmanInstance(Instance):
@@ -62,14 +70,15 @@ class TravelingSalesmanInstance(Instance):
         self,
         solver: InternalSolver,
         model: Any,
-    ) -> List[ConstraintName]:
+    ) -> Dict[ConstraintName, List]:
         selected_edges = [e for e in self.edges if model.x[e].value > 0.5]
         graph = nx.Graph()
         graph.add_edges_from(selected_edges)
-        violations = []
+        violations = {}
         for c in list(nx.connected_components(graph)):
             if len(c) < self.n_cities:
-                violations.append(",".join(map(str, c)).encode())
+                cname = ("st[" + ",".join(map(str, c)) + "]").encode()
+                violations[cname] = list(c)
         return violations
 
     @overrides
@@ -77,10 +86,9 @@ class TravelingSalesmanInstance(Instance):
         self,
         solver: InternalSolver,
         model: Any,
-        violation: ConstraintName,
+        component: List,
     ) -> None:
         assert isinstance(solver, BasePyomoSolver)
-        component = [int(v) for v in violation.decode().split(",")]
         cut_edges = [
             e
             for e in self.edges
@@ -156,8 +164,8 @@ class TravelingSalesmanGenerator:
             self.fixed_n = None
             self.fixed_cities = None
 
-    def generate(self, n_samples: int) -> List[TravelingSalesmanInstance]:
-        def _sample() -> TravelingSalesmanInstance:
+    def generate(self, n_samples: int) -> List[TravelingSalesmanData]:
+        def _sample() -> TravelingSalesmanData:
             if self.fixed_cities is not None:
                 assert self.fixed_n is not None
                 n, cities = self.fixed_n, self.fixed_cities
@@ -167,7 +175,7 @@ class TravelingSalesmanGenerator:
             distances = np.tril(distances) + np.triu(distances.T, 1)
             if self.round:
                 distances = distances.round()
-            return TravelingSalesmanInstance(n, distances)
+            return TravelingSalesmanData(n, distances)
 
         return [_sample() for _ in range(n_samples)]
 

@@ -1,10 +1,11 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-
+import json
 import logging
-from typing import Any, FrozenSet, List
+from typing import Any, List, Dict
 
+import gurobipy
 import gurobipy as gp
 import networkx as nx
 import pytest
@@ -12,12 +13,11 @@ from gurobipy import GRB
 from networkx import Graph
 from overrides import overrides
 
-from miplearn.solvers.learning import InternalSolver
 from miplearn.components.dynamic_user_cuts import UserCutsComponent
 from miplearn.instance.base import Instance
 from miplearn.solvers.gurobi import GurobiSolver
 from miplearn.solvers.learning import LearningSolver
-from miplearn.types import ConstraintName, ConstraintCategory
+from miplearn.types import ConstraintName
 
 logger = logging.getLogger(__name__)
 
@@ -41,25 +41,32 @@ class GurobiStableSetProblem(Instance):
         return True
 
     @overrides
-    def find_violated_user_cuts(self, model: Any) -> List[ConstraintName]:
+    def find_violated_user_cuts(self, model: Any) -> Dict[ConstraintName, Any]:
         assert isinstance(model, gp.Model)
-        vals = model.cbGetNodeRel(model.getVars())
-        violations = []
+        try:
+            vals = model.cbGetNodeRel(model.getVars())
+        except gurobipy.GurobiError:
+            return {}
+        violations = {}
         for clique in nx.find_cliques(self.graph):
             if sum(vals[i] for i in clique) > 1:
-                violations.append(",".join([str(i) for i in clique]).encode())
+                vname = (",".join([str(i) for i in clique])).encode()
+                violations[vname] = list(clique)
         return violations
 
     @overrides
     def enforce_user_cut(
         self,
-        solver: InternalSolver,
+        solver: GurobiSolver,
         model: Any,
-        cid: ConstraintName,
+        clique: List[int],
     ) -> Any:
-        clique = [int(i) for i in cid.decode().split(",")]
         x = model.getVars()
-        model.addConstr(gp.quicksum([x[i] for i in clique]) <= 1)
+        constr = gp.quicksum([x[i] for i in clique]) <= 1
+        if solver.cb_where:
+            model.cbCut(constr)
+        else:
+            model.addConstr(constr)
 
 
 @pytest.fixture
@@ -71,7 +78,7 @@ def stab_instance() -> Instance:
 @pytest.fixture
 def solver() -> LearningSolver:
     return LearningSolver(
-        solver=GurobiSolver(),
+        solver=GurobiSolver(params={"Threads": 1}),
         components=[UserCutsComponent()],
     )
 
@@ -80,16 +87,18 @@ def test_usage(
     stab_instance: Instance,
     solver: LearningSolver,
 ) -> None:
-    stats_before = solver.solve(stab_instance)
+    stats_before = solver._solve(stab_instance)
     sample = stab_instance.get_samples()[0]
-    user_cuts_enforced = sample.get_array("mip_user_cuts_enforced")
-    assert user_cuts_enforced is not None
-    assert len(user_cuts_enforced) > 0
+    user_cuts_encoded = sample.get_scalar("mip_user_cuts")
+    assert user_cuts_encoded is not None
+    user_cuts = json.loads(user_cuts_encoded)
+    assert user_cuts is not None
+    assert len(user_cuts) > 0
     assert stats_before["UserCuts: Added ahead-of-time"] == 0
     assert stats_before["UserCuts: Added in callback"] > 0
 
-    solver.fit([stab_instance])
-    stats_after = solver.solve(stab_instance)
+    solver._fit([stab_instance])
+    stats_after = solver._solve(stab_instance)
     assert (
         stats_after["UserCuts: Added ahead-of-time"]
         == stats_before["UserCuts: Added in callback"]

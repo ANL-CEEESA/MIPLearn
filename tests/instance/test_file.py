@@ -22,7 +22,7 @@ def test_usage() -> None:
 
     # Solve instance from disk
     solver = LearningSolver(solver=GurobiSolver())
-    solver.solve(FileInstance(filename))
+    solver._solve(FileInstance(filename))
 
     # Assert HDF5 contains training data
     sample = FileInstance(filename).get_samples()[0]

@@ -16,4 +16,4 @@ html_theme_options = {
     "extra_navbar": "",
 }
 html_title = f"MIPLearn {release}"
-nbsphinx_execute = 'never'
+nbsphinx_execute = "never"

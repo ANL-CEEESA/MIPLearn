@@ -4,7 +4,7 @@
 
 import logging
 import os
-from typing import Dict, List
+from typing import Dict, List, Any, Optional
 
 import pandas as pd
 
@@ -136,7 +136,7 @@ def run_benchmarks(
     n_jobs: int = 4,
     n_trials: int = 1,
     progress: bool = False,
-    solver=None,
+    solver: Any = None,
 ) -> None:
     if solver is None:
         solver = GurobiPyomoSolver()
@@ -175,7 +175,7 @@ def run_benchmarks(
 
 def plot(
     results: pd.DataFrame,
-    output: str = None,
+    output: Optional[str] = None,
 ) -> None:
     import matplotlib.pyplot as plt
     import pandas as pd

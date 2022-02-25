@@ -6,14 +6,14 @@ import gc
 import gzip
 import os
 import pickle
-from typing import Optional, Any, List, cast, IO, TYPE_CHECKING, Dict
+from typing import Optional, Any, List, cast, IO, TYPE_CHECKING, Dict, Callable
 
 import numpy as np
 from overrides import overrides
 
 from miplearn.features.sample import Sample
 from miplearn.instance.base import Instance
-from miplearn.types import ConstraintName, ConstraintCategory
+from miplearn.types import ConstraintName
 
 if TYPE_CHECKING:
     from miplearn.solvers.learning import InternalSolver
@@ -83,7 +83,7 @@ class PickleGzInstance(Instance):
         self,
         solver: "InternalSolver",
         model: Any,
-    ) -> List[ConstraintName]:
+    ) -> Dict[ConstraintName, Any]:
         assert self.instance is not None
         return self.instance.find_violated_lazy_constraints(solver, model)
 
@@ -92,13 +92,13 @@ class PickleGzInstance(Instance):
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: ConstraintName,
+        violation_data: Any,
     ) -> None:
         assert self.instance is not None
-        self.instance.enforce_lazy_constraint(solver, model, violation)
+        self.instance.enforce_lazy_constraint(solver, model, violation_data)
 
     @overrides
-    def find_violated_user_cuts(self, model: Any) -> List[ConstraintName]:
+    def find_violated_user_cuts(self, model: Any) -> Dict[ConstraintName, Any]:
         assert self.instance is not None
         return self.instance.find_violated_user_cuts(model)
 
@@ -107,10 +107,10 @@ class PickleGzInstance(Instance):
         self,
         solver: "InternalSolver",
         model: Any,
-        violation: ConstraintName,
+        violation_name: Any,
     ) -> None:
         assert self.instance is not None
-        self.instance.enforce_user_cut(solver, model, violation)
+        self.instance.enforce_user_cut(solver, model, violation_name)
 
     @overrides
     def load(self) -> None:
@@ -153,3 +153,33 @@ def read_pickle_gz(filename: str) -> Any:
 def write_pickle_gz_multiple(objs: List[Any], dirname: str) -> None:
     for (i, obj) in enumerate(objs):
         write_pickle_gz(obj, f"{dirname}/{i:05d}.pkl.gz")
+
+
+def save(objs: List[Any], dirname: str) -> List[str]:
+    """
+    Saves the provided objects to gzipped pickled files. Files are named sequentially
+    as `dirname/00000.pkl.gz`, `dirname/00001.pkl.gz`, etc.
+
+    Parameters
+    ----------
+    objs: List[any]
+        List of files to save
+    dirname: str
+        Output directory
+
+    Returns
+    -------
+    List containing the relative paths of the saved files.
+    """
+    filenames = []
+    for (i, obj) in enumerate(objs):
+        filename = f"{dirname}/{i:05d}.pkl.gz"
+        filenames.append(filename)
+        write_pickle_gz(obj, filename)
+    return filenames
+
+
+def load(filename: str, build_model: Callable) -> Any:
+    with gzip.GzipFile(filename, "rb") as file:
+        data = pickle.load(cast(IO[bytes], file))
+        return build_model(data)

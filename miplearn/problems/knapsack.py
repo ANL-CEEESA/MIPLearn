@@ -2,6 +2,7 @@
 #  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+from dataclasses import dataclass
 from typing import List, Dict, Optional
 
 import numpy as np
@@ -11,6 +12,13 @@ from scipy.stats import uniform, randint, rv_discrete
 from scipy.stats.distributions import rv_frozen
 
 from miplearn.instance.base import Instance
+
+
+@dataclass
+class MultiKnapsackData:
+    prices: np.ndarray
+    capacities: np.ndarray
+    weights: np.ndarray
 
 
 class MultiKnapsackInstance(Instance):

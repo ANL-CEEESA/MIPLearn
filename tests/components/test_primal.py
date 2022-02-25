@@ -13,7 +13,7 @@ from miplearn.classifiers.threshold import Threshold
 from miplearn.components import classifier_evaluation_dict
 from miplearn.components.primal import PrimalSolutionComponent
 from miplearn.features.sample import Sample, MemorySample
-from miplearn.problems.tsp import TravelingSalesmanGenerator
+from miplearn.problems.tsp import TravelingSalesmanGenerator, TravelingSalesmanInstance
 from miplearn.solvers.learning import LearningSolver
 from miplearn.solvers.tests import assert_equals
 
@@ -108,10 +108,11 @@ def test_usage() -> None:
         ]
     )
     gen = TravelingSalesmanGenerator(n=randint(low=5, high=6))
-    instance = gen.generate(1)[0]
-    solver.solve(instance)
-    solver.fit([instance])
-    stats = solver.solve(instance)
+    data = gen.generate(1)
+    instance = TravelingSalesmanInstance(data[0].n_cities, data[0].distances)
+    solver._solve(instance)
+    solver._fit([instance])
+    stats = solver._solve(instance)
     assert stats["Primal: Free"] == 0
     assert stats["Primal: One"] + stats["Primal: Zero"] == 10
     assert stats["mip_lower_bound"] == stats["mip_warm_start_value"]

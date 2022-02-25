@@ -7,7 +7,10 @@ import os.path
 from scipy.stats import randint
 
 from miplearn.benchmark import BenchmarkRunner
-from miplearn.problems.stab import MaxWeightStableSetGenerator
+from miplearn.problems.stab import (
+    MaxWeightStableSetInstance,
+    MaxWeightStableSetGenerator,
+)
 from miplearn.solvers.learning import LearningSolver
 
 
@@ -15,8 +18,14 @@ def test_benchmark() -> None:
     for n_jobs in [1, 4]:
         # Generate training and test instances
         generator = MaxWeightStableSetGenerator(n=randint(low=25, high=26))
-        train_instances = generator.generate(5)
-        test_instances = generator.generate(3)
+        train_instances = [
+            MaxWeightStableSetInstance(data.graph, data.weights)
+            for data in generator.generate(5)
+        ]
+        test_instances = [
+            MaxWeightStableSetInstance(data.graph, data.weights)
+            for data in generator.generate(3)
+        ]
 
         # Solve training instances
         training_solver = LearningSolver()
