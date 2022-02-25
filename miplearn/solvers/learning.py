@@ -379,11 +379,12 @@ class LearningSolver:
         arg: Union[Any, List[str]],
         build_model: Optional[Callable] = None,
         tee: bool = False,
+        progress: bool = False,
     ) -> Union[LearningSolveStats, List[LearningSolveStats]]:
         if isinstance(arg, list):
             assert build_model is not None
             stats = []
-            for i in arg:
+            for i in tqdm(arg, disable=not progress):
                 s = self._solve(FileInstanceWrapper(i, build_model), tee=tee)
                 stats.append(s)
             return stats
