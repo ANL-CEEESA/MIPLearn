@@ -28,7 +28,6 @@ class CplexPyomoSolver(BasePyomoSolver):
     ) -> None:
         if params is None:
             params = {}
-        params["randomseed"] = randint(low=0, high=1000).rvs()
         if "mip_display" not in params.keys():
             params["mip_display"] = 4
         super().__init__(

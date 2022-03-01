@@ -32,7 +32,6 @@ class XpressPyomoSolver(BasePyomoSolver):
     ) -> None:
         if params is None:
             params = {}
-        params["randomseed"] = randint(low=0, high=1000).rvs()
         super().__init__(
             solver_factory=pe.SolverFactory("xpress_persistent"),
             params=params,

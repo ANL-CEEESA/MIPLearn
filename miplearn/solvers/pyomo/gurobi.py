@@ -32,7 +32,6 @@ class GurobiPyomoSolver(BasePyomoSolver):
     ) -> None:
         if params is None:
             params = {}
-        params["seed"] = randint(low=0, high=1000).rvs()
         super().__init__(
             solver_factory=pe.SolverFactory("gurobi_persistent"),
             params=params,

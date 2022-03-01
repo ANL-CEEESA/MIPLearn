@@ -10,13 +10,25 @@ Unlike conventional MIP solvers, MIPLearn can take full advantage of very specif
 ```{toctree}
 ---
 maxdepth: 1
-caption: Julia Tutorials
+caption: JuMP Tutorials
 numbered: true
 ---
 jump-tutorials/getting-started.ipynb
 #jump-tutorials/lazy-constraints.ipynb
 #jump-tutorials/user-cuts.ipynb
 #jump-tutorials/customizing-ml.ipynb
+```
+
+```{toctree}
+---
+maxdepth: 1
+caption: Pyomo Tutorials
+numbered: true
+---
+pyomo-tutorials/getting-started.ipynb
+#pyomo-tutorials/lazy-constraints.ipynb
+#pyomo-tutorials/user-cuts.ipynb
+#pyomo-tutorials/customizing-ml.ipynb
 ```
 
 ```{toctree}
