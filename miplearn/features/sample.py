@@ -224,3 +224,9 @@ class Hdf5Sample(Sample):
             value, (bytes, bytearray)
         ), f"bytes expected; found: {value.__class__}"  # type: ignore
         self.put_array(key, np.frombuffer(value, dtype="uint8"))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.file.close()

@@ -22,34 +22,57 @@ from miplearn.instance.base import Instance
 from miplearn.solvers import _RedirectOutput
 from miplearn.solvers.internal import InternalSolver
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
-from miplearn.types import LearningSolveStats
+from miplearn.types import LearningSolveStats, ConstraintName
 import gzip
 import pickle
 import miplearn
+import json
 from os.path import exists
+from os import remove
+import pyomo.environ as pe
+
 
 logger = logging.getLogger(__name__)
 
 
+class PyomoFindLazyCutCallbackHandler:
+    def __init__(self):
+        pass
+
+    def value(self, var):
+        return var.value
+
+
+class PyomoEnforceLazyCutsCallbackHandler:
+    def __init__(self, opt, model):
+        self.model = model
+        self.opt = opt
+        if not hasattr(model, "miplearn_lazy_cb"):
+            model.miplearn_lazy_cb = pe.ConstraintList()
+
+    def enforce(self, expr):
+        constr = self.model.miplearn_lazy_cb.add(expr=expr)
+        self.opt.add_constraint(constr)
+
+
 class FileInstanceWrapper(Instance):
     def __init__(
-        self,
-        data_filename: Any,
-        build_model: Callable,
+        self, data_filename: Any, build_model: Callable, mode: Optional[str] = None
     ):
         super().__init__()
         assert data_filename.endswith(".pkl.gz")
         self.filename = data_filename
         self.sample_filename = data_filename.replace(".pkl.gz", ".h5")
-        self.sample = Hdf5Sample(
-            self.sample_filename,
-            mode="r+" if exists(self.sample_filename) else "w",
-        )
         self.build_model = build_model
+        self.mode = mode
+        self.sample = None
+        self.model = None
 
     @overrides
     def to_model(self) -> Any:
-        return miplearn.load(self.filename, self.build_model)
+        if self.model is None:
+            self.model = miplearn.load(self.filename, self.build_model)
+        return self.model
 
     @overrides
     def create_sample(self) -> Sample:
@@ -58,6 +81,44 @@ class FileInstanceWrapper(Instance):
     @overrides
     def get_samples(self) -> List[Sample]:
         return [self.sample]
+
+    @overrides
+    def free(self) -> None:
+        self.sample.file.close()
+
+    @overrides
+    def load(self) -> None:
+        if self.mode is None:
+            self.mode = "r+" if exists(self.sample_filename) else "w"
+        self.sample = Hdf5Sample(self.sample_filename, mode=self.mode)
+
+    @overrides
+    def has_dynamic_lazy_constraints(self) -> bool:
+        assert hasattr(self, "model")
+        return hasattr(self.model, "_miplearn_find_lazy_cuts")
+
+    @overrides
+    def find_violated_lazy_constraints(
+        self,
+        solver: "InternalSolver",
+        model: Any,
+    ) -> Dict[ConstraintName, Any]:
+        if not hasattr(self.model, "_miplearn_find_lazy_cuts"):
+            return {}
+        cb = PyomoFindLazyCutCallbackHandler()
+        violations = model._miplearn_find_lazy_cuts(cb)
+        return {json.dumps(v).encode(): v for v in violations}
+
+    @overrides
+    def enforce_lazy_constraint(
+        self,
+        solver: "InternalSolver",
+        model: Any,
+        violation: Any,
+    ) -> None:
+        assert isinstance(solver, GurobiPyomoSolver)
+        cb = PyomoEnforceLazyCutsCallbackHandler(solver._pyomo_solver, model)
+        model._miplearn_enforce_lazy_cuts(cb, violation)
 
 
 class MemoryInstanceWrapper(Instance):
@@ -70,12 +131,39 @@ class MemoryInstanceWrapper(Instance):
     def to_model(self) -> Any:
         return self.model
 
+    @overrides
+    def has_dynamic_lazy_constraints(self) -> bool:
+        assert hasattr(self, "model")
+        return hasattr(self.model, "_miplearn_find_lazy_cuts")
+
+    @overrides
+    def find_violated_lazy_constraints(
+        self,
+        solver: "InternalSolver",
+        model: Any,
+    ) -> Dict[ConstraintName, Any]:
+        cb = PyomoFindLazyCutCallbackHandler()
+        violations = model._miplearn_find_lazy_cuts(cb)
+        return {json.dumps(v).encode(): v for v in violations}
+
+    @overrides
+    def enforce_lazy_constraint(
+        self,
+        solver: "InternalSolver",
+        model: Any,
+        violation: Any,
+    ) -> None:
+        assert isinstance(solver, GurobiPyomoSolver)
+        cb = PyomoEnforceLazyCutsCallbackHandler(solver._pyomo_solver, model)
+        model._miplearn_enforce_lazy_cuts(cb, violation)
+
 
 class _GlobalVariables:
     def __init__(self) -> None:
         self.solver: Optional[LearningSolver] = None
-        self.instances: Optional[List[Instance]] = None
-        self.discard_outputs: bool = False
+        self.build_model: Optional[Callable] = None
+        self.filenames: Optional[List[str]] = None
+        self.skip = False
 
 
 # Global variables used for multiprocessing. Global variables are copied by the
@@ -86,23 +174,19 @@ _GLOBAL = [_GlobalVariables()]
 
 def _parallel_solve(
     idx: int,
-) -> Tuple[Optional[int], Optional[LearningSolveStats], Optional[Instance]]:
+) -> Tuple[Optional[int], Optional[LearningSolveStats]]:
     solver = _GLOBAL[0].solver
-    instances = _GLOBAL[0].instances
-    discard_outputs = _GLOBAL[0].discard_outputs
+    filenames = _GLOBAL[0].filenames
+    build_model = _GLOBAL[0].build_model
+    skip = _GLOBAL[0].skip
     assert solver is not None
-    assert instances is not None
     try:
-        stats = solver._solve(
-            instances[idx],
-            discard_output=discard_outputs,
-        )
-        instances[idx].free()
-        return idx, stats, instances[idx]
+        stats = solver.solve([filenames[idx]], build_model, skip=skip)
+        return idx, stats[0]
     except Exception as e:
         traceback.print_exc()
-        logger.exception(f"Exception while solving {instances[idx]}. Ignoring.")
-        return None, None, None
+        logger.exception(f"Exception while solving {filenames[idx]}. Ignoring.")
+        return idx, None
 
 
 class LearningSolver:
@@ -380,87 +464,86 @@ class LearningSolver:
         build_model: Optional[Callable] = None,
         tee: bool = False,
         progress: bool = False,
+        skip: bool = False,
     ) -> Union[LearningSolveStats, List[LearningSolveStats]]:
         if isinstance(arg, list):
             assert build_model is not None
             stats = []
             for i in tqdm(arg, disable=not progress):
-                s = self._solve(FileInstanceWrapper(i, build_model), tee=tee)
-                stats.append(s)
+                instance = FileInstanceWrapper(i, build_model)
+                solved = False
+                if exists(instance.sample_filename):
+                    try:
+                        with Hdf5Sample(instance.sample_filename, mode="r") as sample:
+                            if sample.get_scalar("mip_lower_bound"):
+                                solved = True
+                    except OSError:
+                        # File exists but it is unreadable/corrupted. Delete it.
+                        remove(instance.sample_filename)
+                if solved and skip:
+                    stats.append({})
+                else:
+                    s = self._solve(instance, tee=tee)
+
+                    # Export to gzipped MPS file
+                    mps_filename = instance.sample_filename.replace(".h5", ".mps")
+                    instance.model.write(
+                        filename=mps_filename,
+                        io_options={
+                            "labeler": pe.NameLabeler(),
+                            "skip_objective_sense": True,
+                        },
+                    )
+                    with open(mps_filename, "rb") as original:
+                        with gzip.open(f"{mps_filename}.gz", "wb") as compressed:
+                            compressed.writelines(original)
+                    remove(mps_filename)
+
+                    stats.append(s)
             return stats
         else:
             return self._solve(MemoryInstanceWrapper(arg), tee=tee)
 
-    def fit(self, filenames: List[str], build_model: Callable) -> None:
+    def fit(
+        self,
+        filenames: List[str],
+        build_model: Callable,
+        progress: bool = False,
+        n_jobs: int = 1,
+    ) -> None:
         instances: List[Instance] = [
-            FileInstanceWrapper(f, build_model) for f in filenames
+            FileInstanceWrapper(f, build_model, mode="r") for f in filenames
         ]
-        self._fit(instances)
+        self._fit(instances, progress=progress, n_jobs=n_jobs)
 
     def parallel_solve(
         self,
-        instances: List[Instance],
+        filenames: List[str],
+        build_model: Optional[Callable] = None,
         n_jobs: int = 4,
-        label: str = "solve",
-        discard_outputs: bool = False,
         progress: bool = False,
+        label: str = "solve",
+        skip: bool = False,
     ) -> List[LearningSolveStats]:
-        """
-        Solves multiple instances in parallel.
-
-        This method is equivalent to calling `solve` for each item on the list,
-        but it processes multiple instances at the same time. Like `solve`, this
-        method modifies each instance in place. Also like `solve`, a list of
-        filenames may be provided.
-
-        Parameters
-        ----------
-        discard_outputs: bool
-            If True, do not write the modified instances anywhere; simply discard
-            them instead. Useful during benchmarking.
-        label: str
-            Label to show in the progress bar.
-        instances: List[Instance]
-            The instances to be solved.
-        n_jobs: int
-            Number of instances to solve in parallel at a time.
-
-        Returns
-        -------
-        List[LearningSolveStats]
-            List of solver statistics, with one entry for each provided instance.
-            The list is the same you would obtain by calling
-            `[solver.solve(p) for p in instances]`
-        """
-        if n_jobs == 1:
-            return [
-                self._solve(p)
-                for p in tqdm(
-                    instances,
-                    disable=not progress,
-                    desc=label,
-                )
-            ]
-        else:
-            self.internal_solver = None
-            self._silence_miplearn_logger()
-            _GLOBAL[0].solver = self
-            _GLOBAL[0].instances = instances
-            _GLOBAL[0].discard_outputs = discard_outputs
-            results = p_umap(
-                _parallel_solve,
-                list(range(len(instances))),
-                num_cpus=n_jobs,
-                desc=label,
-                disable=not progress,
-            )
-            results = [r for r in results if r[1]]
-            stats: List[LearningSolveStats] = [{} for _ in range(len(results))]
-            for (idx, s, instance) in results:
+        self.internal_solver = None
+        self._silence_miplearn_logger()
+        _GLOBAL[0].solver = self
+        _GLOBAL[0].build_model = build_model
+        _GLOBAL[0].filenames = filenames
+        _GLOBAL[0].skip = skip
+        results = p_umap(
+            _parallel_solve,
+            list(range(len(filenames))),
+            num_cpus=n_jobs,
+            disable=not progress,
+            desc=label,
+        )
+        stats: List[LearningSolveStats] = [{} for _ in range(len(filenames))]
+        for (idx, s) in results:
+            if s:
                 stats[idx] = s
-                instances[idx] = instance
-            self._restore_miplearn_logger()
-            return stats
+        self._restore_miplearn_logger()
+        return stats
 
     def _fit(
         self,

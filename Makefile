@@ -2,7 +2,7 @@ PYTHON      := python3
 PYTEST      := pytest
 PIP         := $(PYTHON) -m pip
 MYPY        := $(PYTHON) -m mypy
-PYTEST_ARGS := -W ignore::DeprecationWarning -vv --log-level=DEBUG
+PYTEST_ARGS := -W ignore::DeprecationWarning -vv --log-level=DEBUG tests
 VERSION     := 0.2
 
 all: docs test
@@ -41,9 +41,9 @@ reformat:
 	$(PYTHON) -m black .
 
 test:
-	rm -rf .mypy_cache
-	$(MYPY) -p miplearn
-	$(MYPY) -p tests
+	# rm -rf .mypy_cache
+	# $(MYPY) -p miplearn
+	# $(MYPY) -p tests
 	$(PYTEST) $(PYTEST_ARGS) 
 
 .PHONY: test test-watch docs install dist

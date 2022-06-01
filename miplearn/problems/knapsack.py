@@ -57,8 +57,8 @@ class MultiKnapsackInstance(Instance):
         model = pe.ConcreteModel()
         model.x = pe.Var(range(self.n), domain=pe.Binary)
         model.OBJ = pe.Objective(
-            expr=sum(model.x[j] * self.prices[j] for j in range(self.n)),
-            sense=pe.maximize,
+            expr=sum(-model.x[j] * self.prices[j] for j in range(self.n)),
+            sense=pe.minimize,
         )
         model.eq_capacity = pe.ConstraintList()
         for i in range(self.m):
@@ -82,6 +82,7 @@ class MultiKnapsackGenerator:
         alpha: rv_frozen = uniform(loc=0.25, scale=0.0),
         fix_w: bool = False,
         w_jitter: rv_frozen = uniform(loc=1.0, scale=0.0),
+        p_jitter: rv_frozen = uniform(loc=1.0, scale=0.0),
         round: bool = True,
     ):
         """Initialize the problem generator.
@@ -165,6 +166,7 @@ class MultiKnapsackGenerator:
         self.K = K
         self.alpha = alpha
         self.w_jitter = w_jitter
+        self.p_jitter = p_jitter
         self.round = round
         self.fix_n: Optional[int] = None
         self.fix_m: Optional[int] = None
@@ -179,8 +181,8 @@ class MultiKnapsackGenerator:
             self.fix_u = self.u.rvs(self.fix_n)
             self.fix_K = self.K.rvs()
 
-    def generate(self, n_samples: int) -> List[MultiKnapsackInstance]:
-        def _sample() -> MultiKnapsackInstance:
+    def generate(self, n_samples: int) -> List[MultiKnapsackData]:
+        def _sample() -> MultiKnapsackData:
             if self.fix_w is not None:
                 assert self.fix_m is not None
                 assert self.fix_n is not None
@@ -199,12 +201,30 @@ class MultiKnapsackGenerator:
                 K = self.K.rvs()
             w = w * np.array([self.w_jitter.rvs(n) for _ in range(m)])
             alpha = self.alpha.rvs(m)
-            p = np.array([w[:, j].sum() / m + K * u[j] for j in range(n)])
+            p = np.array(
+                [w[:, j].sum() / m + K * u[j] for j in range(n)]
+            ) * self.p_jitter.rvs(n)
             b = np.array([w[i, :].sum() * alpha[i] for i in range(m)])
             if self.round:
                 p = p.round()
                 b = b.round()
                 w = w.round()
-            return MultiKnapsackInstance(p, b, w)
+            return MultiKnapsackData(p, b, w)
 
         return [_sample() for _ in range(n_samples)]
+
+
+def build_multiknapsack_model(data: MultiKnapsackData) -> pe.ConcreteModel:
+    model = pe.ConcreteModel()
+    m, n = data.weights.shape
+    model.x = pe.Var(range(n), domain=pe.Binary)
+    model.OBJ = pe.Objective(
+        expr=sum(-model.x[j] * data.prices[j] for j in range(n)),
+        sense=pe.minimize,
+    )
+    model.eq_capacity = pe.ConstraintList()
+    for i in range(m):
+        model.eq_capacity.add(
+            sum(model.x[j] * data.weights[i, j] for j in range(n)) <= data.capacities[i]
+        )
+    return model

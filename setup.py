@@ -20,7 +20,7 @@ setup(
     python_requires=">=3.7",
     install_requires=[
         "decorator>=4,<5",
-        "h5py>=3,<4",
+        "h5py==3.5.0",
         "matplotlib>=3,<4",
         "mypy==0.790",
         "networkx>=2,<3",

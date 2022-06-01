@@ -52,3 +52,10 @@ class GurobiPyomoSolver(BasePyomoSolver):
     @overrides
     def _get_node_count_regexp(self) -> Optional[str]:
         return None
+
+    def set_priorities(self, priorities):
+        for (var_name, priority) in priorities.items():
+            pvar = self._varname_to_var[var_name]
+            gvar = self._pyomo_solver._pyomo_var_to_solver_var_map[pvar]
+            gvar.branchPriority = priority
+        return None

@@ -60,6 +60,7 @@ class BasePyomoSolver(InternalSolver):
         self._obj_sense: str = "min"
         self._varname_to_var: Dict[bytes, pe.Var] = {}
         self._varname_to_idx: Dict[str, int] = {}
+        self._name_buffer = {}
         self._cname_to_constr: Dict[str, pe.Constraint] = {}
         self._termination_condition: str = ""
         self._has_lp_solution = False
@@ -203,12 +204,12 @@ class BasePyomoSolver(InternalSolver):
                             if isinstance(term, MonomialTermExpression):
                                 lhs_row.append(row)
                                 lhs_col.append(
-                                    self._varname_to_idx[term._args_[1].name]
+                                    self._varname_to_idx[self.name(term._args_[1])]
                                 )
                                 lhs_data.append(float(term._args_[0]))
                             elif isinstance(term, _GeneralVarData):
                                 lhs_row.append(row)
-                                lhs_col.append(self._varname_to_idx[term.name])
+                                lhs_col.append(self._varname_to_idx[self.name(term)])
                                 lhs_data.append(1.0)
                             else:
                                 raise Exception(
@@ -216,7 +217,7 @@ class BasePyomoSolver(InternalSolver):
                                 )
                     elif isinstance(expr, _GeneralVarData):
                         lhs_row.append(row)
-                        lhs_col.append(self._varname_to_idx[expr.name])
+                        lhs_col.append(self._varname_to_idx[self.name(expr)])
                         lhs_data.append(1.0)
                     else:
                         raise Exception(
@@ -235,11 +236,11 @@ class BasePyomoSolver(InternalSolver):
         for (i, constr) in enumerate(model.component_objects(pyomo.core.Constraint)):
             if isinstance(constr, pe.ConstraintList):
                 for idx in constr:
-                    names.append(constr[idx].name)
+                    names.append(self.name(constr[idx]))
                     _parse_constraint(constr[idx], curr_row)
                     curr_row += 1
             else:
-                names.append(constr.name)
+                names.append(self.name(constr))
                 _parse_constraint(constr, curr_row)
                 curr_row += 1
 
@@ -276,7 +277,7 @@ class BasePyomoSolver(InternalSolver):
             for index in var:
                 if var[index].fixed:
                     continue
-                solution[var[index].name.encode()] = var[index].value
+                solution[self.name(var[index]).encode()] = var[index].value
         return solution
 
     @overrides
@@ -301,9 +302,9 @@ class BasePyomoSolver(InternalSolver):
 
                 # Variable name
                 if idx is None:
-                    names.append(var.name)
+                    names.append(self.name(var))
                 else:
-                    names.append(var[idx].name)
+                    names.append(self.name(var[idx]))
 
                 if with_static:
                     # Variable type
@@ -332,8 +333,9 @@ class BasePyomoSolver(InternalSolver):
                         lower_bounds.append(-float("inf"))
 
                     # Objective coefficient
-                    if v.name in self._obj:
-                        obj_coeffs.append(self._obj[v.name])
+                    name = self.name(v)
+                    if name in self._obj:
+                        obj_coeffs.append(self._obj[name])
                     else:
                         obj_coeffs.append(0.0)
 
@@ -544,13 +546,13 @@ class BasePyomoSolver(InternalSolver):
         if isinstance(expr, SumExpression):
             for term in expr._args_:
                 if isinstance(term, MonomialTermExpression):
-                    lhs[term._args_[1].name] = float(term._args_[0])
+                    lhs[self.name(term._args_[1])] = float(term._args_[0])
                 elif isinstance(term, _GeneralVarData):
-                    lhs[term.name] = 1.0
+                    lhs[self.name(term)] = 1.0
                 else:
                     raise Exception(f"Unknown term type: {term.__class__.__name__}")
         elif isinstance(expr, _GeneralVarData):
-            lhs[expr.name] = 1.0
+            lhs[self.name(expr)] = 1.0
         else:
             raise Exception(f"Unknown expression type: {expr.__class__.__name__}")
         return lhs
@@ -581,9 +583,9 @@ class BasePyomoSolver(InternalSolver):
         self._varname_to_idx = {}
         for var in self.model.component_objects(Var):
             for idx in var:
-                varname = var.name
+                varname = self.name(var)
                 if idx is not None:
-                    varname = var[idx].name
+                    varname = self.name(var[idx])
                 self._varname_to_var[varname.encode()] = var[idx]
                 self._varname_to_idx[varname] = len(self._all_vars)
                 self._all_vars += [var[idx]]
@@ -599,9 +601,12 @@ class BasePyomoSolver(InternalSolver):
         for constr in self.model.component_objects(pyomo.core.Constraint):
             if isinstance(constr, pe.ConstraintList):
                 for idx in constr:
-                    self._cname_to_constr[constr[idx].name] = constr[idx]
+                    self._cname_to_constr[self.name(constr[idx])] = constr[idx]
             else:
-                self._cname_to_constr[constr.name] = constr
+                self._cname_to_constr[self.name(constr)] = constr
+
+    def name(self, comp):
+        return comp.getname(name_buffer=self._name_buffer)
 
 
 class PyomoTestInstanceInfeasible(Instance):

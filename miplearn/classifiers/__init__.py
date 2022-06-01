@@ -38,7 +38,7 @@ class Classifier(ABC):
             np.float16,
             np.float32,
             np.float64,
-        ], f"x_train.dtype shoule be float. Found {x_train.dtype} instead."
+        ], f"x_train.dtype should be float. Found {x_train.dtype} instead."
         assert y_train.dtype == np.bool8
         assert len(x_train.shape) == 2
         assert len(y_train.shape) == 2

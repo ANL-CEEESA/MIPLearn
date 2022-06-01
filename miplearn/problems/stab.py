@@ -114,8 +114,8 @@ def build_stab_model(data: MaxWeightStableSetData) -> pe.ConcreteModel:
     nodes = list(data.graph.nodes)
     model.x = pe.Var(nodes, domain=pe.Binary)
     model.OBJ = pe.Objective(
-        expr=sum(model.x[v] * data.weights[v] for v in nodes),
-        sense=pe.maximize,
+        expr=sum(-model.x[v] * data.weights[v] for v in nodes),
+        sense=pe.minimize,
     )
     model.clique_eqs = pe.ConstraintList()
     for clique in nx.find_cliques(data.graph):

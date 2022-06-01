@@ -20,6 +20,9 @@ from miplearn.types import (
     Category,
     Solution,
 )
+from miplearn.features.sample import Hdf5Sample
+from p_tqdm import p_map
+from tqdm.auto import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +44,7 @@ class PrimalSolutionComponent(Component):
         self,
         classifier: Classifier = AdaptiveClassifier(),
         mode: str = "exact",
-        threshold: Threshold = MinPrecisionThreshold([0.98, 0.98]),
+        threshold: Threshold = MinPrecisionThreshold([0.99, 0.99]),
     ) -> None:
         assert isinstance(classifier, Classifier)
         assert isinstance(threshold, Threshold)
@@ -148,6 +151,7 @@ class PrimalSolutionComponent(Component):
         y: Dict = {}
         instance_features = sample.get_array("static_instance_features")
         mip_var_values = sample.get_array("mip_var_values")
+        lp_var_values = sample.get_array("lp_var_values")
         var_features = sample.get_array("lp_var_features")
         var_names = sample.get_array("static_var_names")
         var_types = sample.get_array("static_var_types")
@@ -176,6 +180,8 @@ class PrimalSolutionComponent(Component):
             # Features
             features = list(instance_features)
             features.extend(var_features[i])
+            if lp_var_values is not None:
+                features.extend(lp_var_values)
             x[category].append(features)
 
             # Labels
@@ -236,11 +242,100 @@ class PrimalSolutionComponent(Component):
         self,
         x: Dict[Category, np.ndarray],
         y: Dict[Category, np.ndarray],
+        progress: bool = False,
     ) -> None:
-        for category in x.keys():
+        for category in tqdm(x.keys(), desc="fit", disable=not progress):
             clf = self.classifier_prototype.clone()
             thr = self.threshold_prototype.clone()
             clf.fit(x[category], y[category])
             thr.fit(clf, x[category], y[category])
             self.classifiers[category] = clf
             self.thresholds[category] = thr
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # NEW API
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def fit(
+        self,
+        x: Dict[Category, np.ndarray],
+        y: Dict[Category, np.ndarray],
+        progress: bool = False,
+    ) -> None:
+        for category in tqdm(x.keys(), desc="fit", disable=not progress):
+            clf = self.classifier_prototype.clone()
+            thr = self.threshold_prototype.clone()
+            clf.fit(x[category], y[category])
+            thr.fit(clf, x[category], y[category])
+            self.classifiers[category] = clf
+            self.thresholds[category] = thr
+
+    def predict(self, x):
+        y_pred = {}
+        for category in x.keys():
+            assert category in self.classifiers, (
+                f"Classifier for category {category} has not been trained. "
+                f"Please call component.fit before component.predict."
+            )
+            xc = np.array(x[category])
+            proba = self.classifiers[category].predict_proba(xc)
+            thr = self.thresholds[category].predict(xc)
+            y_pred[category] = np.vstack(
+                [
+                    proba[:, 0] >= thr[0],
+                    proba[:, 1] >= thr[1],
+                ]
+            ).T
+        return y_pred
+
+    @staticmethod
+    def extract(
+        filenames: List[str],
+        progress: bool = False,
+    ):
+        x, y, cat = [], [], []
+
+        # Read data
+        for filename in tqdm(
+            filenames,
+            desc="extract (1/2)",
+            disable=not progress,
+        ):
+            with Hdf5Sample(filename, mode="r") as sample:
+                mip_var_values = sample.get_array("mip_var_values")
+                var_features = sample.get_array("lp_var_features")
+                var_types = sample.get_array("static_var_types")
+                var_categories = sample.get_array("static_var_categories")
+                assert var_features is not None
+                assert var_types is not None
+                assert var_categories is not None
+                x.append(var_features)
+                y.append([mip_var_values < 0.5, mip_var_values > 0.5])
+                cat.extend(var_categories)
+
+        # Convert to numpy arrays
+        x = np.vstack(x)
+        y = np.hstack(y).T
+        cat = np.array(cat)
+
+        # Sort data by categories
+        pi = np.argsort(cat, kind="stable")
+        x = x[pi]
+        y = y[pi]
+        cat = cat[pi]
+
+        # Split categories
+        x_dict = {}
+        y_dict = {}
+        start = 0
+        for end in tqdm(
+            range(len(cat) + 1),
+            desc="extract (2/2)",
+            disable=not progress,
+        ):
+            if (end >= len(cat)) or (cat[start] != cat[end]):
+                x_dict[cat[start]] = x[start:end, :]
+                y_dict[cat[start]] = y[start:end, :]
+                start = end
+
+        return x_dict, y_dict

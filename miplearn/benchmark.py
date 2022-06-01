@@ -4,13 +4,13 @@
 
 import logging
 import os
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Callable
 
 import pandas as pd
 
 from miplearn.components.component import Component
 from miplearn.instance.base import Instance
-from miplearn.solvers.learning import LearningSolver
+from miplearn.solvers.learning import LearningSolver, FileInstanceWrapper
 from miplearn.solvers.pyomo.gurobi import GurobiPyomoSolver
 from sklearn.utils._testing import ignore_warnings
 from sklearn.exceptions import ConvergenceWarning
@@ -43,37 +43,24 @@ class BenchmarkRunner:
 
     def parallel_solve(
         self,
-        instances: List[Instance],
+        filenames: List[str],
+        build_model: Callable,
         n_jobs: int = 1,
         n_trials: int = 1,
         progress: bool = False,
     ) -> None:
-        """
-        Solves the given instances in parallel and collect benchmark statistics.
-
-        Parameters
-        ----------
-        instances: List[Instance]
-            List of instances to solve. This can either be a list of instances
-            already loaded in memory, or a list of filenames pointing to pickled (and
-            optionally gzipped) files.
-        n_jobs: int
-            List of instances to solve in parallel at a time.
-        n_trials: int
-            How many times each instance should be solved.
-        """
         self._silence_miplearn_logger()
-        trials = instances * n_trials
+        trials = filenames * n_trials
         for (solver_name, solver) in self.solvers.items():
             results = solver.parallel_solve(
                 trials,
+                build_model,
                 n_jobs=n_jobs,
-                label="solve (%s)" % solver_name,
-                discard_outputs=True,
+                label="benchmark (%s)" % solver_name,
                 progress=progress,
             )
             for i in range(len(trials)):
-                idx = i % len(instances)
+                idx = i % len(filenames)
                 results[i]["Solver"] = solver_name
                 results[i]["Instance"] = idx
                 self.results = self.results.append(pd.DataFrame([results[i]]))
@@ -93,21 +80,15 @@ class BenchmarkRunner:
 
     def fit(
         self,
-        instances: List[Instance],
+        filenames: List[str],
+        build_model: Callable,
+        progress: bool = False,
         n_jobs: int = 1,
-        progress: bool = True,
     ) -> None:
-        """
-        Trains all solvers with the provided training instances.
-
-        Parameters
-        ----------
-        instances:  List[Instance]
-            List of training instances.
-        n_jobs: int
-            Number of parallel processes to use.
-        """
-        components: List[Component] = []
+        components = []
+        instances: List[Instance] = [
+            FileInstanceWrapper(f, build_model, mode="r") for f in filenames
+        ]
         for (solver_name, solver) in self.solvers.items():
             if solver_name == "baseline":
                 continue
@@ -127,6 +108,114 @@ class BenchmarkRunner:
     def _restore_miplearn_logger(self) -> None:
         miplearn_logger = logging.getLogger("miplearn")
         miplearn_logger.setLevel(self.prev_log_level)
+
+    def write_svg(
+        self,
+        output: Optional[str] = None,
+    ) -> None:
+        import matplotlib.pyplot as plt
+        import pandas as pd
+        import seaborn as sns
+
+        sns.set_style("whitegrid")
+        sns.set_palette("Blues_r")
+        groups = self.results.groupby("Instance")
+        best_lower_bound = groups["mip_lower_bound"].transform("max")
+        best_upper_bound = groups["mip_upper_bound"].transform("min")
+        self.results["Relative lower bound"] = self.results["mip_lower_bound"] / best_lower_bound
+        self.results["Relative upper bound"] = self.results["mip_upper_bound"] / best_upper_bound
+
+        if (self.results["mip_sense"] == "min").any():
+            primal_column = "Relative upper bound"
+            obj_column = "mip_upper_bound"
+            predicted_obj_column = "Objective: Predicted upper bound"
+        else:
+            primal_column = "Relative lower bound"
+            obj_column = "mip_lower_bound"
+            predicted_obj_column = "Objective: Predicted lower bound"
+
+        palette = {
+            "baseline": "#9b59b6",
+            "ml-exact": "#3498db",
+            "ml-heuristic": "#95a5a6",
+        }
+        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
+            nrows=2,
+            ncols=2,
+            figsize=(8, 8),
+        )
+
+        # Wallclock time
+        sns.stripplot(
+            x="Solver",
+            y="mip_wallclock_time",
+            data=self.results,
+            ax=ax1,
+            jitter=0.25,
+            palette=palette,
+            size=2.0,
+        )
+        sns.barplot(
+            x="Solver",
+            y="mip_wallclock_time",
+            data=self.results,
+            ax=ax1,
+            errwidth=0.0,
+            alpha=0.4,
+            palette=palette,
+        )
+        ax1.set(ylabel="Wallclock time (s)")
+
+        # Gap
+        sns.stripplot(
+            x="Solver",
+            y="Gap",
+            jitter=0.25,
+            data=self.results[self.results["Solver"] != "ml-heuristic"],
+            ax=ax2,
+            palette=palette,
+            size=2.0,
+        )
+        ax2.set(ylabel="Relative MIP gap")
+
+        # Relative primal bound
+        sns.stripplot(
+            x="Solver",
+            y=primal_column,
+            jitter=0.25,
+            data=self.results[self.results["Solver"] == "ml-heuristic"],
+            ax=ax3,
+            palette=palette,
+            size=2.0,
+        )
+        sns.scatterplot(
+            x=obj_column,
+            y=predicted_obj_column,
+            hue="Solver",
+            data=self.results[self.results["Solver"] == "ml-exact"],
+            ax=ax4,
+            palette=palette,
+            size=2.0,
+        )
+
+        # Predicted vs actual primal bound
+        xlim, ylim = ax4.get_xlim(), ax4.get_ylim()
+        ax4.plot(
+            [-1e10, 1e10],
+            [-1e10, 1e10],
+            ls="-",
+            color="#cccccc",
+        )
+        ax4.set_xlim(xlim)
+        ax4.set_ylim(xlim)
+        ax4.get_legend().remove()
+        ax4.set(
+            ylabel="Predicted optimal value",
+            xlabel="Actual optimal value",
+        )
+
+        fig.tight_layout()
+        plt.savefig(output)
 
 
 @ignore_warnings(category=ConvergenceWarning)
@@ -173,111 +262,3 @@ def run_benchmarks(
     plot(benchmark.results)
 
 
-def plot(
-    results: pd.DataFrame,
-    output: Optional[str] = None,
-) -> None:
-    import matplotlib.pyplot as plt
-    import pandas as pd
-    import seaborn as sns
-
-    sns.set_style("whitegrid")
-    sns.set_palette("Blues_r")
-    groups = results.groupby("Instance")
-    best_lower_bound = groups["mip_lower_bound"].transform("max")
-    best_upper_bound = groups["mip_upper_bound"].transform("min")
-    results["Relative lower bound"] = results["mip_lower_bound"] / best_lower_bound
-    results["Relative upper bound"] = results["mip_upper_bound"] / best_upper_bound
-
-    if (results["mip_sense"] == "min").any():
-        primal_column = "Relative upper bound"
-        obj_column = "mip_upper_bound"
-        predicted_obj_column = "Objective: Predicted upper bound"
-    else:
-        primal_column = "Relative lower bound"
-        obj_column = "mip_lower_bound"
-        predicted_obj_column = "Objective: Predicted lower bound"
-
-    palette = {
-        "baseline": "#9b59b6",
-        "ml-exact": "#3498db",
-        "ml-heuristic": "#95a5a6",
-    }
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
-        nrows=2,
-        ncols=2,
-        figsize=(8, 8),
-    )
-
-    # Wallclock time
-    sns.stripplot(
-        x="Solver",
-        y="mip_wallclock_time",
-        data=results,
-        ax=ax1,
-        jitter=0.25,
-        palette=palette,
-        size=2.0,
-    )
-    sns.barplot(
-        x="Solver",
-        y="mip_wallclock_time",
-        data=results,
-        ax=ax1,
-        errwidth=0.0,
-        alpha=0.4,
-        palette=palette,
-    )
-    ax1.set(ylabel="Wallclock time (s)")
-
-    # Gap
-    sns.stripplot(
-        x="Solver",
-        y="Gap",
-        jitter=0.25,
-        data=results[results["Solver"] != "ml-heuristic"],
-        ax=ax2,
-        palette=palette,
-        size=2.0,
-    )
-    ax2.set(ylabel="Relative MIP gap")
-
-    # Relative primal bound
-    sns.stripplot(
-        x="Solver",
-        y=primal_column,
-        jitter=0.25,
-        data=results[results["Solver"] == "ml-heuristic"],
-        ax=ax3,
-        palette=palette,
-        size=2.0,
-    )
-    sns.scatterplot(
-        x=obj_column,
-        y=predicted_obj_column,
-        hue="Solver",
-        data=results[results["Solver"] == "ml-exact"],
-        ax=ax4,
-        palette=palette,
-        size=2.0,
-    )
-
-    # Predicted vs actual primal bound
-    xlim, ylim = ax4.get_xlim(), ax4.get_ylim()
-    ax4.plot(
-        [-1e10, 1e10],
-        [-1e10, 1e10],
-        ls="-",
-        color="#cccccc",
-    )
-    ax4.set_xlim(xlim)
-    ax4.set_ylim(ylim)
-    ax4.get_legend().remove()
-    ax4.set(
-        ylabel="Predicted value",
-        xlabel="Actual value",
-    )
-
-    fig.tight_layout()
-    if output is not None:
-        plt.savefig(output)

@@ -7,7 +7,10 @@ from typing import Optional, List
 
 import numpy as np
 from sklearn.metrics._ranking import _binary_clf_curve
+from sklearn.model_selection import cross_val_predict
 
+from miplearn.classifiers.sklearn import ScikitLearnClassifier
+from miplearn.classifiers.adaptive import AdaptiveClassifier
 from miplearn.classifiers import Classifier
 
 
@@ -95,7 +98,17 @@ class MinPrecisionThreshold(Threshold):
     ) -> None:
         super().fit(clf, x_train, y_train)
         (n_samples, n_classes) = y_train.shape
-        proba = clf.predict_proba(x_train)
+        if isinstance(clf, AdaptiveClassifier) and isinstance(
+            clf.classifier, ScikitLearnClassifier
+        ):
+            proba = cross_val_predict(
+                clf.classifier.inner_clf,
+                x_train,
+                y_train[:, 1],
+                method="predict_proba",
+            )
+        else:
+            proba = clf.predict_proba(x_train)
         self._computed_threshold = [
             self._compute(
                 y_train[:, i],
@@ -114,11 +127,13 @@ class MinPrecisionThreshold(Threshold):
         y_actual: np.ndarray,
         y_prob: np.ndarray,
         min_precision: float,
+        min_recall: float = 0.1,
     ) -> float:
         fps, tps, thresholds = _binary_clf_curve(y_actual, y_prob)
         precision = tps / (tps + fps)
+        recall = tps / tps[-1]
         for k in reversed(range(len(precision))):
-            if precision[k] >= min_precision:
+            if precision[k] >= min_precision and recall[k] >= min_recall:
                 return thresholds[k]
         return float("inf")
 
