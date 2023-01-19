@@ -1,0 +1,1831 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1. Benchmark Problems &#8212; MIPLearn 0.3</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="2. Training Data Collectors" href="../collectors/" />
+    <link rel="prev" title="MIPLearn" href="../../" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn 0.3</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <p class="caption">
+ <span class="caption-text">
+  User Guide
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   1. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../collectors/">
+   2. Training Data Collectors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../features/">
+   3. Feature Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../primal/">
+   4. Primal Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../solvers/">
+   5. Solvers
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  API Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/problems/">
+   6. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/collectors/">
+   7. Collectors &amp; Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/components/">
+   8. Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/solvers/">
+   9. Solvers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/helpers/">
+   10. Helpers
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../../_sources/guide/problems.ipynb.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Overview">
+   1.1. Overview
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Bin-Packing">
+   1.2. Bin Packing
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Formulation">
+     Formulation
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Random-instance-generator">
+     Random instance generator
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Example">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Multi-Dimensional-Knapsack">
+   1.3. Multi-Dimensional Knapsack
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Formulation
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id2">
+     Random instance generator
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id3">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Capacitated-P-Median">
+   1.4. Capacitated P-Median
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id4">
+     Formulation
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id5">
+     Random instance generator
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id6">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Set-cover">
+   1.5. Set cover
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id7">
+     Formulation
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id8">
+     Random instance generator
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id9">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Set-Packing">
+   1.6. Set Packing
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id10">
+     Formulation
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id11">
+     Random instance generator
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id12">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Stable-Set">
+   1.7. Stable Set
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id13">
+     Formulation
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id14">
+     Random instance generator
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id15">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Traveling-Salesman">
+   1.8. Traveling Salesman
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id16">
+     Formulation
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id17">
+     Random instance generator
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id18">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Unit-Commitment">
+   1.9. Unit Commitment
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id19">
+     Formulation
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id20">
+     Random instance generator
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id21">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Vertex-Cover">
+   1.10. Vertex Cover
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id22">
+     Formulation
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id23">
+     Random instance generator
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id24">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars and line breaks on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+    white-space: pre;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Benchmark-Problems">
+<h1><span class="section-number">1. </span>Benchmark Problems<a class="headerlink" href="#Benchmark-Problems" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Overview">
+<h2><span class="section-number">1.1. </span>Overview<a class="headerlink" href="#Overview" title="Permalink to this headline">¶</a></h2>
+<p>Benchmark sets such as <a class="reference external" href="https://miplib.zib.de/">MIPLIB</a> or <a class="reference external" href="http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/">TSPLIB</a> are usually employed to evaluate the performance of conventional MIP solvers. Two shortcomings, unfortunately, make existing benchmark sets less than ideal for evaluating the performance of learning-enhanced MIP solvers: (i) while existing benchmark sets typically contain hundreds or thousands of instances, machine learning (ML) methods typically benefit from having
+orders of magnitude more instances available for training; (ii) current machine learning methods typically provide best performance on sets of homogeneous instances, buch general-purpose benchmark sets contain relatively few examples of each problem type.</p>
+<p>To tackle this challenge, MIPLearn provides random instance generators for a wide variety of classical optimization problems, covering applications from different fields, that can be used to evaluate new learning-enhanced MIP techniques in a measurable and reproducible way. As of MIPLearn 0.3, nine problem generators are available, each customizable with user-provided probability distribution and flexible parameters. The generators can be configured, for example, to produce large sets of very
+similar instances of same size, where only the objective function changes, or more diverse sets of instances, with various sizes and characteristics, belonging to a particular problem class.</p>
+<p>In the following, we describe the problems included in the library, their MIP formulation and the generation algorithm.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The random instance generators and formulations shown below are subject to change. If you use them in your research, for reproducibility, you should specify the MIPLearn version and all parameters.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>To make the instances easier to process, all formulations are written as a minimization problem.</p></li>
+<li><p>Some problem formulations, such as the one for the <em>traveling salesman problem</em>, contain an exponential number of constraints, which are enforced through constraint generation. The MPS files for these problems contain only the constraints that were generated during a trial run, not the entire set of constraints. Resolving the MPS file, therefore, may not generate a feasible primal solution for the problem.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="Bin-Packing">
+<h2><span class="section-number">1.2. </span>Bin Packing<a class="headerlink" href="#Bin-Packing" title="Permalink to this headline">¶</a></h2>
+<p><strong>Bin packing</strong> is a combinatorial optimization problem that asks for the optimal way to pack a given set of items into a finite number of containers (or bins) of fixed capacity. More specifically, the problem is to assign indivisible items of different sizes to identical bins, while minimizing the number of bins used. The problem is NP-hard and has many practical applications, including logistics and warehouse management, where it is used to determine how to best store and transport goods using
+a limited amount of space.</p>
+<div class="section" id="Formulation">
+<h3>Formulation<a class="headerlink" href="#Formulation" title="Permalink to this headline">¶</a></h3>
+<p>Let <span class="math notranslate nohighlight">\(n\)</span> be the number of items, and <span class="math notranslate nohighlight">\(s_i\)</span> the size of the <span class="math notranslate nohighlight">\(i\)</span>-th item. Also let <span class="math notranslate nohighlight">\(B\)</span> be the size of the bins. For each bin <span class="math notranslate nohighlight">\(j\)</span>, let <span class="math notranslate nohighlight">\(y_j\)</span> be a binary decision variable which equals one if the bin is used. For every item-bin pair <span class="math notranslate nohighlight">\((i,j)\)</span>, let <span class="math notranslate nohighlight">\(x_{ij}\)</span> be a binary decision variable which equals one if item <span class="math notranslate nohighlight">\(i\)</span> is assigned to bin <span class="math notranslate nohighlight">\(j\)</span>. The bin packing problem is formulated as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+\text{minimize} \;\;\;
+    &amp; \sum_{j=1}^n y_j \\
+\text{subject to} \;\;\;
+    &amp; \sum_{i=1}^n s_i x_{ij} \leq B y_j &amp; \forall j=1,\ldots,n \\
+    &amp; \sum_{j=1}^n x_{ij} = 1 &amp; \forall i=1,\ldots,n \\
+    &amp; y_i \in \{0,1\} &amp; \forall i=1,\ldots,n \\
+    &amp; x_{ij} \in \{0,1\} &amp; \forall i,j=1,\ldots,n \\
+\end{align*}\end{split}\]</div>
+</div>
+<div class="section" id="Random-instance-generator">
+<h3>Random instance generator<a class="headerlink" href="#Random-instance-generator" title="Permalink to this headline">¶</a></h3>
+<p>Random instances of the bin packing problem can be generated using the class <a class="reference external" href="../../api/problems/#miplearn.problems.binpack.BinPackGenerator">BinPackGenerator</a>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">fix_items=False</span></code>, the class samples the user-provided probability distributions <code class="docutils literal notranslate"><span class="pre">n</span></code>, <code class="docutils literal notranslate"><span class="pre">sizes</span></code> and <code class="docutils literal notranslate"><span class="pre">capacity</span></code> to decide, respectively, the number of items, the sizes of the items and capacity of the bin. All values are sampled independently.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">fix_items=True</span></code>, the class creates a reference instance, using the method previously described, then generates additional instances by perturbing its item sizes and bin capacity. More specifically, the sizes of the items are set to <span class="math notranslate nohighlight">\(s_i \gamma_i\)</span>, where <span class="math notranslate nohighlight">\(s_i\)</span> is the size of the <span class="math notranslate nohighlight">\(i\)</span>-th item in the reference instance and <span class="math notranslate nohighlight">\(\gamma_i\)</span> is sampled from <code class="docutils literal notranslate"><span class="pre">sizes_jitter</span></code>. Similarly, the bin size is set to <span class="math notranslate nohighlight">\(B \beta\)</span>, where <span class="math notranslate nohighlight">\(B\)</span> is the reference bin size and
+<span class="math notranslate nohighlight">\(\beta\)</span> is sampled from <code class="docutils literal notranslate"><span class="pre">capacity_jitter</span></code>. The number of items remains the same across all generated instances.</p>
+</div>
+<div class="section" id="Example">
+<h3>Example<a class="headerlink" href="#Example" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.binpack</span> <span class="kn">import</span> <span class="n">BinPackGenerator</span><span class="p">,</span> <span class="n">build_binpack_model</span>
+
+<span class="c1"># Set random seed, to make example reproducible</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Generate random instances of the binpack problem with ten items</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">BinPackGenerator</span><span class="p">(</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">11</span><span class="p">),</span>
+    <span class="n">sizes</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">25</span><span class="p">),</span>
+    <span class="n">capacity</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="n">sizes_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+    <span class="n">capacity_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+    <span class="n">fix_items</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Print sizes and capacities</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sizes</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">capacity</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="c1"># Optimize first instance</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_binpack_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0 [ 8.47 26.   19.52 14.11  3.65  3.65  1.4  21.76 14.82 16.96] 102.24
+1 [ 8.69 22.78 17.81 14.83  4.12  3.67  1.46 22.05 13.66 18.08] 93.41
+2 [ 8.55 25.9  20.   15.89  3.75  3.59  1.51 21.4  13.89 17.68] 90.69
+3 [10.13 22.62 18.89 14.4   3.92  3.94  1.36 23.69 15.85 19.26] 107.9
+4 [ 9.55 25.77 16.79 14.06  3.55  3.76  1.42 20.66 16.02 17.19] 95.62
+5 [ 9.44 22.06 19.41 13.69  4.28  4.11  1.36 19.51 15.98 18.43] 104.58
+6 [ 9.87 21.74 17.78 13.82  4.18  4.    1.4  19.76 14.46 17.08] 104.59
+7 [ 9.62 25.61 18.2  13.83  4.07  4.1   1.47 22.83 15.01 17.78] 98.55
+8 [ 8.47 21.9  16.58 15.37  3.76  3.91  1.57 20.57 14.76 18.61] 94.58
+9 [ 8.57 22.77 17.06 16.25  4.14  4.    1.56 22.97 14.09 19.09] 100.79
+
+Restricted license - for non-production use only - expires 2023-10-25
+Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+Optimize a model with 20 rows, 110 columns and 210 nonzeros
+Model fingerprint: 0x1ff9913f
+Variable types: 0 continuous, 110 integer (110 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+02]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Found heuristic solution: objective 5.0000000
+Presolve time: 0.00s
+Presolved: 20 rows, 110 columns, 210 nonzeros
+Variable types: 0 continuous, 110 integer (110 binary)
+
+Root relaxation: objective 1.274844e+00, 38 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0    1.27484    0    4    5.00000    1.27484  74.5%     -    0s
+H    0     0                       4.0000000    1.27484  68.1%     -    0s
+H    0     0                       2.0000000    1.27484  36.3%     -    0s
+     0     0    1.27484    0    4    2.00000    1.27484  36.3%     -    0s
+
+Explored 1 nodes (38 simplex iterations) in 0.00 seconds (0.00 work units)
+Thread count was 32 (of 32 available processors)
+
+Solution count 3: 2 4 5
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 2.000000000000e+00, best bound 2.000000000000e+00, gap 0.0000%
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Multi-Dimensional-Knapsack">
+<h2><span class="section-number">1.3. </span>Multi-Dimensional Knapsack<a class="headerlink" href="#Multi-Dimensional-Knapsack" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>multi-dimensional knapsack problem</strong> is a generalization of the classic knapsack problem, which involves selecting a subset of items to be placed in a knapsack such that the total value of the items is maximized without exceeding a maximum weight. In this generalization, items have multiple weights (representing multiple resources), and multiple weight constraints must be satisfied.</p>
+<div class="section" id="id1">
+<h3>Formulation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Let <span class="math notranslate nohighlight">\(n\)</span> be the number of items and <span class="math notranslate nohighlight">\(m\)</span> be the number of resources. For each item <span class="math notranslate nohighlight">\(j\)</span> and resource <span class="math notranslate nohighlight">\(i\)</span>, let <span class="math notranslate nohighlight">\(p_j\)</span> be the price of the item, let <span class="math notranslate nohighlight">\(w_{ij}\)</span> be the amount of resource <span class="math notranslate nohighlight">\(j\)</span> item <span class="math notranslate nohighlight">\(i\)</span> consumes (i.e. the <span class="math notranslate nohighlight">\(j\)</span>-th weight of the item), and let <span class="math notranslate nohighlight">\(b_i\)</span> be the total amount of resource <span class="math notranslate nohighlight">\(i\)</span> available (or the size of the <span class="math notranslate nohighlight">\(j\)</span>-th knapsack). The formulation is given by:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+    \text{minimize}\;\;\;
+        &amp; - \sum_{j=1}^n p_j x_j
+        \\
+    \text{subject to}\;\;\;
+        &amp; \sum_{j=1}^n w_{ij} x_j \leq b_i
+        &amp; \forall i=1,\ldots,m \\
+    &amp; x_j \in \{0,1\}
+        &amp; \forall j=1,\ldots,n
+\end{align*}\end{split}\]</div>
+</div>
+<div class="section" id="id2">
+<h3>Random instance generator<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>The class <a class="reference external" href="../../api/problems/#miplearn.problems.multiknapsack.MultiKnapsackGenerator">MultiKnapsackGenerator</a> can be used to generate random instances of this problem. The number of items <span class="math notranslate nohighlight">\(n\)</span> and knapsacks <span class="math notranslate nohighlight">\(m\)</span> are sampled from the user-provided probability distributions <code class="docutils literal notranslate"><span class="pre">n</span></code> and <code class="docutils literal notranslate"><span class="pre">m</span></code>. The weights <span class="math notranslate nohighlight">\(w_{ij}\)</span> are sampled independently from the provided distribution <code class="docutils literal notranslate"><span class="pre">w</span></code>. The capacity of knapsack <span class="math notranslate nohighlight">\(i\)</span> is set to</p>
+<div class="math notranslate nohighlight">
+\[b_i = \alpha_i \sum_{j=1}^n w_{ij}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha_i\)</span>, the tightness ratio, is sampled from the provided probability distribution <code class="docutils literal notranslate"><span class="pre">alpha</span></code>. To make the instances more challenging, the costs of the items are linearly correlated to their average weights. More specifically, the price of each item <span class="math notranslate nohighlight">\(j\)</span> is set to:</p>
+<div class="math notranslate nohighlight">
+\[p_j = \sum_{i=1}^m \frac{w_{ij}}{m} + K  u_j,\]</div>
+<p>where <span class="math notranslate nohighlight">\(K\)</span>, the correlation coefficient, and <span class="math notranslate nohighlight">\(u_j\)</span>, the correlation multiplier, are sampled from the provided probability distributions <code class="docutils literal notranslate"><span class="pre">K</span></code> and <code class="docutils literal notranslate"><span class="pre">u</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">fix_w=True</span></code> is provided, then <span class="math notranslate nohighlight">\(w_{ij}\)</span> are kept the same in all generated instances. This also implies that <span class="math notranslate nohighlight">\(n\)</span> and <span class="math notranslate nohighlight">\(m\)</span> are kept fixed. Although the prices and capacities are derived from <span class="math notranslate nohighlight">\(w_{ij}\)</span>, as long as <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">K</span></code> are not constants, the generated instances will still not be completely identical.</p>
+<p>If a probability distribution <code class="docutils literal notranslate"><span class="pre">w_jitter</span></code> is provided, then item weights will be set to <span class="math notranslate nohighlight">\(w_{ij} \gamma_{ij}\)</span> where <span class="math notranslate nohighlight">\(\gamma_{ij}\)</span> is sampled from <code class="docutils literal notranslate"><span class="pre">w_jitter</span></code>. When combined with <code class="docutils literal notranslate"><span class="pre">fix_w=True</span></code>, this argument may be used to generate instances where the weight of each item is roughly the same, but not exactly identical, across all instances. The prices of the items and the capacities of the knapsacks will be calculated as above, but using these perturbed weights instead.</p>
+<p>By default, all generated prices, weights and capacities are rounded to the nearest integer number. If <code class="docutils literal notranslate"><span class="pre">round=False</span></code> is provided, this rounding will be disabled.</p>
+<div class="admonition note">
+<p class="admonition-title">References</p>
+<ul class="simple">
+<li><p><strong>Freville, Arnaud, and Gérard Plateau.</strong> <em>An efficient preprocessing procedure for the multidimensional 0–1 knapsack problem.</em> Discrete applied mathematics 49.1-3 (1994): 189-212.</p></li>
+<li><p><strong>Fréville, Arnaud.</strong> <em>The multidimensional 0–1 knapsack problem: An overview.</em> European Journal of Operational Research 155.1 (2004): 1-21.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="id3">
+<h3>Example<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.multiknapsack</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MultiKnapsackGenerator</span><span class="p">,</span>
+    <span class="n">build_multiknapsack_model</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Set random seed, to make example reproducible</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Generate ten similar random instances of the multiknapsack problem with</span>
+<span class="c1"># ten items, five resources and weights around [0, 1000].</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">MultiKnapsackGenerator</span><span class="p">(</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">11</span><span class="p">),</span>
+    <span class="n">m</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span>
+    <span class="n">w</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+    <span class="n">K</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="n">u</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="n">w_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">),</span>
+    <span class="n">p_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">fix_w</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Print data for one of the instances</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;prices</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">prices</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;weights</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;capacities</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">capacities</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="c1"># Build model and optimize</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_multiknapsack_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+prices
+ [350. 692. 454. 709. 605. 543. 321. 674. 571. 341.]
+weights
+ [[392. 977. 764. 622. 158. 163.  56. 840. 574. 696.]
+ [ 20. 948. 860. 209. 178. 184. 293. 541. 414. 305.]
+ [629. 135. 278. 378. 466. 803. 205. 492. 584.  45.]
+ [630. 173.  64. 907. 947. 794. 312.  99. 711. 439.]
+ [117. 506.  35. 915. 266. 662. 312. 516. 521. 178.]]
+capacities
+ [1310.  988. 1004. 1269. 1007.]
+
+Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+Optimize a model with 5 rows, 10 columns and 50 nonzeros
+Model fingerprint: 0xaf3ac15e
+Variable types: 0 continuous, 10 integer (10 binary)
+Coefficient statistics:
+  Matrix range     [2e+01, 1e+03]
+  Objective range  [3e+02, 7e+02]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+03, 1e+03]
+Found heuristic solution: objective -804.0000000
+Presolve removed 0 rows and 3 columns
+Presolve time: 0.00s
+Presolved: 5 rows, 7 columns, 34 nonzeros
+Variable types: 0 continuous, 7 integer (7 binary)
+
+Root relaxation: objective -1.428726e+03, 4 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 -1428.7265    0    4 -804.00000 -1428.7265  77.7%     -    0s
+H    0     0                    -1279.000000 -1428.7265  11.7%     -    0s
+
+Cutting planes:
+  Cover: 1
+
+Explored 1 nodes (4 simplex iterations) in 0.00 seconds (0.00 work units)
+Thread count was 32 (of 32 available processors)
+
+Solution count 2: -1279 -804
+No other solutions better than -1279
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective -1.279000000000e+03, best bound -1.279000000000e+03, gap 0.0000%
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Capacitated-P-Median">
+<h2><span class="section-number">1.4. </span>Capacitated P-Median<a class="headerlink" href="#Capacitated-P-Median" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>capacitated p-median</strong> problem is a variation of the classic <span class="math notranslate nohighlight">\(p\)</span>-median problem, in which a set of customers must be served by a set of facilities. In the capacitated <span class="math notranslate nohighlight">\(p\)</span>-Median problem, each facility has a fixed capacity, and the goal is to minimize the total cost of serving the customers while ensuring that the capacity of each facility is not exceeded. Variations of problem are often used in logistics and supply chain management to determine the most efficient locations for
+warehouses or distribution centers.</p>
+<div class="section" id="id4">
+<h3>Formulation<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>Let <span class="math notranslate nohighlight">\(I=\{1,\ldots,n\}\)</span> be the set of customers. For each customer <span class="math notranslate nohighlight">\(i \in I\)</span>, let <span class="math notranslate nohighlight">\(d_i\)</span> be its demand and let <span class="math notranslate nohighlight">\(y_i\)</span> be a binary decision variable that equals one if we decide to open a facility at that customer’s location. For each pair <span class="math notranslate nohighlight">\((i,j) \in I \times I\)</span>, let <span class="math notranslate nohighlight">\(x_{ij}\)</span> be a binary decision variable that equals one if customer <span class="math notranslate nohighlight">\(i\)</span> is assigned to facility <span class="math notranslate nohighlight">\(j\)</span>. Furthermore, let <span class="math notranslate nohighlight">\(w_{ij}\)</span> be the cost of serving customer <span class="math notranslate nohighlight">\(i\)</span> from facility
+<span class="math notranslate nohighlight">\(j\)</span>, let <span class="math notranslate nohighlight">\(p\)</span> be the number of facilities we must open, and let <span class="math notranslate nohighlight">\(c_j\)</span> be the capacity of facility <span class="math notranslate nohighlight">\(j\)</span>. The problem is formulated as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+    \text{minimize}\;\;\;
+        &amp; \sum_{i \in I} \sum_{j \in I} w_{ij} x_{ij}
+        \\
+    \text{subject to}\;\;\;
+        &amp; \sum_{j \in I} x_{ij} = 1 &amp; \forall i \in I \\
+        &amp; \sum_{j \in I} y_j = p \\
+        &amp; \sum_{i \in I} d_i x_{ij} \leq c_j y_j &amp; \forall j \in I \\
+        &amp; x_{ij} \in \{0, 1\} &amp; \forall i, j \in I \\
+        &amp; y_j \in \{0, 1\} &amp; \forall j \in I
+\end{align*}\end{split}\]</div>
+</div>
+<div class="section" id="id5">
+<h3>Random instance generator<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>The class <a class="reference external" href="../../api/problems/#miplearn.problems.pmedian.PMedianGenerator">PMedianGenerator</a> can be used to generate random instances of this problem. First, it decides the number of customers and the parameter <span class="math notranslate nohighlight">\(p\)</span> by sampling the provided <code class="docutils literal notranslate"><span class="pre">n</span></code> and <code class="docutils literal notranslate"><span class="pre">p</span></code> distributions, respectively. Then, for each customer <span class="math notranslate nohighlight">\(i\)</span>, the class builds its geographical location <span class="math notranslate nohighlight">\((x_i, y_i)\)</span> by sampling the provided <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> distributions. For each <span class="math notranslate nohighlight">\(i\)</span>, the demand for customer <span class="math notranslate nohighlight">\(i\)</span>
+and the capacity of facility <span class="math notranslate nohighlight">\(i\)</span> are decided by sampling the provided distributions <code class="docutils literal notranslate"><span class="pre">demands</span></code> and <code class="docutils literal notranslate"><span class="pre">capacities</span></code>, respectively. Finally, the costs <span class="math notranslate nohighlight">\(w_{ij}\)</span> are set to the Euclidean distance between the locations of customers <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">fixed=True</span></code>, then the number of customers, their locations, the parameter <span class="math notranslate nohighlight">\(p\)</span>, the demands and the capacities are only sampled from their respective distributions exactly once, to build a reference instance which is then randomly perturbed. Specifically, in each perturbation, the distances, demands and capacities are multiplied by random scaling factors sampled from the distributions <code class="docutils literal notranslate"><span class="pre">distances_jitter</span></code>, <code class="docutils literal notranslate"><span class="pre">demands_jitter</span></code> and <code class="docutils literal notranslate"><span class="pre">capacities_jitter</span></code>, respectively. The result is a
+list of instances that have the same set of customers, but slightly different demands, capacities and distances.</p>
+</div>
+<div class="section" id="id6">
+<h3>Example<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.pmedian</span> <span class="kn">import</span> <span class="n">PMedianGenerator</span><span class="p">,</span> <span class="n">build_pmedian_model</span>
+
+<span class="c1"># Set random seed, to make example reproducible</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Generate random instances with ten customers located in a</span>
+<span class="c1"># 100x100 square, with demands in [0,10], capacities in [0, 250].</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">PMedianGenerator</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">100.0</span><span class="p">),</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">100.0</span><span class="p">),</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">11</span><span class="p">),</span>
+    <span class="n">p</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span>
+    <span class="n">demands</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="n">capacities</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">250</span><span class="p">),</span>
+    <span class="n">distances_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+    <span class="n">demands_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+    <span class="n">capacities_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+    <span class="n">fixed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Print data for one of the instances</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;p =&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;distances =</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">distances</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;demands =&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">demands</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;capacities =&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">capacities</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="c1"># Build and optimize model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_pmedian_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+p = 5
+distances =
+ [[  0.    50.17  82.42  32.76  33.2   35.45  86.88  79.11  43.17  66.2 ]
+ [ 50.17   0.    72.64  72.51  17.06  80.25  39.92  68.93  43.41  42.96]
+ [ 82.42  72.64   0.    71.69  70.92  82.51  67.88   3.76  39.74  30.73]
+ [ 32.76  72.51  71.69   0.    56.56  11.03 101.35  69.39  42.09  68.58]
+ [ 33.2   17.06  70.92  56.56   0.    63.68  54.71  67.16  34.89  44.99]
+ [ 35.45  80.25  82.51  11.03  63.68   0.   111.04  80.29  52.78  79.36]
+ [ 86.88  39.92  67.88 101.35  54.71 111.04   0.    65.13  61.37  40.82]
+ [ 79.11  68.93   3.76  69.39  67.16  80.29  65.13   0.    36.26  27.24]
+ [ 43.17  43.41  39.74  42.09  34.89  52.78  61.37  36.26   0.    26.62]
+ [ 66.2   42.96  30.73  68.58  44.99  79.36  40.82  27.24  26.62   0.  ]]
+demands = [6.12 1.39 2.92 3.66 4.56 7.85 2.   5.14 5.92 0.46]
+capacities = [151.89  42.63  16.26 237.22 241.41 202.1   76.15  24.42 171.06 110.04]
+
+Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+Optimize a model with 21 rows, 110 columns and 220 nonzeros
+Model fingerprint: 0x8d8d9346
+Variable types: 0 continuous, 110 integer (110 binary)
+Coefficient statistics:
+  Matrix range     [5e-01, 2e+02]
+  Objective range  [4e+00, 1e+02]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 5e+00]
+Found heuristic solution: objective 368.7900000
+Presolve time: 0.00s
+Presolved: 21 rows, 110 columns, 220 nonzeros
+Variable types: 0 continuous, 110 integer (110 binary)
+Found heuristic solution: objective 245.6400000
+
+Root relaxation: objective 0.000000e+00, 18 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0    0.00000    0    6  245.64000    0.00000   100%     -    0s
+H    0     0                     185.1900000    0.00000   100%     -    0s
+H    0     0                     148.6300000   17.14595  88.5%     -    0s
+H    0     0                     113.1800000   17.14595  84.9%     -    0s
+     0     0   17.14595    0   10  113.18000   17.14595  84.9%     -    0s
+H    0     0                      99.5000000   17.14595  82.8%     -    0s
+H    0     0                      98.3900000   17.14595  82.6%     -    0s
+H    0     0                      93.9800000   64.28872  31.6%     -    0s
+     0     0   64.28872    0   15   93.98000   64.28872  31.6%     -    0s
+H    0     0                      93.9200000   64.28872  31.5%     -    0s
+     0     0   86.06884    0   15   93.92000   86.06884  8.36%     -    0s
+*    0     0               0      91.2300000   91.23000  0.00%     -    0s
+
+Explored 1 nodes (60 simplex iterations) in 0.01 seconds (0.00 work units)
+Thread count was 32 (of 32 available processors)
+
+Solution count 10: 91.23 93.92 93.98 ... 368.79
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 9.123000000000e+01, best bound 9.123000000000e+01, gap 0.0000%
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Set-cover">
+<h2><span class="section-number">1.5. </span>Set cover<a class="headerlink" href="#Set-cover" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>set cover problem</strong> is a classical NP-hard optimization problem which aims to minimize the number of sets needed to cover all elements in a given universe. Each set may contain a different number of elements, and sets may overlap with each other. This problem can be useful in various real-world scenarios such as scheduling, resource allocation, and network design.</p>
+<div class="section" id="id7">
+<h3>Formulation<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p>Let <span class="math notranslate nohighlight">\(U = \{1,\ldots,n\}\)</span> be a given universe set, and let <span class="math notranslate nohighlight">\(S=\{S_1,\ldots,S_m\}\)</span> be a collection of sets whose union equal <span class="math notranslate nohighlight">\(U\)</span>. For each <span class="math notranslate nohighlight">\(j \in \{1,\ldots,m\}\)</span>, let <span class="math notranslate nohighlight">\(w_j\)</span> be the weight of set <span class="math notranslate nohighlight">\(S_j\)</span>, and let <span class="math notranslate nohighlight">\(x_j\)</span> be a binary decision variable that equals one if set <span class="math notranslate nohighlight">\(S_j\)</span> is chosen. The set cover problem is formulated as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+    \text{minimize}\;\;\;
+        &amp; \sum_{j=1}^m w_j x_j
+        \\
+    \text{subject to}\;\;\;
+        &amp; \sum_{j : i \in S_j} x_j \geq 1 &amp; \forall i \in \{1,\ldots,n\} \\
+        &amp; x_j \in \{0, 1\} &amp; \forall j \in \{1,\ldots,m\}
+\end{align*}\end{split}\]</div>
+</div>
+<div class="section" id="id8">
+<h3>Random instance generator<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>The class <a class="reference external" href="../../api/problems/#miplearn.problems.setcover.SetCoverGenerator">SetCoverGenerator</a> can generate random instances of this problem. The class first decides the number of elements and sets by sampling the provided distributions <code class="docutils literal notranslate"><span class="pre">n_elements</span></code> and <code class="docutils literal notranslate"><span class="pre">n_sets</span></code>, respectively. Then it generates a random incidence matrix <span class="math notranslate nohighlight">\(M\)</span>, as follows:</p>
+<ol class="arabic simple">
+<li><p>The density <span class="math notranslate nohighlight">\(d\)</span> of <span class="math notranslate nohighlight">\(M\)</span> is decided by sampling the provided probability distribution <code class="docutils literal notranslate"><span class="pre">density</span></code>.</p></li>
+<li><p>Each entry of <span class="math notranslate nohighlight">\(M\)</span> is then sampled from the Bernoulli distribution, with probability <span class="math notranslate nohighlight">\(d\)</span>.</p></li>
+<li><p>To ensure that each element belongs to at least one set, the class identifies elements that are not contained in any set, then assigns them to a random set (chosen uniformly).</p></li>
+<li><p>Similarly, to ensure that each set contains at least one element, the class identifies empty sets, then modifies them to include one random element (chosen uniformly).</p></li>
+</ol>
+<p>Finally, the weight of set <span class="math notranslate nohighlight">\(j\)</span> is set to <span class="math notranslate nohighlight">\(w_j + K | S_j |\)</span>, where <span class="math notranslate nohighlight">\(w_j\)</span> and <span class="math notranslate nohighlight">\(k\)</span> are sampled from <code class="docutils literal notranslate"><span class="pre">costs</span></code> and <code class="docutils literal notranslate"><span class="pre">K</span></code>, respectively, and where <span class="math notranslate nohighlight">\(|S_j|\)</span> denotes the size of set <span class="math notranslate nohighlight">\(S_j\)</span>. The parameter <span class="math notranslate nohighlight">\(K\)</span> is used to introduce some correlation between the size of the set and its weight, making the instance more challenging. Note that <code class="docutils literal notranslate"><span class="pre">K</span></code> is only sampled once for the entire instance.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">fix_sets=True</span></code>, then all generated instances have exactly the same sets and elements. The costs of the sets, however, are multiplied by random scaling factors sampled from the provided probability distribution <code class="docutils literal notranslate"><span class="pre">costs_jitter</span></code>.</p>
+</div>
+<div class="section" id="id9">
+<h3>Example<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.setcover</span> <span class="kn">import</span> <span class="n">SetCoverGenerator</span><span class="p">,</span> <span class="n">build_setcover_model</span>
+
+<span class="c1"># Set random seed, to make example reproducible</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Build random instances with five elements, ten sets and costs</span>
+<span class="c1"># in the [0, 1000] interval, with a correlation factor of 25 and</span>
+<span class="c1"># an incidence matrix with 25% density.</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">SetCoverGenerator</span><span class="p">(</span>
+    <span class="n">n_elements</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span>
+    <span class="n">n_sets</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">11</span><span class="p">),</span>
+    <span class="n">costs</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">),</span>
+    <span class="n">costs_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.20</span><span class="p">),</span>
+    <span class="n">density</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.00</span><span class="p">),</span>
+    <span class="n">K</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">25.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">fix_sets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Print problem data for one instance</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;matrix</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">incidence_matrix</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;costs&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">costs</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="c1"># Build and optimize model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_setcover_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+matrix
+ [[1 0 0 0 1 1 1 0 0 0]
+ [1 0 0 1 1 1 1 0 1 1]
+ [0 1 1 1 1 0 1 0 0 1]
+ [0 1 1 0 0 0 1 1 0 1]
+ [1 1 1 0 1 0 1 0 0 1]]
+costs [1044.58  850.13 1014.5   944.83  697.9   971.87  213.49  220.98   70.23
+  425.33]
+
+Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+Optimize a model with 5 rows, 10 columns and 28 nonzeros
+Model fingerprint: 0xe5c2d4fa
+Variable types: 0 continuous, 10 integer (10 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [7e+01, 1e+03]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Found heuristic solution: objective 213.4900000
+Presolve removed 5 rows and 10 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds (0.00 work units)
+Thread count was 1 (of 32 available processors)
+
+Solution count 1: 213.49
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 2.134900000000e+02, best bound 2.134900000000e+02, gap 0.0000%
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Set-Packing">
+<h2><span class="section-number">1.6. </span>Set Packing<a class="headerlink" href="#Set-Packing" title="Permalink to this headline">¶</a></h2>
+<p><strong>Set packing</strong> is a classical optimization problem that asks for the maximum number of disjoint sets within a given list. This problem often arises in real-world situations where a finite number of resources need to be allocated to tasks, such as airline flight crew scheduling.</p>
+<div class="section" id="id10">
+<h3>Formulation<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<p>Let <span class="math notranslate nohighlight">\(U=\{1,\ldots,n\}\)</span> be a given universe set, and let <span class="math notranslate nohighlight">\(S = \{S_1, \ldots, S_m\}\)</span> be a collection of subsets of <span class="math notranslate nohighlight">\(U\)</span>. For each subset <span class="math notranslate nohighlight">\(j \in \{1, \ldots, m\}\)</span>, let <span class="math notranslate nohighlight">\(w_j\)</span> be the weight of <span class="math notranslate nohighlight">\(S_j\)</span> and let <span class="math notranslate nohighlight">\(x_j\)</span> be a binary decision variable which equals one if set <span class="math notranslate nohighlight">\(S_j\)</span> is chosen. The problem is formulated as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+    \text{minimize}\;\;\;
+        &amp; -\sum_{j=1}^m w_j x_j
+        \\
+    \text{subject to}\;\;\;
+        &amp; \sum_{j : i \in S_j} x_j \leq 1 &amp; \forall i \in \{1,\ldots,n\} \\
+        &amp; x_j \in \{0, 1\} &amp; \forall j \in \{1,\ldots,m\}
+\end{align*}\end{split}\]</div>
+</div>
+<div class="section" id="id11">
+<h3>Random instance generator<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<p>The class <a class="reference external" href="../../api/problems/#miplearn.problems.setpack.SetPackGenerator">SetPackGenerator</a> can generate random instances of this problem. It accepts exactly the same arguments, and generates instance data in exactly the same way as <a class="reference external" href="../../api/problems/#miplearn.problems.setcover.SetCoverGenerator">SetCoverGenerator</a>. For more details, please see the documentation for that class.</p>
+</div>
+<div class="section" id="id12">
+<h3>Example<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.setpack</span> <span class="kn">import</span> <span class="n">SetPackGenerator</span><span class="p">,</span> <span class="n">build_setpack_model</span>
+
+<span class="c1"># Set random seed, to make example reproducible</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Build random instances with five elements, ten sets and costs</span>
+<span class="c1"># in the [0, 1000] interval, with a correlation factor of 25 and</span>
+<span class="c1"># an incidence matrix with 25% density.</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">SetPackGenerator</span><span class="p">(</span>
+    <span class="n">n_elements</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span>
+    <span class="n">n_sets</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">11</span><span class="p">),</span>
+    <span class="n">costs</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">),</span>
+    <span class="n">costs_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.20</span><span class="p">),</span>
+    <span class="n">density</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.00</span><span class="p">),</span>
+    <span class="n">K</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">25.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">fix_sets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Print problem data for one instance</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;matrix</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">incidence_matrix</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;costs&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">costs</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="c1"># Build and optimize model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_setpack_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+matrix
+ [[1 0 0 0 1 1 1 0 0 0]
+ [1 0 0 1 1 1 1 0 1 1]
+ [0 1 1 1 1 0 1 0 0 1]
+ [0 1 1 0 0 0 1 1 0 1]
+ [1 1 1 0 1 0 1 0 0 1]]
+costs [1044.58  850.13 1014.5   944.83  697.9   971.87  213.49  220.98   70.23
+  425.33]
+
+Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+Optimize a model with 5 rows, 10 columns and 28 nonzeros
+Model fingerprint: 0x4ee91388
+Variable types: 0 continuous, 10 integer (10 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [7e+01, 1e+03]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Found heuristic solution: objective -1265.560000
+Presolve removed 5 rows and 10 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds (0.00 work units)
+Thread count was 1 (of 32 available processors)
+
+Solution count 2: -1986.37 -1265.56
+No other solutions better than -1986.37
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective -1.986370000000e+03, best bound -1.986370000000e+03, gap 0.0000%
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Stable-Set">
+<h2><span class="section-number">1.7. </span>Stable Set<a class="headerlink" href="#Stable-Set" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>maximum-weight stable set problem</strong> is a classical optimization problem in graph theory which asks for the maximum-weight subset of vertices in a graph such that no two vertices in the subset are adjacent. The problem often arises in real-world scheduling or resource allocation situations, where stable sets represent tasks or resources that can be chosen simultaneously without conflicts.</p>
+<div class="section" id="id13">
+<h3>Formulation<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<p>Let <span class="math notranslate nohighlight">\(G=(V,E)\)</span> be a simple undirected graph, and for each vertex <span class="math notranslate nohighlight">\(v \in V\)</span>, let <span class="math notranslate nohighlight">\(w_v\)</span> be its weight. The problem is formulated as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+\text{minimize} \;\;\; &amp; -\sum_{v \in V} w_v x_v \\
+\text{such that} \;\;\; &amp; \sum_{v \in C} x_v \leq 1 &amp; \forall C \in \mathcal{C} \\
+&amp; x_v \in \{0, 1\} &amp; \forall v \in V
+\end{align*}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{C}\)</span> is the set of cliques in <span class="math notranslate nohighlight">\(G\)</span>. We recall that a clique is a subset of vertices in which every pair of vertices is adjacent.</p>
+</div>
+<div class="section" id="id14">
+<h3>Random instance generator<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<p>The class <a class="reference external" href="../../api/problems/#miplearn.problems.stab.MaxWeightStableSetGenerator">MaxWeightStableSetGenerator</a> can be used to generate random instances of this problem. The class first samples the user-provided probability distributions <code class="docutils literal notranslate"><span class="pre">n</span></code> and <code class="docutils literal notranslate"><span class="pre">p</span></code> to decide the number of vertices and the density of the graph. Then, it generates a random Erdős-Rényi graph <span class="math notranslate nohighlight">\(G_{n,p}\)</span>. We recall that, in such a graph, each potential edge is included with probabilty <span class="math notranslate nohighlight">\(p\)</span>, independently for each
+other. The class then samples the provided probability distribution <code class="docutils literal notranslate"><span class="pre">w</span></code> to decide the vertex weights.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">fix_graph=True</span></code>, then all generated instances have the same random graph. For each instance, the weights are decided by sampling <code class="docutils literal notranslate"><span class="pre">w</span></code>, as described above.</p>
+</div>
+<div class="section" id="id15">
+<h3>Example<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.stab</span> <span class="kn">import</span> <span class="n">MaxWeightStableSetGenerator</span><span class="p">,</span> <span class="n">build_stab_model</span>
+
+<span class="c1"># Set random seed to make example reproducible</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Generate random instances with a fixed 10-node graph,</span>
+<span class="c1"># 25% density and random weights in the [0, 100] interval.</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">MaxWeightStableSetGenerator</span><span class="p">(</span>
+    <span class="n">w</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">100.0</span><span class="p">),</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">11</span><span class="p">),</span>
+    <span class="n">p</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">fix_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Print the graph and weights for two instances</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;weights[0]&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;weights[1]&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="c1"># Load and optimize the first instance</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_stab_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+graph [(0, 2), (0, 4), (0, 8), (1, 2), (1, 3), (1, 5), (1, 6), (1, 9), (2, 5), (2, 9), (3, 6), (3, 7), (6, 9), (7, 8), (8, 9)]
+weights[0] [37.45 95.07 73.2  59.87 15.6  15.6   5.81 86.62 60.11 70.81]
+weights[1] [ 2.06 96.99 83.24 21.23 18.18 18.34 30.42 52.48 43.19 29.12]
+
+Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+Optimize a model with 10 rows, 10 columns and 24 nonzeros
+Model fingerprint: 0xf4c21689
+Variable types: 0 continuous, 10 integer (10 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [6e+00, 1e+02]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Found heuristic solution: objective -219.1400000
+Presolve removed 2 rows and 2 columns
+Presolve time: 0.00s
+Presolved: 8 rows, 8 columns, 19 nonzeros
+Variable types: 0 continuous, 8 integer (8 binary)
+
+Root relaxation: objective -2.205650e+02, 4 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 infeasible    0      -219.14000 -219.14000  0.00%     -    0s
+
+Explored 1 nodes (4 simplex iterations) in 0.00 seconds (0.00 work units)
+Thread count was 32 (of 32 available processors)
+
+Solution count 1: -219.14
+No other solutions better than -219.14
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective -2.191400000000e+02, best bound -2.191400000000e+02, gap 0.0000%
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Traveling-Salesman">
+<h2><span class="section-number">1.8. </span>Traveling Salesman<a class="headerlink" href="#Traveling-Salesman" title="Permalink to this headline">¶</a></h2>
+<p>Given a list of cities and the distances between them, the <strong>traveling salesman problem</strong> asks for the shortest route starting at the first city, visiting each other city exactly once, then returning to the first city. This problem is a generalization of the Hamiltonian path problem, one of Karp’s 21 NP-complete problems, and has many practical applications, including routing delivery trucks and scheduling airline routes.</p>
+<div class="section" id="id16">
+<h3>Formulation<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<p>Let <span class="math notranslate nohighlight">\(G=(V,E)\)</span> be a simple undirected graph. For each edge <span class="math notranslate nohighlight">\(e \in E\)</span>, let <span class="math notranslate nohighlight">\(d_e\)</span> be its weight (or distance) and let <span class="math notranslate nohighlight">\(x_e\)</span> be a binary decision variable which equals one if <span class="math notranslate nohighlight">\(e\)</span> is included in the route. The problem is formulated as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+\text{minimize} \;\;\;
+    &amp; \sum_{e \in E} d_e x_e \\
+\text{such that} \;\;\;
+    &amp; \sum_{e : \delta(v)} x_e = 2 &amp; \forall v \in V, \\
+    &amp; \sum_{e \in \delta(S)} x_e \geq 2 &amp; \forall S \subsetneq V, |S| \neq \emptyset, \\
+    &amp; x_e \in \{0, 1\} &amp; \forall e \in E,
+\end{align*}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\delta(v)\)</span> denotes the set of edges adjacent to vertex <span class="math notranslate nohighlight">\(v\)</span>, and <span class="math notranslate nohighlight">\(\delta(S)\)</span> denotes the set of edges that have one extremity in <span class="math notranslate nohighlight">\(S\)</span> and one in <span class="math notranslate nohighlight">\(V \setminus S\)</span>. Because of its exponential size, we enforce the second set of inequalities as lazy constraints.</p>
+</div>
+<div class="section" id="id17">
+<h3>Random instance generator<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<p>The class <a class="reference external" href="../../api/problems/#miplearn.problems.tsp.TravelingSalesmanGenerator">TravelingSalesmanGenerator</a> can be used to generate random instances of this problem. Initially, the class samples the user-provided probability distribution <code class="docutils literal notranslate"><span class="pre">n</span></code> to decide how many cities to generate. Then, for each city <span class="math notranslate nohighlight">\(i\)</span>, the class generates its geographical location <span class="math notranslate nohighlight">\((x_i, y_i)\)</span> by sampling the provided distributions <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code>. The distance <span class="math notranslate nohighlight">\(d_{ij}\)</span> between cities <span class="math notranslate nohighlight">\(i\)</span> and
+<span class="math notranslate nohighlight">\(j\)</span> is then set to</p>
+<div class="math notranslate nohighlight">
+\[\gamma_{ij} \sqrt{(x_i - x_j)^2 + (y_i - y_j)^2},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\gamma\)</span> is a random scaling factor sampled from the provided probability distribution <code class="docutils literal notranslate"><span class="pre">gamma</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">fix_cities=True</span></code>, then the list of cities is kept the same for all generated instances. The <span class="math notranslate nohighlight">\(\gamma\)</span> values, however, and therefore also the distances, are still different. By default, all distances <span class="math notranslate nohighlight">\(d_{ij}\)</span> are rounded to the nearest integer. If <code class="docutils literal notranslate"><span class="pre">round=False</span></code> is provided, this rounding will be disabled.</p>
+</div>
+<div class="section" id="id18">
+<h3>Example<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.tsp</span> <span class="kn">import</span> <span class="n">TravelingSalesmanGenerator</span><span class="p">,</span> <span class="n">build_tsp_model</span>
+
+<span class="c1"># Set random seed to make example reproducible</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Generate random instances with a fixed ten cities in the 1000x1000 box</span>
+<span class="c1"># and random distance scaling factors in the [0.90, 1.10] interval.</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">TravelingSalesmanGenerator</span><span class="p">(</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">11</span><span class="p">),</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">),</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">),</span>
+    <span class="n">gamma</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.20</span><span class="p">),</span>
+    <span class="n">fix_cities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">round</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Print distance matrices for the first two instances</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;distances[0]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">distances</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;distances[1]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">distances</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="c1"># Load and optimize the first instance</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_tsp_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+distances[0]
+ [[   0.  513.  762.  358.  325.  374.  932.  731.  391.  634.]
+ [ 513.    0.  726.  765.  163.  754.  409.  719.  446.  400.]
+ [ 762.  726.    0.  780.  756.  744.  656.   40.  383.  334.]
+ [ 358.  765.  780.    0.  549.  117.  925.  702.  422.  728.]
+ [ 325.  163.  756.  549.    0.  663.  526.  708.  377.  462.]
+ [ 374.  754.  744.  117.  663.    0. 1072.  802.  501.  853.]
+ [ 932.  409.  656.  925.  526. 1072.    0.  654.  603.  433.]
+ [ 731.  719.   40.  702.  708.  802.  654.    0.  381.  255.]
+ [ 391.  446.  383.  422.  377.  501.  603.  381.    0.  287.]
+ [ 634.  400.  334.  728.  462.  853.  433.  255.  287.    0.]]
+distances[1]
+ [[   0.  493.  900.  354.  323.  367.  841.  727.  444.  668.]
+ [ 493.    0.  690.  687.  175.  725.  368.  744.  398.  446.]
+ [ 900.  690.    0.  666.  728.  827.  736.   41.  371.  317.]
+ [ 354.  687.  666.    0.  570.  104. 1090.  712.  454.  648.]
+ [ 323.  175.  728.  570.    0.  655.  521.  650.  356.  469.]
+ [ 367.  725.  827.  104.  655.    0. 1146.  779.  476.  752.]
+ [ 841.  368.  736. 1090.  521. 1146.    0.  681.  565.  394.]
+ [ 727.  744.   41.  712.  650.  779.  681.    0.  374.  286.]
+ [ 444.  398.  371.  454.  356.  476.  565.  374.    0.  274.]
+ [ 668.  446.  317.  648.  469.  752.  394.  286.  274.    0.]]
+
+Set parameter LazyConstraints to value 1
+Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+Optimize a model with 10 rows, 45 columns and 90 nonzeros
+Model fingerprint: 0x719675e5
+Variable types: 0 continuous, 45 integer (45 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [4e+01, 1e+03]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [2e+00, 2e+00]
+Presolve time: 0.00s
+Presolved: 10 rows, 45 columns, 90 nonzeros
+Variable types: 0 continuous, 45 integer (45 binary)
+
+Root relaxation: objective 2.921000e+03, 17 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+*    0     0               0    2921.0000000 2921.00000  0.00%     -    0s
+
+Cutting planes:
+  Lazy constraints: 3
+
+Explored 1 nodes (17 simplex iterations) in 0.01 seconds (0.00 work units)
+Thread count was 32 (of 32 available processors)
+
+Solution count 1: 2921
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 2.921000000000e+03, best bound 2.921000000000e+03, gap 0.0000%
+
+User-callback calls 100, time in user-callback 0.00 sec
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Unit-Commitment">
+<h2><span class="section-number">1.9. </span>Unit Commitment<a class="headerlink" href="#Unit-Commitment" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>unit commitment problem</strong> is a mixed-integer optimization problem which asks which power generation units should be turned on and off, at what time, and at what capacity, in order to meet the demand for electricity generation at the lowest cost. Numerous operational constraints are typically enforced, such as <em>ramping constraints</em>, which prevent generation units from changing power output levels too quickly from one time step to the next, and <em>minimum-up</em> and <em>minimum-down</em> constraints,
+which prevent units from switching on and off too frequently. The unit commitment problem is widely used in power systems planning and operations.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>MIPLearn includes a simple formulation for the unit commitment problem, which enforces only minimum and maximum power production, as well as minimum-up and minimum-down constraints. The formulation does not enforce, for example, ramping trajectories, piecewise-linear cost curves, start-up costs or transmission and n-1 security constraints. For a more complete set of formulations, solution methods and realistic benchmark instances for the problem, see
+<a class="reference external" href="https://github.com/ANL-CEEESA/UnitCommitment.jl">UnitCommitment.jl</a>.</p>
+</div>
+<div class="section" id="id19">
+<h3>Formulation<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<p>Let <span class="math notranslate nohighlight">\(T\)</span> be the number of time steps, <span class="math notranslate nohighlight">\(G\)</span> be the number of generation units, and let <span class="math notranslate nohighlight">\(D_t\)</span> be the power demand (in MW) at time <span class="math notranslate nohighlight">\(t\)</span>. For each generating unit <span class="math notranslate nohighlight">\(g\)</span>, let <span class="math notranslate nohighlight">\(P^\max_g\)</span> and <span class="math notranslate nohighlight">\(P^\min_g\)</span> be the maximum and minimum amount of power the unit is able to produce when switched on; let <span class="math notranslate nohighlight">\(L_g\)</span> and <span class="math notranslate nohighlight">\(l_g\)</span> be the minimum up- and down-time for unit <span class="math notranslate nohighlight">\(g\)</span>; let <span class="math notranslate nohighlight">\(C^\text{fixed}\)</span> be the cost to keep unit <span class="math notranslate nohighlight">\(g\)</span> on for one time step,
+regardless of its power output level; let <span class="math notranslate nohighlight">\(C^\text{start}\)</span> be the cost to switch unit <span class="math notranslate nohighlight">\(g\)</span> on; and let <span class="math notranslate nohighlight">\(C^\text{var}\)</span> be the cost for generator <span class="math notranslate nohighlight">\(g\)</span> to produce 1 MW of power. In this formulation, we assume linear production costs. For each generator <span class="math notranslate nohighlight">\(g\)</span> and time <span class="math notranslate nohighlight">\(t\)</span>, let <span class="math notranslate nohighlight">\(x_{gt}\)</span> be a binary variable which equals one if unit <span class="math notranslate nohighlight">\(g\)</span> is on at time <span class="math notranslate nohighlight">\(t\)</span>, let <span class="math notranslate nohighlight">\(w_{gt}\)</span> be a binary variable which equals one if unit <span class="math notranslate nohighlight">\(g\)</span> switches from being off
+at time <span class="math notranslate nohighlight">\(t-1\)</span> to being on at time <span class="math notranslate nohighlight">\(t\)</span>, and let <span class="math notranslate nohighlight">\(p_{gt}\)</span> be a continuous variable which indicates the amount of power generated. The formulation is given by:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+\text{minimize} \;\;\;
+    &amp; \sum_{t=1}^T \sum_{g=1}^G \left(
+        x_{gt} C^\text{fixed}_g
+        + w_{gt} C^\text{start}_g
+        + p_{gt} C^\text{var}_g
+    \right)
+    \\
+\text{such that} \;\;\;
+    &amp; \sum_{k=t-L_g+1}^t w_{gk} \leq x_{gt}
+        &amp; \forall g\; \forall t=L_g-1,\ldots,T-1 \\
+    &amp; \sum_{k=g-l_g+1}^T w_{gt} \leq 1 - x_{g,t-l_g+1}
+        &amp; \forall g \forall t=l_g-1,\ldots,T-1 \\
+    &amp; w_{gt} \geq x_{gt} - x_{g,t-1}
+        &amp; \forall g \forall t=1,\ldots,T-1 \\
+    &amp; \sum_{g=1}^G p_{gt} \geq D_t
+        &amp; \forall t \\
+    &amp; P^\text{min}_g x_{gt} \leq p_{gt}
+        &amp; \forall g, t \\
+    &amp; p_{gt} \leq P^\text{max}_g x_{gt}
+        &amp; \forall g, t \\
+    &amp; x_{gt} \in \{0, 1\}
+        &amp; \forall g, t.
+\end{align*}\end{split}\]</div>
+<p>The first set of inequalities enforces minimum up-time constraints: if unit <span class="math notranslate nohighlight">\(g\)</span> is down at time <span class="math notranslate nohighlight">\(t\)</span>, then it cannot start up during the previous <span class="math notranslate nohighlight">\(L_g\)</span> time steps. The second set of inequalities enforces minimum down-time constraints, and is symmetrical to the previous one. The third set ensures that if unit <span class="math notranslate nohighlight">\(g\)</span> starts up at time <span class="math notranslate nohighlight">\(t\)</span>, then the start up variable must be one. The fourth set ensures that demand is satisfied at each time period. The fifth and sixth sets
+enforce bounds to the quantity of power generated by each unit.</p>
+<div class="admonition note">
+<p class="admonition-title">References</p>
+<ul class="simple">
+<li><p><em>Bendotti, P., Fouilhoux, P. &amp; Rottner, C.</em> <strong>The min-up/min-down unit commitment polytope.</strong> J Comb Optim 36, 1024-1058 (2018). <a class="reference external" href="https://doi.org/10.1007/s10878-018-0273-y">https://doi.org/10.1007/s10878-018-0273-y</a></p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="id20">
+<h3>Random instance generator<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+<p>The class <code class="docutils literal notranslate"><span class="pre">UnitCommitmentGenerator</span></code> can be used to generate random instances of this problem.</p>
+<p>First, the user-provided probability distributions <code class="docutils literal notranslate"><span class="pre">n_units</span></code> and <code class="docutils literal notranslate"><span class="pre">n_periods</span></code> are sampled to determine the number of generating units and the number of time steps, respectively. Then, for each unit, the probabilities <code class="docutils literal notranslate"><span class="pre">max_power</span></code> and <code class="docutils literal notranslate"><span class="pre">min_power</span></code> are sampled to determine the unit’s maximum and minimum power output. To make it easier to generate valid ranges, <code class="docutils literal notranslate"><span class="pre">min_power</span></code> is not specified as the absolute power level in MW, but rather as a multiplier of <code class="docutils literal notranslate"><span class="pre">max_power</span></code>; for example, if
+<code class="docutils literal notranslate"><span class="pre">max_power</span></code> samples to 100 and <code class="docutils literal notranslate"><span class="pre">min_power</span></code> samples to 0.5, then the unit’s power range is set to <code class="docutils literal notranslate"><span class="pre">[50,100]</span></code>. Then, the distributions <code class="docutils literal notranslate"><span class="pre">cost_startup</span></code>, <code class="docutils literal notranslate"><span class="pre">cost_prod</span></code> and <code class="docutils literal notranslate"><span class="pre">cost_fixed</span></code> are sampled to determine the unit’s startup, variable and fixed costs, while the distributions <code class="docutils literal notranslate"><span class="pre">min_uptime</span></code> and <code class="docutils literal notranslate"><span class="pre">min_downtime</span></code> are sampled to determine its minimum up/down-time.</p>
+<p>After parameters for the units have been generated, the class then generates a periodic demand curve, with a peak every 12 time steps, in the range <span class="math notranslate nohighlight">\((0.4C, 0.8C)\)</span>, where <span class="math notranslate nohighlight">\(C\)</span> is the sum of all units’ maximum power output. Finally, all costs and demand values are perturbed by random scaling factors independently sampled from the distributions <code class="docutils literal notranslate"><span class="pre">cost_jitter</span></code> and <code class="docutils literal notranslate"><span class="pre">demand_jitter</span></code>, respectively.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">fix_units=True</span></code>, then the list of generators (with their respective parameters) is kept the same for all generated instances. If <code class="docutils literal notranslate"><span class="pre">cost_jitter</span></code> and <code class="docutils literal notranslate"><span class="pre">demand_jitter</span></code> are provided, the instances will still have slightly different costs and demands.</p>
+</div>
+<div class="section" id="id21">
+<h3>Example<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.uc</span> <span class="kn">import</span> <span class="n">UnitCommitmentGenerator</span><span class="p">,</span> <span class="n">build_uc_model</span>
+
+<span class="c1"># Set random seed to make example reproducible</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Generate a random instance with 5 generators and 24 time steps</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">UnitCommitmentGenerator</span><span class="p">(</span>
+    <span class="n">n_units</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span>
+    <span class="n">n_periods</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">25</span><span class="p">),</span>
+    <span class="n">max_power</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">450</span><span class="p">),</span>
+    <span class="n">min_power</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.25</span><span class="p">),</span>
+    <span class="n">cost_startup</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">10_000</span><span class="p">),</span>
+    <span class="n">cost_prod</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>
+    <span class="n">cost_fixed</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1_000</span><span class="p">),</span>
+    <span class="n">min_uptime</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+    <span class="n">min_downtime</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+    <span class="n">cost_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">demand_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+    <span class="n">fix_units</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Print problem data for the two first instances</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;min_power[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">min_power</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;max_power[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">max_power</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;min_uptime[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">min_uptime</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;min_downtime[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">min_downtime</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;min_power[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">min_power</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cost_startup[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cost_startup</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cost_prod[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cost_prod</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cost_fixed[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cost_fixed</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;demand[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">demand</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+<span class="c1"># Load and optimize the first instance</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_uc_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+min_power[0] [117.79 245.85 271.85 207.7   81.38]
+max_power[0] [218.54 477.82 379.4  319.4  120.21]
+min_uptime[0] [7 6 3 5 7]
+min_downtime[0] [7 3 5 6 2]
+min_power[0] [117.79 245.85 271.85 207.7   81.38]
+cost_startup[0] [3042.42 5247.56 4319.45 2912.29 6118.53]
+cost_prod[0] [ 6.97 14.61 18.32 22.8  39.26]
+cost_fixed[0] [199.67 514.23 592.41  46.45 607.54]
+demand[0]
+ [ 905.06  915.41 1166.52 1212.29 1127.81  953.52  905.06  796.21  783.78
+  866.23  768.62  899.59  905.06  946.23 1087.61 1004.24 1048.36  992.03
+  905.06  750.82  691.48  606.15  658.5   809.95]
+
+min_power[1] [117.79 245.85 271.85 207.7   81.38]
+max_power[1] [218.54 477.82 379.4  319.4  120.21]
+min_uptime[1] [7 6 3 5 7]
+min_downtime[1] [7 3 5 6 2]
+min_power[1] [117.79 245.85 271.85 207.7   81.38]
+cost_startup[1] [2458.08 6200.26 4585.74 2666.05 4783.34]
+cost_prod[1] [ 6.31 13.33 20.42 24.37 46.86]
+cost_fixed[1] [196.9  416.42 655.57  52.51 626.15]
+demand[1]
+ [ 981.42  840.07 1095.59 1102.03 1088.41  932.29  863.67  848.56  761.33
+  828.28  775.18  834.99  959.76  865.72 1193.52 1058.92  985.19  893.92
+  962.16  781.88  723.15  639.04  602.4   787.02]
+
+Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Thread count: 6 physical cores, 12 logical processors, using up to 12 threads
+Optimize a model with 578 rows, 360 columns and 2128 nonzeros
+Model fingerprint: 0x4dc1c661
+Variable types: 120 continuous, 240 integer (240 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 5e+02]
+  Objective range  [7e+00, 6e+03]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+03]
+Presolve removed 244 rows and 131 columns
+Presolve time: 0.01s
+Presolved: 334 rows, 229 columns, 842 nonzeros
+Variable types: 116 continuous, 113 integer (113 binary)
+Found heuristic solution: objective 441426.66550
+Found heuristic solution: objective 429461.97680
+Found heuristic solution: objective 374043.64040
+
+Root relaxation: objective 3.361348e+05, 139 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 336134.820    0   18 374043.640 336134.820  10.1%     -    0s
+H    0     0                    368600.14450 336134.820  8.81%     -    0s
+H    0     0                    364721.76610 364721.766  0.00%     -    0s
+     0     0          -    0      364721.766 364721.766  0.00%     -    0s
+
+Cutting planes:
+  Gomory: 3
+  Cover: 8
+  Implied bound: 29
+  Clique: 222
+  MIR: 7
+  Flow cover: 7
+  RLT: 1
+  Relax-and-lift: 7
+
+Explored 1 nodes (232 simplex iterations) in 0.04 seconds (0.02 work units)
+Thread count was 12 (of 12 available processors)
+
+Solution count 5: 364722 368600 374044 ... 441427
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.647217661000e+05, best bound 3.647217661000e+05, gap 0.0000%
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Vertex-Cover">
+<h2><span class="section-number">1.10. </span>Vertex Cover<a class="headerlink" href="#Vertex-Cover" title="Permalink to this headline">¶</a></h2>
+<p><strong>Minimum weight vertex cover</strong> is a classical optimization problem in graph theory where the goal is to find the minimum-weight set of vertices that are connected to all of the edges in the graph. The problem generalizes one of Karp’s 21 NP-complete problems and has applications in various fields, including bioinformatics and machine learning.</p>
+<div class="section" id="id22">
+<h3>Formulation<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h3>
+<p>Let <span class="math notranslate nohighlight">\(G=(V,E)\)</span> be a simple graph. For each vertex <span class="math notranslate nohighlight">\(v \in V\)</span>, let <span class="math notranslate nohighlight">\(w_g\)</span> be its weight, and let <span class="math notranslate nohighlight">\(x_v\)</span> be a binary decision variable which equals one if <span class="math notranslate nohighlight">\(v\)</span> is included in the cover. The mixed-integer linear formulation for the problem is given by:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+\text{minimize} \;\;\;
+    &amp; \sum_{v \in V} w_v \\
+\text{such that} \;\;\;
+    &amp; x_i + x_j \ge 1 &amp; \forall \{i, j\} \in E, \\
+    &amp; x_{i,j} \in \{0, 1\}
+        &amp; \forall \{i,j\} \in E.
+\end{align*}\end{split}\]</div>
+</div>
+<div class="section" id="id23">
+<h3>Random instance generator<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
+<p>The class <a class="reference external" href="../../api/problems/#module-miplearn.problems.vertexcover">MinWeightVertexCoverGenerator</a> can be used to generate random instances of this problem. The class accepts exactly the same parameters and behaves exactly in the same way as <a class="reference external" href="../../api/problems/#miplearn.problems.stab.MaxWeightStableSetGenerator">MaxWeightStableSetGenerator</a>. See the <a class="reference external" href="#Stable-Set">stable set section</a> for more details.</p>
+</div>
+<div class="section" id="id24">
+<h3>Example<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.vertexcover</span> <span class="kn">import</span> <span class="n">MinWeightVertexCoverGenerator</span><span class="p">,</span> <span class="n">build_vertexcover_model</span>
+
+<span class="c1"># Set random seed to make example reproducible</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Generate random instances with a fixed 10-node graph,</span>
+<span class="c1"># 25% density and random weights in the [0, 100] interval.</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">MinWeightVertexCoverGenerator</span><span class="p">(</span>
+    <span class="n">w</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">100.0</span><span class="p">),</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">11</span><span class="p">),</span>
+    <span class="n">p</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">fix_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Print the graph and weights for two instances</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;weights[0]&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;weights[1]&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="c1"># Load and optimize the first instance</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_vertexcover_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+graph [(0, 2), (0, 4), (0, 8), (1, 2), (1, 3), (1, 5), (1, 6), (1, 9), (2, 5), (2, 9), (3, 6), (3, 7), (6, 9), (7, 8), (8, 9)]
+weights[0] [37.45 95.07 73.2  59.87 15.6  15.6   5.81 86.62 60.11 70.81]
+weights[1] [ 2.06 96.99 83.24 21.23 18.18 18.34 30.42 52.48 43.19 29.12]
+
+Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Thread count: 6 physical cores, 12 logical processors, using up to 12 threads
+Optimize a model with 15 rows, 10 columns and 30 nonzeros
+Model fingerprint: 0x2d2d1390
+Variable types: 0 continuous, 10 integer (10 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [6e+00, 1e+02]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Found heuristic solution: objective 301.0000000
+Presolve removed 7 rows and 2 columns
+Presolve time: 0.00s
+Presolved: 8 rows, 8 columns, 19 nonzeros
+Variable types: 0 continuous, 8 integer (8 binary)
+
+Root relaxation: objective 2.995750e+02, 8 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 infeasible    0       301.00000  301.00000  0.00%     -    0s
+
+Explored 1 nodes (8 simplex iterations) in 0.01 seconds (0.00 work units)
+Thread count was 12 (of 12 available processors)
+
+Solution count 1: 301
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.010000000000e+02, best bound 3.010000000000e+02, gap 0.0000%
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="../../" title="previous page">MIPLearn</a>
+    <a class='right-next' id="next-link" href="../collectors/" title="next page"><span class="section-number">2. </span>Training Data Collectors</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2022, UChicago Argonne, LLC.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

@@ -1,0 +1,436 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>8. Components &#8212; MIPLearn 0.3</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="9. Solvers" href="../solvers/" />
+    <link rel="prev" title="7. Collectors &amp; Extractors" href="../collectors/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn 0.3</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <p class="caption">
+ <span class="caption-text">
+  User Guide
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/problems/">
+   1. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/collectors/">
+   2. Training Data Collectors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/features/">
+   3. Feature Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/primal/">
+   4. Primal Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/solvers/">
+   5. Solvers
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  API Reference
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../problems/">
+   6. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../collectors/">
+   7. Collectors &amp; Extractors
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   8. Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../solvers/">
+   9. Solvers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../helpers/">
+   10. Helpers
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../../_sources/api/components.rst.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.rst</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.components.primal.actions">
+   8.1. miplearn.components.primal.actions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.components.primal.expert">
+   8.2. miplearn.components.primal.expert
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.components.primal.indep">
+   8.3. miplearn.components.primal.indep
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.components.primal.joint">
+   8.4. miplearn.components.primal.joint
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.components.primal.mem">
+   8.5. miplearn.components.primal.mem
+  </a>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="section" id="components">
+<h1><span class="section-number">8. </span>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-miplearn.components.primal.actions">
+<span id="miplearn-components-primal-actions"></span><h2><span class="section-number">8.1. </span>miplearn.components.primal.actions<a class="headerlink" href="#module-miplearn.components.primal.actions" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="miplearn.components.primal.actions.EnforceProximity">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.actions.</span></code><code class="sig-name descname"><span class="pre">EnforceProximity</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.components.primal.actions.EnforceProximity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#miplearn.components.primal.actions.PrimalComponentAction" title="miplearn.components.primal.actions.PrimalComponentAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">miplearn.components.primal.actions.PrimalComponentAction</span></code></a></p>
+<dl class="py method">
+<dt id="miplearn.components.primal.actions.EnforceProximity.perform">
+<code class="sig-name descname"><span class="pre">perform</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../solvers/#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.components.primal.actions.EnforceProximity.perform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="miplearn.components.primal.actions.FixVariables">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.actions.</span></code><code class="sig-name descname"><span class="pre">FixVariables</span></code><a class="headerlink" href="#miplearn.components.primal.actions.FixVariables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#miplearn.components.primal.actions.PrimalComponentAction" title="miplearn.components.primal.actions.PrimalComponentAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">miplearn.components.primal.actions.PrimalComponentAction</span></code></a></p>
+<dl class="py method">
+<dt id="miplearn.components.primal.actions.FixVariables.perform">
+<code class="sig-name descname"><span class="pre">perform</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../solvers/#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.components.primal.actions.FixVariables.perform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="miplearn.components.primal.actions.PrimalComponentAction">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.actions.</span></code><code class="sig-name descname"><span class="pre">PrimalComponentAction</span></code><a class="headerlink" href="#miplearn.components.primal.actions.PrimalComponentAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="py method">
+<dt id="miplearn.components.primal.actions.PrimalComponentAction.perform">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">perform</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../solvers/#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.components.primal.actions.PrimalComponentAction.perform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="miplearn.components.primal.actions.SetWarmStart">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.actions.</span></code><code class="sig-name descname"><span class="pre">SetWarmStart</span></code><a class="headerlink" href="#miplearn.components.primal.actions.SetWarmStart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#miplearn.components.primal.actions.PrimalComponentAction" title="miplearn.components.primal.actions.PrimalComponentAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">miplearn.components.primal.actions.PrimalComponentAction</span></code></a></p>
+<dl class="py method">
+<dt id="miplearn.components.primal.actions.SetWarmStart.perform">
+<code class="sig-name descname"><span class="pre">perform</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../solvers/#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.components.primal.actions.SetWarmStart.perform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-miplearn.components.primal.expert">
+<span id="miplearn-components-primal-expert"></span><h2><span class="section-number">8.2. </span>miplearn.components.primal.expert<a class="headerlink" href="#module-miplearn.components.primal.expert" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="miplearn.components.primal.expert.ExpertPrimalComponent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.expert.</span></code><code class="sig-name descname"><span class="pre">ExpertPrimalComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#miplearn.components.primal.actions.PrimalComponentAction" title="miplearn.components.primal.actions.PrimalComponentAction"><span class="pre">miplearn.components.primal.actions.PrimalComponentAction</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.components.primal.expert.ExpertPrimalComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="miplearn.components.primal.expert.ExpertPrimalComponent.before_mip">
+<code class="sig-name descname"><span class="pre">before_mip</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../solvers/#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.components.primal.expert.ExpertPrimalComponent.before_mip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="miplearn.components.primal.expert.ExpertPrimalComponent.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.components.primal.expert.ExpertPrimalComponent.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-miplearn.components.primal.indep">
+<span id="miplearn-components-primal-indep"></span><h2><span class="section-number">8.3. </span>miplearn.components.primal.indep<a class="headerlink" href="#module-miplearn.components.primal.indep" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="miplearn.components.primal.indep.IndependentVarsPrimalComponent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.indep.</span></code><code class="sig-name descname"><span class="pre">IndependentVarsPrimalComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">base_clf:</span> <span class="pre">Any,</span> <span class="pre">extractor:</span> <span class="pre">miplearn.extractors.abstract.FeaturesExtractor,</span> <span class="pre">action:</span> <span class="pre">miplearn.components.primal.actions.PrimalComponentAction,</span> <span class="pre">clone_fn:</span> <span class="pre">Callable[[Any],</span> <span class="pre">Any]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">clone&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.components.primal.indep.IndependentVarsPrimalComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="miplearn.components.primal.indep.IndependentVarsPrimalComponent.before_mip">
+<code class="sig-name descname"><span class="pre">before_mip</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../solvers/#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.components.primal.indep.IndependentVarsPrimalComponent.before_mip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="miplearn.components.primal.indep.IndependentVarsPrimalComponent.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.components.primal.indep.IndependentVarsPrimalComponent.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-miplearn.components.primal.joint">
+<span id="miplearn-components-primal-joint"></span><h2><span class="section-number">8.4. </span>miplearn.components.primal.joint<a class="headerlink" href="#module-miplearn.components.primal.joint" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="miplearn.components.primal.joint.JointVarsPrimalComponent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.joint.</span></code><code class="sig-name descname"><span class="pre">JointVarsPrimalComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clf</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">miplearn.extractors.abstract.FeaturesExtractor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#miplearn.components.primal.actions.PrimalComponentAction" title="miplearn.components.primal.actions.PrimalComponentAction"><span class="pre">miplearn.components.primal.actions.PrimalComponentAction</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.components.primal.joint.JointVarsPrimalComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="miplearn.components.primal.joint.JointVarsPrimalComponent.before_mip">
+<code class="sig-name descname"><span class="pre">before_mip</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../solvers/#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.components.primal.joint.JointVarsPrimalComponent.before_mip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="miplearn.components.primal.joint.JointVarsPrimalComponent.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.components.primal.joint.JointVarsPrimalComponent.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-miplearn.components.primal.mem">
+<span id="miplearn-components-primal-mem"></span><h2><span class="section-number">8.5. </span>miplearn.components.primal.mem<a class="headerlink" href="#module-miplearn.components.primal.mem" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="miplearn.components.primal.mem.MemorizingPrimalComponent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.mem.</span></code><code class="sig-name descname"><span class="pre">MemorizingPrimalComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clf</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">miplearn.extractors.abstract.FeaturesExtractor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constructor</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#miplearn.components.primal.mem.SolutionConstructor" title="miplearn.components.primal.mem.SolutionConstructor"><span class="pre">miplearn.components.primal.mem.SolutionConstructor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#miplearn.components.primal.actions.PrimalComponentAction" title="miplearn.components.primal.actions.PrimalComponentAction"><span class="pre">miplearn.components.primal.actions.PrimalComponentAction</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.components.primal.mem.MemorizingPrimalComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Component that memorizes all solutions seen during training, then fits a
+single classifier to predict which of the memorized solutions should be
+provided to the solver. Optionally combines multiple memorized solutions
+into a single, partial one.</p>
+<dl class="py method">
+<dt id="miplearn.components.primal.mem.MemorizingPrimalComponent.before_mip">
+<code class="sig-name descname"><span class="pre">before_mip</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../solvers/#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.components.primal.mem.MemorizingPrimalComponent.before_mip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="miplearn.components.primal.mem.MemorizingPrimalComponent.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.components.primal.mem.MemorizingPrimalComponent.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="miplearn.components.primal.mem.MergeTopSolutions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.mem.</span></code><code class="sig-name descname"><span class="pre">MergeTopSolutions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresholds</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.components.primal.mem.MergeTopSolutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#miplearn.components.primal.mem.SolutionConstructor" title="miplearn.components.primal.mem.SolutionConstructor"><code class="xref py py-class docutils literal notranslate"><span class="pre">miplearn.components.primal.mem.SolutionConstructor</span></code></a></p>
+<p>Warm start construction strategy that first selects the top k solutions,
+then merges them into a single solution.</p>
+<p>To merge the solutions, the strategy first computes the mean optimal value of each
+decision variable, then: (i) sets the variable to zero if the mean is below
+thresholds[0]; (ii) sets the variable to one if the mean is above thresholds[1];
+(iii) leaves the variable free otherwise.</p>
+<dl class="py method">
+<dt id="miplearn.components.primal.mem.MergeTopSolutions.construct">
+<code class="sig-name descname"><span class="pre">construct</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_proba</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#miplearn.components.primal.mem.MergeTopSolutions.construct" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="miplearn.components.primal.mem.SelectTopSolutions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.mem.</span></code><code class="sig-name descname"><span class="pre">SelectTopSolutions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.components.primal.mem.SelectTopSolutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#miplearn.components.primal.mem.SolutionConstructor" title="miplearn.components.primal.mem.SolutionConstructor"><code class="xref py py-class docutils literal notranslate"><span class="pre">miplearn.components.primal.mem.SolutionConstructor</span></code></a></p>
+<p>Warm start construction strategy that selects and returns the top k solutions.</p>
+<dl class="py method">
+<dt id="miplearn.components.primal.mem.SelectTopSolutions.construct">
+<code class="sig-name descname"><span class="pre">construct</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_proba</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#miplearn.components.primal.mem.SelectTopSolutions.construct" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="miplearn.components.primal.mem.SolutionConstructor">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.mem.</span></code><code class="sig-name descname"><span class="pre">SolutionConstructor</span></code><a class="headerlink" href="#miplearn.components.primal.mem.SolutionConstructor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="py method">
+<dt id="miplearn.components.primal.mem.SolutionConstructor.construct">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">construct</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_proba</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#miplearn.components.primal.mem.SolutionConstructor.construct" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="../collectors/" title="previous page"><span class="section-number">7. </span>Collectors &amp; Extractors</a>
+    <a class='right-next' id="next-link" href="../solvers/" title="next page"><span class="section-number">9. </span>Solvers</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2022, UChicago Argonne, LLC.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

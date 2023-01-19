@@ -1,0 +1,334 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "cdc6ebe9-d1d4-4de1-9b5a-4fc8ef57b11b",
+   "metadata": {},
+   "source": [
+    "# Feature Extractors\n",
+    "\n",
+    "In the previous page, we introduced *training data collectors*, which solve the optimization problem and collect raw training data, such as the optimal solution. In this page, we introduce **feature extractors**, which take the raw training data, stored in HDF5 files, and extract relevant information in order to train a machine learning model. We describe the extractors readily available in MIPLearn."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "\n",
+    "## Overview\n",
+    "\n",
+    "Feature extraction is an important step of the process of building a machine learning model because it helps to reduce the complexity of the data and convert it into a format that is more easily processed. Previous research has proposed converting absolute variable coefficients, for example, into relative values which are invariant  to various transformations, such as problem scaling, making them more amenable to learning. Various other transformations have also been described.\n",
+    "\n",
+    "In the framework, we treat data collection and feature extraction as two separate steps to accelerate the model development cycle. Specifically, collectors are typically time-consuming, as they often need to solve the problem to optimality, and therefore focus on collecting and storing all data that may or may not be relevant, in its raw format. Feature extractors, on the other hand, focus entirely on filtering the data and improving its representation, and are therefore much faster to run. Experimenting with new data representations, therefore, can be done without resolving the instances.\n",
+    "\n",
+    "In MIPLearn, extractors implement the abstract class [FeatureExtractor][FeatureExtractor], which has methods that take as input an [H5File][H5File] and produce either: (i) instance features, which describe the entire instances; (ii) variable features, which describe a particular decision variables; or (iii) constraint features, which describe a particular constraint. The extractor is free to implement only a subset of these methods, if it is known that it will not be used with a machine learning component that requires the other types of features.\n",
+    "\n",
+    "[FeatureExtractor]: ../../api/collectors/#miplearn.features.fields.FeaturesExtractor\n",
+    "[H5File]: ../../api/helpers/#miplearn.h5.H5File"
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "\n",
+    "## H5FieldsExtractor\n",
+    "\n",
+    "[H5FieldsExtractor][H5FieldsExtractor], the most simple extractor in MIPLearn, simple extracts data that is already available in the HDF5 file, assembles it into a matrix and returns it as-is. The fields used to build instance, variable and constraint features are user-specified. The class also performs checks to ensure that the shapes of the returned matrices make sense."
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "### Example\n",
+    "\n",
+    "The example below demonstrates the usage of H5FieldsExtractor in a randomly generated instance of the multi-dimensional knapsack problem."
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "instance features (11,) \n",
+      " [-1531.24308771  -350.          -692.          -454.\n",
+      "  -709.          -605.          -543.          -321.\n",
+      "  -674.          -571.          -341.        ]\n",
+      "variable features (10, 4) \n",
+      " [[-1.53124309e+03 -3.50000000e+02  0.00000000e+00  9.43468018e+01]\n",
+      " [-1.53124309e+03 -6.92000000e+02  2.51703322e-01  0.00000000e+00]\n",
+      " [-1.53124309e+03 -4.54000000e+02  0.00000000e+00  8.25504150e+01]\n",
+      " [-1.53124309e+03 -7.09000000e+02  1.11373022e-01  0.00000000e+00]\n",
+      " [-1.53124309e+03 -6.05000000e+02  1.00000000e+00 -1.26055283e+02]\n",
+      " [-1.53124309e+03 -5.43000000e+02  0.00000000e+00  1.68693771e+02]\n",
+      " [-1.53124309e+03 -3.21000000e+02  1.07488781e-01  0.00000000e+00]\n",
+      " [-1.53124309e+03 -6.74000000e+02  8.82293701e-01  0.00000000e+00]\n",
+      " [-1.53124309e+03 -5.71000000e+02  0.00000000e+00  1.41129074e+02]\n",
+      " [-1.53124309e+03 -3.41000000e+02  1.28830120e-01  0.00000000e+00]]\n",
+      "constraint features (5, 3) \n",
+      " [[ 1.3100000e+03 -1.5978307e-01  0.0000000e+00]\n",
+      " [ 9.8800000e+02 -3.2881632e-01  0.0000000e+00]\n",
+      " [ 1.0040000e+03 -4.0601316e-01  0.0000000e+00]\n",
+      " [ 1.2690000e+03 -1.3659772e-01  0.0000000e+00]\n",
+      " [ 1.0070000e+03 -2.8800571e-01  0.0000000e+00]]\n"
+     ]
+    }
+   ],
+   "source": [
+    "from glob import glob\n",
+    "from shutil import rmtree\n",
+    "\n",
+    "import numpy as np\n",
+    "from scipy.stats import uniform, randint\n",
+    "\n",
+    "from miplearn.collectors.basic import BasicCollector\n",
+    "from miplearn.features.fields import H5FieldsExtractor\n",
+    "from miplearn.h5 import H5File\n",
+    "from miplearn.io import save\n",
+    "from miplearn.problems.multiknapsack import (\n",
+    "    MultiKnapsackGenerator,\n",
+    "    build_multiknapsack_model\n",
+    ")\n",
+    "\n",
+    "# Set random seed to make example reproducible\n",
+    "np.random.seed(42)\n",
+    "\n",
+    "# Generate some random multiknapsack instances\n",
+    "rmtree(\"data/multiknapsack/\", ignore_errors=True)\n",
+    "save(\n",
+    "    MultiKnapsackGenerator(\n",
+    "        n=randint(low=10, high=11),\n",
+    "        m=randint(low=5, high=6),\n",
+    "        w=uniform(loc=0, scale=1000),\n",
+    "        K=uniform(loc=100, scale=0),\n",
+    "        u=uniform(loc=1, scale=0),\n",
+    "        alpha=uniform(loc=0.25, scale=0),\n",
+    "        w_jitter=uniform(loc=0.95, scale=0.1),\n",
+    "        p_jitter=uniform(loc=0.75, scale=0.5),\n",
+    "        fix_w=True,\n",
+    "    ).generate(10),\n",
+    "    \"data/multiknapsack\"\n",
+    ")\n",
+    "\n",
+    "# Run the basic collector\n",
+    "BasicCollector().collect(\n",
+    "    glob(\"data/multiknapsack/*\"),\n",
+    "    build_multiknapsack_model,\n",
+    "    n_jobs=4,\n",
+    ")\n",
+    "\n",
+    "ext = H5FieldsExtractor(\n",
+    "    # Use as instance features the value of the LP relaxation and the\n",
+    "    # vector of objective coefficients.\n",
+    "    instance_fields=[\n",
+    "        \"lp_obj_value\",\n",
+    "        \"static_var_obj_coeffs\",\n",
+    "    ],\n",
+    "    # For each variable, use as features the optimal value of the LP\n",
+    "    # relaxation, the variable objective coefficient, the variable's\n",
+    "    # value its reduced cost.\n",
+    "    var_fields=[\n",
+    "        \"lp_obj_value\",\n",
+    "        \"static_var_obj_coeffs\",\n",
+    "        \"lp_var_values\",\n",
+    "        \"lp_var_reduced_costs\",\n",
+    "    ],\n",
+    "    # For each constraint, use as features the RHS, dual value and slack.\n",
+    "    constr_fields=[\n",
+    "        \"static_constr_rhs\",\n",
+    "        \"lp_constr_dual_values\",\n",
+    "        \"lp_constr_slacks\",\n",
+    "    ]\n",
+    ")\n",
+    "\n",
+    "with H5File(\"data/multiknapsack/00000.h5\") as h5:\n",
+    "    # Extract and print instance features\n",
+    "    x1 = ext.get_instance_features(h5)\n",
+    "    print(\"instance features\", x1.shape, \"\\n\", x1)\n",
+    "\n",
+    "    # Extract and print variable features\n",
+    "    x2 = ext.get_var_features(h5)\n",
+    "    print(\"variable features\", x2.shape, \"\\n\", x2)\n",
+    "\n",
+    "    # Extract and print constraint features\n",
+    "    x3 = ext.get_constr_features(h5)\n",
+    "    print(\"constraint features\", x3.shape, \"\\n\", x3)\n"
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "\n",
+    "[H5FieldsExtractor]: ../../api/collectors/#miplearn.features.fields.H5FieldsExtractor"
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "<div class=\"alert alert-warning\">\n",
+    "Warning\n",
+    "\n",
+    "You should ensure that the number of features remains the same for all relevant HDF5 files. In the previous example, to illustrate this issue, we used variable objective coefficients as instance features. While this is allowed, note that this requires all problem instances to have the same number of variables; otherwise the number of features would vary from instance to instance and MIPLearn would be unable to concatenate the matrices.\n",
+    "</div>"
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "## AlvLouWeh2017Extractor\n",
+    "\n",
+    "Alvarez, Louveaux and Wehenkel (2017) proposed a set features to describe a particular decision variable in a given node of the branch-and-bound tree, and applied it to the problem of mimicking strong branching decisions. The class [AlvLouWeh2017Extractor][] implements a subset of these features (40 out of 64), which are available outside of the branch-and-bound tree. Some features are derived from the static defintion of the problem (i.e. from objective function and constraint data), while some features are derived from the solution to the LP relaxation. The features have been designed to be: (i) independent of the size of the problem; (ii) invariant with respect to irrelevant problem transformations, such as row and column permutation; and (iii) independent of the scale of the problem. We refer to the paper for a more complete description.\n",
+    "\n",
+    "### Example"
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "x1 (10, 40) \n",
+      " [[-1.00e+00  1.00e+20  1.00e-01  1.00e+00  0.00e+00  1.00e+00  6.00e-01\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00  6.00e-01  1.00e+00  1.75e+01  1.00e+00  2.00e-01\n",
+      "   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00 -1.00e+00  0.00e+00  1.00e+20]\n",
+      " [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  1.00e-01  1.00e+00  1.00e+00\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00  7.00e-01  1.00e+00  5.10e+00  1.00e+00  2.00e-01\n",
+      "   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   3.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]\n",
+      " [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  0.00e+00  1.00e+00  9.00e-01\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00  5.00e-01  1.00e+00  1.30e+01  1.00e+00  2.00e-01\n",
+      "   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00 -1.00e+00  0.00e+00  1.00e+20]\n",
+      " [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  2.00e-01  1.00e+00  9.00e-01\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00  8.00e-01  1.00e+00  3.40e+00  1.00e+00  2.00e-01\n",
+      "   1.00e+00  1.00e-01  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   1.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]\n",
+      " [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  1.00e-01  1.00e+00  7.00e-01\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00  6.00e-01  1.00e+00  3.80e+00  1.00e+00  2.00e-01\n",
+      "   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]\n",
+      " [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  1.00e-01  1.00e+00  8.00e-01\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00  7.00e-01  1.00e+00  3.30e+00  1.00e+00  2.00e-01\n",
+      "   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00 -1.00e+00  0.00e+00  1.00e+20]\n",
+      " [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  0.00e+00  1.00e+00  3.00e-01\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00  1.00e+00  1.00e+00  5.70e+00  1.00e+00  1.00e-01\n",
+      "   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   1.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]\n",
+      " [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  1.00e-01  1.00e+00  6.00e-01\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00  8.00e-01  1.00e+00  6.80e+00  1.00e+00  2.00e-01\n",
+      "   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   1.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]\n",
+      " [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  4.00e-01  1.00e+00  6.00e-01\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00  8.00e-01  1.00e+00  1.40e+00  1.00e+00  1.00e-01\n",
+      "   1.00e+00  1.00e-01  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00 -1.00e+00  0.00e+00  1.00e+20]\n",
+      " [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  0.00e+00  1.00e+00  5.00e-01\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  1.00e+00  5.00e-01  1.00e+00  7.60e+00  1.00e+00  1.00e-01\n",
+      "   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00\n",
+      "   1.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]]\n"
+     ]
+    }
+   ],
+   "source": [
+    "from miplearn.features.AlvLouWeh2017 import AlvLouWeh2017Extractor\n",
+    "from miplearn.h5 import H5File\n",
+    "\n",
+    "# Build the extractor\n",
+    "ext = AlvLouWeh2017Extractor()\n",
+    "\n",
+    "# Open previously-created multiknapsack training data\n",
+    "with H5File(\"data/multiknapsack/00000.h5\") as h5:\n",
+    "\n",
+    "    # Extract and print variable features\n",
+    "    x1 = ext.get_var_features(h5)\n",
+    "    print(\"x1\", x1.shape, \"\\n\", x1.round(1))"
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "<div class=\"alert alert-info\">\n",
+    "References\n",
+    "\n",
+    "* **Alvarez, Alejandro Marcos.** *Computational and theoretical synergies between linear optimization and supervised machine learning.* (2016). University of Liège.\n",
+    "* **Alvarez, Alejandro Marcos, Quentin Louveaux, and Louis Wehenkel.** *A machine learning-based approximation of strong branching.* INFORMS Journal on Computing 29.1 (2017): 185-195.\n",
+    "\n",
+    "</div>"
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.13"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

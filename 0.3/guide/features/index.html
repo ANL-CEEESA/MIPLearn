@@ -1,0 +1,768 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3. Feature Extractors &#8212; MIPLearn 0.3</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="4. Primal Components" href="../primal/" />
+    <link rel="prev" title="2. Training Data Collectors" href="../collectors/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn 0.3</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <p class="caption">
+ <span class="caption-text">
+  User Guide
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../problems/">
+   1. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../collectors/">
+   2. Training Data Collectors
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   3. Feature Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../primal/">
+   4. Primal Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../solvers/">
+   5. Solvers
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  API Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/problems/">
+   6. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/collectors/">
+   7. Collectors &amp; Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/components/">
+   8. Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/solvers/">
+   9. Solvers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/helpers/">
+   10. Helpers
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../../_sources/guide/features.ipynb.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Overview">
+   3.1. Overview
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#H5FieldsExtractor">
+   3.2. H5FieldsExtractor
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Example">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#AlvLouWeh2017Extractor">
+   3.3. AlvLouWeh2017Extractor
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars and line breaks on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+    white-space: pre;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Feature-Extractors">
+<h1><span class="section-number">3. </span>Feature Extractors<a class="headerlink" href="#Feature-Extractors" title="Permalink to this headline">¶</a></h1>
+<p>In the previous page, we introduced <em>training data collectors</em>, which solve the optimization problem and collect raw training data, such as the optimal solution. In this page, we introduce <strong>feature extractors</strong>, which take the raw training data, stored in HDF5 files, and extract relevant information in order to train a machine learning model. We describe the extractors readily available in MIPLearn.</p>
+<div class="section" id="Overview">
+<h2><span class="section-number">3.1. </span>Overview<a class="headerlink" href="#Overview" title="Permalink to this headline">¶</a></h2>
+<p>Feature extraction is an important step of the process of building a machine learning model because it helps to reduce the complexity of the data and convert it into a format that is more easily processed. Previous research has proposed converting absolute variable coefficients, for example, into relative values which are invariant to various transformations, such as problem scaling, making them more amenable to learning. Various other transformations have also been described.</p>
+<p>In the framework, we treat data collection and feature extraction as two separate steps to accelerate the model development cycle. Specifically, collectors are typically time-consuming, as they often need to solve the problem to optimality, and therefore focus on collecting and storing all data that may or may not be relevant, in its raw format. Feature extractors, on the other hand, focus entirely on filtering the data and improving its representation, and are therefore much faster to run.
+Experimenting with new data representations, therefore, can be done without resolving the instances.</p>
+<p>In MIPLearn, extractors implement the abstract class <a class="reference external" href="../../api/collectors/#miplearn.features.fields.FeaturesExtractor">FeatureExtractor</a>, which has methods that take as input an <a class="reference external" href="../../api/helpers/#miplearn.h5.H5File">H5File</a> and produce either: (i) instance features, which describe the entire instances; (ii) variable features, which describe a particular decision variables; or (iii) constraint features, which describe a particular constraint. The extractor is free to implement only a
+subset of these methods, if it is known that it will not be used with a machine learning component that requires the other types of features.</p>
+</div>
+<div class="section" id="H5FieldsExtractor">
+<h2><span class="section-number">3.2. </span>H5FieldsExtractor<a class="headerlink" href="#H5FieldsExtractor" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="#h5fieldsextractor">H5FieldsExtractor</a>, the most simple extractor in MIPLearn, simple extracts data that is already available in the HDF5 file, assembles it into a matrix and returns it as-is. The fields used to build instance, variable and constraint features are user-specified. The class also performs checks to ensure that the shapes of the returned matrices make sense.</p>
+<div class="section" id="Example">
+<h3>Example<a class="headerlink" href="#Example" title="Permalink to this headline">¶</a></h3>
+<p>The example below demonstrates the usage of H5FieldsExtractor in a randomly generated instance of the multi-dimensional knapsack problem.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">rmtree</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+
+<span class="kn">from</span> <span class="nn">miplearn.collectors.basic</span> <span class="kn">import</span> <span class="n">BasicCollector</span>
+<span class="kn">from</span> <span class="nn">miplearn.features.fields</span> <span class="kn">import</span> <span class="n">H5FieldsExtractor</span>
+<span class="kn">from</span> <span class="nn">miplearn.h5</span> <span class="kn">import</span> <span class="n">H5File</span>
+<span class="kn">from</span> <span class="nn">miplearn.io</span> <span class="kn">import</span> <span class="n">save</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.multiknapsack</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MultiKnapsackGenerator</span><span class="p">,</span>
+    <span class="n">build_multiknapsack_model</span>
+<span class="p">)</span>
+
+<span class="c1"># Set random seed to make example reproducible</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Generate some random multiknapsack instances</span>
+<span class="n">rmtree</span><span class="p">(</span><span class="s2">&quot;data/multiknapsack/&quot;</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">save</span><span class="p">(</span>
+    <span class="n">MultiKnapsackGenerator</span><span class="p">(</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">11</span><span class="p">),</span>
+        <span class="n">m</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span>
+        <span class="n">w</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+        <span class="n">K</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">u</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">w_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">),</span>
+        <span class="n">p_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+        <span class="n">fix_w</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+    <span class="s2">&quot;data/multiknapsack&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Run the basic collector</span>
+<span class="n">BasicCollector</span><span class="p">()</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span>
+    <span class="n">glob</span><span class="p">(</span><span class="s2">&quot;data/multiknapsack/*&quot;</span><span class="p">),</span>
+    <span class="n">build_multiknapsack_model</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ext</span> <span class="o">=</span> <span class="n">H5FieldsExtractor</span><span class="p">(</span>
+    <span class="c1"># Use as instance features the value of the LP relaxation and the</span>
+    <span class="c1"># vector of objective coefficients.</span>
+    <span class="n">instance_fields</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;lp_obj_value&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;static_var_obj_coeffs&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="c1"># For each variable, use as features the optimal value of the LP</span>
+    <span class="c1"># relaxation, the variable objective coefficient, the variable&#39;s</span>
+    <span class="c1"># value its reduced cost.</span>
+    <span class="n">var_fields</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;lp_obj_value&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;static_var_obj_coeffs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lp_var_values&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lp_var_reduced_costs&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="c1"># For each constraint, use as features the RHS, dual value and slack.</span>
+    <span class="n">constr_fields</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;static_constr_rhs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lp_constr_dual_values&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lp_constr_slacks&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="k">with</span> <span class="n">H5File</span><span class="p">(</span><span class="s2">&quot;data/multiknapsack/00000.h5&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+    <span class="c1"># Extract and print instance features</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">ext</span><span class="o">.</span><span class="n">get_instance_features</span><span class="p">(</span><span class="n">h5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;instance features&quot;</span><span class="p">,</span> <span class="n">x1</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+
+    <span class="c1"># Extract and print variable features</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">ext</span><span class="o">.</span><span class="n">get_var_features</span><span class="p">(</span><span class="n">h5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;variable features&quot;</span><span class="p">,</span> <span class="n">x2</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">x2</span><span class="p">)</span>
+
+    <span class="c1"># Extract and print constraint features</span>
+    <span class="n">x3</span> <span class="o">=</span> <span class="n">ext</span><span class="o">.</span><span class="n">get_constr_features</span><span class="p">(</span><span class="n">h5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;constraint features&quot;</span><span class="p">,</span> <span class="n">x3</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">x3</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+instance features (11,)
+ [-1531.24308771  -350.          -692.          -454.
+  -709.          -605.          -543.          -321.
+  -674.          -571.          -341.        ]
+variable features (10, 4)
+ [[-1.53124309e+03 -3.50000000e+02  0.00000000e+00  9.43468018e+01]
+ [-1.53124309e+03 -6.92000000e+02  2.51703322e-01  0.00000000e+00]
+ [-1.53124309e+03 -4.54000000e+02  0.00000000e+00  8.25504150e+01]
+ [-1.53124309e+03 -7.09000000e+02  1.11373022e-01  0.00000000e+00]
+ [-1.53124309e+03 -6.05000000e+02  1.00000000e+00 -1.26055283e+02]
+ [-1.53124309e+03 -5.43000000e+02  0.00000000e+00  1.68693771e+02]
+ [-1.53124309e+03 -3.21000000e+02  1.07488781e-01  0.00000000e+00]
+ [-1.53124309e+03 -6.74000000e+02  8.82293701e-01  0.00000000e+00]
+ [-1.53124309e+03 -5.71000000e+02  0.00000000e+00  1.41129074e+02]
+ [-1.53124309e+03 -3.41000000e+02  1.28830120e-01  0.00000000e+00]]
+constraint features (5, 3)
+ [[ 1.3100000e+03 -1.5978307e-01  0.0000000e+00]
+ [ 9.8800000e+02 -3.2881632e-01  0.0000000e+00]
+ [ 1.0040000e+03 -4.0601316e-01  0.0000000e+00]
+ [ 1.2690000e+03 -1.3659772e-01  0.0000000e+00]
+ [ 1.0070000e+03 -2.8800571e-01  0.0000000e+00]]
+</pre></div></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You should ensure that the number of features remains the same for all relevant HDF5 files. In the previous example, to illustrate this issue, we used variable objective coefficients as instance features. While this is allowed, note that this requires all problem instances to have the same number of variables; otherwise the number of features would vary from instance to instance and MIPLearn would be unable to concatenate the matrices.</p>
+</div>
+</div>
+</div>
+<div class="section" id="AlvLouWeh2017Extractor">
+<h2><span class="section-number">3.3. </span>AlvLouWeh2017Extractor<a class="headerlink" href="#AlvLouWeh2017Extractor" title="Permalink to this headline">¶</a></h2>
+<p>Alvarez, Louveaux and Wehenkel (2017) proposed a set features to describe a particular decision variable in a given node of the branch-and-bound tree, and applied it to the problem of mimicking strong branching decisions. The class <a class="reference external" href="#alvlouweh2017extractor">AlvLouWeh2017Extractor</a> implements a subset of these features (40 out of 64), which are available outside of the branch-and-bound tree. Some features are derived from the static defintion of the problem (i.e. from objective function and
+constraint data), while some features are derived from the solution to the LP relaxation. The features have been designed to be: (i) independent of the size of the problem; (ii) invariant with respect to irrelevant problem transformations, such as row and column permutation; and (iii) independent of the scale of the problem. We refer to the paper for a more complete description.</p>
+<div class="section" id="id1">
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn.features.AlvLouWeh2017</span> <span class="kn">import</span> <span class="n">AlvLouWeh2017Extractor</span>
+<span class="kn">from</span> <span class="nn">miplearn.h5</span> <span class="kn">import</span> <span class="n">H5File</span>
+
+<span class="c1"># Build the extractor</span>
+<span class="n">ext</span> <span class="o">=</span> <span class="n">AlvLouWeh2017Extractor</span><span class="p">()</span>
+
+<span class="c1"># Open previously-created multiknapsack training data</span>
+<span class="k">with</span> <span class="n">H5File</span><span class="p">(</span><span class="s2">&quot;data/multiknapsack/00000.h5&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+
+    <span class="c1"># Extract and print variable features</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">ext</span><span class="o">.</span><span class="n">get_var_features</span><span class="p">(</span><span class="n">h5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="n">x1</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">x1</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+x1 (10, 40)
+ [[-1.00e+00  1.00e+20  1.00e-01  1.00e+00  0.00e+00  1.00e+00  6.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  6.00e-01  1.00e+00  1.75e+01  1.00e+00  2.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00 -1.00e+00  0.00e+00  1.00e+20]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  1.00e-01  1.00e+00  1.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  7.00e-01  1.00e+00  5.10e+00  1.00e+00  2.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   3.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  0.00e+00  1.00e+00  9.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  5.00e-01  1.00e+00  1.30e+01  1.00e+00  2.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00 -1.00e+00  0.00e+00  1.00e+20]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  2.00e-01  1.00e+00  9.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  8.00e-01  1.00e+00  3.40e+00  1.00e+00  2.00e-01
+   1.00e+00  1.00e-01  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   1.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  1.00e-01  1.00e+00  7.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  6.00e-01  1.00e+00  3.80e+00  1.00e+00  2.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  1.00e-01  1.00e+00  8.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  7.00e-01  1.00e+00  3.30e+00  1.00e+00  2.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00 -1.00e+00  0.00e+00  1.00e+20]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  0.00e+00  1.00e+00  3.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  1.00e+00  1.00e+00  5.70e+00  1.00e+00  1.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   1.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  1.00e-01  1.00e+00  6.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  8.00e-01  1.00e+00  6.80e+00  1.00e+00  2.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   1.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  4.00e-01  1.00e+00  6.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  8.00e-01  1.00e+00  1.40e+00  1.00e+00  1.00e-01
+   1.00e+00  1.00e-01  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00 -1.00e+00  0.00e+00  1.00e+20]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  0.00e+00  1.00e+00  5.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  5.00e-01  1.00e+00  7.60e+00  1.00e+00  1.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   1.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]]
+</pre></div></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">References</p>
+<ul class="simple">
+<li><p><strong>Alvarez, Alejandro Marcos.</strong> <em>Computational and theoretical synergies between linear optimization and supervised machine learning.</em> (2016). University of Liège.</p></li>
+<li><p><strong>Alvarez, Alejandro Marcos, Quentin Louveaux, and Louis Wehenkel.</strong> <em>A machine learning-based approximation of strong branching.</em> INFORMS Journal on Computing 29.1 (2017): 185-195.</p></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="../collectors/" title="previous page"><span class="section-number">2. </span>Training Data Collectors</a>
+    <a class='right-next' id="next-link" href="../primal/" title="next page"><span class="section-number">4. </span>Primal Components</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2022, UChicago Argonne, LLC.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>
