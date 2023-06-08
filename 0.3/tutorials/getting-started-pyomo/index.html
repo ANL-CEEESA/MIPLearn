@@ -125,7 +125,7 @@
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/solvers/">
-   8. Solvers
+   8. Learning Solver
   </a>
  </li>
 </ul>
@@ -296,30 +296,12 @@
 <li><p>Julia version, compatible with the JuMP modeling language.</p></li>
 </ul>
 <p>In this tutorial, we will demonstrate how to use and install the Python/Pyomo version of the package. The first step is to install Python 3.8+ in your computer. See the <a class="reference external" href="https://www.python.org/downloads/">official Python website for more instructions</a>. After Python is installed, we proceed to install MIPLearn using <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ pip install MIPLearn==0.3
 </pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># !pip install MIPLearn==0.3.0</span>
-</pre></div>
-</div>
 </div>
 <p>In addition to MIPLearn itself, we will also install Gurobi 10.0, a state-of-the-art commercial MILP solver. This step also install a demo license for Gurobi, which should able to solve the small optimization problems in this tutorial. A license is required for solving larger-scale problems.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ pip install &#39;gurobipy&gt;=10,&lt;10.1&#39;
 </pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install <span class="s1">&#39;gurobipy&gt;=10,&lt;10.1&#39;</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Requirement already satisfied: gurobipy&lt;10.1,&gt;=10 in /home/axavier/Software/anaconda3/envs/miplearn/lib/python3.8/site-packages (10.0.1)
-</pre></div></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -586,7 +568,7 @@ machines. The code below generates the files <code class="docutils literal notra
 
 <span class="n">solver_ml</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="p">[</span><span class="n">comp</span><span class="p">])</span>
 <span class="n">solver_ml</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
-<span class="n">solver_ml</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_uc_model</span><span class="p">);</span>
+<span class="n">solver_ml</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_uc_model</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -672,7 +654,7 @@ WARNING: Cannot get duals for MIP.
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">solver_baseline</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="p">[])</span>
 <span class="n">solver_baseline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
-<span class="n">solver_baseline</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_uc_model</span><span class="p">);</span>
+<span class="n">solver_baseline</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_uc_model</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
