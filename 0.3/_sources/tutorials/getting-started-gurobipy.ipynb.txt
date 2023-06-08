@@ -7,21 +7,21 @@
     "tags": []
    },
    "source": [
-    "# Getting started (Pyomo)\n",
+    "# Getting started (Gurobipy)\n",
     "\n",
     "## Introduction\n",
     "\n",
     "**MIPLearn** is an open source framework that uses machine learning (ML) to accelerate the performance of mixed-integer programming solvers (e.g. Gurobi, CPLEX, XPRESS). In this tutorial, we will:\n",
     "\n",
-    "1. Install the Python/Pyomo version of MIPLearn\n",
-    "2. Model a simple optimization problem using Pyomo\n",
+    "1. Install the Python/Gurobipy version of MIPLearn\n",
+    "2. Model a simple optimization problem using Gurobipy\n",
     "3. Generate training data and train the ML models\n",
     "4. Use the ML models together Gurobi to solve new instances\n",
     "\n",
     "<div class=\"alert alert-info\">\n",
     "Note\n",
     "    \n",
-    "The Python/Pyomo version of MIPLearn is currently only compatible with Pyomo persistent solvers (Gurobi, CPLEX and XPRESS). For broader solver compatibility, see the Julia/JuMP version of the package.\n",
+    "The Python/Gurobipy version of MIPLearn is only compatible with the Gurobi Optimizer. For broader solver compatibility, see the Python/Pyomo and Julia/JuMP versions of the package.\n",
     "</div>\n",
     "\n",
     "<div class=\"alert alert-warning\">\n",
@@ -44,7 +44,7 @@
     "- Python version, compatible with the Pyomo and Gurobipy modeling languages,\n",
     "- Julia version, compatible with the JuMP modeling language.\n",
     "\n",
-    "In this tutorial, we will demonstrate how to use and install the Python/Pyomo version of the package. The first step is to install Python 3.8+ in your computer. See the [official Python website for more instructions](https://www.python.org/downloads/). After Python is installed, we proceed to install MIPLearn using `pip`:"
+    "In this tutorial, we will demonstrate how to use and install the Python/Gurobipy version of the package. The first step is to install Python 3.8+ in your computer. See the [official Python website for more instructions](https://www.python.org/downloads/). After Python is installed, we proceed to install MIPLearn using `pip`:"
    ]
   },
   {
@@ -53,8 +53,8 @@
    "id": "cd8a69c1",
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-06T19:57:33.202580815Z",
-     "start_time": "2023-06-06T19:57:33.198341886Z"
+     "end_time": "2023-06-06T20:18:02.381829278Z",
+     "start_time": "2023-06-06T20:18:02.381532300Z"
     }
    },
    "outputs": [],
@@ -76,8 +76,8 @@
    "id": "dcc8756c",
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-06T19:57:35.756831801Z",
-     "start_time": "2023-06-06T19:57:33.201767088Z"
+     "end_time": "2023-06-06T20:18:15.537811992Z",
+     "start_time": "2023-06-06T20:18:13.449177860Z"
     }
    },
    "outputs": [
@@ -166,8 +166,8 @@
    "id": "22a67170-10b4-43d3-8708-014d91141e73",
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-06T20:00:03.278853343Z",
-     "start_time": "2023-06-06T20:00:03.123324067Z"
+     "end_time": "2023-06-06T20:18:25.442346786Z",
+     "start_time": "2023-06-06T20:18:25.329017476Z"
     },
     "tags": []
    },
@@ -202,40 +202,35 @@
    "id": "2f67032f-0d74-4317-b45c-19da0ec859e9",
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-06T20:00:45.890126754Z",
-     "start_time": "2023-06-06T20:00:45.637044282Z"
+     "end_time": "2023-06-06T20:48:05.953902842Z",
+     "start_time": "2023-06-06T20:48:05.909747925Z"
     }
    },
    "outputs": [],
    "source": [
-    "import pyomo.environ as pe\n",
+    "import gurobipy as gp\n",
+    "from gurobipy import GRB, quicksum\n",
     "from typing import Union\n",
     "from miplearn.io import read_pkl_gz\n",
-    "from miplearn.solvers.pyomo import PyomoModel\n",
+    "from miplearn.solvers.gurobi import GurobiModel\n",
     "\n",
-    "\n",
-    "def build_uc_model(data: Union[str, UnitCommitmentData]) -> PyomoModel:\n",
+    "def build_uc_model(data: Union[str, UnitCommitmentData]) -> GurobiModel:\n",
     "    if isinstance(data, str):\n",
     "        data = read_pkl_gz(data)\n",
     "\n",
-    "    model = pe.ConcreteModel()\n",
+    "    model = gp.Model()\n",
     "    n = len(data.pmin)\n",
-    "    model.x = pe.Var(range(n), domain=pe.Binary)\n",
-    "    model.y = pe.Var(range(n), domain=pe.NonNegativeReals)\n",
-    "    model.obj = pe.Objective(\n",
-    "        expr=sum(\n",
-    "            data.cfix[i] * model.x[i] + data.cvar[i] * model.y[i] for i in range(n)\n",
+    "    x = model._x = model.addVars(n, vtype=GRB.BINARY, name=\"x\")\n",
+    "    y = model._y = model.addVars(n, name=\"y\")\n",
+    "    model.setObjective(\n",
+    "        quicksum(\n",
+    "            data.cfix[i] * x[i] + data.cvar[i] * y[i] for i in range(n)\n",
     "        )\n",
     "    )\n",
-    "    model.eq_max_power = pe.ConstraintList()\n",
-    "    model.eq_min_power = pe.ConstraintList()\n",
-    "    for i in range(n):\n",
-    "        model.eq_max_power.add(model.y[i] <= data.pmax[i] * model.x[i])\n",
-    "        model.eq_min_power.add(model.y[i] >= data.pmin[i] * model.x[i])\n",
-    "    model.eq_demand = pe.Constraint(\n",
-    "        expr=sum(model.y[i] for i in range(n)) == data.demand,\n",
-    "    )\n",
-    "    return PyomoModel(model, \"gurobi_persistent\")"
+    "    model.addConstrs(y[i] <= data.pmax[i] * x[i] for i in range(n))\n",
+    "    model.addConstrs(y[i] >= data.pmin[i] * x[i] for i in range(n))\n",
+    "    model.addConstr(quicksum(y[i] for i in range(n)) == data.demand)\n",
+    "    return GurobiModel(model)"
    ]
   },
   {
@@ -252,8 +247,8 @@
    "id": "2a896f47",
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-06T20:01:10.993801745Z",
-     "start_time": "2023-06-06T20:01:10.887580927Z"
+     "end_time": "2023-06-06T20:49:14.266758244Z",
+     "start_time": "2023-06-06T20:49:14.223514806Z"
     }
    },
    "outputs": [
@@ -262,14 +257,13 @@
      "output_type": "stream",
      "text": [
       "Restricted license - for non-production use only - expires 2024-10-28\n",
-      "Set parameter QCPDual to value 1\n",
       "Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)\n",
       "\n",
       "CPU model: Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz, instruction set [SSE2|AVX|AVX2]\n",
       "Thread count: 6 physical cores, 12 logical processors, using up to 12 threads\n",
       "\n",
       "Optimize a model with 7 rows, 6 columns and 15 nonzeros\n",
-      "Model fingerprint: 0x15c7a953\n",
+      "Model fingerprint: 0x58dfdd53\n",
       "Variable types: 3 continuous, 3 integer (3 binary)\n",
       "Coefficient statistics:\n",
       "  Matrix range     [1e+00, 7e+01]\n",
@@ -298,8 +292,6 @@
       "\n",
       "Optimal solution found (tolerance 1.00e-04)\n",
       "Best objective 1.320000000000e+03, best bound 1.320000000000e+03, gap 0.0000%\n",
-      "WARNING: Cannot get reduced costs for MIP.\n",
-      "WARNING: Cannot get duals for MIP.\n",
       "obj = 1320.0\n",
       "x = [-0.0, 1.0, 1.0]\n",
       "y = [0.0, 60.0, 40.0]\n"
@@ -318,9 +310,9 @@
     ")\n",
     "\n",
     "model.optimize()\n",
-    "print(\"obj =\", model.inner.obj())\n",
-    "print(\"x =\", [model.inner.x[i].value for i in range(3)])\n",
-    "print(\"y =\", [model.inner.y[i].value for i in range(3)])"
+    "print(\"obj =\", model.inner.objVal)\n",
+    "print(\"x =\", [model.inner._x[i].x for i in range(3)])\n",
+    "print(\"y =\", [model.inner._y[i].x for i in range(3)])"
    ]
   },
   {
@@ -338,10 +330,10 @@
    "source": [
     "<div class=\"alert alert-info\">\n",
     "    \n",
-    "Notes\n",
-    "    \n",
-    "- In the example above, `PyomoModel` is just a thin wrapper around a standard Pyomo model. This wrapper allows MIPLearn to be solver- and modeling-language-agnostic. The wrapper provides only a few basic methods, such as `optimize`. For more control, and to query the solution, the original Pyomo model can be accessed through `model.inner`, as illustrated above.    \n",
-    "- To use CPLEX or XPRESS, instead of Gurobi, replace `gurobi_persistent` by `cplex_persistent` or `xpress_persistent` in the `build_uc_model`. Note that only persistent Pyomo solvers are currently supported. Pull requests adding support for other types of solver are very welcome.\n",
+    "Note\n",
+    "\n",
+    "- In the example above, `GurobiModel` is just a thin wrapper around a standard Gurobi model. This wrapper allows MIPLearn to be solver- and modeling-language-agnostic. The wrapper provides only a few basic methods, such as `optimize`. For more control, and to query the solution, the original Gurobi model can be accessed through `model.inner`, as illustrated above.\n",
+    "- To ensure training data consistency, MIPLearn requires all decision variables to have names.\n",
     "</div>"
    ]
   },
@@ -363,8 +355,8 @@
    "id": "5eb09fab",
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-06T20:02:27.324208900Z",
-     "start_time": "2023-06-06T20:02:26.990044230Z"
+     "end_time": "2023-06-06T20:49:22.758192368Z",
+     "start_time": "2023-06-06T20:49:22.724784572Z"
     }
    },
    "outputs": [],
@@ -409,8 +401,8 @@
    "id": "6156752c",
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-06T20:03:04.782830561Z",
-     "start_time": "2023-06-06T20:03:04.530421396Z"
+     "end_time": "2023-06-06T20:49:24.811192929Z",
+     "start_time": "2023-06-06T20:49:24.575639142Z"
     }
    },
    "outputs": [],
@@ -436,8 +428,8 @@
    "id": "7623f002",
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-06T20:03:35.571497019Z",
-     "start_time": "2023-06-06T20:03:25.804104036Z"
+     "end_time": "2023-06-06T20:49:34.936729253Z",
+     "start_time": "2023-06-06T20:49:25.936126612Z"
     }
    },
    "outputs": [],
@@ -477,8 +469,8 @@
    "id": "435f7bf8-4b09-4889-b1ec-b7b56e7d8ed2",
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-06T20:05:20.497772794Z",
-     "start_time": "2023-06-06T20:05:20.484821405Z"
+     "end_time": "2023-06-06T20:49:38.997939600Z",
+     "start_time": "2023-06-06T20:49:38.968261432Z"
     }
    },
    "outputs": [],
@@ -515,8 +507,8 @@
    "id": "9d13dd50-3dcf-4673-a757-6f44dcc0dedf",
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-06T20:05:22.672002339Z",
-     "start_time": "2023-06-06T20:05:21.447466634Z"
+     "end_time": "2023-06-06T20:49:42.072345411Z",
+     "start_time": "2023-06-06T20:49:41.294040974Z"
     }
    },
    "outputs": [
@@ -524,14 +516,13 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Set parameter QCPDual to value 1\n",
       "Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)\n",
       "\n",
       "CPU model: Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz, instruction set [SSE2|AVX|AVX2]\n",
       "Thread count: 6 physical cores, 12 logical processors, using up to 12 threads\n",
       "\n",
       "Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros\n",
-      "Model fingerprint: 0x5e67c6ee\n",
+      "Model fingerprint: 0xa8b70287\n",
       "Coefficient statistics:\n",
       "  Matrix range     [1e+00, 2e+06]\n",
       "  Objective range  [1e+00, 6e+07]\n",
@@ -547,14 +538,13 @@
       "\n",
       "Solved in 1 iterations and 0.01 seconds (0.00 work units)\n",
       "Optimal objective  8.290621916e+09\n",
-      "Set parameter QCPDual to value 1\n",
       "Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)\n",
       "\n",
       "CPU model: Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz, instruction set [SSE2|AVX|AVX2]\n",
       "Thread count: 6 physical cores, 12 logical processors, using up to 12 threads\n",
       "\n",
       "Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros\n",
-      "Model fingerprint: 0xa4a7961e\n",
+      "Model fingerprint: 0x4ccd7ae3\n",
       "Variable types: 500 continuous, 500 integer (500 binary)\n",
       "Coefficient statistics:\n",
       "  Matrix range     [1e+00, 2e+06]\n",
@@ -565,14 +555,14 @@
       "User MIP start produced solution with objective 8.30129e+09 (0.01s)\n",
       "User MIP start produced solution with objective 8.29184e+09 (0.01s)\n",
       "User MIP start produced solution with objective 8.29146e+09 (0.01s)\n",
-      "User MIP start produced solution with objective 8.29146e+09 (0.02s)\n",
+      "User MIP start produced solution with objective 8.29146e+09 (0.01s)\n",
       "Loaded user MIP start with objective 8.29146e+09\n",
       "\n",
-      "Presolve time: 0.01s\n",
+      "Presolve time: 0.00s\n",
       "Presolved: 1001 rows, 1000 columns, 2500 nonzeros\n",
       "Variable types: 500 continuous, 500 integer (500 binary)\n",
       "\n",
-      "Root relaxation: objective 8.290622e+09, 512 iterations, 0.01 seconds (0.00 work units)\n",
+      "Root relaxation: objective 8.290622e+09, 512 iterations, 0.00 seconds (0.00 work units)\n",
       "\n",
       "    Nodes    |    Current Node    |     Objective Bounds      |     Work\n",
       " Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time\n",
@@ -583,15 +573,13 @@
       "  Cover: 1\n",
       "  Flow cover: 2\n",
       "\n",
-      "Explored 1 nodes (512 simplex iterations) in 0.09 seconds (0.01 work units)\n",
+      "Explored 1 nodes (512 simplex iterations) in 0.07 seconds (0.01 work units)\n",
       "Thread count was 12 (of 12 available processors)\n",
       "\n",
       "Solution count 3: 8.29146e+09 8.29184e+09 8.30129e+09 \n",
       "\n",
       "Optimal solution found (tolerance 1.00e-04)\n",
-      "Best objective 8.291459497797e+09, best bound 8.290645029670e+09, gap 0.0098%\n",
-      "WARNING: Cannot get reduced costs for MIP.\n",
-      "WARNING: Cannot get duals for MIP.\n"
+      "Best objective 8.291459497797e+09, best bound 8.290645029670e+09, gap 0.0098%\n"
      ]
     }
    ],
@@ -617,8 +605,8 @@
    "id": "2ff391ed-e855-4228-aa09-a7641d8c2893",
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-06T20:05:46.969575966Z",
-     "start_time": "2023-06-06T20:05:46.420803286Z"
+     "end_time": "2023-06-06T20:49:44.012782276Z",
+     "start_time": "2023-06-06T20:49:43.813974362Z"
     }
    },
    "outputs": [
@@ -626,21 +614,20 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Set parameter QCPDual to value 1\n",
       "Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)\n",
       "\n",
       "CPU model: Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz, instruction set [SSE2|AVX|AVX2]\n",
       "Thread count: 6 physical cores, 12 logical processors, using up to 12 threads\n",
       "\n",
       "Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros\n",
-      "Model fingerprint: 0x5e67c6ee\n",
+      "Model fingerprint: 0xa8b70287\n",
       "Coefficient statistics:\n",
       "  Matrix range     [1e+00, 2e+06]\n",
       "  Objective range  [1e+00, 6e+07]\n",
       "  Bounds range     [1e+00, 1e+00]\n",
       "  RHS range        [3e+08, 3e+08]\n",
       "Presolve removed 1000 rows and 500 columns\n",
-      "Presolve time: 0.01s\n",
+      "Presolve time: 0.00s\n",
       "Presolved: 1 rows, 500 columns, 500 nonzeros\n",
       "\n",
       "Iteration    Objective       Primal Inf.    Dual Inf.      Time\n",
@@ -649,14 +636,13 @@
       "\n",
       "Solved in 1 iterations and 0.01 seconds (0.00 work units)\n",
       "Optimal objective  8.290621916e+09\n",
-      "Set parameter QCPDual to value 1\n",
       "Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)\n",
       "\n",
       "CPU model: Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz, instruction set [SSE2|AVX|AVX2]\n",
       "Thread count: 6 physical cores, 12 logical processors, using up to 12 threads\n",
       "\n",
       "Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros\n",
-      "Model fingerprint: 0x8a0f9587\n",
+      "Model fingerprint: 0x4cbbf7c7\n",
       "Variable types: 500 continuous, 500 integer (500 binary)\n",
       "Coefficient statistics:\n",
       "  Matrix range     [1e+00, 2e+06]\n",
@@ -691,15 +677,13 @@
       "  Gomory: 2\n",
       "  MIR: 1\n",
       "\n",
-      "Explored 1 nodes (1025 simplex iterations) in 0.08 seconds (0.03 work units)\n",
+      "Explored 1 nodes (1031 simplex iterations) in 0.07 seconds (0.03 work units)\n",
       "Thread count was 12 (of 12 available processors)\n",
       "\n",
       "Solution count 4: 8.29147e+09 8.29398e+09 8.29827e+09 9.75713e+09 \n",
       "\n",
       "Optimal solution found (tolerance 1.00e-04)\n",
-      "Best objective 8.291465302389e+09, best bound 8.290781665333e+09, gap 0.0082%\n",
-      "WARNING: Cannot get reduced costs for MIP.\n",
-      "WARNING: Cannot get duals for MIP.\n"
+      "Best objective 8.291465302389e+09, best bound 8.290781665333e+09, gap 0.0082%\n"
      ]
     }
    ],
@@ -735,8 +719,8 @@
    "id": "67a6cd18",
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-06T20:06:26.913448568Z",
-     "start_time": "2023-06-06T20:06:26.169047914Z"
+     "end_time": "2023-06-06T20:50:12.869892930Z",
+     "start_time": "2023-06-06T20:50:12.509410473Z"
     }
    },
    "outputs": [
@@ -744,21 +728,20 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Set parameter QCPDual to value 1\n",
       "Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)\n",
       "\n",
       "CPU model: Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz, instruction set [SSE2|AVX|AVX2]\n",
       "Thread count: 6 physical cores, 12 logical processors, using up to 12 threads\n",
       "\n",
       "Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros\n",
-      "Model fingerprint: 0x2dfe4e1c\n",
+      "Model fingerprint: 0x19042f12\n",
       "Coefficient statistics:\n",
       "  Matrix range     [1e+00, 2e+06]\n",
       "  Objective range  [1e+00, 6e+07]\n",
       "  Bounds range     [1e+00, 1e+00]\n",
       "  RHS range        [3e+08, 3e+08]\n",
       "Presolve removed 1000 rows and 500 columns\n",
-      "Presolve time: 0.01s\n",
+      "Presolve time: 0.00s\n",
       "Presolved: 1 rows, 500 columns, 500 nonzeros\n",
       "\n",
       "Iteration    Objective       Primal Inf.    Dual Inf.      Time\n",
@@ -767,14 +750,13 @@
       "\n",
       "Solved in 1 iterations and 0.01 seconds (0.00 work units)\n",
       "Optimal objective  8.253596777e+09\n",
-      "Set parameter QCPDual to value 1\n",
       "Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)\n",
       "\n",
       "CPU model: Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz, instruction set [SSE2|AVX|AVX2]\n",
       "Thread count: 6 physical cores, 12 logical processors, using up to 12 threads\n",
       "\n",
       "Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros\n",
-      "Model fingerprint: 0x20637200\n",
+      "Model fingerprint: 0x8ee64638\n",
       "Variable types: 500 continuous, 500 integer (500 binary)\n",
       "Coefficient statistics:\n",
       "  Matrix range     [1e+00, 2e+06]\n",
@@ -812,18 +794,16 @@
       "  StrongCG: 1\n",
       "  Flow cover: 1\n",
       "\n",
-      "Explored 1 nodes (575 simplex iterations) in 0.11 seconds (0.01 work units)\n",
+      "Explored 1 nodes (575 simplex iterations) in 0.12 seconds (0.01 work units)\n",
       "Thread count was 12 (of 12 available processors)\n",
       "\n",
       "Solution count 3: 8.25459e+09 8.25512e+09 8.25814e+09 \n",
       "\n",
       "Optimal solution found (tolerance 1.00e-04)\n",
       "Best objective 8.254590409970e+09, best bound 8.253768093811e+09, gap 0.0100%\n",
-      "WARNING: Cannot get reduced costs for MIP.\n",
-      "WARNING: Cannot get duals for MIP.\n",
-      "obj = 8254590409.96973\n",
-      " x = [1.0, 1.0, 0.0, 1.0, 1.0]\n",
-      " y = [935662.0949263407, 1604270.0218116897, 0.0, 1369560.835229226, 602828.5321028307]\n"
+      "obj = 8254590409.969726\n",
+      "x = [1.0, 1.0, 0.0]\n",
+      "y = [935662.0949263407, 1604270.0218116897, 0.0]\n"
      ]
     }
    ],
@@ -831,9 +811,9 @@
     "data = random_uc_data(samples=1, n=500)[0]\n",
     "model = build_uc_model(data)\n",
     "solver_ml.optimize(model)\n",
-    "print(\"obj =\", model.inner.obj())\n",
-    "print(\" x =\", [model.inner.x[i].value for i in range(5)])\n",
-    "print(\" y =\", [model.inner.y[i].value for i in range(5)])"
+    "print(\"obj =\", model.inner.objVal)\n",
+    "print(\"x =\", [model.inner._x[i].x for i in range(3)])\n",
+    "print(\"y =\", [model.inner._y[i].x for i in range(3)])"
    ]
   },
   {
@@ -861,7 +841,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.8.13"
+   "version": "3.9.16"
   }
  },
  "nbformat": 4,

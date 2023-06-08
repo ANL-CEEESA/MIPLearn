@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>8. Components &#8212; MIPLearn 0.3</title>
+    <title>11. Components &#8212; MIPLearn 0.3</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
   <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -36,8 +36,8 @@
     <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
     <link rel="index" title="Index" href="../../genindex/" />
     <link rel="search" title="Search" href="../../search/" />
-    <link rel="next" title="9. Solvers" href="../solvers/" />
-    <link rel="prev" title="7. Collectors &amp; Extractors" href="../collectors/" />
+    <link rel="next" title="12. Solvers" href="../solvers/" />
+    <link rel="prev" title="10. Collectors &amp; Extractors" href="../collectors/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
     
@@ -67,65 +67,87 @@
     <div class="bd-toc-item active">
         <p class="caption">
  <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-pyomo/">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
   User Guide
  </span>
 </p>
 <ul class="nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/problems/">
-   1. Benchmark Problems
+   4. Benchmark Problems
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/collectors/">
-   2. Training Data Collectors
+   5. Training Data Collectors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/features/">
-   3. Feature Extractors
+   6. Feature Extractors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/primal/">
-   4. Primal Components
+   7. Primal Components
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/solvers/">
-   5. Solvers
+   8. Solvers
   </a>
  </li>
 </ul>
 <p class="caption">
  <span class="caption-text">
-  API Reference
+  Python API Reference
  </span>
 </p>
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="../problems/">
-   6. Benchmark Problems
+   9. Benchmark Problems
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../collectors/">
-   7. Collectors &amp; Extractors
+   10. Collectors &amp; Extractors
   </a>
  </li>
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   8. Components
+   11. Components
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../solvers/">
-   9. Solvers
+   12. Solvers
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../helpers/">
-   10. Helpers
+   13. Helpers
   </a>
  </li>
 </ul>
@@ -197,27 +219,27 @@
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.components.primal.actions">
-   8.1. miplearn.components.primal.actions
+   11.1. miplearn.components.primal.actions
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.components.primal.expert">
-   8.2. miplearn.components.primal.expert
+   11.2. miplearn.components.primal.expert
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.components.primal.indep">
-   8.3. miplearn.components.primal.indep
+   11.3. miplearn.components.primal.indep
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.components.primal.joint">
-   8.4. miplearn.components.primal.joint
+   11.4. miplearn.components.primal.joint
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.components.primal.mem">
-   8.5. miplearn.components.primal.mem
+   11.5. miplearn.components.primal.mem
   </a>
  </li>
 </ul>
@@ -232,9 +254,9 @@
               <div>
                 
   <div class="section" id="components">
-<h1><span class="section-number">8. </span>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">11. </span>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-miplearn.components.primal.actions">
-<span id="miplearn-components-primal-actions"></span><h2><span class="section-number">8.1. </span>miplearn.components.primal.actions<a class="headerlink" href="#module-miplearn.components.primal.actions" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-components-primal-actions"></span><h2><span class="section-number">11.1. </span>miplearn.components.primal.actions<a class="headerlink" href="#module-miplearn.components.primal.actions" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.components.primal.actions.EnforceProximity">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.actions.</span></code><code class="sig-name descname"><span class="pre">EnforceProximity</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.components.primal.actions.EnforceProximity" title="Permalink to this definition">¶</a></dt>
@@ -281,7 +303,7 @@
 
 </div>
 <div class="section" id="module-miplearn.components.primal.expert">
-<span id="miplearn-components-primal-expert"></span><h2><span class="section-number">8.2. </span>miplearn.components.primal.expert<a class="headerlink" href="#module-miplearn.components.primal.expert" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-components-primal-expert"></span><h2><span class="section-number">11.2. </span>miplearn.components.primal.expert<a class="headerlink" href="#module-miplearn.components.primal.expert" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.components.primal.expert.ExpertPrimalComponent">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.expert.</span></code><code class="sig-name descname"><span class="pre">ExpertPrimalComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#miplearn.components.primal.actions.PrimalComponentAction" title="miplearn.components.primal.actions.PrimalComponentAction"><span class="pre">miplearn.components.primal.actions.PrimalComponentAction</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.components.primal.expert.ExpertPrimalComponent" title="Permalink to this definition">¶</a></dt>
@@ -300,7 +322,7 @@
 
 </div>
 <div class="section" id="module-miplearn.components.primal.indep">
-<span id="miplearn-components-primal-indep"></span><h2><span class="section-number">8.3. </span>miplearn.components.primal.indep<a class="headerlink" href="#module-miplearn.components.primal.indep" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-components-primal-indep"></span><h2><span class="section-number">11.3. </span>miplearn.components.primal.indep<a class="headerlink" href="#module-miplearn.components.primal.indep" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.components.primal.indep.IndependentVarsPrimalComponent">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.indep.</span></code><code class="sig-name descname"><span class="pre">IndependentVarsPrimalComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">base_clf:</span> <span class="pre">Any,</span> <span class="pre">extractor:</span> <span class="pre">miplearn.extractors.abstract.FeaturesExtractor,</span> <span class="pre">action:</span> <span class="pre">miplearn.components.primal.actions.PrimalComponentAction,</span> <span class="pre">clone_fn:</span> <span class="pre">Callable[[Any],</span> <span class="pre">Any]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">clone&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.components.primal.indep.IndependentVarsPrimalComponent" title="Permalink to this definition">¶</a></dt>
@@ -319,7 +341,7 @@
 
 </div>
 <div class="section" id="module-miplearn.components.primal.joint">
-<span id="miplearn-components-primal-joint"></span><h2><span class="section-number">8.4. </span>miplearn.components.primal.joint<a class="headerlink" href="#module-miplearn.components.primal.joint" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-components-primal-joint"></span><h2><span class="section-number">11.4. </span>miplearn.components.primal.joint<a class="headerlink" href="#module-miplearn.components.primal.joint" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.components.primal.joint.JointVarsPrimalComponent">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.joint.</span></code><code class="sig-name descname"><span class="pre">JointVarsPrimalComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clf</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">miplearn.extractors.abstract.FeaturesExtractor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#miplearn.components.primal.actions.PrimalComponentAction" title="miplearn.components.primal.actions.PrimalComponentAction"><span class="pre">miplearn.components.primal.actions.PrimalComponentAction</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.components.primal.joint.JointVarsPrimalComponent" title="Permalink to this definition">¶</a></dt>
@@ -338,7 +360,7 @@
 
 </div>
 <div class="section" id="module-miplearn.components.primal.mem">
-<span id="miplearn-components-primal-mem"></span><h2><span class="section-number">8.5. </span>miplearn.components.primal.mem<a class="headerlink" href="#module-miplearn.components.primal.mem" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-components-primal-mem"></span><h2><span class="section-number">11.5. </span>miplearn.components.primal.mem<a class="headerlink" href="#module-miplearn.components.primal.mem" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.components.primal.mem.MemorizingPrimalComponent">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.components.primal.mem.</span></code><code class="sig-name descname"><span class="pre">MemorizingPrimalComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clf</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">miplearn.extractors.abstract.FeaturesExtractor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constructor</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#miplearn.components.primal.mem.SolutionConstructor" title="miplearn.components.primal.mem.SolutionConstructor"><span class="pre">miplearn.components.primal.mem.SolutionConstructor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#miplearn.components.primal.actions.PrimalComponentAction" title="miplearn.components.primal.actions.PrimalComponentAction"><span class="pre">miplearn.components.primal.actions.PrimalComponentAction</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.components.primal.mem.MemorizingPrimalComponent" title="Permalink to this definition">¶</a></dt>
@@ -408,8 +430,8 @@ thresholds[0]; (ii) sets the variable to one if the mean is above thresholds[1];
         
         <div class='prev-next-bottom'>
             
-    <a class='left-prev' id="prev-link" href="../collectors/" title="previous page"><span class="section-number">7. </span>Collectors &amp; Extractors</a>
-    <a class='right-next' id="next-link" href="../solvers/" title="next page"><span class="section-number">9. </span>Solvers</a>
+    <a class='left-prev' id="prev-link" href="../collectors/" title="previous page"><span class="section-number">10. </span>Collectors &amp; Extractors</a>
+    <a class='right-next' id="next-link" href="../solvers/" title="next page"><span class="section-number">12. </span>Solvers</a>
 
         </div>
         
@@ -419,7 +441,7 @@ thresholds[0]; (ii) sets the variable to one if the mean is above thresholds[1];
     <div class="container">
       <p>
         
-            &copy; Copyright 2020-2022, UChicago Argonne, LLC.<br/>
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
       </p>
     </div>
   </footer>

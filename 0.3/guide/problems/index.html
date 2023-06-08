@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>1. Benchmark Problems &#8212; MIPLearn 0.3</title>
+    <title>4. Benchmark Problems &#8212; MIPLearn 0.3</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
   <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -24,6 +24,10 @@
     
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     
   <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
@@ -38,8 +42,8 @@
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
     <link rel="index" title="Index" href="../../genindex/" />
     <link rel="search" title="Search" href="../../search/" />
-    <link rel="next" title="2. Training Data Collectors" href="../collectors/" />
-    <link rel="prev" title="MIPLearn" href="../../" />
+    <link rel="next" title="5. Training Data Collectors" href="../collectors/" />
+    <link rel="prev" title="3. Getting started (JuMP)" href="../../tutorials/getting-started-jump/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
     
@@ -69,65 +73,87 @@
     <div class="bd-toc-item active">
         <p class="caption">
  <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-pyomo/">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
   User Guide
  </span>
 </p>
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   1. Benchmark Problems
+   4. Benchmark Problems
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../collectors/">
-   2. Training Data Collectors
+   5. Training Data Collectors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../features/">
-   3. Feature Extractors
+   6. Feature Extractors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../primal/">
-   4. Primal Components
+   7. Primal Components
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../solvers/">
-   5. Solvers
+   8. Solvers
   </a>
  </li>
 </ul>
 <p class="caption">
  <span class="caption-text">
-  API Reference
+  Python API Reference
  </span>
 </p>
 <ul class="nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="../../api/problems/">
-   6. Benchmark Problems
+   9. Benchmark Problems
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../api/collectors/">
-   7. Collectors &amp; Extractors
+   10. Collectors &amp; Extractors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../api/components/">
-   8. Components
+   11. Components
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../api/solvers/">
-   9. Solvers
+   12. Solvers
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../api/helpers/">
-   10. Helpers
+   13. Helpers
   </a>
  </li>
 </ul>
@@ -199,12 +225,12 @@
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Overview">
-   1.1. Overview
+   4.1. Overview
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Bin-Packing">
-   1.2. Bin Packing
+   4.2. Bin Packing
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
@@ -226,7 +252,7 @@
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Multi-Dimensional-Knapsack">
-   1.3. Multi-Dimensional Knapsack
+   4.3. Multi-Dimensional Knapsack
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
@@ -248,7 +274,7 @@
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Capacitated-P-Median">
-   1.4. Capacitated P-Median
+   4.4. Capacitated P-Median
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
@@ -270,7 +296,7 @@
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Set-cover">
-   1.5. Set cover
+   4.5. Set cover
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
@@ -292,7 +318,7 @@
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Set-Packing">
-   1.6. Set Packing
+   4.6. Set Packing
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
@@ -314,7 +340,7 @@
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Stable-Set">
-   1.7. Stable Set
+   4.7. Stable Set
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
@@ -336,7 +362,7 @@
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Traveling-Salesman">
-   1.8. Traveling Salesman
+   4.8. Traveling Salesman
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
@@ -358,7 +384,7 @@
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Unit-Commitment">
-   1.9. Unit Commitment
+   4.9. Unit Commitment
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
@@ -380,7 +406,7 @@
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Vertex-Cover">
-   1.10. Vertex Cover
+   4.10. Vertex Cover
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
@@ -411,267 +437,10 @@
         
               <div>
                 
-  
-<style>
-/* CSS for nbsphinx extension */
-
-/* remove conflicting styling from Sphinx themes */
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt *,
-div.nbinput.container div.input_area pre,
-div.nboutput.container div.output_area pre,
-div.nbinput.container div.input_area .highlight,
-div.nboutput.container div.output_area .highlight {
-    border: none;
-    padding: 0;
-    margin: 0;
-    box-shadow: none;
-}
-
-div.nbinput.container > div[class*=highlight],
-div.nboutput.container > div[class*=highlight] {
-    margin: 0;
-}
-
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt * {
-    background: none;
-}
-
-div.nboutput.container div.output_area .highlight,
-div.nboutput.container div.output_area pre {
-    background: unset;
-}
-
-div.nboutput.container div.output_area div.highlight {
-    color: unset;  /* override Pygments text color */
-}
-
-/* avoid gaps between output lines */
-div.nboutput.container div[class*=highlight] pre {
-    line-height: normal;
-}
-
-/* input/output containers */
-div.nbinput.container,
-div.nboutput.container {
-    display: -webkit-flex;
-    display: flex;
-    align-items: flex-start;
-    margin: 0;
-    width: 100%;
-}
-@media (max-width: 540px) {
-    div.nbinput.container,
-    div.nboutput.container {
-        flex-direction: column;
-    }
-}
-
-/* input container */
-div.nbinput.container {
-    padding-top: 5px;
-}
-
-/* last container */
-div.nblast.container {
-    padding-bottom: 5px;
-}
-
-/* input prompt */
-div.nbinput.container div.prompt pre {
-    color: #307FC1;
-}
-
-/* output prompt */
-div.nboutput.container div.prompt pre {
-    color: #BF5B3D;
-}
-
-/* all prompts */
-div.nbinput.container div.prompt,
-div.nboutput.container div.prompt {
-    width: 4.5ex;
-    padding-top: 5px;
-    position: relative;
-    user-select: none;
-}
-
-div.nbinput.container div.prompt > div,
-div.nboutput.container div.prompt > div {
-    position: absolute;
-    right: 0;
-    margin-right: 0.3ex;
-}
-
-@media (max-width: 540px) {
-    div.nbinput.container div.prompt,
-    div.nboutput.container div.prompt {
-        width: unset;
-        text-align: left;
-        padding: 0.4em;
-    }
-    div.nboutput.container div.prompt.empty {
-        padding: 0;
-    }
-
-    div.nbinput.container div.prompt > div,
-    div.nboutput.container div.prompt > div {
-        position: unset;
-    }
-}
-
-/* disable scrollbars and line breaks on prompts */
-div.nbinput.container div.prompt pre,
-div.nboutput.container div.prompt pre {
-    overflow: hidden;
-    white-space: pre;
-}
-
-/* input/output area */
-div.nbinput.container div.input_area,
-div.nboutput.container div.output_area {
-    -webkit-flex: 1;
-    flex: 1;
-    overflow: auto;
-}
-@media (max-width: 540px) {
-    div.nbinput.container div.input_area,
-    div.nboutput.container div.output_area {
-        width: 100%;
-    }
-}
-
-/* input area */
-div.nbinput.container div.input_area {
-    border: 1px solid #e0e0e0;
-    border-radius: 2px;
-    /*background: #f5f5f5;*/
-}
-
-/* override MathJax center alignment in output cells */
-div.nboutput.container div[class*=MathJax] {
-    text-align: left !important;
-}
-
-/* override sphinx.ext.imgmath center alignment in output cells */
-div.nboutput.container div.math p {
-    text-align: left;
-}
-
-/* standard error */
-div.nboutput.container div.output_area.stderr {
-    background: #fdd;
-}
-
-/* ANSI colors */
-.ansi-black-fg { color: #3E424D; }
-.ansi-black-bg { background-color: #3E424D; }
-.ansi-black-intense-fg { color: #282C36; }
-.ansi-black-intense-bg { background-color: #282C36; }
-.ansi-red-fg { color: #E75C58; }
-.ansi-red-bg { background-color: #E75C58; }
-.ansi-red-intense-fg { color: #B22B31; }
-.ansi-red-intense-bg { background-color: #B22B31; }
-.ansi-green-fg { color: #00A250; }
-.ansi-green-bg { background-color: #00A250; }
-.ansi-green-intense-fg { color: #007427; }
-.ansi-green-intense-bg { background-color: #007427; }
-.ansi-yellow-fg { color: #DDB62B; }
-.ansi-yellow-bg { background-color: #DDB62B; }
-.ansi-yellow-intense-fg { color: #B27D12; }
-.ansi-yellow-intense-bg { background-color: #B27D12; }
-.ansi-blue-fg { color: #208FFB; }
-.ansi-blue-bg { background-color: #208FFB; }
-.ansi-blue-intense-fg { color: #0065CA; }
-.ansi-blue-intense-bg { background-color: #0065CA; }
-.ansi-magenta-fg { color: #D160C4; }
-.ansi-magenta-bg { background-color: #D160C4; }
-.ansi-magenta-intense-fg { color: #A03196; }
-.ansi-magenta-intense-bg { background-color: #A03196; }
-.ansi-cyan-fg { color: #60C6C8; }
-.ansi-cyan-bg { background-color: #60C6C8; }
-.ansi-cyan-intense-fg { color: #258F8F; }
-.ansi-cyan-intense-bg { background-color: #258F8F; }
-.ansi-white-fg { color: #C5C1B4; }
-.ansi-white-bg { background-color: #C5C1B4; }
-.ansi-white-intense-fg { color: #A1A6B2; }
-.ansi-white-intense-bg { background-color: #A1A6B2; }
-
-.ansi-default-inverse-fg { color: #FFFFFF; }
-.ansi-default-inverse-bg { background-color: #000000; }
-
-.ansi-bold { font-weight: bold; }
-.ansi-underline { text-decoration: underline; }
-
-
-div.nbinput.container div.input_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight].math,
-div.nboutput.container div.output_area.rendered_html,
-div.nboutput.container div.output_area > div.output_javascript,
-div.nboutput.container div.output_area:not(.rendered_html) > img{
-    padding: 5px;
-    margin: 0;
-}
-
-/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
-div.nbinput.container div.input_area > div[class^='highlight'],
-div.nboutput.container div.output_area > div[class^='highlight']{
-    overflow-y: hidden;
-}
-
-/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt .copybtn {
-    display: none;
-}
-
-/* Some additional styling taken form the Jupyter notebook CSS */
-.jp-RenderedHTMLCommon table,
-div.rendered_html table {
-  border: none;
-  border-collapse: collapse;
-  border-spacing: 0;
-  color: black;
-  font-size: 12px;
-  table-layout: fixed;
-}
-.jp-RenderedHTMLCommon thead,
-div.rendered_html thead {
-  border-bottom: 1px solid black;
-  vertical-align: bottom;
-}
-.jp-RenderedHTMLCommon tr,
-.jp-RenderedHTMLCommon th,
-.jp-RenderedHTMLCommon td,
-div.rendered_html tr,
-div.rendered_html th,
-div.rendered_html td {
-  text-align: right;
-  vertical-align: middle;
-  padding: 0.5em 0.5em;
-  line-height: normal;
-  white-space: normal;
-  max-width: none;
-  border: none;
-}
-.jp-RenderedHTMLCommon th,
-div.rendered_html th {
-  font-weight: bold;
-}
-.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
-div.rendered_html tbody tr:nth-child(odd) {
-  background: #f5f5f5;
-}
-.jp-RenderedHTMLCommon tbody tr:hover,
-div.rendered_html tbody tr:hover {
-  background: rgba(66, 165, 245, 0.2);
-}
-</style>
-<div class="section" id="Benchmark-Problems">
-<h1><span class="section-number">1. </span>Benchmark Problems<a class="headerlink" href="#Benchmark-Problems" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="Benchmark-Problems">
+<h1><span class="section-number">4. </span>Benchmark Problems<a class="headerlink" href="#Benchmark-Problems" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="Overview">
-<h2><span class="section-number">1.1. </span>Overview<a class="headerlink" href="#Overview" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.1. </span>Overview<a class="headerlink" href="#Overview" title="Permalink to this headline">¶</a></h2>
 <p>Benchmark sets such as <a class="reference external" href="https://miplib.zib.de/">MIPLIB</a> or <a class="reference external" href="http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/">TSPLIB</a> are usually employed to evaluate the performance of conventional MIP solvers. Two shortcomings, unfortunately, make existing benchmark sets less than ideal for evaluating the performance of learning-enhanced MIP solvers: (i) while existing benchmark sets typically contain hundreds or thousands of instances, machine learning (ML) methods typically benefit from having
 orders of magnitude more instances available for training; (ii) current machine learning methods typically provide best performance on sets of homogeneous instances, buch general-purpose benchmark sets contain relatively few examples of each problem type.</p>
 <p>To tackle this challenge, MIPLearn provides random instance generators for a wide variety of classical optimization problems, covering applications from different fields, that can be used to evaluate new learning-enhanced MIP techniques in a measurable and reproducible way. As of MIPLearn 0.3, nine problem generators are available, each customizable with user-provided probability distribution and flexible parameters. The generators can be configured, for example, to produce large sets of very
@@ -690,7 +459,7 @@ similar instances of same size, where only the objective function changes, or mo
 </div>
 </div>
 <div class="section" id="Bin-Packing">
-<h2><span class="section-number">1.2. </span>Bin Packing<a class="headerlink" href="#Bin-Packing" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.2. </span>Bin Packing<a class="headerlink" href="#Bin-Packing" title="Permalink to this headline">¶</a></h2>
 <p><strong>Bin packing</strong> is a combinatorial optimization problem that asks for the optimal way to pack a given set of items into a finite number of containers (or bins) of fixed capacity. More specifically, the problem is to assign indivisible items of different sizes to identical bins, while minimizing the number of bins used. The problem is NP-hard and has many practical applications, including logistics and warehouse management, where it is used to determine how to best store and transport goods using
 a limited amount of space.</p>
 <div class="section" id="Formulation">
@@ -745,10 +514,10 @@ a limited amount of space.</p>
 <span class="c1"># Optimize first instance</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">build_binpack_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -764,9 +533,11 @@ a limited amount of space.</p>
 8 [ 8.47 21.9  16.58 15.37  3.76  3.91  1.57 20.57 14.76 18.61] 94.58
 9 [ 8.57 22.77 17.06 16.25  4.14  4.    1.56 22.97 14.09 19.09] 100.79
 
-Restricted license - for non-production use only - expires 2023-10-25
-Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)
+
+CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
 Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+
 Optimize a model with 20 rows, 110 columns and 210 nonzeros
 Model fingerprint: 0x1ff9913f
 Variable types: 0 continuous, 110 integer (110 binary)
@@ -790,7 +561,7 @@ H    0     0                       4.0000000    1.27484  68.1%     -    0s
 H    0     0                       2.0000000    1.27484  36.3%     -    0s
      0     0    1.27484    0    4    2.00000    1.27484  36.3%     -    0s
 
-Explored 1 nodes (38 simplex iterations) in 0.00 seconds (0.00 work units)
+Explored 1 nodes (38 simplex iterations) in 0.01 seconds (0.00 work units)
 Thread count was 32 (of 32 available processors)
 
 Solution count 3: 2 4 5
@@ -799,14 +570,23 @@ Optimal solution found (tolerance 1.00e-04)
 Best objective 2.000000000000e+00, best bound 2.000000000000e+00, gap 0.0000%
 </pre></div></div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/axavier/.conda/envs/miplearn2/lib/python3.9/site-packages/tqdm/auto.py:22: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+</pre></div></div>
+</div>
 </div>
 </div>
 <div class="section" id="Multi-Dimensional-Knapsack">
-<h2><span class="section-number">1.3. </span>Multi-Dimensional Knapsack<a class="headerlink" href="#Multi-Dimensional-Knapsack" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.3. </span>Multi-Dimensional Knapsack<a class="headerlink" href="#Multi-Dimensional-Knapsack" title="Permalink to this headline">¶</a></h2>
 <p>The <strong>multi-dimensional knapsack problem</strong> is a generalization of the classic knapsack problem, which involves selecting a subset of items to be placed in a knapsack such that the total value of the items is maximized without exceeding a maximum weight. In this generalization, items have multiple weights (representing multiple resources), and multiple weight constraints must be satisfied.</p>
 <div class="section" id="id1">
 <h3>Formulation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<p>Let <span class="math notranslate nohighlight">\(n\)</span> be the number of items and <span class="math notranslate nohighlight">\(m\)</span> be the number of resources. For each item <span class="math notranslate nohighlight">\(j\)</span> and resource <span class="math notranslate nohighlight">\(i\)</span>, let <span class="math notranslate nohighlight">\(p_j\)</span> be the price of the item, let <span class="math notranslate nohighlight">\(w_{ij}\)</span> be the amount of resource <span class="math notranslate nohighlight">\(j\)</span> item <span class="math notranslate nohighlight">\(i\)</span> consumes (i.e. the <span class="math notranslate nohighlight">\(j\)</span>-th weight of the item), and let <span class="math notranslate nohighlight">\(b_i\)</span> be the total amount of resource <span class="math notranslate nohighlight">\(i\)</span> available (or the size of the <span class="math notranslate nohighlight">\(j\)</span>-th knapsack). The formulation is given by:</p>
+<p>Let <span class="math notranslate nohighlight">\(n\)</span> be the number of items and <span class="math notranslate nohighlight">\(m\)</span> be the number of resources. For each item <span class="math notranslate nohighlight">\(j\)</span> and resource <span class="math notranslate nohighlight">\(i\)</span>, let <span class="math notranslate nohighlight">\(p_j\)</span> be the price of the item, let <span class="math notranslate nohighlight">\(w_{ij}\)</span> be the amount of resource <span class="math notranslate nohighlight">\(j\)</span> item <span class="math notranslate nohighlight">\(i\)</span> consumes (i.e. the <span class="math notranslate nohighlight">\(j\)</span>-th weight of the item), and let <span class="math notranslate nohighlight">\(b_i\)</span> be the total amount of resource <span class="math notranslate nohighlight">\(i\)</span> available (or the size of the <span class="math notranslate nohighlight">\(j\)</span>-th knapsack). The formulation is given by:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align*}
     \text{minimize}\;\;\;
@@ -878,7 +658,7 @@ Best objective 2.000000000000e+00, best bound 2.000000000000e+00, gap 0.0000%
 <span class="c1"># Build model and optimize</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">build_multiknapsack_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -897,8 +677,11 @@ weights
 capacities
  [1310.  988. 1004. 1269. 1007.]
 
-Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)
+
+CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
 Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+
 Optimize a model with 5 rows, 10 columns and 50 nonzeros
 Model fingerprint: 0xaf3ac15e
 Variable types: 0 continuous, 10 integer (10 binary)
@@ -924,7 +707,7 @@ H    0     0                    -1279.000000 -1428.7265  11.7%     -    0s
 Cutting planes:
   Cover: 1
 
-Explored 1 nodes (4 simplex iterations) in 0.00 seconds (0.00 work units)
+Explored 1 nodes (4 simplex iterations) in 0.01 seconds (0.00 work units)
 Thread count was 32 (of 32 available processors)
 
 Solution count 2: -1279 -804
@@ -937,7 +720,7 @@ Best objective -1.279000000000e+03, best bound -1.279000000000e+03, gap 0.0000%
 </div>
 </div>
 <div class="section" id="Capacitated-P-Median">
-<h2><span class="section-number">1.4. </span>Capacitated P-Median<a class="headerlink" href="#Capacitated-P-Median" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.4. </span>Capacitated P-Median<a class="headerlink" href="#Capacitated-P-Median" title="Permalink to this headline">¶</a></h2>
 <p>The <strong>capacitated p-median</strong> problem is a variation of the classic <span class="math notranslate nohighlight">\(p\)</span>-median problem, in which a set of customers must be served by a set of facilities. In the capacitated <span class="math notranslate nohighlight">\(p\)</span>-Median problem, each facility has a fixed capacity, and the goal is to minimize the total cost of serving the customers while ensuring that the capacity of each facility is not exceeded. Variations of problem are often used in logistics and supply chain management to determine the most efficient locations for
 warehouses or distribution centers.</p>
 <div class="section" id="id4">
@@ -1002,7 +785,7 @@ list of instances that have the same set of customers, but slightly different de
 <span class="c1"># Build and optimize model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">build_pmedian_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1025,8 +808,11 @@ distances =
 demands = [6.12 1.39 2.92 3.66 4.56 7.85 2.   5.14 5.92 0.46]
 capacities = [151.89  42.63  16.26 237.22 241.41 202.1   76.15  24.42 171.06 110.04]
 
-Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)
+
+CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
 Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+
 Optimize a model with 21 rows, 110 columns and 220 nonzeros
 Model fingerprint: 0x8d8d9346
 Variable types: 0 continuous, 110 integer (110 binary)
@@ -1059,7 +845,7 @@ H    0     0                      93.9200000   64.28872  31.5%     -    0s
      0     0   86.06884    0   15   93.92000   86.06884  8.36%     -    0s
 *    0     0               0      91.2300000   91.23000  0.00%     -    0s
 
-Explored 1 nodes (60 simplex iterations) in 0.01 seconds (0.00 work units)
+Explored 1 nodes (70 simplex iterations) in 0.02 seconds (0.00 work units)
 Thread count was 32 (of 32 available processors)
 
 Solution count 10: 91.23 93.92 93.98 ... 368.79
@@ -1071,7 +857,7 @@ Best objective 9.123000000000e+01, best bound 9.123000000000e+01, gap 0.0000%
 </div>
 </div>
 <div class="section" id="Set-cover">
-<h2><span class="section-number">1.5. </span>Set cover<a class="headerlink" href="#Set-cover" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.5. </span>Set cover<a class="headerlink" href="#Set-cover" title="Permalink to this headline">¶</a></h2>
 <p>The <strong>set cover problem</strong> is a classical NP-hard optimization problem which aims to minimize the number of sets needed to cover all elements in a given universe. Each set may contain a different number of elements, and sets may overlap with each other. This problem can be useful in various real-world scenarios such as scheduling, resource allocation, and network design.</p>
 <div class="section" id="id7">
 <h3>Formulation<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
@@ -1106,7 +892,7 @@ Best objective 9.123000000000e+01, best bound 9.123000000000e+01, gap 0.0000%
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
-<span class="kn">from</span> <span class="nn">miplearn.problems.setcover</span> <span class="kn">import</span> <span class="n">SetCoverGenerator</span><span class="p">,</span> <span class="n">build_setcover_model</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.setcover</span> <span class="kn">import</span> <span class="n">SetCoverGenerator</span><span class="p">,</span> <span class="n">build_setcover_model_gurobipy</span>
 
 <span class="c1"># Set random seed, to make example reproducible</span>
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
@@ -1130,9 +916,9 @@ Best objective 9.123000000000e+01, best bound 9.123000000000e+01, gap 0.0000%
 <span class="nb">print</span><span class="p">()</span>
 
 <span class="c1"># Build and optimize model</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">build_setcover_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_setcover_model_gurobipy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1149,8 +935,11 @@ matrix
 costs [1044.58  850.13 1014.5   944.83  697.9   971.87  213.49  220.98   70.23
   425.33]
 
-Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)
+
+CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
 Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+
 Optimize a model with 5 rows, 10 columns and 28 nonzeros
 Model fingerprint: 0xe5c2d4fa
 Variable types: 0 continuous, 10 integer (10 binary)
@@ -1176,7 +965,7 @@ Best objective 2.134900000000e+02, best bound 2.134900000000e+02, gap 0.0000%
 </div>
 </div>
 <div class="section" id="Set-Packing">
-<h2><span class="section-number">1.6. </span>Set Packing<a class="headerlink" href="#Set-Packing" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.6. </span>Set Packing<a class="headerlink" href="#Set-Packing" title="Permalink to this headline">¶</a></h2>
 <p><strong>Set packing</strong> is a classical optimization problem that asks for the maximum number of disjoint sets within a given list. This problem often arises in real-world situations where a finite number of resources need to be allocated to tasks, such as airline flight crew scheduling.</p>
 <div class="section" id="id10">
 <h3>Formulation<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
@@ -1229,7 +1018,7 @@ Best objective 2.134900000000e+02, best bound 2.134900000000e+02, gap 0.0000%
 <span class="c1"># Build and optimize model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">build_setpack_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1246,8 +1035,11 @@ matrix
 costs [1044.58  850.13 1014.5   944.83  697.9   971.87  213.49  220.98   70.23
   425.33]
 
-Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)
+
+CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
 Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+
 Optimize a model with 5 rows, 10 columns and 28 nonzeros
 Model fingerprint: 0x4ee91388
 Variable types: 0 continuous, 10 integer (10 binary)
@@ -1274,7 +1066,7 @@ Best objective -1.986370000000e+03, best bound -1.986370000000e+03, gap 0.0000%
 </div>
 </div>
 <div class="section" id="Stable-Set">
-<h2><span class="section-number">1.7. </span>Stable Set<a class="headerlink" href="#Stable-Set" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.7. </span>Stable Set<a class="headerlink" href="#Stable-Set" title="Permalink to this headline">¶</a></h2>
 <p>The <strong>maximum-weight stable set problem</strong> is a classical optimization problem in graph theory which asks for the maximum-weight subset of vertices in a graph such that no two vertices in the subset are adjacent. The problem often arises in real-world scheduling or resource allocation situations, where stable sets represent tasks or resources that can be chosen simultaneously without conflicts.</p>
 <div class="section" id="id13">
 <h3>Formulation<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
@@ -1296,13 +1088,16 @@ other. The class then samples the provided probability distribution <code class=
 <div class="section" id="id15">
 <h3>Example<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
-<span class="kn">from</span> <span class="nn">miplearn.problems.stab</span> <span class="kn">import</span> <span class="n">MaxWeightStableSetGenerator</span><span class="p">,</span> <span class="n">build_stab_model</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.stab</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MaxWeightStableSetGenerator</span><span class="p">,</span>
+    <span class="n">build_stab_model_gurobipy</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1"># Set random seed to make example reproducible</span>
 <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
@@ -1324,9 +1119,9 @@ other. The class then samples the provided probability distribution <code class=
 <span class="nb">print</span><span class="p">()</span>
 
 <span class="c1"># Load and optimize the first instance</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">build_stab_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_stab_model_gurobipy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1338,8 +1133,11 @@ graph [(0, 2), (0, 4), (0, 8), (1, 2), (1, 3), (1, 5), (1, 6), (1, 9), (2, 5), (
 weights[0] [37.45 95.07 73.2  59.87 15.6  15.6   5.81 86.62 60.11 70.81]
 weights[1] [ 2.06 96.99 83.24 21.23 18.18 18.34 30.42 52.48 43.19 29.12]
 
-Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)
+
+CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
 Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+
 Optimize a model with 10 rows, 10 columns and 24 nonzeros
 Model fingerprint: 0xf4c21689
 Variable types: 0 continuous, 10 integer (10 binary)
@@ -1361,7 +1159,7 @@ Root relaxation: objective -2.205650e+02, 4 iterations, 0.00 seconds (0.00 work 
 
      0     0 infeasible    0      -219.14000 -219.14000  0.00%     -    0s
 
-Explored 1 nodes (4 simplex iterations) in 0.00 seconds (0.00 work units)
+Explored 1 nodes (4 simplex iterations) in 0.01 seconds (0.00 work units)
 Thread count was 32 (of 32 available processors)
 
 Solution count 1: -219.14
@@ -1374,7 +1172,7 @@ Best objective -2.191400000000e+02, best bound -2.191400000000e+02, gap 0.0000%
 </div>
 </div>
 <div class="section" id="Traveling-Salesman">
-<h2><span class="section-number">1.8. </span>Traveling Salesman<a class="headerlink" href="#Traveling-Salesman" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.8. </span>Traveling Salesman<a class="headerlink" href="#Traveling-Salesman" title="Permalink to this headline">¶</a></h2>
 <p>Given a list of cities and the distances between them, the <strong>traveling salesman problem</strong> asks for the shortest route starting at the first city, visiting each other city exactly once, then returning to the first city. This problem is a generalization of the Hamiltonian path problem, one of Karp’s 21 NP-complete problems, and has many practical applications, including routing delivery trucks and scheduling airline routes.</p>
 <div class="section" id="id16">
 <h3>Formulation<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
@@ -1402,7 +1200,7 @@ Best objective -2.191400000000e+02, best bound -2.191400000000e+02, gap 0.0000%
 <div class="section" id="id18">
 <h3>Example<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
@@ -1433,7 +1231,7 @@ Best objective -2.191400000000e+02, best bound -2.191400000000e+02, gap 0.0000%
 <span class="c1"># Load and optimize the first instance</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">build_tsp_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1465,8 +1263,11 @@ distances[1]
  [ 668.  446.  317.  648.  469.  752.  394.  286.  274.    0.]]
 
 Set parameter LazyConstraints to value 1
-Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
+Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)
+
+CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
 Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+
 Optimize a model with 10 rows, 45 columns and 90 nonzeros
 Model fingerprint: 0x719675e5
 Variable types: 0 continuous, 45 integer (45 binary)
@@ -1497,13 +1298,13 @@ Solution count 1: 2921
 Optimal solution found (tolerance 1.00e-04)
 Best objective 2.921000000000e+03, best bound 2.921000000000e+03, gap 0.0000%
 
-User-callback calls 100, time in user-callback 0.00 sec
+User-callback calls 106, time in user-callback 0.00 sec
 </pre></div></div>
 </div>
 </div>
 </div>
 <div class="section" id="Unit-Commitment">
-<h2><span class="section-number">1.9. </span>Unit Commitment<a class="headerlink" href="#Unit-Commitment" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.9. </span>Unit Commitment<a class="headerlink" href="#Unit-Commitment" title="Permalink to this headline">¶</a></h2>
 <p>The <strong>unit commitment problem</strong> is a mixed-integer optimization problem which asks which power generation units should be turned on and off, at what time, and at what capacity, in order to meet the demand for electricity generation at the lowest cost. Numerous operational constraints are typically enforced, such as <em>ramping constraints</em>, which prevent generation units from changing power output levels too quickly from one time step to the next, and <em>minimum-up</em> and <em>minimum-down</em> constraints,
 which prevent units from switching on and off too frequently. The unit commitment problem is widely used in power systems planning and operations.</p>
 <div class="admonition note">
@@ -1605,7 +1406,7 @@ enforce bounds to the quantity of power generated by each unit.</p>
 <span class="c1"># Load and optimize the first instance</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">build_uc_model</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1639,8 +1440,11 @@ demand[1]
   828.28  775.18  834.99  959.76  865.72 1193.52 1058.92  985.19  893.92
   962.16  781.88  723.15  639.04  602.4   787.02]
 
-Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
-Thread count: 6 physical cores, 12 logical processors, using up to 12 threads
+Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)
+
+CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+
 Optimize a model with 578 rows, 360 columns and 2128 nonzeros
 Model fingerprint: 0x4dc1c661
 Variable types: 120 continuous, 240 integer (240 binary)
@@ -1650,22 +1454,22 @@ Coefficient statistics:
   Bounds range     [1e+00, 1e+00]
   RHS range        [1e+00, 1e+03]
 Presolve removed 244 rows and 131 columns
-Presolve time: 0.01s
+Presolve time: 0.02s
 Presolved: 334 rows, 229 columns, 842 nonzeros
 Variable types: 116 continuous, 113 integer (113 binary)
-Found heuristic solution: objective 441426.66550
+Found heuristic solution: objective 440662.46430
 Found heuristic solution: objective 429461.97680
 Found heuristic solution: objective 374043.64040
 
-Root relaxation: objective 3.361348e+05, 139 iterations, 0.00 seconds (0.00 work units)
+Root relaxation: objective 3.361348e+05, 142 iterations, 0.00 seconds (0.00 work units)
 
     Nodes    |    Current Node    |     Objective Bounds      |     Work
  Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
 
      0     0 336134.820    0   18 374043.640 336134.820  10.1%     -    0s
 H    0     0                    368600.14450 336134.820  8.81%     -    0s
-H    0     0                    364721.76610 364721.766  0.00%     -    0s
-     0     0          -    0      364721.766 364721.766  0.00%     -    0s
+H    0     0                    364721.76610 336134.820  7.84%     -    0s
+     0     0     cutoff    0      364721.766 364721.766  0.00%     -    0s
 
 Cutting planes:
   Gomory: 3
@@ -1677,10 +1481,10 @@ Cutting planes:
   RLT: 1
   Relax-and-lift: 7
 
-Explored 1 nodes (232 simplex iterations) in 0.04 seconds (0.02 work units)
-Thread count was 12 (of 12 available processors)
+Explored 1 nodes (234 simplex iterations) in 0.04 seconds (0.02 work units)
+Thread count was 32 (of 32 available processors)
 
-Solution count 5: 364722 368600 374044 ... 441427
+Solution count 5: 364722 368600 374044 ... 440662
 
 Optimal solution found (tolerance 1.00e-04)
 Best objective 3.647217661000e+05, best bound 3.647217661000e+05, gap 0.0000%
@@ -1689,7 +1493,7 @@ Best objective 3.647217661000e+05, best bound 3.647217661000e+05, gap 0.0000%
 </div>
 </div>
 <div class="section" id="Vertex-Cover">
-<h2><span class="section-number">1.10. </span>Vertex Cover<a class="headerlink" href="#Vertex-Cover" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.10. </span>Vertex Cover<a class="headerlink" href="#Vertex-Cover" title="Permalink to this headline">¶</a></h2>
 <p><strong>Minimum weight vertex cover</strong> is a classical optimization problem in graph theory where the goal is to find the minimum-weight set of vertices that are connected to all of the edges in the graph. The problem generalizes one of Karp’s 21 NP-complete problems and has applications in various fields, including bioinformatics and machine learning.</p>
 <div class="section" id="id22">
 <h3>Formulation<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h3>
@@ -1706,7 +1510,7 @@ Best objective 3.647217661000e+05, best bound 3.647217661000e+05, gap 0.0000%
 </div>
 <div class="section" id="id23">
 <h3>Random instance generator<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
-<p>The class <a class="reference external" href="../../api/problems/#module-miplearn.problems.vertexcover">MinWeightVertexCoverGenerator</a> can be used to generate random instances of this problem. The class accepts exactly the same parameters and behaves exactly in the same way as <a class="reference external" href="../../api/problems/#miplearn.problems.stab.MaxWeightStableSetGenerator">MaxWeightStableSetGenerator</a>. See the <a class="reference external" href="#Stable-Set">stable set section</a> for more details.</p>
+<p>The class <a class="reference external" href="../../api/problems/#module-miplearn.problems.vertexcover">MinWeightVertexCoverGenerator</a> can be used to generate random instances of this problem. The class accepts exactly the same parameters and behaves exactly in the same way as <a class="reference external" href="../../api/problems/#miplearn.problems.stab.MaxWeightStableSetGenerator">MaxWeightStableSetGenerator</a>. See the <a class="reference internal" href="#Stable-Set"><span class="std std-ref">stable set section</span></a> for more details.</p>
 </div>
 <div class="section" id="id24">
 <h3>Example<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
@@ -1717,7 +1521,10 @@ Best objective 3.647217661000e+05, best bound 3.647217661000e+05, gap 0.0000%
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
-<span class="kn">from</span> <span class="nn">miplearn.problems.vertexcover</span> <span class="kn">import</span> <span class="n">MinWeightVertexCoverGenerator</span><span class="p">,</span> <span class="n">build_vertexcover_model</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.vertexcover</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MinWeightVertexCoverGenerator</span><span class="p">,</span>
+    <span class="n">build_vertexcover_model</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1"># Set random seed to make example reproducible</span>
 <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
@@ -1753,8 +1560,11 @@ graph [(0, 2), (0, 4), (0, 8), (1, 2), (1, 3), (1, 5), (1, 6), (1, 9), (2, 5), (
 weights[0] [37.45 95.07 73.2  59.87 15.6  15.6   5.81 86.62 60.11 70.81]
 weights[1] [ 2.06 96.99 83.24 21.23 18.18 18.34 30.42 52.48 43.19 29.12]
 
-Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
-Thread count: 6 physical cores, 12 logical processors, using up to 12 threads
+Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)
+
+CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+
 Optimize a model with 15 rows, 10 columns and 30 nonzeros
 Model fingerprint: 0x2d2d1390
 Variable types: 0 continuous, 10 integer (10 binary)
@@ -1777,7 +1587,7 @@ Root relaxation: objective 2.995750e+02, 8 iterations, 0.00 seconds (0.00 work u
      0     0 infeasible    0       301.00000  301.00000  0.00%     -    0s
 
 Explored 1 nodes (8 simplex iterations) in 0.01 seconds (0.00 work units)
-Thread count was 12 (of 12 available processors)
+Thread count was 32 (of 32 available processors)
 
 Solution count 1: 301
 
@@ -1803,8 +1613,8 @@ Best objective 3.010000000000e+02, best bound 3.010000000000e+02, gap 0.0000%
         
         <div class='prev-next-bottom'>
             
-    <a class='left-prev' id="prev-link" href="../../" title="previous page">MIPLearn</a>
-    <a class='right-next' id="next-link" href="../collectors/" title="next page"><span class="section-number">2. </span>Training Data Collectors</a>
+    <a class='left-prev' id="prev-link" href="../../tutorials/getting-started-jump/" title="previous page"><span class="section-number">3. </span>Getting started (JuMP)</a>
+    <a class='right-next' id="next-link" href="../collectors/" title="next page"><span class="section-number">5. </span>Training Data Collectors</a>
 
         </div>
         
@@ -1814,7 +1624,7 @@ Best objective 3.010000000000e+02, best bound 3.010000000000e+02, gap 0.0000%
     <div class="container">
       <p>
         
-            &copy; Copyright 2020-2022, UChicago Argonne, LLC.<br/>
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
       </p>
     </div>
   </footer>

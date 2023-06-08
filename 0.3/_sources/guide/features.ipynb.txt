@@ -12,6 +12,9 @@
   },
   {
    "cell_type": "markdown",
+   "metadata": {
+    "collapsed": false
+   },
    "source": [
     "\n",
     "## Overview\n",
@@ -24,37 +27,37 @@
     "\n",
     "[FeatureExtractor]: ../../api/collectors/#miplearn.features.fields.FeaturesExtractor\n",
     "[H5File]: ../../api/helpers/#miplearn.h5.H5File"
-   ],
-   "metadata": {
-    "collapsed": false
-   }
+   ]
   },
   {
    "cell_type": "markdown",
+   "metadata": {
+    "collapsed": false
+   },
    "source": [
     "\n",
     "## H5FieldsExtractor\n",
     "\n",
     "[H5FieldsExtractor][H5FieldsExtractor], the most simple extractor in MIPLearn, simple extracts data that is already available in the HDF5 file, assembles it into a matrix and returns it as-is. The fields used to build instance, variable and constraint features are user-specified. The class also performs checks to ensure that the shapes of the returned matrices make sense."
-   ],
-   "metadata": {
-    "collapsed": false
-   }
+   ]
   },
   {
    "cell_type": "markdown",
+   "metadata": {
+    "collapsed": false
+   },
    "source": [
     "### Example\n",
     "\n",
     "The example below demonstrates the usage of H5FieldsExtractor in a randomly generated instance of the multi-dimensional knapsack problem."
-   ],
-   "metadata": {
-    "collapsed": false
-   }
+   ]
   },
   {
    "cell_type": "code",
-   "execution_count": 1,
+   "execution_count": 5,
+   "metadata": {
+    "collapsed": false
+   },
    "outputs": [
     {
      "name": "stdout",
@@ -92,12 +95,12 @@
     "from scipy.stats import uniform, randint\n",
     "\n",
     "from miplearn.collectors.basic import BasicCollector\n",
-    "from miplearn.features.fields import H5FieldsExtractor\n",
+    "from miplearn.extractors.fields import H5FieldsExtractor\n",
     "from miplearn.h5 import H5File\n",
-    "from miplearn.io import save\n",
+    "from miplearn.io import write_pkl_gz\n",
     "from miplearn.problems.multiknapsack import (\n",
     "    MultiKnapsackGenerator,\n",
-    "    build_multiknapsack_model\n",
+    "    build_multiknapsack_model,\n",
     ")\n",
     "\n",
     "# Set random seed to make example reproducible\n",
@@ -105,7 +108,7 @@
     "\n",
     "# Generate some random multiknapsack instances\n",
     "rmtree(\"data/multiknapsack/\", ignore_errors=True)\n",
-    "save(\n",
+    "write_pkl_gz(\n",
     "    MultiKnapsackGenerator(\n",
     "        n=randint(low=10, high=11),\n",
     "        m=randint(low=5, high=6),\n",
@@ -117,7 +120,7 @@
     "        p_jitter=uniform(loc=0.75, scale=0.5),\n",
     "        fix_w=True,\n",
     "    ).generate(10),\n",
-    "    \"data/multiknapsack\"\n",
+    "    \"data/multiknapsack\",\n",
     ")\n",
     "\n",
     "# Run the basic collector\n",
@@ -148,7 +151,7 @@
     "        \"static_constr_rhs\",\n",
     "        \"lp_constr_dual_values\",\n",
     "        \"lp_constr_slacks\",\n",
-    "    ]\n",
+    "    ],\n",
     ")\n",
     "\n",
     "with H5File(\"data/multiknapsack/00000.h5\") as h5:\n",
@@ -163,50 +166,50 @@
     "    # Extract and print constraint features\n",
     "    x3 = ext.get_constr_features(h5)\n",
     "    print(\"constraint features\", x3.shape, \"\\n\", x3)\n"
-   ],
-   "metadata": {
-    "collapsed": false
-   }
+   ]
   },
   {
    "cell_type": "markdown",
+   "metadata": {
+    "collapsed": false
+   },
    "source": [
     "\n",
     "[H5FieldsExtractor]: ../../api/collectors/#miplearn.features.fields.H5FieldsExtractor"
-   ],
-   "metadata": {
-    "collapsed": false
-   }
+   ]
   },
   {
    "cell_type": "markdown",
+   "metadata": {
+    "collapsed": false
+   },
    "source": [
     "<div class=\"alert alert-warning\">\n",
     "Warning\n",
     "\n",
     "You should ensure that the number of features remains the same for all relevant HDF5 files. In the previous example, to illustrate this issue, we used variable objective coefficients as instance features. While this is allowed, note that this requires all problem instances to have the same number of variables; otherwise the number of features would vary from instance to instance and MIPLearn would be unable to concatenate the matrices.\n",
     "</div>"
-   ],
-   "metadata": {
-    "collapsed": false
-   }
+   ]
   },
   {
    "cell_type": "markdown",
+   "metadata": {
+    "collapsed": false
+   },
    "source": [
     "## AlvLouWeh2017Extractor\n",
     "\n",
     "Alvarez, Louveaux and Wehenkel (2017) proposed a set features to describe a particular decision variable in a given node of the branch-and-bound tree, and applied it to the problem of mimicking strong branching decisions. The class [AlvLouWeh2017Extractor][] implements a subset of these features (40 out of 64), which are available outside of the branch-and-bound tree. Some features are derived from the static defintion of the problem (i.e. from objective function and constraint data), while some features are derived from the solution to the LP relaxation. The features have been designed to be: (i) independent of the size of the problem; (ii) invariant with respect to irrelevant problem transformations, such as row and column permutation; and (iii) independent of the scale of the problem. We refer to the paper for a more complete description.\n",
     "\n",
     "### Example"
-   ],
-   "metadata": {
-    "collapsed": false
-   }
+   ]
   },
   {
    "cell_type": "code",
-   "execution_count": 5,
+   "execution_count": 6,
+   "metadata": {
+    "collapsed": false
+   },
    "outputs": [
     {
      "name": "stdout",
@@ -277,7 +280,7 @@
     }
    ],
    "source": [
-    "from miplearn.features.AlvLouWeh2017 import AlvLouWeh2017Extractor\n",
+    "from miplearn.extractors.AlvLouWeh2017 import AlvLouWeh2017Extractor\n",
     "from miplearn.h5 import H5File\n",
     "\n",
     "# Build the extractor\n",
@@ -285,17 +288,16 @@
     "\n",
     "# Open previously-created multiknapsack training data\n",
     "with H5File(\"data/multiknapsack/00000.h5\") as h5:\n",
-    "\n",
     "    # Extract and print variable features\n",
     "    x1 = ext.get_var_features(h5)\n",
     "    print(\"x1\", x1.shape, \"\\n\", x1.round(1))"
-   ],
-   "metadata": {
-    "collapsed": false
-   }
+   ]
   },
   {
    "cell_type": "markdown",
+   "metadata": {
+    "collapsed": false
+   },
    "source": [
     "<div class=\"alert alert-info\">\n",
     "References\n",
@@ -304,10 +306,7 @@
     "* **Alvarez, Alejandro Marcos, Quentin Louveaux, and Louis Wehenkel.** *A machine learning-based approximation of strong branching.* INFORMS Journal on Computing 29.1 (2017): 185-195.\n",
     "\n",
     "</div>"
-   ],
-   "metadata": {
-    "collapsed": false
-   }
+   ]
   }
  ],
  "metadata": {
@@ -326,7 +325,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.8.13"
+   "version": "3.9.12"
   }
  },
  "nbformat": 4,

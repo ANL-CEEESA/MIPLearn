@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>6. Benchmark Problems &#8212; MIPLearn 0.3</title>
+    <title>9. Benchmark Problems &#8212; MIPLearn 0.3</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
   <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -36,8 +36,8 @@
     <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
     <link rel="index" title="Index" href="../../genindex/" />
     <link rel="search" title="Search" href="../../search/" />
-    <link rel="next" title="7. Collectors &amp; Extractors" href="../collectors/" />
-    <link rel="prev" title="5. Solvers" href="../../guide/solvers/" />
+    <link rel="next" title="10. Collectors &amp; Extractors" href="../collectors/" />
+    <link rel="prev" title="8. Solvers" href="../../guide/solvers/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
     
@@ -67,65 +67,87 @@
     <div class="bd-toc-item active">
         <p class="caption">
  <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-pyomo/">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
   User Guide
  </span>
 </p>
 <ul class="nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/problems/">
-   1. Benchmark Problems
+   4. Benchmark Problems
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/collectors/">
-   2. Training Data Collectors
+   5. Training Data Collectors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/features/">
-   3. Feature Extractors
+   6. Feature Extractors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/primal/">
-   4. Primal Components
+   7. Primal Components
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/solvers/">
-   5. Solvers
+   8. Solvers
   </a>
  </li>
 </ul>
 <p class="caption">
  <span class="caption-text">
-  API Reference
+  Python API Reference
  </span>
 </p>
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   6. Benchmark Problems
+   9. Benchmark Problems
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../collectors/">
-   7. Collectors &amp; Extractors
+   10. Collectors &amp; Extractors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../components/">
-   8. Components
+   11. Components
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../solvers/">
-   9. Solvers
+   12. Solvers
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../helpers/">
-   10. Helpers
+   13. Helpers
   </a>
  </li>
 </ul>
@@ -197,47 +219,47 @@
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.problems.binpack">
-   6.1. miplearn.problems.binpack
+   9.1. miplearn.problems.binpack
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.problems.multiknapsack">
-   6.2. miplearn.problems.multiknapsack
+   9.2. miplearn.problems.multiknapsack
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.problems.pmedian">
-   6.3. miplearn.problems.pmedian
+   9.3. miplearn.problems.pmedian
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.problems.setcover">
-   6.4. miplearn.problems.setcover
+   9.4. miplearn.problems.setcover
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.problems.setpack">
-   6.5. miplearn.problems.setpack
+   9.5. miplearn.problems.setpack
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.problems.stab">
-   6.6. miplearn.problems.stab
+   9.6. miplearn.problems.stab
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.problems.tsp">
-   6.7. miplearn.problems.tsp
+   9.7. miplearn.problems.tsp
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.problems.uc">
-   6.8. miplearn.problems.uc
+   9.8. miplearn.problems.uc
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.problems.vertexcover">
-   6.9. miplearn.problems.vertexcover
+   9.9. miplearn.problems.vertexcover
   </a>
  </li>
 </ul>
@@ -252,9 +274,9 @@
               <div>
                 
   <div class="section" id="benchmark-problems">
-<h1><span class="section-number">6. </span>Benchmark Problems<a class="headerlink" href="#benchmark-problems" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">9. </span>Benchmark Problems<a class="headerlink" href="#benchmark-problems" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-miplearn.problems.binpack">
-<span id="miplearn-problems-binpack"></span><h2><span class="section-number">6.1. </span>miplearn.problems.binpack<a class="headerlink" href="#module-miplearn.problems.binpack" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-problems-binpack"></span><h2><span class="section-number">9.1. </span>miplearn.problems.binpack<a class="headerlink" href="#module-miplearn.problems.binpack" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.problems.binpack.BinPackData">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.problems.binpack.</span></code><code class="sig-name descname"><span class="pre">BinPackData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sizes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.binpack.BinPackData" title="Permalink to this definition">¶</a></dt>
@@ -312,13 +334,13 @@ If <cite>False</cite>, generates completely different instances.</p></li>
 
 <dl class="py function">
 <dt id="miplearn.problems.binpack.build_binpack_model">
-<code class="sig-prename descclassname"><span class="pre">miplearn.problems.binpack.</span></code><code class="sig-name descname"><span class="pre">build_binpack_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#miplearn.problems.binpack.BinPackData" title="miplearn.problems.binpack.BinPackData"><span class="pre">miplearn.problems.binpack.BinPackData</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../solvers/#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">miplearn.solvers.gurobi.GurobiModel</span></a><a class="headerlink" href="#miplearn.problems.binpack.build_binpack_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">miplearn.problems.binpack.</span></code><code class="sig-name descname"><span class="pre">build_binpack_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#miplearn.problems.binpack.BinPackData" title="miplearn.problems.binpack.BinPackData"><span class="pre">miplearn.problems.binpack.BinPackData</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../solvers/#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">miplearn.solvers.gurobi.GurobiModel</span></a><a class="headerlink" href="#miplearn.problems.binpack.build_binpack_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts bin packing problem data into a concrete Gurobipy model.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-miplearn.problems.multiknapsack">
-<span id="miplearn-problems-multiknapsack"></span><h2><span class="section-number">6.2. </span>miplearn.problems.multiknapsack<a class="headerlink" href="#module-miplearn.problems.multiknapsack" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-problems-multiknapsack"></span><h2><span class="section-number">9.2. </span>miplearn.problems.multiknapsack<a class="headerlink" href="#module-miplearn.problems.multiknapsack" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.problems.multiknapsack.MultiKnapsackData">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.problems.multiknapsack.</span></code><code class="sig-name descname"><span class="pre">MultiKnapsackData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prices</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.multiknapsack.MultiKnapsackData" title="Permalink to this definition">¶</a></dt>
@@ -385,13 +407,13 @@ integer.</p></li>
 
 <dl class="py function">
 <dt id="miplearn.problems.multiknapsack.build_multiknapsack_model">
-<code class="sig-prename descclassname"><span class="pre">miplearn.problems.multiknapsack.</span></code><code class="sig-name descname"><span class="pre">build_multiknapsack_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#miplearn.problems.multiknapsack.MultiKnapsackData" title="miplearn.problems.multiknapsack.MultiKnapsackData"><span class="pre">miplearn.problems.multiknapsack.MultiKnapsackData</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../solvers/#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">miplearn.solvers.gurobi.GurobiModel</span></a><a class="headerlink" href="#miplearn.problems.multiknapsack.build_multiknapsack_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">miplearn.problems.multiknapsack.</span></code><code class="sig-name descname"><span class="pre">build_multiknapsack_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#miplearn.problems.multiknapsack.MultiKnapsackData" title="miplearn.problems.multiknapsack.MultiKnapsackData"><span class="pre">miplearn.problems.multiknapsack.MultiKnapsackData</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../solvers/#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">miplearn.solvers.gurobi.GurobiModel</span></a><a class="headerlink" href="#miplearn.problems.multiknapsack.build_multiknapsack_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts multi-knapsack problem data into a concrete Gurobipy model.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-miplearn.problems.pmedian">
-<span id="miplearn-problems-pmedian"></span><h2><span class="section-number">6.3. </span>miplearn.problems.pmedian<a class="headerlink" href="#module-miplearn.problems.pmedian" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-problems-pmedian"></span><h2><span class="section-number">9.3. </span>miplearn.problems.pmedian<a class="headerlink" href="#module-miplearn.problems.pmedian" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.problems.pmedian.PMedianData">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.problems.pmedian.</span></code><code class="sig-name descname"><span class="pre">PMedianData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distances</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demands</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.pmedian.PMedianData" title="Permalink to this definition">¶</a></dt>
@@ -447,13 +469,13 @@ different demands, capacities and distances.</p>
 
 <dl class="py function">
 <dt id="miplearn.problems.pmedian.build_pmedian_model">
-<code class="sig-prename descclassname"><span class="pre">miplearn.problems.pmedian.</span></code><code class="sig-name descname"><span class="pre">build_pmedian_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#miplearn.problems.pmedian.PMedianData" title="miplearn.problems.pmedian.PMedianData"><span class="pre">miplearn.problems.pmedian.PMedianData</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../solvers/#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">miplearn.solvers.gurobi.GurobiModel</span></a><a class="headerlink" href="#miplearn.problems.pmedian.build_pmedian_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">miplearn.problems.pmedian.</span></code><code class="sig-name descname"><span class="pre">build_pmedian_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#miplearn.problems.pmedian.PMedianData" title="miplearn.problems.pmedian.PMedianData"><span class="pre">miplearn.problems.pmedian.PMedianData</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../solvers/#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">miplearn.solvers.gurobi.GurobiModel</span></a><a class="headerlink" href="#miplearn.problems.pmedian.build_pmedian_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts capacitated p-median data into a concrete Gurobipy model.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-miplearn.problems.setcover">
-<span id="miplearn-problems-setcover"></span><h2><span class="section-number">6.4. </span>miplearn.problems.setcover<a class="headerlink" href="#module-miplearn.problems.setcover" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-problems-setcover"></span><h2><span class="section-number">9.4. </span>miplearn.problems.setcover<a class="headerlink" href="#module-miplearn.problems.setcover" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.problems.setcover.SetCoverData">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.problems.setcover.</span></code><code class="sig-name descname"><span class="pre">SetCoverData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incidence_matrix</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.setcover.SetCoverData" title="Permalink to this definition">¶</a></dt>
@@ -461,7 +483,7 @@ different demands, capacities and distances.</p>
 
 </div>
 <div class="section" id="module-miplearn.problems.setpack">
-<span id="miplearn-problems-setpack"></span><h2><span class="section-number">6.5. </span>miplearn.problems.setpack<a class="headerlink" href="#module-miplearn.problems.setpack" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-problems-setpack"></span><h2><span class="section-number">9.5. </span>miplearn.problems.setpack<a class="headerlink" href="#module-miplearn.problems.setpack" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.problems.setpack.SetPackData">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.problems.setpack.</span></code><code class="sig-name descname"><span class="pre">SetPackData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incidence_matrix</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.setpack.SetPackData" title="Permalink to this definition">¶</a></dt>
@@ -469,7 +491,7 @@ different demands, capacities and distances.</p>
 
 </div>
 <div class="section" id="module-miplearn.problems.stab">
-<span id="miplearn-problems-stab"></span><h2><span class="section-number">6.6. </span>miplearn.problems.stab<a class="headerlink" href="#module-miplearn.problems.stab" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-problems-stab"></span><h2><span class="section-number">9.6. </span>miplearn.problems.stab<a class="headerlink" href="#module-miplearn.problems.stab" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.problems.stab.MaxWeightStableSetData">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.problems.stab.</span></code><code class="sig-name descname"><span class="pre">MaxWeightStableSetData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.graph.Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.stab.MaxWeightStableSetData" title="Permalink to this definition">¶</a></dt>
@@ -490,7 +512,7 @@ remaining parameters are sampled in the same way.</p>
 
 </div>
 <div class="section" id="module-miplearn.problems.tsp">
-<span id="miplearn-problems-tsp"></span><h2><span class="section-number">6.7. </span>miplearn.problems.tsp<a class="headerlink" href="#module-miplearn.problems.tsp" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-problems-tsp"></span><h2><span class="section-number">9.7. </span>miplearn.problems.tsp<a class="headerlink" href="#module-miplearn.problems.tsp" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.problems.tsp.TravelingSalesmanData">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.problems.tsp.</span></code><code class="sig-name descname"><span class="pre">TravelingSalesmanData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_cities</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distances</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.tsp.TravelingSalesmanData" title="Permalink to this definition">¶</a></dt>
@@ -504,7 +526,7 @@ remaining parameters are sampled in the same way.</p>
 
 </div>
 <div class="section" id="module-miplearn.problems.uc">
-<span id="miplearn-problems-uc"></span><h2><span class="section-number">6.8. </span>miplearn.problems.uc<a class="headerlink" href="#module-miplearn.problems.uc" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-problems-uc"></span><h2><span class="section-number">9.8. </span>miplearn.problems.uc<a class="headerlink" href="#module-miplearn.problems.uc" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.problems.uc.UnitCommitmentData">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.problems.uc.</span></code><code class="sig-name descname"><span class="pre">UnitCommitmentData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">demand</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_power</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_power</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_uptime</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_downtime</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_startup</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_prod</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_fixed</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.uc.UnitCommitmentData" title="Permalink to this definition">¶</a></dt>
@@ -512,7 +534,7 @@ remaining parameters are sampled in the same way.</p>
 
 <dl class="py function">
 <dt id="miplearn.problems.uc.build_uc_model">
-<code class="sig-prename descclassname"><span class="pre">miplearn.problems.uc.</span></code><code class="sig-name descname"><span class="pre">build_uc_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#miplearn.problems.uc.UnitCommitmentData" title="miplearn.problems.uc.UnitCommitmentData"><span class="pre">miplearn.problems.uc.UnitCommitmentData</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../solvers/#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">miplearn.solvers.gurobi.GurobiModel</span></a><a class="headerlink" href="#miplearn.problems.uc.build_uc_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">miplearn.problems.uc.</span></code><code class="sig-name descname"><span class="pre">build_uc_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#miplearn.problems.uc.UnitCommitmentData" title="miplearn.problems.uc.UnitCommitmentData"><span class="pre">miplearn.problems.uc.UnitCommitmentData</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../solvers/#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">miplearn.solvers.gurobi.GurobiModel</span></a><a class="headerlink" href="#miplearn.problems.uc.build_uc_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Models the unit commitment problem according to equations (1)-(5) of:</p>
 <blockquote>
 <div><p>Bendotti, P., Fouilhoux, P. &amp; Rottner, C. The min-up/min-down unit
@@ -523,7 +545,7 @@ commitment polytope. J Comb Optim 36, 1024-1058 (2018).
 
 </div>
 <div class="section" id="module-miplearn.problems.vertexcover">
-<span id="miplearn-problems-vertexcover"></span><h2><span class="section-number">6.9. </span>miplearn.problems.vertexcover<a class="headerlink" href="#module-miplearn.problems.vertexcover" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-problems-vertexcover"></span><h2><span class="section-number">9.9. </span>miplearn.problems.vertexcover<a class="headerlink" href="#module-miplearn.problems.vertexcover" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.problems.vertexcover.MinWeightVertexCoverData">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.problems.vertexcover.</span></code><code class="sig-name descname"><span class="pre">MinWeightVertexCoverData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">networkx.classes.graph.Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.vertexcover.MinWeightVertexCoverData" title="Permalink to this definition">¶</a></dt>
@@ -538,8 +560,8 @@ commitment polytope. J Comb Optim 36, 1024-1058 (2018).
         
         <div class='prev-next-bottom'>
             
-    <a class='left-prev' id="prev-link" href="../../guide/solvers/" title="previous page"><span class="section-number">5. </span>Solvers</a>
-    <a class='right-next' id="next-link" href="../collectors/" title="next page"><span class="section-number">7. </span>Collectors &amp; Extractors</a>
+    <a class='left-prev' id="prev-link" href="../../guide/solvers/" title="previous page"><span class="section-number">8. </span>Solvers</a>
+    <a class='right-next' id="next-link" href="../collectors/" title="next page"><span class="section-number">10. </span>Collectors &amp; Extractors</a>
 
         </div>
         
@@ -549,7 +571,7 @@ commitment polytope. J Comb Optim 36, 1024-1058 (2018).
     <div class="container">
       <p>
         
-            &copy; Copyright 2020-2022, UChicago Argonne, LLC.<br/>
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
       </p>
     </div>
   </footer>

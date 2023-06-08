@@ -1,0 +1,680 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "6b8983b1",
+   "metadata": {
+    "tags": []
+   },
+   "source": [
+    "# Getting started (JuMP)\n",
+    "\n",
+    "## Introduction\n",
+    "\n",
+    "**MIPLearn** is an open source framework that uses machine learning (ML) to accelerate the performance of mixed-integer programming solvers (e.g. Gurobi, CPLEX, XPRESS). In this tutorial, we will:\n",
+    "\n",
+    "1. Install the Julia/JuMP version of MIPLearn\n",
+    "2. Model a simple optimization problem using JuMP\n",
+    "3. Generate training data and train the ML models\n",
+    "4. Use the ML models together Gurobi to solve new instances\n",
+    "\n",
+    "<div class=\"alert alert-warning\">\n",
+    "Warning\n",
+    "    \n",
+    "MIPLearn is still in early development stage. If run into any bugs or issues, please submit a bug report in our GitHub repository. Comments, suggestions and pull requests are also very welcome!\n",
+    "    \n",
+    "</div>\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "02f0a927",
+   "metadata": {},
+   "source": [
+    "## Installation\n",
+    "\n",
+    "MIPLearn is available in two versions:\n",
+    "\n",
+    "- Python version, compatible with the Pyomo and Gurobipy modeling languages,\n",
+    "- Julia version, compatible with the JuMP modeling language.\n",
+    "\n",
+    "In this tutorial, we will demonstrate how to use and install the Python/Pyomo version of the package. The first step is to install Julia in your machine. See the [official Julia website for more instructions](https://julialang.org/downloads/). After Julia is installed, launch the Julia REPL, type `]` to enter package mode, then install MIPLearn:\n",
+    "\n",
+    "```\n",
+    "pkg> add MIPLearn@0.3\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e8274543",
+   "metadata": {},
+   "source": [
+    "In addition to MIPLearn itself, we will also install:\n",
+    "\n",
+    "- the JuMP modeling language\n",
+    "- Gurobi, a state-of-the-art commercial MILP solver\n",
+    "- Distributions, to generate random data\n",
+    "- PyCall, to access ML model from Scikit-Learn\n",
+    "- Suppressor, to make the output cleaner\n",
+    "\n",
+    "```\n",
+    "pkg> add JuMP@1, Gurobi@1, Distributions@0.25, PyCall@1, Suppressor@0.2\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a14e4550",
+   "metadata": {},
+   "source": [
+    "<div class=\"alert alert-info\">\n",
+    "    \n",
+    "Note\n",
+    "\n",
+    "- If you do not have a Gurobi license available, you can also follow the tutorial by installing an open-source solver, such as `HiGHS`, and replacing `Gurobi.Optimizer` by `HiGHS.Optimizer` in all the code examples.\n",
+    "- In the code above, we install specific version of all packages to ensure that this tutorial keeps running in the future, even when newer (and possibly incompatible) versions of the packages are released. This is usually a recommended practice for all Julia projects.\n",
+    "   \n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "16b86823",
+   "metadata": {},
+   "source": [
+    "## Modeling a simple optimization problem\n",
+    "\n",
+    "To illustrate how can MIPLearn be used, we will model and solve a small optimization problem related to power systems optimization. The problem we discuss below is a simplification of the **unit commitment problem,** a practical optimization problem solved daily by electric grid operators around the world. \n",
+    "\n",
+    "Suppose that a utility company needs to decide which electrical generators should be online at each hour of the day, as well as how much power should each generator produce. More specifically, assume that the company owns $n$ generators, denoted by $g_1, \\ldots, g_n$. Each generator can either be online or offline. An online generator $g_i$ can produce between $p^\\text{min}_i$ to $p^\\text{max}_i$ megawatts of power, and it costs the company $c^\\text{fix}_i + c^\\text{var}_i y_i$, where $y_i$ is the amount of power produced. An offline generator produces nothing and costs nothing. The total amount of power to be produced needs to be exactly equal to the total demand $d$ (in megawatts).\n",
+    "\n",
+    "This simple problem can be modeled as a *mixed-integer linear optimization* problem as follows. For each generator $g_i$, let $x_i \\in \\{0,1\\}$ be a decision variable indicating whether $g_i$ is online, and let $y_i \\geq 0$ be a decision variable indicating how much power does $g_i$ produce. The problem is then given by:"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f12c3702",
+   "metadata": {},
+   "source": [
+    "$$\n",
+    "\\begin{align}\n",
+    "\\text{minimize } \\quad & \\sum_{i=1}^n \\left( c^\\text{fix}_i x_i + c^\\text{var}_i y_i \\right) \\\\\n",
+    "\\text{subject to } \\quad & y_i \\leq p^\\text{max}_i x_i & i=1,\\ldots,n \\\\\n",
+    "& y_i \\geq p^\\text{min}_i x_i & i=1,\\ldots,n \\\\\n",
+    "& \\sum_{i=1}^n y_i = d \\\\\n",
+    "& x_i \\in \\{0,1\\} & i=1,\\ldots,n \\\\\n",
+    "& y_i \\geq 0 & i=1,\\ldots,n\n",
+    "\\end{align}\n",
+    "$$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "be3989ed",
+   "metadata": {},
+   "source": [
+    "<div class=\"alert alert-info\">\n",
+    "\n",
+    "Note\n",
+    "\n",
+    "We use a simplified version of the unit commitment problem in this tutorial just to make it easier to follow. MIPLearn can also handle realistic, large-scale versions of this problem.\n",
+    "\n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a5fd33f6",
+   "metadata": {},
+   "source": [
+    "Next, let us convert this abstract mathematical formulation into a concrete optimization model, using Julia and JuMP. We start by defining a data class `UnitCommitmentData`, which holds all the input data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "c62ebff1-db40-45a1-9997-d121837f067b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "struct UnitCommitmentData\n",
+    "    demand::Float64\n",
+    "    pmin::Vector{Float64}\n",
+    "    pmax::Vector{Float64}\n",
+    "    cfix::Vector{Float64}\n",
+    "    cvar::Vector{Float64}\n",
+    "end;"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "29f55efa-0751-465a-9b0a-a821d46a3d40",
+   "metadata": {},
+   "source": [
+    "Next, we write a `build_uc_model` function, which converts the input data into a concrete JuMP model. The function accepts `UnitCommitmentData`, the data structure we previously defined, or the path to a JLD2 file containing this data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "79ef7775-18ca-4dfa-b438-49860f762ad0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "using MIPLearn\n",
+    "using JuMP\n",
+    "using Gurobi\n",
+    "\n",
+    "function build_uc_model(data)\n",
+    "    if data isa String\n",
+    "        data = read_jld2(data)\n",
+    "    end\n",
+    "    model = Model(Gurobi.Optimizer)\n",
+    "    G = 1:length(data.pmin)\n",
+    "    @variable(model, x[G], Bin)\n",
+    "    @variable(model, y[G] >= 0)\n",
+    "    @objective(model, Min, sum(data.cfix[g] * x[g] + data.cvar[g] * y[g] for g in G))\n",
+    "    @constraint(model, eq_max_power[g in G], y[g] <= data.pmax[g] * x[g])\n",
+    "    @constraint(model, eq_min_power[g in G], y[g] >= data.pmin[g] * x[g])\n",
+    "    @constraint(model, eq_demand, sum(y[g] for g in G) == data.demand)\n",
+    "    return JumpModel(model)\n",
+    "end;"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c22714a3",
+   "metadata": {},
+   "source": [
+    "At this point, we can already use Gurobi to find optimal solutions to any instance of this problem. To illustrate this, let us solve a small instance with three generators:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "dd828d68-fd43-4d2a-a058-3e2628d99d9e",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-06-06T20:01:10.993801745Z",
+     "start_time": "2023-06-06T20:01:10.887580927Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)\n",
+      "\n",
+      "CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]\n",
+      "Thread count: 16 physical cores, 32 logical processors, using up to 32 threads\n",
+      "\n",
+      "Optimize a model with 7 rows, 6 columns and 15 nonzeros\n",
+      "Model fingerprint: 0x55e33a07\n",
+      "Variable types: 3 continuous, 3 integer (3 binary)\n",
+      "Coefficient statistics:\n",
+      "  Matrix range     [1e+00, 7e+01]\n",
+      "  Objective range  [2e+00, 7e+02]\n",
+      "  Bounds range     [0e+00, 0e+00]\n",
+      "  RHS range        [1e+02, 1e+02]\n",
+      "Presolve removed 2 rows and 1 columns\n",
+      "Presolve time: 0.00s\n",
+      "Presolved: 5 rows, 5 columns, 13 nonzeros\n",
+      "Variable types: 0 continuous, 5 integer (3 binary)\n",
+      "Found heuristic solution: objective 1400.0000000\n",
+      "\n",
+      "Root relaxation: objective 1.035000e+03, 3 iterations, 0.00 seconds (0.00 work units)\n",
+      "\n",
+      "    Nodes    |    Current Node    |     Objective Bounds      |     Work\n",
+      " Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time\n",
+      "\n",
+      "     0     0 1035.00000    0    1 1400.00000 1035.00000  26.1%     -    0s\n",
+      "     0     0 1105.71429    0    1 1400.00000 1105.71429  21.0%     -    0s\n",
+      "*    0     0               0    1320.0000000 1320.00000  0.00%     -    0s\n",
+      "\n",
+      "Explored 1 nodes (5 simplex iterations) in 0.00 seconds (0.00 work units)\n",
+      "Thread count was 32 (of 32 available processors)\n",
+      "\n",
+      "Solution count 2: 1320 1400 \n",
+      "\n",
+      "Optimal solution found (tolerance 1.00e-04)\n",
+      "Best objective 1.320000000000e+03, best bound 1.320000000000e+03, gap 0.0000%\n",
+      "\n",
+      "User-callback calls 371, time in user-callback 0.00 sec\n",
+      "objective_value(model.inner) = 1320.0\n",
+      "Vector(value.(model.inner[:x])) = [-0.0, 1.0, 1.0]\n",
+      "Vector(value.(model.inner[:y])) = [0.0, 60.0, 40.0]\n"
+     ]
+    }
+   ],
+   "source": [
+    "model = build_uc_model(\n",
+    "    UnitCommitmentData(\n",
+    "        100.0,  # demand\n",
+    "        [10, 20, 30],  # pmin\n",
+    "        [50, 60, 70],  # pmax\n",
+    "        [700, 600, 500],  # cfix\n",
+    "        [1.5, 2.0, 2.5],  # cvar\n",
+    "    )\n",
+    ")\n",
+    "model.optimize()\n",
+    "@show objective_value(model.inner)\n",
+    "@show Vector(value.(model.inner[:x]))\n",
+    "@show Vector(value.(model.inner[:y]));"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "41b03bbc",
+   "metadata": {},
+   "source": [
+    "Running the code above, we found that the optimal solution for our small problem instance costs \\$1320. It is achieve by keeping generators 2 and 3 online and producing, respectively, 60 MW and 40 MW of power."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "01f576e1-1790-425e-9e5c-9fa07b6f4c26",
+   "metadata": {},
+   "source": [
+    "<div class=\"alert alert-info\">\n",
+    "    \n",
+    "Notes\n",
+    "    \n",
+    "- In the example above, `JumpModel` is just a thin wrapper around a standard JuMP model. This wrapper allows MIPLearn to be solver- and modeling-language-agnostic. The wrapper provides only a few basic methods, such as `optimize`. For more control, and to query the solution, the original JuMP model can be accessed through `model.inner`, as illustrated above.\n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cf60c1dd",
+   "metadata": {},
+   "source": [
+    "## Generating training data\n",
+    "\n",
+    "Although Gurobi could solve the small example above in a fraction of a second, it gets slower for larger and more complex versions of the problem. If this is a problem that needs to be solved frequently, as it is often the case in practice, it could make sense to spend some time upfront generating a **trained** solver, which can optimize new instances (similar to the ones it was trained on) faster.\n",
+    "\n",
+    "In the following, we will use MIPLearn to train machine learning models that is able to predict the optimal solution for instances that follow a given probability distribution, then it will provide this predicted solution to Gurobi as a warm start. Before we can train the model, we need to collect training data by solving a large number of instances. In real-world situations, we may construct these training instances based on historical data. In this tutorial, we will construct them using a random instance generator:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "1326efd7-3869-4137-ab6b-df9cb609a7e0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "using Distributions\n",
+    "using Random\n",
+    "\n",
+    "function random_uc_data(; samples::Int, n::Int, seed::Int=42)::Vector\n",
+    "    Random.seed!(seed)\n",
+    "    pmin = rand(Uniform(100_000, 500_000), n)\n",
+    "    pmax = pmin .* rand(Uniform(2, 2.5), n)\n",
+    "    cfix = pmin .* rand(Uniform(100, 125), n)\n",
+    "    cvar = rand(Uniform(1.25, 1.50), n)\n",
+    "    return [\n",
+    "        UnitCommitmentData(\n",
+    "            sum(pmax) * rand(Uniform(0.5, 0.75)),\n",
+    "            pmin,\n",
+    "            pmax,\n",
+    "            cfix,\n",
+    "            cvar,\n",
+    "        )\n",
+    "        for _ in 1:samples\n",
+    "    ]\n",
+    "end;"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3a03a7ac",
+   "metadata": {},
+   "source": [
+    "In this example, for simplicity, only the demands change from one instance to the next. We could also have randomized the costs, production limits or even the number of units. The more randomization we have in the training data, however, the more challenging it is for the machine learning models to learn solution patterns.\n",
+    "\n",
+    "Now we generate 500 instances of this problem, each one with 50 generators, and we use 450 of these instances for training. After generating the instances, we write them to individual files. MIPLearn uses files during the training process because, for large-scale optimization problems, it is often impractical to hold in memory the entire training data, as well as the concrete Pyomo models. Files also make it much easier to solve multiple instances simultaneously, potentially on multiple machines. The code below generates the files `uc/train/00001.jld2`, `uc/train/00002.jld2`, etc., which contain the input data in JLD2 format."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "6156752c",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-06-06T20:03:04.782830561Z",
+     "start_time": "2023-06-06T20:03:04.530421396Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "data = random_uc_data(samples=500, n=500)\n",
+    "train_data = write_jld2(data[1:450], \"uc/train\")\n",
+    "test_data = write_jld2(data[451:500], \"uc/test\");"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b17af877",
+   "metadata": {},
+   "source": [
+    "Finally, we use `BasicCollector` to collect the optimal solutions and other useful training data for all training instances. The data is stored in HDF5 files `uc/train/00001.h5`, `uc/train/00002.h5`, etc. The optimization models are also exported to compressed MPS files `uc/train/00001.mps.gz`, `uc/train/00002.mps.gz`, etc."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "7623f002",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-06-06T20:03:35.571497019Z",
+     "start_time": "2023-06-06T20:03:25.804104036Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "using Suppressor\n",
+    "@suppress_out begin\n",
+    "    bc = BasicCollector()\n",
+    "    bc.collect(train_data, build_uc_model)\n",
+    "end"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c42b1be1-9723-4827-82d8-974afa51ef9f",
+   "metadata": {},
+   "source": [
+    "## Training and solving test instances"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a33c6aa4-f0b8-4ccb-9935-01f7d7de2a1c",
+   "metadata": {},
+   "source": [
+    "With training data in hand, we can now design and train a machine learning model to accelerate solver performance. In this tutorial, for illustration purposes, we will use ML to generate a good warm start using $k$-nearest neighbors. More specifically, the strategy is to:\n",
+    "\n",
+    "1. Memorize the optimal solutions of all training instances;\n",
+    "2. Given a test instance, find the 25 most similar training instances, based on constraint right-hand sides;\n",
+    "3. Merge their optimal solutions into a single partial solution; specifically, only assign values to the binary variables that agree unanimously.\n",
+    "4. Provide this partial solution to the solver as a warm start.\n",
+    "\n",
+    "This simple strategy can be implemented as shown below, using `MemorizingPrimalComponent`. For more advanced strategies, and for the usage of more advanced classifiers, see the user guide."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "435f7bf8-4b09-4889-b1ec-b7b56e7d8ed2",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-06-06T20:05:20.497772794Z",
+     "start_time": "2023-06-06T20:05:20.484821405Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "# Load kNN classifier from Scikit-Learn\n",
+    "using PyCall\n",
+    "KNeighborsClassifier = pyimport(\"sklearn.neighbors\").KNeighborsClassifier\n",
+    "\n",
+    "# Build the MIPLearn component\n",
+    "comp = MemorizingPrimalComponent(\n",
+    "    clf=KNeighborsClassifier(n_neighbors=25),\n",
+    "    extractor=H5FieldsExtractor(\n",
+    "        instance_fields=[\"static_constr_rhs\"],\n",
+    "    ),\n",
+    "    constructor=MergeTopSolutions(25, [0.0, 1.0]),\n",
+    "    action=SetWarmStart(),\n",
+    ");"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9536e7e4-0b0d-49b0-bebd-4a848f839e94",
+   "metadata": {},
+   "source": [
+    "Having defined the ML strategy, we next construct `LearningSolver`, train the ML component and optimize one of the test instances."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "9d13dd50-3dcf-4673-a757-6f44dcc0dedf",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-06-06T20:05:22.672002339Z",
+     "start_time": "2023-06-06T20:05:21.447466634Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)\n",
+      "\n",
+      "CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]\n",
+      "Thread count: 16 physical cores, 32 logical processors, using up to 32 threads\n",
+      "\n",
+      "Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros\n",
+      "Model fingerprint: 0xd2378195\n",
+      "Variable types: 500 continuous, 500 integer (500 binary)\n",
+      "Coefficient statistics:\n",
+      "  Matrix range     [1e+00, 1e+06]\n",
+      "  Objective range  [1e+00, 6e+07]\n",
+      "  Bounds range     [0e+00, 0e+00]\n",
+      "  RHS range        [2e+08, 2e+08]\n",
+      "\n",
+      "User MIP start produced solution with objective 1.02165e+10 (0.00s)\n",
+      "Loaded user MIP start with objective 1.02165e+10\n",
+      "\n",
+      "Presolve time: 0.00s\n",
+      "Presolved: 1001 rows, 1000 columns, 2500 nonzeros\n",
+      "Variable types: 500 continuous, 500 integer (500 binary)\n",
+      "\n",
+      "Root relaxation: objective 1.021568e+10, 510 iterations, 0.00 seconds (0.00 work units)\n",
+      "\n",
+      "    Nodes    |    Current Node    |     Objective Bounds      |     Work\n",
+      " Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time\n",
+      "\n",
+      "     0     0 1.0216e+10    0    1 1.0217e+10 1.0216e+10  0.01%     -    0s\n",
+      "\n",
+      "Explored 1 nodes (510 simplex iterations) in 0.01 seconds (0.00 work units)\n",
+      "Thread count was 32 (of 32 available processors)\n",
+      "\n",
+      "Solution count 1: 1.02165e+10 \n",
+      "\n",
+      "Optimal solution found (tolerance 1.00e-04)\n",
+      "Best objective 1.021651058978e+10, best bound 1.021567971257e+10, gap 0.0081%\n",
+      "\n",
+      "User-callback calls 169, time in user-callback 0.00 sec\n"
+     ]
+    }
+   ],
+   "source": [
+    "solver_ml = LearningSolver(components=[comp])\n",
+    "solver_ml.fit(train_data)\n",
+    "solver_ml.optimize(test_data[1], build_uc_model);"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "61da6dad-7f56-4edb-aa26-c00eb5f946c0",
+   "metadata": {},
+   "source": [
+    "By examining the solve log above, specifically the line `Loaded user MIP start with objective...`, we can see that MIPLearn was able to construct an initial solution which turned out to be very close to the optimal solution to the problem. Now let us repeat the code above, but a solver which does not apply any ML strategies. Note that our previously-defined component is not provided."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "2ff391ed-e855-4228-aa09-a7641d8c2893",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-06-06T20:05:46.969575966Z",
+     "start_time": "2023-06-06T20:05:46.420803286Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)\n",
+      "\n",
+      "CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]\n",
+      "Thread count: 16 physical cores, 32 logical processors, using up to 32 threads\n",
+      "\n",
+      "Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros\n",
+      "Model fingerprint: 0xb45c0594\n",
+      "Variable types: 500 continuous, 500 integer (500 binary)\n",
+      "Coefficient statistics:\n",
+      "  Matrix range     [1e+00, 1e+06]\n",
+      "  Objective range  [1e+00, 6e+07]\n",
+      "  Bounds range     [0e+00, 0e+00]\n",
+      "  RHS range        [2e+08, 2e+08]\n",
+      "Presolve time: 0.00s\n",
+      "Presolved: 1001 rows, 1000 columns, 2500 nonzeros\n",
+      "Variable types: 500 continuous, 500 integer (500 binary)\n",
+      "Found heuristic solution: objective 1.071463e+10\n",
+      "\n",
+      "Root relaxation: objective 1.021568e+10, 510 iterations, 0.00 seconds (0.00 work units)\n",
+      "\n",
+      "    Nodes    |    Current Node    |     Objective Bounds      |     Work\n",
+      " Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time\n",
+      "\n",
+      "     0     0 1.0216e+10    0    1 1.0715e+10 1.0216e+10  4.66%     -    0s\n",
+      "H    0     0                    1.025162e+10 1.0216e+10  0.35%     -    0s\n",
+      "     0     0 1.0216e+10    0    1 1.0252e+10 1.0216e+10  0.35%     -    0s\n",
+      "H    0     0                    1.023090e+10 1.0216e+10  0.15%     -    0s\n",
+      "H    0     0                    1.022335e+10 1.0216e+10  0.07%     -    0s\n",
+      "H    0     0                    1.022281e+10 1.0216e+10  0.07%     -    0s\n",
+      "H    0     0                    1.021753e+10 1.0216e+10  0.02%     -    0s\n",
+      "H    0     0                    1.021752e+10 1.0216e+10  0.02%     -    0s\n",
+      "     0     0 1.0216e+10    0    3 1.0218e+10 1.0216e+10  0.02%     -    0s\n",
+      "     0     0 1.0216e+10    0    1 1.0218e+10 1.0216e+10  0.02%     -    0s\n",
+      "H    0     0                    1.021651e+10 1.0216e+10  0.01%     -    0s\n",
+      "\n",
+      "Explored 1 nodes (764 simplex iterations) in 0.03 seconds (0.02 work units)\n",
+      "Thread count was 32 (of 32 available processors)\n",
+      "\n",
+      "Solution count 7: 1.02165e+10 1.02175e+10 1.02228e+10 ... 1.07146e+10\n",
+      "\n",
+      "Optimal solution found (tolerance 1.00e-04)\n",
+      "Best objective 1.021651058978e+10, best bound 1.021573363741e+10, gap 0.0076%\n",
+      "\n",
+      "User-callback calls 204, time in user-callback 0.00 sec\n"
+     ]
+    }
+   ],
+   "source": [
+    "solver_baseline = LearningSolver(components=[])\n",
+    "solver_baseline.fit(train_data)\n",
+    "solver_baseline.optimize(test_data[1], build_uc_model);"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b6d37b88-9fcc-43ee-ac1e-2a7b1e51a266",
+   "metadata": {},
+   "source": [
+    "In the log above, the `MIP start` line is missing, and Gurobi had to start with a significantly inferior initial solution. The solver was still able to find the optimal solution at the end, but it required using its own internal heuristic procedures. In this example, because we solve very small optimization problems, there was almost no difference in terms of running time, but the difference can be significant for larger problems."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "eec97f06",
+   "metadata": {
+    "tags": []
+   },
+   "source": [
+    "## Accessing the solution\n",
+    "\n",
+    "In the example above, we used `LearningSolver.solve` together with data files to solve both the training and the test instances. The optimal solutions were saved to HDF5 files in the train/test folders, and could be retrieved by reading theses files, but that is not very convenient. In the following example, we show how to build and solve a JuMP model entirely in-memory, using our trained solver."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "67a6cd18",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-06-06T20:06:26.913448568Z",
+     "start_time": "2023-06-06T20:06:26.169047914Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)\n",
+      "\n",
+      "CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]\n",
+      "Thread count: 16 physical cores, 32 logical processors, using up to 32 threads\n",
+      "\n",
+      "Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros\n",
+      "Model fingerprint: 0x974a7fba\n",
+      "Variable types: 500 continuous, 500 integer (500 binary)\n",
+      "Coefficient statistics:\n",
+      "  Matrix range     [1e+00, 1e+06]\n",
+      "  Objective range  [1e+00, 6e+07]\n",
+      "  Bounds range     [0e+00, 0e+00]\n",
+      "  RHS range        [2e+08, 2e+08]\n",
+      "\n",
+      "User MIP start produced solution with objective 9.86729e+09 (0.00s)\n",
+      "User MIP start produced solution with objective 9.86675e+09 (0.00s)\n",
+      "User MIP start produced solution with objective 9.86654e+09 (0.01s)\n",
+      "User MIP start produced solution with objective 9.8661e+09 (0.01s)\n",
+      "Loaded user MIP start with objective 9.8661e+09\n",
+      "\n",
+      "Presolve time: 0.00s\n",
+      "Presolved: 1001 rows, 1000 columns, 2500 nonzeros\n",
+      "Variable types: 500 continuous, 500 integer (500 binary)\n",
+      "\n",
+      "Root relaxation: objective 9.865344e+09, 510 iterations, 0.00 seconds (0.00 work units)\n",
+      "\n",
+      "    Nodes    |    Current Node    |     Objective Bounds      |     Work\n",
+      " Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time\n",
+      "\n",
+      "     0     0 9.8653e+09    0    1 9.8661e+09 9.8653e+09  0.01%     -    0s\n",
+      "\n",
+      "Explored 1 nodes (510 simplex iterations) in 0.02 seconds (0.01 work units)\n",
+      "Thread count was 32 (of 32 available processors)\n",
+      "\n",
+      "Solution count 4: 9.8661e+09 9.86654e+09 9.86675e+09 9.86729e+09 \n",
+      "\n",
+      "Optimal solution found (tolerance 1.00e-04)\n",
+      "Best objective 9.866096485614e+09, best bound 9.865343669936e+09, gap 0.0076%\n",
+      "\n",
+      "User-callback calls 182, time in user-callback 0.00 sec\n",
+      "objective_value(model.inner) = 9.866096485613789e9\n"
+     ]
+    }
+   ],
+   "source": [
+    "data = random_uc_data(samples=1, n=500)[1]\n",
+    "model = build_uc_model(data)\n",
+    "solver_ml.optimize(model)\n",
+    "@show objective_value(model.inner);"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Julia 1.9.0",
+   "language": "julia",
+   "name": "julia-1.9"
+  },
+  "language_info": {
+   "file_extension": ".jl",
+   "mimetype": "application/julia",
+   "name": "julia",
+   "version": "1.9.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

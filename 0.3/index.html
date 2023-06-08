@@ -24,6 +24,11 @@
     
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     
   <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
@@ -36,7 +41,7 @@
     <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
     <link rel="index" title="Index" href="genindex/" />
     <link rel="search" title="Search" href="search/" />
-    <link rel="next" title="1. Benchmark Problems" href="guide/problems/" />
+    <link rel="next" title="1. Getting started (Pyomo)" href="tutorials/getting-started-pyomo/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
     
@@ -66,65 +71,87 @@
     <div class="bd-toc-item active">
         <p class="caption">
  <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorials/getting-started-pyomo/">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorials/getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorials/getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
   User Guide
  </span>
 </p>
 <ul class="nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="guide/problems/">
-   1. Benchmark Problems
+   4. Benchmark Problems
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="guide/collectors/">
-   2. Training Data Collectors
+   5. Training Data Collectors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="guide/features/">
-   3. Feature Extractors
+   6. Feature Extractors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="guide/primal/">
-   4. Primal Components
+   7. Primal Components
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="guide/solvers/">
-   5. Solvers
+   8. Solvers
   </a>
  </li>
 </ul>
 <p class="caption">
  <span class="caption-text">
-  API Reference
+  Python API Reference
  </span>
 </p>
 <ul class="nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="api/problems/">
-   6. Benchmark Problems
+   9. Benchmark Problems
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="api/collectors/">
-   7. Collectors &amp; Extractors
+   10. Collectors &amp; Extractors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="api/components/">
-   8. Components
+   11. Components
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="api/solvers/">
-   9. Solvers
+   12. Solvers
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="api/helpers/">
-   10. Helpers
+   13. Helpers
   </a>
  </li>
 </ul>
@@ -219,59 +246,91 @@
 <div class="section" id="contents">
 <h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-pyomo/">1. Getting started (Pyomo)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-pyomo/#Introduction">1.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-pyomo/#Installation">1.2. Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-pyomo/#Modeling-a-simple-optimization-problem">1.3. Modeling a simple optimization problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-pyomo/#Generating-training-data">1.4. Generating training data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-pyomo/#Training-and-solving-test-instances">1.5. Training and solving test instances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-pyomo/#Accessing-the-solution">1.6. Accessing the solution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-gurobipy/">2. Getting started (Gurobipy)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-gurobipy/#Introduction">2.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-gurobipy/#Installation">2.2. Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-gurobipy/#Modeling-a-simple-optimization-problem">2.3. Modeling a simple optimization problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-gurobipy/#Generating-training-data">2.4. Generating training data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-gurobipy/#Training-and-solving-test-instances">2.5. Training and solving test instances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-gurobipy/#Accessing-the-solution">2.6. Accessing the solution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-jump/">3. Getting started (JuMP)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-jump/#Introduction">3.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-jump/#Installation">3.2. Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-jump/#Modeling-a-simple-optimization-problem">3.3. Modeling a simple optimization problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-jump/#Generating-training-data">3.4. Generating training data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-jump/#Training-and-solving-test-instances">3.5. Training and solving test instances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-jump/#Accessing-the-solution">3.6. Accessing the solution</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="guide/problems/">1. Benchmark Problems</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Overview">1.1. Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Bin-Packing">1.2. Bin Packing</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="guide/problems/">4. Benchmark Problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Overview">4.1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Bin-Packing">4.2. Bin Packing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#Formulation">Formulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#Random-instance-generator">Random instance generator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#Example">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Multi-Dimensional-Knapsack">1.3. Multi-Dimensional Knapsack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Multi-Dimensional-Knapsack">4.3. Multi-Dimensional Knapsack</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id1">Formulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id2">Random instance generator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id3">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Capacitated-P-Median">1.4. Capacitated P-Median</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Capacitated-P-Median">4.4. Capacitated P-Median</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id4">Formulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id5">Random instance generator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id6">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Set-cover">1.5. Set cover</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Set-cover">4.5. Set cover</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id7">Formulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id8">Random instance generator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id9">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Set-Packing">1.6. Set Packing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Set-Packing">4.6. Set Packing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id10">Formulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id11">Random instance generator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id12">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Stable-Set">1.7. Stable Set</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Stable-Set">4.7. Stable Set</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id13">Formulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id14">Random instance generator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id15">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Traveling-Salesman">1.8. Traveling Salesman</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Traveling-Salesman">4.8. Traveling Salesman</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id16">Formulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id17">Random instance generator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id18">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Unit-Commitment">1.9. Unit Commitment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Unit-Commitment">4.9. Unit Commitment</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id19">Formulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id20">Random instance generator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id21">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Vertex-Cover">1.10. Vertex Cover</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Vertex-Cover">4.10. Vertex Cover</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id22">Formulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id23">Random instance generator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/problems/#id24">Example</a></li>
@@ -279,53 +338,53 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="guide/collectors/">2. Training Data Collectors</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#Overview">2.1. Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#HDF5-Format">2.2. HDF5 Format</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="guide/collectors/">5. Training Data Collectors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#Overview">5.1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#HDF5-Format">5.2. HDF5 Format</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/collectors/#Example">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#Basic-collector">2.3. Basic collector</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#Basic-collector">5.3. Basic collector</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/collectors/#Data-fields">Data fields</a></li>
 <li class="toctree-l3"><a class="reference internal" href="guide/collectors/#id1">Example</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="guide/features/">3. Feature Extractors</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="guide/features/#Overview">3.1. Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guide/features/#H5FieldsExtractor">3.2. H5FieldsExtractor</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="guide/features/">6. Feature Extractors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/features/#Overview">6.1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/features/#H5FieldsExtractor">6.2. H5FieldsExtractor</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/features/#Example">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/features/#AlvLouWeh2017Extractor">3.3. AlvLouWeh2017Extractor</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/features/#AlvLouWeh2017Extractor">6.3. AlvLouWeh2017Extractor</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/features/#id1">Example</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="guide/primal/">4. Primal Components</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Primal-component-actions">4.1. Primal component actions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Memorizing-primal-component">4.2. Memorizing primal component</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="guide/primal/">7. Primal Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Primal-component-actions">7.1. Primal component actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Memorizing-primal-component">7.2. Memorizing primal component</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/primal/#Examples">Examples</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Independent-vars-primal-component">4.3. Independent vars primal component</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Independent-vars-primal-component">7.3. Independent vars primal component</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/primal/#id1">Examples</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Joint-vars-primal-component">4.4. Joint vars primal component</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Joint-vars-primal-component">7.4. Joint vars primal component</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/primal/#id2">Examples</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Expert-primal-component">4.5. Expert primal component</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Expert-primal-component">7.5. Expert primal component</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/primal/#Example">Example</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="guide/solvers/">5. Solvers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="guide/solvers/#LearningSolver">5.1. LearningSolver</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="guide/solvers/">8. Solvers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/solvers/#LearningSolver">8.1. LearningSolver</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="guide/solvers/#Example">Example</a></li>
 </ul>
 </li>
@@ -334,45 +393,45 @@
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">API Reference</span></p>
+<p class="caption"><span class="caption-text">Python API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api/problems/">6. Benchmark Problems</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.binpack">6.1. miplearn.problems.binpack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.multiknapsack">6.2. miplearn.problems.multiknapsack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.pmedian">6.3. miplearn.problems.pmedian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.setcover">6.4. miplearn.problems.setcover</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.setpack">6.5. miplearn.problems.setpack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.stab">6.6. miplearn.problems.stab</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.tsp">6.7. miplearn.problems.tsp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.uc">6.8. miplearn.problems.uc</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.vertexcover">6.9. miplearn.problems.vertexcover</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/problems/">9. Benchmark Problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.binpack">9.1. miplearn.problems.binpack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.multiknapsack">9.2. miplearn.problems.multiknapsack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.pmedian">9.3. miplearn.problems.pmedian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.setcover">9.4. miplearn.problems.setcover</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.setpack">9.5. miplearn.problems.setpack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.stab">9.6. miplearn.problems.stab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.tsp">9.7. miplearn.problems.tsp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.uc">9.8. miplearn.problems.uc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.vertexcover">9.9. miplearn.problems.vertexcover</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api/collectors/">7. Collectors &amp; Extractors</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.classifiers.minprob">7.1. miplearn.classifiers.minprob</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.classifiers.singleclass">7.2. miplearn.classifiers.singleclass</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.collectors.basic">7.3. miplearn.collectors.basic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/collectors/#miplearn-features-fields">7.4. miplearn.features.fields</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/collectors/#miplearn-features-alvlouweh2017">7.5. miplearn.features.AlvLouWeh2017</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/collectors/">10. Collectors &amp; Extractors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.classifiers.minprob">10.1. miplearn.classifiers.minprob</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.classifiers.singleclass">10.2. miplearn.classifiers.singleclass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.collectors.basic">10.3. miplearn.collectors.basic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.extractors.fields">10.4. miplearn.extractors.fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.extractors.AlvLouWeh2017">10.5. miplearn.extractors.AlvLouWeh2017</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api/components/">8. Components</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.actions">8.1. miplearn.components.primal.actions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.expert">8.2. miplearn.components.primal.expert</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.indep">8.3. miplearn.components.primal.indep</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.joint">8.4. miplearn.components.primal.joint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.mem">8.5. miplearn.components.primal.mem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/components/">11. Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.actions">11.1. miplearn.components.primal.actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.expert">11.2. miplearn.components.primal.expert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.indep">11.3. miplearn.components.primal.indep</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.joint">11.4. miplearn.components.primal.joint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.mem">11.5. miplearn.components.primal.mem</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api/solvers/">9. Solvers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/solvers/#module-miplearn.solvers.abstract">9.1. miplearn.solvers.abstract</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/solvers/#module-miplearn.solvers.gurobi">9.2. miplearn.solvers.gurobi</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/solvers/#module-miplearn.solvers.learning">9.3. miplearn.solvers.learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/solvers/">12. Solvers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/solvers/#module-miplearn.solvers.abstract">12.1. miplearn.solvers.abstract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/solvers/#module-miplearn.solvers.gurobi">12.2. miplearn.solvers.gurobi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/solvers/#module-miplearn.solvers.learning">12.3. miplearn.solvers.learning</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api/helpers/">10. Helpers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/helpers/#module-miplearn.io">10.1. miplearn.io</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/helpers/#module-miplearn.h5">10.2. miplearn.h5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/helpers/">13. Helpers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/helpers/#module-miplearn.io">13.1. miplearn.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/helpers/#module-miplearn.h5">13.2. miplearn.h5</a></li>
 </ul>
 </li>
 </ul>
@@ -386,7 +445,7 @@
         
         <div class='prev-next-bottom'>
             
-    <a class='right-next' id="next-link" href="guide/problems/" title="next page"><span class="section-number">1. </span>Benchmark Problems</a>
+    <a class='right-next' id="next-link" href="tutorials/getting-started-pyomo/" title="next page"><span class="section-number">1. </span>Getting started (Pyomo)</a>
 
         </div>
         
@@ -396,7 +455,7 @@
     <div class="container">
       <p>
         
-            &copy; Copyright 2020-2022, UChicago Argonne, LLC.<br/>
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
       </p>
     </div>
   </footer>

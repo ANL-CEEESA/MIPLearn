@@ -24,6 +24,14 @@
     
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     
   <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
@@ -65,65 +73,87 @@
     <div class="bd-toc-item active">
         <p class="caption">
  <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorials/getting-started-pyomo/">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorials/getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorials/getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
   User Guide
  </span>
 </p>
 <ul class="nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="../guide/problems/">
-   1. Benchmark Problems
+   4. Benchmark Problems
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../guide/collectors/">
-   2. Training Data Collectors
+   5. Training Data Collectors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../guide/features/">
-   3. Feature Extractors
+   6. Feature Extractors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../guide/primal/">
-   4. Primal Components
+   7. Primal Components
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../guide/solvers/">
-   5. Solvers
+   8. Solvers
   </a>
  </li>
 </ul>
 <p class="caption">
  <span class="caption-text">
-  API Reference
+  Python API Reference
  </span>
 </p>
 <ul class="nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="../api/problems/">
-   6. Benchmark Problems
+   9. Benchmark Problems
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../api/collectors/">
-   7. Collectors &amp; Extractors
+   10. Collectors &amp; Extractors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../api/components/">
-   8. Components
+   11. Components
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../api/solvers/">
-   9. Solvers
+   12. Solvers
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../api/helpers/">
-   10. Helpers
+   13. Helpers
   </a>
  </li>
 </ul>
@@ -208,14 +238,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../api/solvers/#miplearn.solvers.abstract.AbstractModel">AbstractModel (class in miplearn.solvers.abstract)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../api/solvers/#miplearn.solvers.abstract.AbstractModel.add_constrs">add_constrs() (miplearn.solvers.abstract.AbstractModel method)</a>
 
       <ul>
         <li><a href="../api/solvers/#miplearn.solvers.gurobi.GurobiModel.add_constrs">(miplearn.solvers.gurobi.GurobiModel method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="../api/collectors/#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor">AlvLouWeh2017Extractor (class in miplearn.extractors.AlvLouWeh2017)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -254,8 +286,12 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="../api/helpers/#miplearn.h5.H5File.close">close() (miplearn.h5.H5File method)</a>
+</li>
       <li><a href="../api/collectors/#miplearn.collectors.basic.BasicCollector.collect">collect() (miplearn.collectors.basic.BasicCollector method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../api/components/#miplearn.components.primal.mem.MergeTopSolutions.construct">construct() (miplearn.components.primal.mem.MergeTopSolutions method)</a>
 
       <ul>
@@ -338,19 +374,43 @@
 </li>
       <li><a href="../api/helpers/#miplearn.h5.H5File.get_bytes">get_bytes() (miplearn.h5.H5File method)</a>
 </li>
+      <li><a href="../api/collectors/#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_constr_features">get_constr_features() (miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor method)</a>
+
+      <ul>
+        <li><a href="../api/collectors/#miplearn.extractors.fields.H5FieldsExtractor.get_constr_features">(miplearn.extractors.fields.H5FieldsExtractor method)</a>
+</li>
+      </ul></li>
+      <li><a href="../api/collectors/#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_instance_features">get_instance_features() (miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor method)</a>
+
+      <ul>
+        <li><a href="../api/collectors/#miplearn.extractors.fields.H5FieldsExtractor.get_instance_features">(miplearn.extractors.fields.H5FieldsExtractor method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../api/helpers/#miplearn.h5.H5File.get_scalar">get_scalar() (miplearn.h5.H5File method)</a>
 </li>
       <li><a href="../api/helpers/#miplearn.h5.H5File.get_sparse">get_sparse() (miplearn.h5.H5File method)</a>
 </li>
+      <li><a href="../api/collectors/#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_var_features">get_var_features() (miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor method)</a>
+
+      <ul>
+        <li><a href="../api/collectors/#miplearn.extractors.fields.H5FieldsExtractor.get_var_features">(miplearn.extractors.fields.H5FieldsExtractor method)</a>
+</li>
+      </ul></li>
       <li><a href="../api/solvers/#miplearn.solvers.gurobi.GurobiModel">GurobiModel (class in miplearn.solvers.gurobi)</a>
+</li>
+      <li><a href="../api/helpers/#miplearn.io.gzip">gzip() (in module miplearn.io)</a>
 </li>
   </ul></td>
 </tr></table>
 
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="../api/collectors/#miplearn.extractors.fields.H5FieldsExtractor">H5FieldsExtractor (class in miplearn.extractors.fields)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../api/helpers/#miplearn.h5.H5File">H5File (class in miplearn.h5)</a>
 </li>
@@ -377,10 +437,6 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../api/solvers/#miplearn.solvers.learning.LearningSolver">LearningSolver (class in miplearn.solvers.learning)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="../api/helpers/#miplearn.io.load">load() (in module miplearn.io)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -457,6 +513,20 @@
 </li>
       </ul></li>
       <li>
+    miplearn.extractors.AlvLouWeh2017
+
+      <ul>
+        <li><a href="../api/collectors/#module-miplearn.extractors.AlvLouWeh2017">module</a>
+</li>
+      </ul></li>
+      <li>
+    miplearn.extractors.fields
+
+      <ul>
+        <li><a href="../api/collectors/#module-miplearn.extractors.fields">module</a>
+</li>
+      </ul></li>
+      <li>
     miplearn.h5
 
       <ul>
@@ -505,6 +575,8 @@
         <li><a href="../api/problems/#module-miplearn.problems.setpack">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     miplearn.problems.stab
 
@@ -512,8 +584,6 @@
         <li><a href="../api/problems/#module-miplearn.problems.stab">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     miplearn.problems.tsp
 
@@ -575,6 +645,10 @@
         <li><a href="../api/components/#module-miplearn.components.primal.joint">miplearn.components.primal.joint</a>
 </li>
         <li><a href="../api/components/#module-miplearn.components.primal.mem">miplearn.components.primal.mem</a>
+</li>
+        <li><a href="../api/collectors/#module-miplearn.extractors.AlvLouWeh2017">miplearn.extractors.AlvLouWeh2017</a>
+</li>
+        <li><a href="../api/collectors/#module-miplearn.extractors.fields">miplearn.extractors.fields</a>
 </li>
         <li><a href="../api/helpers/#module-miplearn.h5">miplearn.h5</a>
 </li>
@@ -667,6 +741,10 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="../api/helpers/#miplearn.io.read_pkl_gz">read_pkl_gz() (in module miplearn.io)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="../api/solvers/#miplearn.solvers.abstract.AbstractModel.relax">relax() (miplearn.solvers.abstract.AbstractModel method)</a>
 
       <ul>
@@ -679,16 +757,10 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="../api/helpers/#miplearn.io.save">save() (in module miplearn.io)</a>
-</li>
       <li><a href="../api/components/#miplearn.components.primal.mem.SelectTopSolutions">SelectTopSolutions (class in miplearn.components.primal.mem)</a>
 </li>
-      <li><a href="../api/solvers/#miplearn.solvers.abstract.AbstractModel.set_time_limit">set_time_limit() (miplearn.solvers.abstract.AbstractModel method)</a>
-
-      <ul>
-        <li><a href="../api/solvers/#miplearn.solvers.gurobi.GurobiModel.set_time_limit">(miplearn.solvers.gurobi.GurobiModel method)</a>
+      <li><a href="../api/solvers/#miplearn.solvers.gurobi.GurobiModel.set_time_limit">set_time_limit() (miplearn.solvers.gurobi.GurobiModel method)</a>
 </li>
-      </ul></li>
       <li><a href="../api/solvers/#miplearn.solvers.abstract.AbstractModel.set_warm_starts">set_warm_starts() (miplearn.solvers.abstract.AbstractModel method)</a>
 
       <ul>
@@ -740,6 +812,10 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="../api/helpers/#miplearn.io.write_pkl_gz">write_pkl_gz() (in module miplearn.io)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 
@@ -758,7 +834,7 @@
     <div class="container">
       <p>
         
-            &copy; Copyright 2020-2022, UChicago Argonne, LLC.<br/>
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
       </p>
     </div>
   </footer>

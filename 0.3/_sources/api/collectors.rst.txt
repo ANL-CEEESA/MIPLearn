@@ -25,18 +25,18 @@ miplearn.collectors.basic
    :undoc-members:
    :show-inheritance:
 
-miplearn.features.fields
-------------------------
+miplearn.extractors.fields
+--------------------------
 
-.. automodule:: miplearn.features.fields
+.. automodule:: miplearn.extractors.fields
    :members:
    :undoc-members:
    :show-inheritance:
 
-miplearn.features.AlvLouWeh2017
--------------------------------
+miplearn.extractors.AlvLouWeh2017
+---------------------------------
 
-.. automodule:: miplearn.features.AlvLouWeh2017
+.. automodule:: miplearn.extractors.AlvLouWeh2017
    :members:
    :undoc-members:
    :show-inheritance:

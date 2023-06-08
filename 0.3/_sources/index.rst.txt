@@ -10,6 +10,15 @@ Contents
 
 .. toctree::
    :maxdepth: 10
+   :caption: Tutorials
+   :numbered: 2
+
+   tutorials/getting-started-pyomo
+   tutorials/getting-started-gurobipy
+   tutorials/getting-started-jump
+
+.. toctree::
+   :maxdepth: 10
    :caption: User Guide
    :numbered: 2
 
@@ -21,7 +30,7 @@ Contents
 
 .. toctree::
    :maxdepth: 10
-   :caption: API Reference
+   :caption: Python API Reference
    :numbered: 2
 
    api/problems

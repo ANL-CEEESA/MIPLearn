@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>9. Solvers &#8212; MIPLearn 0.3</title>
+    <title>12. Solvers &#8212; MIPLearn 0.3</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
   <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -36,8 +36,8 @@
     <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
     <link rel="index" title="Index" href="../../genindex/" />
     <link rel="search" title="Search" href="../../search/" />
-    <link rel="next" title="10. Helpers" href="../helpers/" />
-    <link rel="prev" title="8. Components" href="../components/" />
+    <link rel="next" title="13. Helpers" href="../helpers/" />
+    <link rel="prev" title="11. Components" href="../components/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
     
@@ -67,65 +67,87 @@
     <div class="bd-toc-item active">
         <p class="caption">
  <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-pyomo/">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
   User Guide
  </span>
 </p>
 <ul class="nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/problems/">
-   1. Benchmark Problems
+   4. Benchmark Problems
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/collectors/">
-   2. Training Data Collectors
+   5. Training Data Collectors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/features/">
-   3. Feature Extractors
+   6. Feature Extractors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/primal/">
-   4. Primal Components
+   7. Primal Components
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../../guide/solvers/">
-   5. Solvers
+   8. Solvers
   </a>
  </li>
 </ul>
 <p class="caption">
  <span class="caption-text">
-  API Reference
+  Python API Reference
  </span>
 </p>
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="../problems/">
-   6. Benchmark Problems
+   9. Benchmark Problems
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../collectors/">
-   7. Collectors &amp; Extractors
+   10. Collectors &amp; Extractors
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../components/">
-   8. Components
+   11. Components
   </a>
  </li>
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   9. Solvers
+   12. Solvers
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../helpers/">
-   10. Helpers
+   13. Helpers
   </a>
  </li>
 </ul>
@@ -197,17 +219,17 @@
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.solvers.abstract">
-   9.1. miplearn.solvers.abstract
+   12.1. miplearn.solvers.abstract
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.solvers.gurobi">
-   9.2. miplearn.solvers.gurobi
+   12.2. miplearn.solvers.gurobi
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.solvers.learning">
-   9.3. miplearn.solvers.learning
+   12.3. miplearn.solvers.learning
   </a>
  </li>
 </ul>
@@ -222,9 +244,9 @@
               <div>
                 
   <div class="section" id="solvers">
-<h1><span class="section-number">9. </span>Solvers<a class="headerlink" href="#solvers" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">12. </span>Solvers<a class="headerlink" href="#solvers" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-miplearn.solvers.abstract">
-<span id="miplearn-solvers-abstract"></span><h2><span class="section-number">9.1. </span>miplearn.solvers.abstract<a class="headerlink" href="#module-miplearn.solvers.abstract" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-solvers-abstract"></span><h2><span class="section-number">12.1. </span>miplearn.solvers.abstract<a class="headerlink" href="#module-miplearn.solvers.abstract" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.solvers.abstract.AbstractModel">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.solvers.abstract.</span></code><code class="sig-name descname"><span class="pre">AbstractModel</span></code><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel" title="Permalink to this definition">¶</a></dt>
@@ -265,11 +287,6 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="miplearn.solvers.abstract.AbstractModel.set_time_limit">
-<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">set_time_limit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_limit_sec</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.set_time_limit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt id="miplearn.solvers.abstract.AbstractModel.set_warm_starts">
 <em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">set_warm_starts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.set_warm_starts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -283,7 +300,7 @@
 
 </div>
 <div class="section" id="module-miplearn.solvers.gurobi">
-<span id="miplearn-solvers-gurobi"></span><h2><span class="section-number">9.2. </span>miplearn.solvers.gurobi<a class="headerlink" href="#module-miplearn.solvers.gurobi" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-solvers-gurobi"></span><h2><span class="section-number">12.2. </span>miplearn.solvers.gurobi<a class="headerlink" href="#module-miplearn.solvers.gurobi" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.solvers.gurobi.GurobiModel">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.solvers.gurobi.</span></code><code class="sig-name descname"><span class="pre">GurobiModel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">gurobipy.Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">find_violations</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_violations</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel" title="Permalink to this definition">¶</a></dt>
@@ -349,19 +366,19 @@ solved, extracts dynamic problem features, such as optimal MIP solution.</p>
 
 </div>
 <div class="section" id="module-miplearn.solvers.learning">
-<span id="miplearn-solvers-learning"></span><h2><span class="section-number">9.3. </span>miplearn.solvers.learning<a class="headerlink" href="#module-miplearn.solvers.learning" title="Permalink to this headline">¶</a></h2>
+<span id="miplearn-solvers-learning"></span><h2><span class="section-number">12.3. </span>miplearn.solvers.learning<a class="headerlink" href="#module-miplearn.solvers.learning" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="miplearn.solvers.learning.LearningSolver">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.solvers.learning.</span></code><code class="sig-name descname"><span class="pre">LearningSolver</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_lp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.solvers.learning.LearningSolver" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt id="miplearn.solvers.learning.LearningSolver.fit">
-<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_filenames</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.solvers.learning.LearningSolver.fit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_filenames</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.solvers.learning.LearningSolver.fit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="miplearn.solvers.learning.LearningSolver.optimize">
-<code class="sig-name descname"><span class="pre">optimize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.solvers.learning.LearningSolver.optimize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">optimize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.solvers.learning.LearningSolver.optimize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -375,8 +392,8 @@ solved, extracts dynamic problem features, such as optimal MIP solution.</p>
         
         <div class='prev-next-bottom'>
             
-    <a class='left-prev' id="prev-link" href="../components/" title="previous page"><span class="section-number">8. </span>Components</a>
-    <a class='right-next' id="next-link" href="../helpers/" title="next page"><span class="section-number">10. </span>Helpers</a>
+    <a class='left-prev' id="prev-link" href="../components/" title="previous page"><span class="section-number">11. </span>Components</a>
+    <a class='right-next' id="next-link" href="../helpers/" title="next page"><span class="section-number">13. </span>Helpers</a>
 
         </div>
         
@@ -386,7 +403,7 @@ solved, extracts dynamic problem features, such as optimal MIP solution.</p>
     <div class="container">
       <p>
         
-            &copy; Copyright 2020-2022, UChicago Argonne, LLC.<br/>
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
       </p>
     </div>
   </footer>
