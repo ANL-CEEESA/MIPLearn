@@ -119,7 +119,7 @@
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../solvers/">
-   8. Solvers
+   8. LearningSolver
   </a>
  </li>
 </ul>
@@ -263,7 +263,7 @@
                 
   <div class="section" id="Feature-Extractors">
 <h1><span class="section-number">6. </span>Feature Extractors<a class="headerlink" href="#Feature-Extractors" title="Permalink to this headline">¶</a></h1>
-<p>In the previous page, we introduced <em>training data collectors</em>, which solve the optimization problem and collect raw training data, such as the optimal solution. In this page, we introduce <strong>feature extractors</strong>, which take the raw training data, stored in HDF5 files, and extract relevant information in order to train a machine learning model. We describe the extractors readily available in MIPLearn.</p>
+<p>In the previous page, we introduced <em>training data collectors</em>, which solve the optimization problem and collect raw training data, such as the optimal solution. In this page, we introduce <strong>feature extractors</strong>, which take the raw training data, stored in HDF5 files, and extract relevant information in order to train a machine learning model.</p>
 <div class="section" id="Overview">
 <h2><span class="section-number">6.1. </span>Overview<a class="headerlink" href="#Overview" title="Permalink to this headline">¶</a></h2>
 <p>Feature extraction is an important step of the process of building a machine learning model because it helps to reduce the complexity of the data and convert it into a format that is more easily processed. Previous research has proposed converting absolute variable coefficients, for example, into relative values which are invariant to various transformations, such as problem scaling, making them more amenable to learning. Various other transformations have also been described.</p>

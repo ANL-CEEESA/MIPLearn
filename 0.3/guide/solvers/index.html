@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>8. Solvers &#8212; MIPLearn 0.3</title>
+    <title>8. Learning Solver &#8212; MIPLearn 0.3</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
   <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -24,10 +24,6 @@
     
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     
@@ -122,7 +118,7 @@
  </li>
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   8. Solvers
+   8. Learning Solver
   </a>
  </li>
 </ul>
@@ -225,16 +221,19 @@
             <nav id="bd-toc-nav">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#LearningSolver">
-   8.1. LearningSolver
+  <a class="reference internal nav-link" href="#Configuring-the-solver">
+   8.1. Configuring the solver
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Example">
-     Example
-    </a>
-   </li>
-  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Training-and-solving-new-instances">
+   8.2. Training and solving new instances
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Complete-example">
+   8.3. Complete example
+  </a>
  </li>
 </ul>
 
@@ -247,14 +246,51 @@
         
               <div>
                 
-  <div class="section" id="Solvers">
-<h1><span class="section-number">8. </span>Solvers<a class="headerlink" href="#Solvers" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="LearningSolver">
-<h2><span class="section-number">8.1. </span>LearningSolver<a class="headerlink" href="#LearningSolver" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="Example">
-<h3>Example<a class="headerlink" href="#Example" title="Permalink to this headline">¶</a></h3>
+  <div class="section" id="Learning-Solver">
+<h1><span class="section-number">8. </span>Learning Solver<a class="headerlink" href="#Learning-Solver" title="Permalink to this headline">¶</a></h1>
+<p>On previous pages, we discussed various components of the MIPLearn framework, including training data collectors, feature extractors, and individual machine learning components. In this page, we introduce <strong>LearningSolver</strong>, the main class of the framework which integrates all the aforementioned components into a cohesive whole. Using <strong>LearningSolver</strong> involves three steps: (i) configuring the solver; (ii) training the ML components; and (iii) solving new MIP instances. In the following, we
+describe each of these steps, then conclude with a complete runnable example.</p>
+<div class="section" id="Configuring-the-solver">
+<h2><span class="section-number">8.1. </span>Configuring the solver<a class="headerlink" href="#Configuring-the-solver" title="Permalink to this headline">¶</a></h2>
+<p><strong>LearningSolver</strong> is composed by multiple individual machine learning components, each targeting a different part of the solution process, or implementing a different machine learning strategy. This architecture allows strategies to be easily enabled, disabled or customized, making the framework flexible. By default, no components are provided and <strong>LearningSolver</strong> is equivalent to a traditional MIP solver. To specify additional components, the <code class="docutils literal notranslate"><span class="pre">components</span></code> constructor argument may be used:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span>
+    <span class="n">components</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">comp1</span><span class="p">,</span>
+        <span class="n">comp2</span><span class="p">,</span>
+        <span class="n">comp3</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, three components <code class="docutils literal notranslate"><span class="pre">comp1</span></code>, <code class="docutils literal notranslate"><span class="pre">comp2</span></code> and <code class="docutils literal notranslate"><span class="pre">comp3</span></code> are provided. The strategies implemented by these components are applied sequentially when solving the problem. For example, <code class="docutils literal notranslate"><span class="pre">comp1</span></code> and <code class="docutils literal notranslate"><span class="pre">comp2</span></code> could fix a subset of decision variables, while <code class="docutils literal notranslate"><span class="pre">comp3</span></code> constructs a warm start for the remaining problem.</p>
+</div>
+<div class="section" id="Training-and-solving-new-instances">
+<h2><span class="section-number">8.2. </span>Training and solving new instances<a class="headerlink" href="#Training-and-solving-new-instances" title="Permalink to this headline">¶</a></h2>
+<p>Once a solver is configured, its ML components need to be trained. This can be achieved by the <code class="docutils literal notranslate"><span class="pre">solver.fit</span></code> method, as illustrated below. The method accepts a list of HDF5 files and trains each individual component sequentially. Once the solver is trained, new instances can be solved using <code class="docutils literal notranslate"><span class="pre">solver.optimize</span></code>. The method returns a dictionary of statistics collected by each component, such as the number of variables fixed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build instances</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="o">...</span>
+<span class="n">test_data</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="c1"># Collect training data</span>
+<span class="n">bc</span> <span class="o">=</span> <span class="n">BasicCollector</span><span class="p">()</span>
+<span class="n">bc</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">build_model</span><span class="p">)</span>
+
+<span class="c1"># Build solver</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># Train components</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+
+<span class="c1"># Solve a new test instance</span>
+<span class="n">stats</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="Complete-example">
+<h2><span class="section-number">8.3. </span>Complete example<a class="headerlink" href="#Complete-example" title="Permalink to this headline">¶</a></h2>
+<p>In the example below, we illustrate the usage of <strong>LearningSolver</strong> by building instances of the Traveling Salesman Problem, collecting training data, training the ML components, then solving a new instance.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
@@ -269,7 +305,7 @@
 <span class="kn">from</span> <span class="nn">miplearn.components.primal.actions</span> <span class="kn">import</span> <span class="n">SetWarmStart</span>
 <span class="kn">from</span> <span class="nn">miplearn.components.primal.indep</span> <span class="kn">import</span> <span class="n">IndependentVarsPrimalComponent</span>
 <span class="kn">from</span> <span class="nn">miplearn.extractors.AlvLouWeh2017</span> <span class="kn">import</span> <span class="n">AlvLouWeh2017Extractor</span>
-<span class="kn">from</span> <span class="nn">miplearn.io</span> <span class="kn">import</span> <span class="n">save</span>
+<span class="kn">from</span> <span class="nn">miplearn.io</span> <span class="kn">import</span> <span class="n">write_pkl_gz</span>
 <span class="kn">from</span> <span class="nn">miplearn.problems.tsp</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TravelingSalesmanGenerator</span><span class="p">,</span>
     <span class="n">build_tsp_model</span><span class="p">,</span>
@@ -291,7 +327,7 @@
 <span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
 
 <span class="c1"># Save instance data to data/tsp/00000.pkl.gz, data/tsp/00001.pkl.gz, ...</span>
-<span class="n">all_data</span> <span class="o">=</span> <span class="n">save</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;data/tsp&quot;</span><span class="p">)</span>
+<span class="n">all_data</span> <span class="o">=</span> <span class="n">write_pkl_gz</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;data/tsp&quot;</span><span class="p">)</span>
 
 <span class="c1"># Split train/test data</span>
 <span class="n">train_data</span> <span class="o">=</span> <span class="n">all_data</span><span class="p">[:</span><span class="mi">40</span><span class="p">]</span>
@@ -321,27 +357,20 @@
 <span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
 
 <span class="c1"># Solve a test instance</span>
-<span class="n">solver</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_tsp_model</span><span class="p">);</span>
-</pre></div>
+<span class="n">solver</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_tsp_model</span><span class="p">)</span>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/home/axavier/Software/anaconda3/envs/miplearn/lib/python3.8/site-packages/tqdm/auto.py:22: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
-  from .autonotebook import tqdm as notebook_tqdm
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Restricted license - for non-production use only - expires 2023-10-25
-Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
-Thread count: 6 physical cores, 12 logical processors, using up to 12 threads
+Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)
+
+CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+
 Optimize a model with 10 rows, 45 columns and 90 nonzeros
 Model fingerprint: 0x6ddcd141
 Coefficient statistics:
@@ -356,11 +385,14 @@ Iteration    Objective       Primal Inf.    Dual Inf.      Time
        0    6.3600000e+02   1.700000e+01   0.000000e+00      0s
       15    2.7610000e+03   0.000000e+00   0.000000e+00      0s
 
-Solved in 15 iterations and 0.01 seconds (0.00 work units)
+Solved in 15 iterations and 0.00 seconds (0.00 work units)
 Optimal objective  2.761000000e+03
 Set parameter LazyConstraints to value 1
-Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
-Thread count: 6 physical cores, 12 logical processors, using up to 12 threads
+Gurobi Optimizer version 10.0.1 build v10.0.1rc0 (linux64)
+
+CPU model: AMD Ryzen 9 7950X 16-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 16 physical cores, 32 logical processors, using up to 32 threads
+
 Optimize a model with 10 rows, 45 columns and 90 nonzeros
 Model fingerprint: 0x74ca3d0a
 Variable types: 0 continuous, 45 integer (45 binary)
@@ -370,7 +402,7 @@ Coefficient statistics:
   Bounds range     [1e+00, 1e+00]
   RHS range        [2e+00, 2e+00]
 
-User MIP start produced solution with objective 2796 (0.01s)
+User MIP start produced solution with objective 2796 (0.00s)
 Loaded user MIP start with objective 2796
 
 Presolve time: 0.00s
@@ -382,56 +414,38 @@ Root relaxation: objective 2.761000e+03, 14 iterations, 0.00 seconds (0.00 work 
     Nodes    |    Current Node    |     Objective Bounds      |     Work
  Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
 
+     0     0 2761.00000    0    - 2796.00000 2761.00000  1.25%     -    0s
      0     0     cutoff    0      2796.00000 2796.00000  0.00%     -    0s
 
 Cutting planes:
   Lazy constraints: 3
 
-Explored 1 nodes (15 simplex iterations) in 0.01 seconds (0.00 work units)
-Thread count was 12 (of 12 available processors)
+Explored 1 nodes (16 simplex iterations) in 0.01 seconds (0.00 work units)
+Thread count was 32 (of 32 available processors)
 
 Solution count 1: 2796
 
 Optimal solution found (tolerance 1.00e-04)
 Best objective 2.796000000000e+03, best bound 2.796000000000e+03, gap 0.0000%
 
-User-callback calls 103, time in user-callback 0.00 sec
-Gurobi Optimizer version 9.5.2 build v9.5.2rc0 (linux64)
-Thread count: 6 physical cores, 12 logical processors, using up to 12 threads
-Optimize a model with 10 rows, 45 columns and 90 nonzeros
-Model fingerprint: 0x74ca3d0a
-Variable types: 0 continuous, 45 integer (45 binary)
-Coefficient statistics:
-  Matrix range     [1e+00, 1e+00]
-  Objective range  [4e+01, 1e+03]
-  Bounds range     [1e+00, 1e+00]
-  RHS range        [2e+00, 2e+00]
-Presolved: 10 rows, 45 columns, 90 nonzeros
-
-Continuing optimization...
-
-
-Cutting planes:
-  Lazy constraints: 3
-
-Explored 1 nodes (15 simplex iterations) in 0.01 seconds (0.00 work units)
-Thread count was 12 (of 12 available processors)
-
-Solution count 1: 2796
-
-Optimal solution found (tolerance 1.00e-04)
-Best objective 2.796000000000e+03, best bound 2.796000000000e+03, gap 0.0000%
-
-User-callback calls 27, time in user-callback 0.00 sec
+User-callback calls 110, time in user-callback 0.00 sec
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;WS: Count&#39;: 1, &#39;WS: Number of variables set&#39;: 41.0}
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
 </pre></div>
-</div>
 </div>
 </div>
 </div>

@@ -121,7 +121,7 @@
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="../solvers/">
-   8. Solvers
+   8. LearningSolver
   </a>
  </li>
 </ul>
@@ -441,8 +441,8 @@
 <h1><span class="section-number">4. </span>Benchmark Problems<a class="headerlink" href="#Benchmark-Problems" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="Overview">
 <h2><span class="section-number">4.1. </span>Overview<a class="headerlink" href="#Overview" title="Permalink to this headline">¶</a></h2>
-<p>Benchmark sets such as <a class="reference external" href="https://miplib.zib.de/">MIPLIB</a> or <a class="reference external" href="http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/">TSPLIB</a> are usually employed to evaluate the performance of conventional MIP solvers. Two shortcomings, unfortunately, make existing benchmark sets less than ideal for evaluating the performance of learning-enhanced MIP solvers: (i) while existing benchmark sets typically contain hundreds or thousands of instances, machine learning (ML) methods typically benefit from having
-orders of magnitude more instances available for training; (ii) current machine learning methods typically provide best performance on sets of homogeneous instances, buch general-purpose benchmark sets contain relatively few examples of each problem type.</p>
+<p>Benchmark sets such as <a class="reference external" href="https://miplib.zib.de/">MIPLIB</a> or <a class="reference external" href="http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/">TSPLIB</a> are usually employed to evaluate the performance of conventional MIP solvers. Two shortcomings, however, make existing benchmark sets less suitable for evaluating the performance of learning-enhanced MIP solvers: (i) while existing benchmark sets typically contain hundreds or thousands of instances, machine learning (ML) methods typically benefit from having orders of
+magnitude more instances available for training; (ii) current machine learning methods typically provide best performance on sets of homogeneous instances, buch general-purpose benchmark sets contain relatively few examples of each problem type.</p>
 <p>To tackle this challenge, MIPLearn provides random instance generators for a wide variety of classical optimization problems, covering applications from different fields, that can be used to evaluate new learning-enhanced MIP techniques in a measurable and reproducible way. As of MIPLearn 0.3, nine problem generators are available, each customizable with user-provided probability distribution and flexible parameters. The generators can be configured, for example, to produce large sets of very
 similar instances of same size, where only the objective function changes, or more diverse sets of instances, with various sizes and characteristics, belonging to a particular problem class.</p>
 <p>In the following, we describe the problems included in the library, their MIP formulation and the generation algorithm.</p>

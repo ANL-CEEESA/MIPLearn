@@ -9,7 +9,7 @@
     "\n",
     "## Overview\n",
     "\n",
-    "Benchmark sets such as [MIPLIB](https://miplib.zib.de/) or [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/) are usually employed to evaluate the performance of conventional MIP solvers. Two shortcomings, unfortunately, make existing benchmark sets less than ideal for evaluating the performance of learning-enhanced MIP solvers: (i) while existing benchmark sets typically contain hundreds or thousands of instances, machine learning (ML) methods typically benefit from having orders of magnitude more instances available for training; (ii) current machine learning methods typically provide best performance on sets of homogeneous instances, buch general-purpose benchmark sets contain relatively few examples of each problem type.\n",
+    "Benchmark sets such as [MIPLIB](https://miplib.zib.de/) or [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/) are usually employed to evaluate the performance of conventional MIP solvers. Two shortcomings, however, make existing benchmark sets less suitable for evaluating the performance of learning-enhanced MIP solvers: (i) while existing benchmark sets typically contain hundreds or thousands of instances, machine learning (ML) methods typically benefit from having orders of magnitude more instances available for training; (ii) current machine learning methods typically provide best performance on sets of homogeneous instances, buch general-purpose benchmark sets contain relatively few examples of each problem type.\n",
     "\n",
     "To tackle this challenge, MIPLearn provides random instance generators for a wide variety of classical optimization problems, covering applications from different fields, that can be used to evaluate new learning-enhanced MIP techniques in a measurable and reproducible way. As of MIPLearn 0.3, nine problem generators are available, each customizable with user-provided probability distribution and flexible parameters. The generators can be configured, for example, to produce large sets of very similar instances of same size, where only the objective function changes, or more diverse sets of instances, with various sizes and characteristics, belonging to a particular problem class.\n",
     "\n",
@@ -18,9 +18,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "bd99c51f",
+   "metadata": {},
    "source": [
     "<div class=\"alert alert-warning\">\n",
     "Warning\n",
@@ -63,9 +62,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "5e502345",
+   "metadata": {},
    "source": [
     "\n",
     "$$\n",
@@ -83,9 +81,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "9cba2077",
+   "metadata": {},
    "source": [
     "### Random instance generator\n",
     "\n",
@@ -100,9 +97,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "2bc62803",
+   "metadata": {},
    "source": [
     "### Example"
    ]
@@ -230,9 +226,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "d0d3ea42",
+   "metadata": {},
    "source": [
     "\n",
     "$$\n",
@@ -299,9 +294,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "f12a066f",
+   "metadata": {},
    "source": [
     "### Example"
    ]
@@ -466,9 +460,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "4e701397",
+   "metadata": {},
    "source": [
     "### Example"
    ]
@@ -592,9 +585,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "d5254e7a",
+   "metadata": {},
    "source": [
     "### Formulation\n",
     "\n",
@@ -737,9 +729,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "19342eb1",
+   "metadata": {},
    "source": [
     "### Formulation\n",
     "\n",
@@ -748,9 +739,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "0391b35b",
+   "metadata": {},
    "source": [
     "$$\n",
     "\\begin{align*}\n",
@@ -766,9 +756,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "c2d7df7b",
+   "metadata": {},
    "source": [
     "### Random instance generator\n",
     "\n",
@@ -783,8 +772,12 @@
   {
    "cell_type": "code",
    "execution_count": 5,
+   "id": "cc797da7",
    "metadata": {
-    "collapsed": false
+    "collapsed": false,
+    "jupyter": {
+     "outputs_hidden": false
+    }
    },
    "outputs": [
     {
@@ -876,9 +869,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "2f74dd10",
+   "metadata": {},
    "source": [
     "$$\n",
     "\\begin{align*}\n",
@@ -892,9 +884,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "ef030168",
+   "metadata": {},
    "source": [
     "\n",
     "### Random instance generator\n",
@@ -1004,9 +995,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "da3ca69c",
+   "metadata": {},
    "source": [
     "### Formulation\n",
     "\n",
@@ -1015,9 +1005,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "9cf296e9",
+   "metadata": {},
    "source": [
     "$$\n",
     "\\begin{align*}\n",
@@ -1034,9 +1023,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "eba3dbe5",
+   "metadata": {},
    "source": [
     "### Random instance generator\n",
     "\n",
@@ -1053,9 +1041,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "61f16c56",
+   "metadata": {},
    "source": [
     "### Example"
    ]
@@ -1063,8 +1050,12 @@
   {
    "cell_type": "code",
    "execution_count": 7,
+   "id": "9d0c56c6",
    "metadata": {
-    "collapsed": false
+    "collapsed": false,
+    "jupyter": {
+     "outputs_hidden": false
+    }
    },
    "outputs": [
     {
@@ -1177,9 +1168,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "7048d771",
+   "metadata": {},
    "source": [
     "\n",
     "<div class=\"alert alert-info\">\n",
@@ -1195,9 +1185,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "bec5ee1c",
+   "metadata": {},
    "source": [
     "\n",
     "$$\n",
@@ -1230,9 +1219,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "4a1ffb4c",
+   "metadata": {},
    "source": [
     "\n",
     "The first set of inequalities enforces minimum up-time constraints: if unit $g$ is down at time $t$, then it cannot start up during the previous $L_g$ time steps. The second set of inequalities enforces minimum down-time constraints, and is symmetrical to the previous one. The third set ensures that if unit $g$ starts up at time $t$, then the start up variable must be one. The fourth set ensures that demand is satisfied at each time period. The fifth and sixth sets enforce bounds to the quantity of power generated by each unit.\n",
@@ -1246,9 +1234,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "01bed9fc",
+   "metadata": {},
    "source": [
     "\n",
     "### Random instance generator\n",
@@ -1264,9 +1251,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "855b87b4",
+   "metadata": {},
    "source": [
     "### Example"
    ]
@@ -1274,8 +1260,12 @@
   {
    "cell_type": "code",
    "execution_count": 8,
+   "id": "6217da7c",
    "metadata": {
-    "collapsed": false
+    "collapsed": false,
+    "jupyter": {
+     "outputs_hidden": false
+    }
    },
    "outputs": [
     {
@@ -1415,9 +1405,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "91f5781a",
+   "metadata": {},
    "source": [
     "\n",
     "### Formulation\n",
@@ -1427,9 +1416,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "544754cb",
+   "metadata": {},
    "source": [
     " $$\n",
     "\\begin{align*}\n",
@@ -1445,9 +1433,8 @@
   },
   {
    "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false
-   },
+   "id": "35c99166",
+   "metadata": {},
    "source": [
     "### Random instance generator\n",
     "\n",
@@ -1545,8 +1532,12 @@
   {
    "cell_type": "code",
    "execution_count": null,
+   "id": "9f12e91f",
    "metadata": {
-    "collapsed": false
+    "collapsed": false,
+    "jupyter": {
+     "outputs_hidden": false
+    }
    },
    "outputs": [],
    "source": []
@@ -1554,7 +1545,7 @@
  ],
  "metadata": {
   "kernelspec": {
-   "display_name": "Python 3",
+   "display_name": "Python 3 (ipykernel)",
    "language": "python",
    "name": "python3"
   },
@@ -1568,7 +1559,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.9.12"
+   "version": "3.9.16"
   }
  },
  "nbformat": 4,
