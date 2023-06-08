@@ -1,0 +1,210 @@
+#  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
+#  Copyright (C) 2020-2022, UChicago Argonne, LLC. All rights reserved.
+#  Released under the modified BSD license. See COPYING.md for more details.
+
+from typing import Tuple, Optional
+
+import numpy as np
+
+from miplearn.extractors.abstract import FeaturesExtractor
+from miplearn.h5 import H5File
+
+
+class AlvLouWeh2017Extractor(FeaturesExtractor):
+    def __init__(
+        self,
+        with_m1: bool = True,
+        with_m2: bool = True,
+        with_m3: bool = True,
+    ):
+        self.with_m1 = with_m1
+        self.with_m2 = with_m2
+        self.with_m3 = with_m3
+
+    def get_instance_features(self, h5: H5File) -> np.ndarray:
+        raise NotImplemented()
+
+    def get_var_features(self, h5: H5File) -> np.ndarray:
+        """
+        Computes static variable features described in:
+            Alvarez, A. M., Louveaux, Q., & Wehenkel, L. (2017). A machine learning-based
+            approximation of strong branching. INFORMS Journal on Computing, 29(1),
+            185-195.
+        """
+        A = h5.get_sparse("static_constr_lhs")
+        b = h5.get_array("static_constr_rhs")
+        c = h5.get_array("static_var_obj_coeffs")
+        c_sa_up = h5.get_array("lp_var_sa_obj_up")
+        c_sa_down = h5.get_array("lp_var_sa_obj_down")
+        values = h5.get_array("lp_var_values")
+
+        assert A is not None
+        assert b is not None
+        assert c is not None
+
+        nvars = len(c)
+        curr = 0
+        max_n_features = 40
+        features = np.zeros((nvars, max_n_features))
+
+        def push(v: np.ndarray) -> None:
+            nonlocal curr
+            assert v.shape == (nvars,), f"{v.shape} != ({nvars},)"
+            features[:, curr] = v
+            curr += 1
+
+        def push_sign_abs(v: np.ndarray) -> None:
+            assert v.shape == (nvars,), f"{v.shape} != ({nvars},)"
+            push(np.sign(v))
+            push(np.abs(v))
+
+        def maxmin(M: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+            M_max = np.ravel(M.max(axis=0).todense())
+            M_min = np.ravel(M.min(axis=0).todense())
+            return M_max, M_min
+
+        with np.errstate(divide="ignore", invalid="ignore"):
+            # Feature 1
+            push(np.sign(c))
+
+            # Feature 2
+            c_pos_sum = c[c > 0].sum()
+            push(np.abs(c) / c_pos_sum)
+
+            # Feature 3
+            c_neg_sum = -c[c < 0].sum()
+            push(np.abs(c) / c_neg_sum)
+
+            if A is not None and self.with_m1:
+                # Compute A_ji / |b_j|
+                M1 = A.T.multiply(1.0 / np.abs(b)).T.tocsr()
+
+                # Select rows with positive b_j and compute max/min
+                M1_pos = M1[b > 0, :]
+                if M1_pos.shape[0] > 0:
+                    M1_pos_max = np.asarray(M1_pos.max(axis=0).todense()).flatten()
+                    M1_pos_min = np.asarray(M1_pos.min(axis=0).todense()).flatten()
+                else:
+                    M1_pos_max = np.zeros(nvars)
+                    M1_pos_min = np.zeros(nvars)
+
+                # Select rows with negative b_j and compute max/min
+                M1_neg = M1[b < 0, :]
+                if M1_neg.shape[0] > 0:
+                    M1_neg_max = np.asarray(M1_neg.max(axis=0).todense()).flatten()
+                    M1_neg_min = np.asarray(M1_neg.min(axis=0).todense()).flatten()
+                else:
+                    M1_neg_max = np.zeros(nvars)
+                    M1_neg_min = np.zeros(nvars)
+
+                # Features 4-11
+                push_sign_abs(M1_pos_min)
+                push_sign_abs(M1_pos_max)
+                push_sign_abs(M1_neg_min)
+                push_sign_abs(M1_neg_max)
+
+            if A is not None and self.with_m2:
+                # Compute |c_i| / A_ij
+                M2 = A.power(-1).multiply(np.abs(c)).tocsc()
+
+                # Compute max/min
+                M2_max, M2_min = maxmin(M2)
+
+                # Make copies of M2 and erase elements based on sign(c)
+                M2_pos_max = M2_max.copy()
+                M2_neg_max = M2_max.copy()
+                M2_pos_min = M2_min.copy()
+                M2_neg_min = M2_min.copy()
+                M2_pos_max[c <= 0] = 0
+                M2_pos_min[c <= 0] = 0
+                M2_neg_max[c >= 0] = 0
+                M2_neg_min[c >= 0] = 0
+
+                # Features 12-19
+                push_sign_abs(M2_pos_min)
+                push_sign_abs(M2_pos_max)
+                push_sign_abs(M2_neg_min)
+                push_sign_abs(M2_neg_max)
+
+            if A is not None and self.with_m3:
+                # Compute row sums
+                S_pos = A.maximum(0).sum(axis=1)
+                S_neg = np.abs(A.minimum(0).sum(axis=1))
+
+                # Divide A by positive and negative row sums
+                M3_pos = A.multiply(1 / S_pos).tocsr()
+                M3_neg = A.multiply(1 / S_neg).tocsr()
+
+                # Remove +inf and -inf generated by division by zero
+                M3_pos.data[~np.isfinite(M3_pos.data)] = 0.0
+                M3_neg.data[~np.isfinite(M3_neg.data)] = 0.0
+                M3_pos.eliminate_zeros()
+                M3_neg.eliminate_zeros()
+
+                # Split each matrix into positive and negative parts
+                M3_pos_pos = M3_pos.maximum(0)
+                M3_pos_neg = -(M3_pos.minimum(0))
+                M3_neg_pos = M3_neg.maximum(0)
+                M3_neg_neg = -(M3_neg.minimum(0))
+
+                # Calculate max/min
+                M3_pos_pos_max, M3_pos_pos_min = maxmin(M3_pos_pos)
+                M3_pos_neg_max, M3_pos_neg_min = maxmin(M3_pos_neg)
+                M3_neg_pos_max, M3_neg_pos_min = maxmin(M3_neg_pos)
+                M3_neg_neg_max, M3_neg_neg_min = maxmin(M3_neg_neg)
+
+                # Features 20-35
+                push_sign_abs(M3_pos_pos_max)
+                push_sign_abs(M3_pos_pos_min)
+                push_sign_abs(M3_pos_neg_max)
+                push_sign_abs(M3_pos_neg_min)
+                push_sign_abs(M3_neg_pos_max)
+                push_sign_abs(M3_neg_pos_min)
+                push_sign_abs(M3_neg_neg_max)
+                push_sign_abs(M3_neg_neg_min)
+
+            # Feature 36: only available during B&B
+
+            # Feature 37
+            if values is not None:
+                push(
+                    np.minimum(
+                        values - np.floor(values),
+                        np.ceil(values) - values,
+                    )
+                )
+
+            # Features 38-43: only available during B&B
+
+            # Feature 44
+            if c_sa_up is not None:
+                assert c_sa_down is not None
+
+                # Features 44 and 46
+                push(np.sign(c_sa_up))
+                push(np.sign(c_sa_down))
+
+                # Feature 45 is duplicated
+
+                # Feature 47-48
+                push(np.log(c - c_sa_down / np.sign(c)))
+                push(np.log(c - c_sa_up / np.sign(c)))
+
+                # Features 49-64: only available during B&B
+
+        features = features[:, 0:curr]
+        _fix_infinity(features)
+        return features
+
+    def get_constr_features(self, h5: H5File) -> np.ndarray:
+        raise NotImplemented()
+
+
+def _fix_infinity(m: Optional[np.ndarray]) -> None:
+    if m is None:
+        return
+    masked = np.ma.masked_invalid(m)  # type: ignore
+    max_values = np.max(masked, axis=0)
+    min_values = np.min(masked, axis=0)
+    m[:] = np.maximum(np.minimum(m, max_values), min_values)
+    m[~np.isfinite(m)] = 0.0

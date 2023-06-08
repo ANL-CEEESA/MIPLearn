@@ -1,8 +1,14 @@
 project = "MIPLearn"
-copyright = "2020-2021, UChicago Argonne, LLC"
+copyright = "2020-2023, UChicago Argonne, LLC"
 author = ""
-release = "0.2"
-extensions = ["myst_parser", "nbsphinx"]
+release = "0.3"
+extensions = [
+    "myst_parser",
+    "nbsphinx",
+    "sphinx_multitoc_numbering",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+]
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "sphinx_book_theme"

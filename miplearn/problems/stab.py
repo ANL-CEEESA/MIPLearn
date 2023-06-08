@@ -1,55 +1,28 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
-#  Copyright (C) 2020-2021, UChicago Argonne, LLC. All rights reserved.
+#  Copyright (C) 2020-2022, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from dataclasses import dataclass
-from typing import List
+from typing import List, Union
 
+import gurobipy as gp
 import networkx as nx
 import numpy as np
 import pyomo.environ as pe
+from gurobipy import GRB, quicksum
 from networkx import Graph
-from overrides import overrides
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
-from miplearn.instance.base import Instance
+from miplearn.io import read_pkl_gz
+from miplearn.solvers.gurobi import GurobiModel
+from miplearn.solvers.pyomo import PyomoModel
 
 
 @dataclass
 class MaxWeightStableSetData:
     graph: Graph
     weights: np.ndarray
-
-
-class MaxWeightStableSetInstance(Instance):
-    """An instance of the Maximum-Weight Stable Set Problem.
-
-    Given a graph G=(V,E) and a weight w_v for each vertex v, the problem asks for a stable
-    set S of G maximizing sum(w_v for v in S). A stable set (also called independent set) is
-    a subset of vertices, no two of which are adjacent.
-
-    This is one of Karp's 21 NP-complete problems.
-    """
-
-    def __init__(self, graph: Graph, weights: np.ndarray) -> None:
-        super().__init__()
-        self.graph = graph
-        self.weights = weights
-        self.nodes = list(self.graph.nodes)
-
-    @overrides
-    def to_model(self) -> pe.ConcreteModel:
-        model = pe.ConcreteModel()
-        model.x = pe.Var(self.nodes, domain=pe.Binary)
-        model.OBJ = pe.Objective(
-            expr=sum(model.x[v] * self.weights[v] for v in self.nodes),
-            sense=pe.maximize,
-        )
-        model.clique_eqs = pe.ConstraintList()
-        for clique in nx.find_cliques(self.graph):
-            model.clique_eqs.add(sum(model.x[v] for v in clique) <= 1)
-        return model
 
 
 class MaxWeightStableSetGenerator:
@@ -100,7 +73,7 @@ class MaxWeightStableSetGenerator:
                 graph = self.graph
             else:
                 graph = self._generate_graph()
-            weights = self.w.rvs(graph.number_of_nodes())
+            weights = np.round(self.w.rvs(graph.number_of_nodes()), 2)
             return MaxWeightStableSetData(graph, weights)
 
         return [_sample() for _ in range(n_samples)]
@@ -109,15 +82,35 @@ class MaxWeightStableSetGenerator:
         return nx.generators.random_graphs.binomial_graph(self.n.rvs(), self.p.rvs())
 
 
-def build_stab_model(data: MaxWeightStableSetData) -> pe.ConcreteModel:
-    model = pe.ConcreteModel()
+def build_stab_model_gurobipy(data: MaxWeightStableSetData) -> GurobiModel:
+    data = _read_stab_data(data)
+    model = gp.Model()
     nodes = list(data.graph.nodes)
-    model.x = pe.Var(nodes, domain=pe.Binary)
-    model.OBJ = pe.Objective(
-        expr=sum(-model.x[v] * data.weights[v] for v in nodes),
-        sense=pe.minimize,
-    )
+    x = model.addVars(nodes, vtype=GRB.BINARY, name="x")
+    model.setObjective(quicksum(-data.weights[i] * x[i] for i in nodes))
+    for clique in nx.find_cliques(data.graph):
+        model.addConstr(quicksum(x[i] for i in clique) <= 1)
+    model.update()
+    return GurobiModel(model)
+
+
+def build_stab_model_pyomo(
+    data: MaxWeightStableSetData,
+    solver="gurobi_persistent",
+) -> PyomoModel:
+    data = _read_stab_data(data)
+    model = pe.ConcreteModel()
+    nodes = pe.Set(initialize=list(data.graph.nodes))
+    model.x = pe.Var(nodes, domain=pe.Boolean, name="x")
+    model.obj = pe.Objective(expr=sum([-data.weights[i] * model.x[i] for i in nodes]))
     model.clique_eqs = pe.ConstraintList()
     for clique in nx.find_cliques(data.graph):
-        model.clique_eqs.add(sum(model.x[v] for v in clique) <= 1)
-    return model
+        model.clique_eqs.add(expr=sum(model.x[i] for i in clique) <= 1)
+    return PyomoModel(model, solver)
+
+
+def _read_stab_data(data: Union[str, MaxWeightStableSetData]) -> MaxWeightStableSetData:
+    if isinstance(data, str):
+        data = read_pkl_gz(data)
+    assert isinstance(data, MaxWeightStableSetData)
+    return data

@@ -1,0 +1,7 @@
+[deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Gurobi = "2e9cd046-0924-5485-92f1-d5272153d98b"
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+MIPLearn = "2b1277c3-b477-4c49-a15e-7ba350325c68"
+PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"

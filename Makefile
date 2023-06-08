@@ -2,8 +2,8 @@ PYTHON      := python3
 PYTEST      := pytest
 PIP         := $(PYTHON) -m pip
 MYPY        := $(PYTHON) -m mypy
-PYTEST_ARGS := -W ignore::DeprecationWarning -vv --log-level=DEBUG tests
-VERSION     := 0.2
+PYTEST_ARGS := -W ignore::DeprecationWarning -vv --log-level=DEBUG
+VERSION     := 0.3
 
 all: docs test
 
@@ -24,11 +24,8 @@ docs:
 	cd docs; make clean; make dirhtml
 	rsync -avP --delete-after docs/_build/dirhtml/ ../docs/$(VERSION)
 
-
 install-deps:
 	$(PIP) install --upgrade pip
-	$(PIP) install --upgrade -i https://pypi.gurobi.com 'gurobipy>=9.5,<9.6'
-	$(PIP) install --upgrade xpress
 	$(PIP) install --upgrade -r requirements.txt
 
 install:
@@ -41,9 +38,11 @@ reformat:
 	$(PYTHON) -m black .
 
 test:
+	# pyflakes miplearn tests
+	black --check .
 	# rm -rf .mypy_cache
-	# $(MYPY) -p miplearn
-	# $(MYPY) -p tests
+	$(MYPY) -p miplearn
+	$(MYPY) -p tests
 	$(PYTEST) $(PYTEST_ARGS) 
 
 .PHONY: test test-watch docs install dist

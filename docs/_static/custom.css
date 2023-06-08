@@ -8,11 +8,10 @@ h1.site-logo small {
 
 code {
     display: inline-block;
-    color: #222 !important;
-    background-color: rgba(0 0 0 / 8%);
     border-radius: 4px;
     padding: 0 4px;
-
+    background-color: #eee;
+    color: rgb(232, 62, 140);
 }
 
 .right-next, .left-prev {
@@ -50,13 +49,72 @@ code {
 
 .output_area pre {
     color: #fff;
+    line-height: 20px !important;
 }
 
 .input_area pre {
     background-color: rgba(0 0 0 / 3%) !important;
     padding: 12px !important;
+    line-height: 20px;
 }
 
 .ansi-green-intense-fg {
     color: #64d88b !important;
 }
+
+#site-navigation {
+    background-color: #fafafa;
+}
+
+.container, .container-lg, .container-md, .container-sm, .container-xl {
+    max-width: inherit !important;
+}
+
+h1, h2 {
+    font-weight: bold !important;
+}
+
+#main-content .section {
+    max-width: 900px !important;
+    margin: 0 auto !important;
+    font-size: 16px;
+}
+
+p.caption {
+    font-weight: bold;
+}
+
+h2 {
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ccc;
+}
+
+h3 {
+    margin-top: 1.5rem;
+}
+
+tbody, thead, pre {
+    border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+table td, th {
+    padding: 8px;
+}
+
+table p {
+    margin-bottom: 0;
+}
+
+table td code {
+    white-space: nowrap;
+}
+
+table tr,
+table th {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+table tr:last-child {
+    border-bottom: 0;
+}
+

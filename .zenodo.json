@@ -1,0 +1,27 @@
+{
+    "creators": [
+        {
+            "orcid": "0000-0002-5022-9802",
+            "affiliation": "Argonne National Laboratory",
+            "name": "Santos Xavier, Alinson"
+        },
+        {
+            "affiliation": "Argonne National Laboratory",
+            "name": "Qiu, Feng"
+        },
+        {
+            "affiliation": "Georgia Institute of Technology",
+            "name": "Gu, Xiaoyi"
+        },
+        {
+            "affiliation": "Georgia Institute of Technology",
+            "name": "Becu, Berkay"
+        },
+        {
+            "affiliation": "Georgia Institute of Technology",
+            "name": "Dey, Santanu S."
+        }
+    ],
+    "title": "MIPLearn: An Extensible Framework for Learning-Enhanced Optimization",
+    "description": "<b>MIPLearn</b> is an extensible framework for solving discrete optimization problems using a combination of Mixed-Integer Linear Programming (MIP) and Machine Learning (ML). MIPLearn uses ML methods to automatically identify patterns in previously solved instances of the problem, then uses these patterns to accelerate the performance of conventional state-of-the-art MIP solvers such as CPLEX, Gurobi or XPRESS."
+}
