@@ -211,7 +211,7 @@
     "solver.fit(train_data)\n",
     "\n",
     "# Solve a test instance\n",
-    "solver.optimize(test_data[0], build_tsp_model)\n"
+    "solver.optimize(test_data[0], build_tsp_model)"
    ]
   },
   {

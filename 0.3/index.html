@@ -24,7 +24,6 @@
     
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     
   <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
@@ -224,6 +223,21 @@
   <ul class="nav section-nav flex-column">
   </ul>
  </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#authors">
+   Authors
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#acknowledgments">
+   Acknowledgments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#citing-miplearn">
+   Citing MIPLearn
+  </a>
+ </li>
 </ul>
 
             </nav>
@@ -238,39 +252,15 @@
   <div class="section" id="miplearn">
 <h1>MIPLearn<a class="headerlink" href="#miplearn" title="Permalink to this headline">¶</a></h1>
 <p><strong>MIPLearn</strong> is an extensible framework for solving discrete optimization problems using a combination of Mixed-Integer Linear Programming (MIP) and Machine Learning (ML). MIPLearn uses ML methods to automatically identify patterns in previously solved instances of the problem, then uses these patterns to accelerate the performance of conventional state-of-the-art MIP solvers such as CPLEX, Gurobi or XPRESS.</p>
-<p>Unlike pure ML methods, MIPLearn is not only able to find high-quality solutions to discrete optimization problems, but it can also prove the optimality and feasibility of these solutions. Unlike conventional MIP solvers, MIPLearn can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value). For certain classes of problems, this approach has been shown to provide significant performance benefits (see benchmarks and references).</p>
+<p>Unlike pure ML methods, MIPLearn is not only able to find high-quality solutions to discrete optimization problems, but it can also prove the optimality and feasibility of these solutions. Unlike conventional MIP solvers, MIPLearn can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value). For certain classes of problems, this approach may provide significant performance benefits.</p>
 <div class="section" id="contents">
 <h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-pyomo/">1. Getting started (Pyomo)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-pyomo/#Introduction">1.1. Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-pyomo/#Installation">1.2. Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-pyomo/#Modeling-a-simple-optimization-problem">1.3. Modeling a simple optimization problem</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-pyomo/#Generating-training-data">1.4. Generating training data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-pyomo/#Training-and-solving-test-instances">1.5. Training and solving test instances</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-pyomo/#Accessing-the-solution">1.6. Accessing the solution</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-gurobipy/">2. Getting started (Gurobipy)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-gurobipy/#Introduction">2.1. Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-gurobipy/#Installation">2.2. Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-gurobipy/#Modeling-a-simple-optimization-problem">2.3. Modeling a simple optimization problem</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-gurobipy/#Generating-training-data">2.4. Generating training data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-gurobipy/#Training-and-solving-test-instances">2.5. Training and solving test instances</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-gurobipy/#Accessing-the-solution">2.6. Accessing the solution</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-jump/">3. Getting started (JuMP)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-jump/#Introduction">3.1. Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-jump/#Installation">3.2. Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-jump/#Modeling-a-simple-optimization-problem">3.3. Modeling a simple optimization problem</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-jump/#Generating-training-data">3.4. Generating training data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-jump/#Training-and-solving-test-instances">3.5. Training and solving test instances</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/getting-started-jump/#Accessing-the-solution">3.6. Accessing the solution</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-pyomo/">1. Getting started (Pyomo)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-gurobipy/">2. Getting started (Gurobipy)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-jump/">3. Getting started (JuMP)</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
@@ -278,105 +268,35 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="guide/problems/">4. Benchmark Problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="guide/problems/#Overview">4.1. Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Bin-Packing">4.2. Bin Packing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#Formulation">Formulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#Random-instance-generator">Random instance generator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#Example">Example</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Multi-Dimensional-Knapsack">4.3. Multi-Dimensional Knapsack</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id1">Formulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id2">Random instance generator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id3">Example</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Capacitated-P-Median">4.4. Capacitated P-Median</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id4">Formulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id5">Random instance generator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id6">Example</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Set-cover">4.5. Set cover</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id7">Formulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id8">Random instance generator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id9">Example</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Set-Packing">4.6. Set Packing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id10">Formulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id11">Random instance generator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id12">Example</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Stable-Set">4.7. Stable Set</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id13">Formulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id14">Random instance generator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id15">Example</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Traveling-Salesman">4.8. Traveling Salesman</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id16">Formulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id17">Random instance generator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id18">Example</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Unit-Commitment">4.9. Unit Commitment</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id19">Formulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id20">Random instance generator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id21">Example</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Vertex-Cover">4.10. Vertex Cover</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id22">Formulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id23">Random instance generator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/problems/#id24">Example</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Bin-Packing">4.2. Bin Packing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Multi-Dimensional-Knapsack">4.3. Multi-Dimensional Knapsack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Capacitated-P-Median">4.4. Capacitated P-Median</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Set-cover">4.5. Set cover</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Set-Packing">4.6. Set Packing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Stable-Set">4.7. Stable Set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Traveling-Salesman">4.8. Traveling Salesman</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Unit-Commitment">4.9. Unit Commitment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Vertex-Cover">4.10. Vertex Cover</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="guide/collectors/">5. Training Data Collectors</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="guide/collectors/#Overview">5.1. Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#HDF5-Format">5.2. HDF5 Format</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/collectors/#Example">Example</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#Basic-collector">5.3. Basic collector</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/collectors/#Data-fields">Data fields</a></li>
-<li class="toctree-l3"><a class="reference internal" href="guide/collectors/#id1">Example</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#HDF5-Format">5.2. HDF5 Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#Basic-collector">5.3. Basic collector</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="guide/features/">6. Feature Extractors</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="guide/features/#Overview">6.1. Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guide/features/#H5FieldsExtractor">6.2. H5FieldsExtractor</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/features/#Example">Example</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/features/#AlvLouWeh2017Extractor">6.3. AlvLouWeh2017Extractor</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/features/#id1">Example</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="guide/features/#H5FieldsExtractor">6.2. H5FieldsExtractor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/features/#AlvLouWeh2017Extractor">6.3. AlvLouWeh2017Extractor</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="guide/primal/">7. Primal Components</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="guide/primal/#Primal-component-actions">7.1. Primal component actions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Memorizing-primal-component">7.2. Memorizing primal component</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/primal/#Examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Independent-vars-primal-component">7.3. Independent vars primal component</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/primal/#id1">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Joint-vars-primal-component">7.4. Joint vars primal component</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/primal/#id2">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Expert-primal-component">7.5. Expert primal component</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="guide/primal/#Example">Example</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Memorizing-primal-component">7.2. Memorizing primal component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Independent-vars-primal-component">7.3. Independent vars primal component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Joint-vars-primal-component">7.4. Joint vars primal component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Expert-primal-component">7.5. Expert primal component</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="guide/solvers/">8. Learning Solver</a><ul>
@@ -390,47 +310,41 @@
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Python API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api/problems/">9. Benchmark Problems</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.binpack">9.1. miplearn.problems.binpack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.multiknapsack">9.2. miplearn.problems.multiknapsack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.pmedian">9.3. miplearn.problems.pmedian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.setcover">9.4. miplearn.problems.setcover</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.setpack">9.5. miplearn.problems.setpack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.stab">9.6. miplearn.problems.stab</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.tsp">9.7. miplearn.problems.tsp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.uc">9.8. miplearn.problems.uc</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/problems/#module-miplearn.problems.vertexcover">9.9. miplearn.problems.vertexcover</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api/collectors/">10. Collectors &amp; Extractors</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.classifiers.minprob">10.1. miplearn.classifiers.minprob</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.classifiers.singleclass">10.2. miplearn.classifiers.singleclass</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.collectors.basic">10.3. miplearn.collectors.basic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.extractors.fields">10.4. miplearn.extractors.fields</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/collectors/#module-miplearn.extractors.AlvLouWeh2017">10.5. miplearn.extractors.AlvLouWeh2017</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api/components/">11. Components</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.actions">11.1. miplearn.components.primal.actions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.expert">11.2. miplearn.components.primal.expert</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.indep">11.3. miplearn.components.primal.indep</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.joint">11.4. miplearn.components.primal.joint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/components/#module-miplearn.components.primal.mem">11.5. miplearn.components.primal.mem</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api/solvers/">12. Solvers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/solvers/#module-miplearn.solvers.abstract">12.1. miplearn.solvers.abstract</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/solvers/#module-miplearn.solvers.gurobi">12.2. miplearn.solvers.gurobi</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/solvers/#module-miplearn.solvers.learning">12.3. miplearn.solvers.learning</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api/helpers/">13. Helpers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/helpers/#module-miplearn.io">13.1. miplearn.io</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/helpers/#module-miplearn.h5">13.2. miplearn.h5</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="api/problems/">9. Benchmark Problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/collectors/">10. Collectors &amp; Extractors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/components/">11. Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/solvers/">12. Solvers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/helpers/">13. Helpers</a></li>
 </ul>
 </div>
+</div>
+<div class="section" id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Alinson S. Xavier</strong> (Argonne National Laboratory)</p></li>
+<li><p><strong>Feng Qiu</strong> (Argonne National Laboratory)</p></li>
+<li><p><strong>Xiaoyi Gu</strong> (Georgia Institute of Technology)</p></li>
+<li><p><strong>Berkay Becu</strong> (Georgia Institute of Technology)</p></li>
+<li><p><strong>Santanu S. Dey</strong>  (Georgia Institute of Technology)</p></li>
+</ul>
+</div>
+<div class="section" id="acknowledgments">
+<h2>Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Based upon work supported by <strong>Laboratory Directed Research and Development</strong> (LDRD) funding from Argonne National Laboratory, provided by the Director, Office of Science, of the U.S. Department of Energy.</p></li>
+<li><p>Based upon work supported by the <strong>U.S. Department of Energy Advanced Grid Modeling Program</strong>.</p></li>
+</ul>
+</div>
+<div class="section" id="citing-miplearn">
+<h2>Citing MIPLearn<a class="headerlink" href="#citing-miplearn" title="Permalink to this headline">¶</a></h2>
+<p>If you use MIPLearn in your research (either the solver or the included problem generators), we kindly request that you cite the package as follows:</p>
+<ul class="simple">
+<li><p><strong>Alinson S. Xavier, Feng Qiu, Xiaoyi Gu, Berkay Becu, Santanu S. Dey.</strong> <em>MIPLearn: An Extensible Framework for Learning-Enhanced Optimization (Version 0.3)</em>. Zenodo (2023). DOI: <a class="reference external" href="https://doi.org/10.5281/zenodo.4287567">https://doi.org/10.5281/zenodo.4287567</a></p></li>
+</ul>
+<p>If you use MIPLearn in the field of power systems optimization, we kindly request that you cite the reference below, in which the main techniques implemented in MIPLearn were first developed:</p>
+<ul class="simple">
+<li><p><strong>Alinson S. Xavier, Feng Qiu, Shabbir Ahmed.</strong> <em>Learning to Solve Large-Scale Unit Commitment Problems.</em> INFORMS Journal on Computing (2020). DOI: <a class="reference external" href="https://doi.org/10.1287/ijoc.2020.0976">https://doi.org/10.1287/ijoc.2020.0976</a></p></li>
+</ul>
 </div>
 </div>
 
