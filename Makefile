@@ -21,8 +21,8 @@ dist-upload:
 
 docs:
 	rm -rf ../docs/$(VERSION) 
-	cd docs; make clean; make dirhtml
-	rsync -avP --delete-after docs/_build/dirhtml/ ../docs/$(VERSION)
+	cd docs; make dirhtml
+	rsync -avP --delete-after docs/_build/dirhtml/ ../docs/$(VERSION)/
 
 install-deps:
 	$(PIP) install --upgrade pip
