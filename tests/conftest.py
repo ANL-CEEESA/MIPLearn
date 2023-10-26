@@ -8,13 +8,18 @@ from typing import List
 
 import pytest
 
-from miplearn.extractors.fields import H5FieldsExtractor
 from miplearn.extractors.abstract import FeaturesExtractor
+from miplearn.extractors.fields import H5FieldsExtractor
 
 
 @pytest.fixture()
 def multiknapsack_h5() -> List[str]:
-    return sorted(glob(f"{dirname(__file__)}/fixtures/multiknapsack*.h5"))
+    return sorted(glob(f"{dirname(__file__)}/fixtures/multiknapsack-n100*.h5"))
+
+
+@pytest.fixture()
+def tsp_h5() -> List[str]:
+    return sorted(glob(f"{dirname(__file__)}/fixtures/tsp-n20*.h5"))
 
 
 @pytest.fixture()

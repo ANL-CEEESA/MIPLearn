@@ -62,9 +62,7 @@ class BasicCollector:
                         and model.fix_violations is not None
                     ):
                         model.fix_violations(model, model.violations_, "aot")
-                        h5.put_scalar(
-                            "mip_constr_violations", json.dumps(model.violations_)
-                        )
+                        h5.put_scalar("mip_constr_violations", repr(model.violations_))
 
                     # Save MPS file
                     model.write(mps_filename)

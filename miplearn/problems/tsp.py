@@ -150,12 +150,12 @@ def build_tsp_model(data: Union[str, TravelingSalesmanData]) -> GurobiModel:
         graph.add_edges_from(selected_edges)
         for component in list(nx.connected_components(graph)):
             if len(component) < model.inner._n_cities:
-                cut_edges = [
-                    e
+                cut_edges = tuple(
+                    (e[0], e[1])
                     for e in model.inner._edges
                     if (e[0] in component and e[1] not in component)
                     or (e[0] not in component and e[1] in component)
-                ]
+                )
                 violations.append(cut_edges)
         return violations
 

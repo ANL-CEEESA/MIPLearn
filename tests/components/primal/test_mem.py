@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 def test_mem_component(
-    multiknapsack_h5: List[str], default_extractor: FeaturesExtractor
+    multiknapsack_h5: List[str],
+    default_extractor: FeaturesExtractor,
 ) -> None:
     # Create mock classifier
     clf = Mock(wraps=DummyClassifier())
