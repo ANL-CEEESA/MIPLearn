@@ -3,6 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from tempfile import NamedTemporaryFile
+from typing import Callable, Any
 
 import numpy as np
 import pytest
@@ -40,28 +41,28 @@ def test_pyomo_persistent(data: SetCoverData) -> None:
     _test_solver(lambda d: build_setcover_model_pyomo(d, "gurobi_persistent"), data)
 
 
-def _test_solver(build_model, data):
+def _test_solver(build_model: Callable, data: Any) -> None:
     _test_extract(build_model(data))
     _test_add_constr(build_model(data))
     _test_fix_vars(build_model(data))
     _test_infeasible(build_model(data))
 
 
-def _test_extract(model):
+def _test_extract(model: AbstractModel) -> None:
     with NamedTemporaryFile() as tempfile:
         with H5File(tempfile.name) as h5:
 
-            def test_scalar(key, expected_value):
+            def test_scalar(key: str, expected_value: Any) -> None:
                 actual_value = h5.get_scalar(key)
                 assert actual_value is not None
                 assert actual_value == expected_value
 
-            def test_array(key, expected_value):
+            def test_array(key: str, expected_value: Any) -> None:
                 actual_value = h5.get_array(key)
                 assert actual_value is not None
                 assert actual_value.tolist() == expected_value
 
-            def test_sparse(key, expected_value):
+            def test_sparse(key: str, expected_value: Any) -> None:
                 actual_value = h5.get_sparse(key)
                 assert actual_value is not None
                 assert actual_value.todense().tolist() == expected_value
@@ -143,7 +144,7 @@ def _test_extract(model):
                 assert pool_var_values.shape == (n_sols, 5)
 
 
-def _test_add_constr(model: AbstractModel):
+def _test_add_constr(model: AbstractModel) -> None:
     with NamedTemporaryFile() as tempfile:
         with H5File(tempfile.name) as h5:
             model.add_constrs(
@@ -154,10 +155,12 @@ def _test_add_constr(model: AbstractModel):
             )
             model.optimize()
             model.extract_after_mip(h5)
-            assert h5.get_array("mip_var_values").tolist() == [1, 0, 0, 0, 1]
+            mip_var_values = h5.get_array("mip_var_values")
+            assert mip_var_values is not None
+            assert mip_var_values.tolist() == [1, 0, 0, 0, 1]
 
 
-def _test_fix_vars(model: AbstractModel):
+def _test_fix_vars(model: AbstractModel) -> None:
     with NamedTemporaryFile() as tempfile:
         with H5File(tempfile.name) as h5:
             model.fix_variables(
@@ -166,10 +169,12 @@ def _test_fix_vars(model: AbstractModel):
             )
             model.optimize()
             model.extract_after_mip(h5)
-            assert h5.get_array("mip_var_values").tolist() == [1, 0, 0, 0, 1]
+            mip_var_values = h5.get_array("mip_var_values")
+            assert mip_var_values is not None
+            assert mip_var_values.tolist() == [1, 0, 0, 0, 1]
 
 
-def _test_infeasible(model: AbstractModel):
+def _test_infeasible(model: AbstractModel) -> None:
     with NamedTemporaryFile() as tempfile:
         with H5File(tempfile.name) as h5:
             model.fix_variables(

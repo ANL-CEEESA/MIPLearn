@@ -9,9 +9,10 @@ import numpy as np
 from scipy.sparse import lil_matrix
 
 from miplearn.h5 import H5File
+from miplearn.solvers.abstract import AbstractModel
 
 
-class GurobiModel:
+class GurobiModel(AbstractModel):
     _supports_basis_status = True
     _supports_sensitivity_analysis = True
     _supports_node_count = True

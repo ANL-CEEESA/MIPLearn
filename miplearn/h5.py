@@ -111,7 +111,7 @@ class H5File:
         ), f"bytes expected; found: {value.__class__}"  # type: ignore
         self.put_array(key, np.frombuffer(value, dtype="uint8"))
 
-    def close(self):
+    def close(self) -> None:
         self.file.close()
 
     def __enter__(self) -> "H5File":

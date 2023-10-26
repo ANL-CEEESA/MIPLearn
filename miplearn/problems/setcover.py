@@ -95,7 +95,7 @@ def build_setcover_model_gurobipy(data: Union[str, SetCoverData]) -> GurobiModel
 
 def build_setcover_model_pyomo(
     data: Union[str, SetCoverData],
-    solver="gurobi_persistent",
+    solver: str = "gurobi_persistent",
 ) -> PyomoModel:
     data = _read_setcover_data(data)
     (n_elements, n_sets) = data.incidence_matrix.shape

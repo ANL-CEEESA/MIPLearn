@@ -96,7 +96,7 @@ def build_stab_model_gurobipy(data: MaxWeightStableSetData) -> GurobiModel:
 
 def build_stab_model_pyomo(
     data: MaxWeightStableSetData,
-    solver="gurobi_persistent",
+    solver: str = "gurobi_persistent",
 ) -> PyomoModel:
     data = _read_stab_data(data)
     model = pe.ConcreteModel()

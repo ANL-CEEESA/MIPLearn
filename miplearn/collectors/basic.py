@@ -21,7 +21,7 @@ class BasicCollector:
         n_jobs: int = 1,
         progress: bool = False,
     ) -> None:
-        def _collect(data_filename):
+        def _collect(data_filename: str) -> None:
             h5_filename = _to_h5_filename(data_filename)
             mps_filename = h5_filename.replace(".h5", ".mps")
 

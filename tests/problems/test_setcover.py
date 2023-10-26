@@ -14,6 +14,7 @@ from miplearn.problems.setcover import (
     SetCoverGenerator,
     build_setcover_model_pyomo,
 )
+from miplearn.solvers.abstract import AbstractModel
 
 
 def test_set_cover_generator() -> None:
@@ -84,6 +85,7 @@ def test_set_cover() -> None:
         build_setcover_model_pyomo(data),
         build_setcover_model_gurobipy(data),
     ]:
+        assert isinstance(model, AbstractModel)
         with NamedTemporaryFile() as tempfile:
             with H5File(tempfile.name) as h5:
                 model.optimize()

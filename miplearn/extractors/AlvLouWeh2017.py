@@ -22,7 +22,7 @@ class AlvLouWeh2017Extractor(FeaturesExtractor):
         self.with_m3 = with_m3
 
     def get_instance_features(self, h5: H5File) -> np.ndarray:
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_var_features(self, h5: H5File) -> np.ndarray:
         """
@@ -197,7 +197,7 @@ class AlvLouWeh2017Extractor(FeaturesExtractor):
         return features
 
     def get_constr_features(self, h5: H5File) -> np.ndarray:
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
 def _fix_infinity(m: Optional[np.ndarray]) -> None:

@@ -12,6 +12,7 @@ from miplearn.problems.stab import (
     build_stab_model_pyomo,
     build_stab_model_gurobipy,
 )
+from miplearn.solvers.abstract import AbstractModel
 
 
 def test_stab() -> None:
@@ -23,6 +24,7 @@ def test_stab() -> None:
         build_stab_model_pyomo(data),
         build_stab_model_gurobipy(data),
     ]:
+        assert isinstance(model, AbstractModel)
         with NamedTemporaryFile() as tempfile:
             with H5File(tempfile.name) as h5:
                 model.optimize()
