@@ -37,8 +37,7 @@ setup(
             "pytest>=7,<8",
             "sphinx-book-theme==0.1.0",
             "sphinx-multitoc-numbering>=0.1,<0.2",
-            "twine>=4,<5"
+            "twine>=4,<5",
         ]
     },
-
 )
