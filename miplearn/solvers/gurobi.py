@@ -21,13 +21,13 @@ class GurobiModel(AbstractModel):
     def __init__(
         self,
         inner: gp.Model,
-        find_violations: Optional[Callable] = None,
-        fix_violations: Optional[Callable] = None,
+        lazy_separate: Optional[Callable] = None,
+        lazy_enforce: Optional[Callable] = None,
     ) -> None:
-        self.fix_violations = fix_violations
-        self.find_violations = find_violations
+        self.lazy_separate = lazy_separate
+        self.lazy_enforce = lazy_enforce
         self.inner = inner
-        self.violations_: Optional[List[Any]] = None
+        self.lazy_constrs_: Optional[List[Any]] = None
 
     def add_constrs(
         self,
@@ -125,18 +125,18 @@ class GurobiModel(AbstractModel):
             stats["Fixed variables"] = n_fixed
 
     def optimize(self) -> None:
-        self.violations_ = []
+        self.lazy_constrs_ = []
 
         def callback(m: gp.Model, where: int) -> None:
-            assert self.find_violations is not None
-            assert self.violations_ is not None
-            assert self.fix_violations is not None
+            assert self.lazy_separate is not None
+            assert self.lazy_constrs_ is not None
+            assert self.lazy_enforce is not None
             if where == GRB.Callback.MIPSOL:
-                violations = self.find_violations(self)
-                self.violations_.extend(violations)
-                self.fix_violations(self, violations, "cb")
+                violations = self.lazy_separate(self)
+                self.lazy_constrs_.extend(violations)
+                self.lazy_enforce(self, violations, "cb")
 
-        if self.fix_violations is not None:
+        if self.lazy_enforce is not None:
             self.inner.Params.lazyConstraints = 1
             self.inner.optimize(callback)
         else:

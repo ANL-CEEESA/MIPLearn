@@ -142,7 +142,7 @@ def build_tsp_model(data: Union[str, TravelingSalesmanData]) -> GurobiModel:
         name="eq_degree",
     )
 
-    def find_violations(model: GurobiModel) -> List[Any]:
+    def lazy_separate(model: GurobiModel) -> List[Any]:
         violations = []
         x = model.inner.cbGetSolution(model.inner._x)
         selected_edges = [e for e in model.inner._edges if x[e] > 0.5]
@@ -159,7 +159,7 @@ def build_tsp_model(data: Union[str, TravelingSalesmanData]) -> GurobiModel:
                 violations.append(cut_edges)
         return violations
 
-    def fix_violations(model: GurobiModel, violations: List[Any], where: str) -> None:
+    def lazy_enforce(model: GurobiModel, violations: List[Any], where: str) -> None:
         for violation in violations:
             constr = quicksum(model.inner._x[e[0], e[1]] for e in violation) >= 2
             if where == "cb":
@@ -172,6 +172,6 @@ def build_tsp_model(data: Union[str, TravelingSalesmanData]) -> GurobiModel:
 
     return GurobiModel(
         model,
-        find_violations=find_violations,
-        fix_violations=fix_violations,
+        lazy_separate=lazy_separate,
+        lazy_enforce=lazy_enforce,
     )

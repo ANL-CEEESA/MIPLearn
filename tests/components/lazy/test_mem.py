@@ -33,10 +33,10 @@ def test_mem_component(
     ]
 
     # Should store violations
-    assert comp.violations_ is not None
+    assert comp.constrs_ is not None
     assert comp.n_features_ == 190
     assert comp.n_targets_ == 22
-    assert len(comp.violations_) == 22
+    assert len(comp.constrs_) == 22
 
     # Call before-mip
     stats: Dict[str, Any] = {}

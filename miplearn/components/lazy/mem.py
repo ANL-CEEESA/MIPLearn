@@ -24,30 +24,30 @@ class MemorizingLazyConstrComponent:
     def __init__(self, clf: Any, extractor: FeaturesExtractor) -> None:
         self.clf = clf
         self.extractor = extractor
-        self.violations_: List[Hashable] = []
+        self.constrs_: List[Hashable] = []
         self.n_features_: int = 0
         self.n_targets_: int = 0
 
     def fit(self, train_h5: List[str]) -> None:
         logger.info("Reading training data...")
         n_samples = len(train_h5)
-        x, y, violations, n_features = [], [], [], None
-        violation_to_idx: Dict[Hashable, int] = {}
+        x, y, constrs, n_features = [], [], [], None
+        constr_to_idx: Dict[Hashable, int] = {}
         for h5_filename in train_h5:
             with H5File(h5_filename, "r") as h5:
 
                 # Store lazy constraints
-                sample_violations_str = h5.get_scalar("mip_constr_violations")
-                assert sample_violations_str is not None
-                assert isinstance(sample_violations_str, str)
-                sample_violations = eval(sample_violations_str)
-                assert isinstance(sample_violations, list)
+                sample_constrs_str = h5.get_scalar("mip_lazy")
+                assert sample_constrs_str is not None
+                assert isinstance(sample_constrs_str, str)
+                sample_constrs = eval(sample_constrs_str)
+                assert isinstance(sample_constrs, list)
                 y_sample = []
-                for v in sample_violations:
-                    if v not in violation_to_idx:
-                        violation_to_idx[v] = len(violation_to_idx)
-                        violations.append(v)
-                    y_sample.append(violation_to_idx[v])
+                for c in sample_constrs:
+                    if c not in constr_to_idx:
+                        constr_to_idx[c] = len(constr_to_idx)
+                        constrs.append(c)
+                    y_sample.append(constr_to_idx[c])
                 y.append(y_sample)
 
                 # Extract features
@@ -62,8 +62,8 @@ class MemorizingLazyConstrComponent:
         logger.info("Constructing matrices...")
         assert n_features is not None
         self.n_features_ = n_features
-        self.violations_ = violations
-        self.n_targets_ = len(violation_to_idx)
+        self.constrs_ = constrs
+        self.n_targets_ = len(constr_to_idx)
         x_np = np.vstack(x)
         assert x_np.shape == (n_samples, n_features)
         y_np = MultiLabelBinarizer().fit_transform(y)
@@ -82,8 +82,8 @@ class MemorizingLazyConstrComponent:
         model: GurobiModel,
         stats: Dict[str, Any],
     ) -> None:
-        assert self.violations_ is not None
-        if model.fix_violations is None:
+        assert self.constrs_ is not None
+        if model.lazy_enforce is None:
             return
 
         # Read features
@@ -99,7 +99,7 @@ class MemorizingLazyConstrComponent:
         y = y.reshape(-1)
 
         # Enforce constraints
-        violations = [self.violations_[i] for (i, yi) in enumerate(y) if yi > 0.5]
+        violations = [self.constrs_[i] for (i, yi) in enumerate(y) if yi > 0.5]
         logger.info(f"Enforcing {len(violations)} constraints ahead-of-time...")
-        model.fix_violations(model, violations, "aot")
+        model.lazy_enforce(model, violations, "aot")
         stats["Lazy Constraints: AOT"] = len(violations)

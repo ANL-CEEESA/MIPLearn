@@ -58,11 +58,11 @@ class BasicCollector:
 
                     # Add lazy constraints to model
                     if (
-                        hasattr(model, "fix_violations")
-                        and model.fix_violations is not None
+                        hasattr(model, "lazy_enforce")
+                        and model.lazy_enforce is not None
                     ):
-                        model.fix_violations(model, model.violations_, "aot")
-                        h5.put_scalar("mip_constr_violations", repr(model.violations_))
+                        model.lazy_enforce(model, model.lazy_constrs_, "aot")
+                        h5.put_scalar("mip_lazy", repr(model.lazy_constrs_))
 
                     # Save MPS file
                     model.write(mps_filename)
