@@ -28,6 +28,7 @@ class GurobiModel(AbstractModel):
         self.lazy_enforce = lazy_enforce
         self.inner = inner
         self.lazy_constrs_: Optional[List[Any]] = None
+        self.where = "default"
 
     def add_constrs(
         self,
@@ -52,6 +53,14 @@ class GurobiModel(AbstractModel):
             if "Added constraints" not in stats:
                 stats["Added constraints"] = 0
             stats["Added constraints"] += nconstrs
+
+    def add_constr(self, constr: Any) -> None:
+        if self.where == "lazy":
+            self.inner.cbLazy(constr)
+        elif self.where == "cut":
+            self.inner.cbCut(constr)
+        else:
+            self.inner.addConstr(constr)
 
     def extract_after_load(self, h5: H5File) -> None:
         """
@@ -132,9 +141,11 @@ class GurobiModel(AbstractModel):
             assert self.lazy_constrs_ is not None
             assert self.lazy_enforce is not None
             if where == GRB.Callback.MIPSOL:
+                self.where = "lazy"
                 violations = self.lazy_separate(self)
                 self.lazy_constrs_.extend(violations)
-                self.lazy_enforce(self, violations, "cb")
+                self.lazy_enforce(self, violations)
+            self.where = "default"
 
         if self.lazy_enforce is not None:
             self.inner.Params.lazyConstraints = 1

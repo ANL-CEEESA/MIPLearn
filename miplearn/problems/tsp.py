@@ -159,13 +159,11 @@ def build_tsp_model(data: Union[str, TravelingSalesmanData]) -> GurobiModel:
                 violations.append(cut_edges)
         return violations
 
-    def lazy_enforce(model: GurobiModel, violations: List[Any], where: str) -> None:
+    def lazy_enforce(model: GurobiModel, violations: List[Any]) -> None:
         for violation in violations:
-            constr = quicksum(model.inner._x[e[0], e[1]] for e in violation) >= 2
-            if where == "cb":
-                model.inner.cbLazy(constr)
-            else:
-                model.inner.addConstr(constr)
+            model.add_constr(
+                quicksum(model.inner._x[e[0], e[1]] for e in violation) >= 2
+            )
         logger.info(f"tsp: added {len(violations)} subtour elimination constraints")
 
     model.update()
