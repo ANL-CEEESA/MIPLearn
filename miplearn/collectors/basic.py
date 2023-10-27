@@ -4,6 +4,8 @@
 
 import json
 import os
+import sys
+
 from io import StringIO
 from os.path import exists
 from typing import Callable, List
@@ -57,11 +59,8 @@ class BasicCollector:
                     model.extract_after_mip(h5)
 
                     # Add lazy constraints to model
-                    if (
-                        hasattr(model, "lazy_enforce")
-                        and model.lazy_enforce is not None
-                    ):
-                        model.lazy_enforce(model, model.lazy_constrs_, "aot")
+                    if model.lazy_enforce is not None:
+                        model.lazy_enforce(model, model.lazy_constrs_)
                         h5.put_scalar("mip_lazy", repr(model.lazy_constrs_))
 
                     # Save MPS file

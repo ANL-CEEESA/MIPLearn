@@ -2,10 +2,11 @@
 #  Copyright (C) 2020-2022, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 from numbers import Number
-from typing import Optional, Dict, List, Any, Tuple, Union
+from typing import Optional, Dict, List, Any, Tuple, Callable
 
 import numpy as np
 import pyomo
+import pyomo.environ as pe
 from pyomo.core import Objective, Var, Suffix
 from pyomo.core.base import _GeneralVarData
 from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
@@ -13,11 +14,18 @@ from scipy.sparse import coo_matrix
 
 from miplearn.h5 import H5File
 from miplearn.solvers.abstract import AbstractModel
-import pyomo.environ as pe
+from miplearn.solvers.gurobi import _gurobi_callback, _gurobi_add_constr
 
 
 class PyomoModel(AbstractModel):
-    def __init__(self, model: pe.ConcreteModel, solver_name: str = "gurobi_persistent"):
+    def __init__(
+        self,
+        model: pe.ConcreteModel,
+        solver_name: str = "gurobi_persistent",
+        lazy_separate: Optional[Callable] = None,
+        lazy_enforce: Optional[Callable] = None,
+    ):
+        super().__init__()
         self.inner = model
         self.solver_name = solver_name
         self.solver = pe.SolverFactory(solver_name)
@@ -26,10 +34,19 @@ class PyomoModel(AbstractModel):
             self.solver.set_instance(model)
         self.results: Optional[Dict] = None
         self._is_warm_start_available = False
+        self.lazy_separate = lazy_separate
+        self.lazy_enforce = lazy_enforce
+        self.lazy_constrs_: Optional[List[Any]] = None
         if not hasattr(self.inner, "dual"):
             self.inner.dual = Suffix(direction=Suffix.IMPORT)
             self.inner.rc = Suffix(direction=Suffix.IMPORT)
             self.inner.slack = Suffix(direction=Suffix.IMPORT)
+
+    def add_constr(self, constr: Any) -> None:
+        assert (
+            self.solver_name == "gurobi_persistent"
+        ), "Callbacks are currently only supported on gurobi_persistent"
+        _gurobi_add_constr(self.solver, self.where, constr)
 
     def add_constrs(
         self,
@@ -114,6 +131,20 @@ class PyomoModel(AbstractModel):
                 self.solver.update_var(var)
 
     def optimize(self) -> None:
+        self.lazy_constrs_ = []
+
+        if self.lazy_separate is not None:
+            assert (
+                self.solver_name == "gurobi_persistent"
+            ), "Callbacks are currently only supported on gurobi_persistent"
+
+            def callback(_: Any, __: Any, where: int) -> None:
+                _gurobi_callback(self, where)
+
+            self.solver.set_gurobi_param("PreCrush", 1)
+            self.solver.set_gurobi_param("LazyConstraints", 1)
+            self.solver.set_callback(callback)
+
         if self.is_persistent:
             self.results = self.solver.solve(
                 tee=True,

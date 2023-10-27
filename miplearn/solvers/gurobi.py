@@ -12,6 +12,27 @@ from miplearn.h5 import H5File
 from miplearn.solvers.abstract import AbstractModel
 
 
+def _gurobi_callback(model: AbstractModel, where: int) -> None:
+    assert model.lazy_separate is not None
+    assert model.lazy_enforce is not None
+    assert model.lazy_constrs_ is not None
+    if where == GRB.Callback.MIPSOL:
+        model.where = model.WHERE_LAZY
+        violations = model.lazy_separate(model)
+        model.lazy_constrs_.extend(violations)
+        model.lazy_enforce(model, violations)
+    model.where = model.WHERE_DEFAULT
+
+
+def _gurobi_add_constr(gp_model: gp.Model, where: str, constr: Any) -> None:
+    if where == AbstractModel.WHERE_LAZY:
+        gp_model.cbLazy(constr)
+    elif where == AbstractModel.WHERE_CUTS:
+        gp_model.cbCut(constr)
+    else:
+        gp_model.addConstr(constr)
+
+
 class GurobiModel(AbstractModel):
     _supports_basis_status = True
     _supports_sensitivity_analysis = True
@@ -24,11 +45,10 @@ class GurobiModel(AbstractModel):
         lazy_separate: Optional[Callable] = None,
         lazy_enforce: Optional[Callable] = None,
     ) -> None:
+        super().__init__()
         self.lazy_separate = lazy_separate
         self.lazy_enforce = lazy_enforce
         self.inner = inner
-        self.lazy_constrs_: Optional[List[Any]] = None
-        self.where = "default"
 
     def add_constrs(
         self,
@@ -55,12 +75,7 @@ class GurobiModel(AbstractModel):
             stats["Added constraints"] += nconstrs
 
     def add_constr(self, constr: Any) -> None:
-        if self.where == "lazy":
-            self.inner.cbLazy(constr)
-        elif self.where == "cut":
-            self.inner.cbCut(constr)
-        else:
-            self.inner.addConstr(constr)
+        _gurobi_add_constr(self.inner, self.where, constr)
 
     def extract_after_load(self, h5: H5File) -> None:
         """
@@ -136,19 +151,12 @@ class GurobiModel(AbstractModel):
     def optimize(self) -> None:
         self.lazy_constrs_ = []
 
-        def callback(m: gp.Model, where: int) -> None:
-            assert self.lazy_separate is not None
-            assert self.lazy_constrs_ is not None
-            assert self.lazy_enforce is not None
-            if where == GRB.Callback.MIPSOL:
-                self.where = "lazy"
-                violations = self.lazy_separate(self)
-                self.lazy_constrs_.extend(violations)
-                self.lazy_enforce(self, violations)
-            self.where = "default"
+        def callback(_: gp.Model, where: int) -> None:
+            _gurobi_callback(self, where)
 
         if self.lazy_enforce is not None:
-            self.inner.Params.lazyConstraints = 1
+            self.inner.setParam("PreCrush", 1)
+            self.inner.setParam("LazyConstraints", 1)
             self.inner.optimize(callback)
         else:
             self.inner.optimize()

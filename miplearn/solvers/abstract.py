@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Callable
+from typing import Optional, Dict, Callable, Hashable, List, Any
 
 import numpy as np
 
@@ -16,9 +16,15 @@ class AbstractModel(ABC):
     _supports_node_count = False
     _supports_solution_pool = False
 
+    WHERE_DEFAULT = "default"
+    WHERE_CUTS = "cuts"
+    WHERE_LAZY = "lazy"
+
     def __init__(self) -> None:
         self.lazy_enforce: Optional[Callable] = None
         self.lazy_separate: Optional[Callable] = None
+        self.lazy_constrs_: Optional[List[Any]] = None
+        self.where = self.WHERE_DEFAULT
 
     @abstractmethod
     def add_constrs(
