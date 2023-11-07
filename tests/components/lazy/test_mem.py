@@ -8,7 +8,7 @@ from unittest.mock import Mock
 from sklearn.dummy import DummyClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
-from miplearn.components.lazy.mem import MemorizingLazyConstrComponent
+from miplearn.components.lazy.mem import MemorizingLazyComponent
 from miplearn.extractors.abstract import FeaturesExtractor
 from miplearn.problems.tsp import build_tsp_model
 from miplearn.solvers.learning import LearningSolver
@@ -19,7 +19,7 @@ def test_mem_component(
     default_extractor: FeaturesExtractor,
 ) -> None:
     clf = Mock(wraps=DummyClassifier())
-    comp = MemorizingLazyConstrComponent(clf=clf, extractor=default_extractor)
+    comp = MemorizingLazyComponent(clf=clf, extractor=default_extractor)
     comp.fit(tsp_h5)
 
     # Should call fit method with correct arguments
@@ -56,7 +56,7 @@ def test_usage_tsp(
     # Should not crash
     data_filenames = [f.replace(".h5", ".pkl.gz") for f in tsp_h5]
     clf = KNeighborsClassifier(n_neighbors=1)
-    comp = MemorizingLazyConstrComponent(clf=clf, extractor=default_extractor)
+    comp = MemorizingLazyComponent(clf=clf, extractor=default_extractor)
     solver = LearningSolver(components=[comp])
     solver.fit(data_filenames)
     solver.optimize(data_filenames[0], build_tsp_model)

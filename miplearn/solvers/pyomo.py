@@ -36,7 +36,6 @@ class PyomoModel(AbstractModel):
         self._is_warm_start_available = False
         self.lazy_separate = lazy_separate
         self.lazy_enforce = lazy_enforce
-        self.lazy_constrs_: Optional[List[Any]] = None
         if not hasattr(self.inner, "dual"):
             self.inner.dual = Suffix(direction=Suffix.IMPORT)
             self.inner.rc = Suffix(direction=Suffix.IMPORT)
@@ -131,15 +130,14 @@ class PyomoModel(AbstractModel):
                 self.solver.update_var(var)
 
     def optimize(self) -> None:
-        self.lazy_constrs_ = []
-
+        self.lazy_ = []
         if self.lazy_separate is not None:
             assert (
                 self.solver_name == "gurobi_persistent"
             ), "Callbacks are currently only supported on gurobi_persistent"
 
             def callback(_: Any, __: Any, where: int) -> None:
-                _gurobi_callback(self, where)
+                _gurobi_callback(self, self.solver, where)
 
             self.solver.set_gurobi_param("PreCrush", 1)
             self.solver.set_gurobi_param("LazyConstraints", 1)

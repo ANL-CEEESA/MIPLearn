@@ -23,7 +23,11 @@ class AbstractModel(ABC):
     def __init__(self) -> None:
         self.lazy_enforce: Optional[Callable] = None
         self.lazy_separate: Optional[Callable] = None
-        self.lazy_constrs_: Optional[List[Any]] = None
+        self.lazy_: Optional[List[Any]] = None
+        self.cuts_enforce: Optional[Callable] = None
+        self.cuts_separate: Optional[Callable] = None
+        self.cuts_: Optional[List[Any]] = None
+        self.cuts_aot_: Optional[List[Any]] = None
         self.where = self.WHERE_DEFAULT
 
     @abstractmethod

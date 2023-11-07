@@ -60,8 +60,7 @@ class BasicCollector:
 
                     # Add lazy constraints to model
                     if model.lazy_enforce is not None:
-                        model.lazy_enforce(model, model.lazy_constrs_)
-                        h5.put_scalar("mip_lazy", repr(model.lazy_constrs_))
+                        model.lazy_enforce(model, model.lazy_)
 
                     # Save MPS file
                     model.write(mps_filename)

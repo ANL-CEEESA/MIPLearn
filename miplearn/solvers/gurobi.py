@@ -1,6 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2022, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+import logging
 from typing import Dict, Optional, Callable, Any, List
 
 import gurobipy as gp
@@ -11,16 +12,40 @@ from scipy.sparse import lil_matrix
 from miplearn.h5 import H5File
 from miplearn.solvers.abstract import AbstractModel
 
+logger = logging.getLogger(__name__)
 
-def _gurobi_callback(model: AbstractModel, where: int) -> None:
-    assert model.lazy_separate is not None
-    assert model.lazy_enforce is not None
-    assert model.lazy_constrs_ is not None
-    if where == GRB.Callback.MIPSOL:
-        model.where = model.WHERE_LAZY
-        violations = model.lazy_separate(model)
-        model.lazy_constrs_.extend(violations)
-        model.lazy_enforce(model, violations)
+
+def _gurobi_callback(model: AbstractModel, gp_model: gp.Model, where: int) -> None:
+    # Lazy constraints
+    if model.lazy_separate is not None:
+        assert model.lazy_enforce is not None
+        assert model.lazy_ is not None
+        if where == GRB.Callback.MIPSOL:
+            model.where = model.WHERE_LAZY
+            violations = model.lazy_separate(model)
+            if len(violations) > 0:
+                model.lazy_.extend(violations)
+                model.lazy_enforce(model, violations)
+
+    # User cuts
+    if model.cuts_separate is not None:
+        assert model.cuts_enforce is not None
+        assert model.cuts_ is not None
+        if where == GRB.Callback.MIPNODE:
+            status = gp_model.cbGet(GRB.Callback.MIPNODE_STATUS)
+            if status == GRB.OPTIMAL:
+                model.where = model.WHERE_CUTS
+                if model.cuts_aot_ is not None:
+                    violations = model.cuts_aot_
+                    model.cuts_aot_ = None
+                    logger.info(f"Enforcing {len(violations)} cuts ahead-of-time...")
+                else:
+                    violations = model.cuts_separate(model)
+                if len(violations) > 0:
+                    model.cuts_.extend(violations)
+                    model.cuts_enforce(model, violations)
+
+    # Cleanup
     model.where = model.WHERE_DEFAULT
 
 
@@ -44,10 +69,14 @@ class GurobiModel(AbstractModel):
         inner: gp.Model,
         lazy_separate: Optional[Callable] = None,
         lazy_enforce: Optional[Callable] = None,
+        cuts_separate: Optional[Callable] = None,
+        cuts_enforce: Optional[Callable] = None,
     ) -> None:
         super().__init__()
         self.lazy_separate = lazy_separate
         self.lazy_enforce = lazy_enforce
+        self.cuts_separate = cuts_separate
+        self.cuts_enforce = cuts_enforce
         self.inner = inner
 
     def add_constrs(
@@ -125,6 +154,10 @@ class GurobiModel(AbstractModel):
         except AttributeError:
             pass
         self._extract_after_mip_solution_pool(h5)
+        if self.lazy_ is not None:
+            h5.put_scalar("mip_lazy", repr(self.lazy_))
+        if self.cuts_ is not None:
+            h5.put_scalar("mip_cuts", repr(self.cuts_))
 
     def fix_variables(
         self,
@@ -149,14 +182,22 @@ class GurobiModel(AbstractModel):
             stats["Fixed variables"] = n_fixed
 
     def optimize(self) -> None:
-        self.lazy_constrs_ = []
+        self.lazy_ = []
+        self.cuts_ = []
 
         def callback(_: gp.Model, where: int) -> None:
-            _gurobi_callback(self, where)
+            _gurobi_callback(self, self.inner, where)
 
+        # Required parameters for lazy constraints
         if self.lazy_enforce is not None:
             self.inner.setParam("PreCrush", 1)
             self.inner.setParam("LazyConstraints", 1)
+
+        # Required parameters for user cuts
+        if self.cuts_enforce is not None:
+            self.inner.setParam("PreCrush", 1)
+
+        if self.lazy_enforce is not None or self.cuts_enforce is not None:
             self.inner.optimize(callback)
         else:
             self.inner.optimize()
