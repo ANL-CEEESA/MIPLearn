@@ -2,30 +2,16 @@
 #  Copyright (C) 2020-2023, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from typing import Any, List, Hashable, Dict
+from typing import Any, List, Dict
 from unittest.mock import Mock
 
-import gurobipy as gp
-import networkx as nx
-from gurobipy import GRB, quicksum
 from sklearn.dummy import DummyClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
 from miplearn.components.cuts.mem import MemorizingCutsComponent
 from miplearn.extractors.abstract import FeaturesExtractor
 from miplearn.problems.stab import build_stab_model
-from miplearn.solvers.gurobi import GurobiModel
 from miplearn.solvers.learning import LearningSolver
-import numpy as np
-
-
-# def test_usage() -> None:
-#     model = _build_cut_model()
-#     solver = LearningSolver(components=[])
-#     solver.optimize(model)
-#     assert model.cuts_ is not None
-#     assert len(model.cuts_) > 0
-#     assert False
 
 
 def test_mem_component(
