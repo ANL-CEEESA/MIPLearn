@@ -30,7 +30,7 @@ setup(
         "dev": [
             "Sphinx>=3,<4",
             "black==22.6.0",
-            "mypy==0.971",
+            "mypy==1.8",
             "myst-parser==0.14.0",
             "nbsphinx>=0.9,<0.10",
             "pyflakes==2.5.0",
