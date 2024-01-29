@@ -14,7 +14,11 @@ from scipy.sparse import coo_matrix
 
 from miplearn.h5 import H5File
 from miplearn.solvers.abstract import AbstractModel
-from miplearn.solvers.gurobi import _gurobi_callback, _gurobi_add_constr
+from miplearn.solvers.gurobi import (
+    _gurobi_callback,
+    _gurobi_add_constr,
+    _gurobi_set_required_params,
+)
 
 
 class PyomoModel(AbstractModel):
@@ -24,18 +28,22 @@ class PyomoModel(AbstractModel):
         solver_name: str = "gurobi_persistent",
         lazy_separate: Optional[Callable] = None,
         lazy_enforce: Optional[Callable] = None,
+        cuts_separate: Optional[Callable] = None,
+        cuts_enforce: Optional[Callable] = None,
     ):
         super().__init__()
         self.inner = model
         self.solver_name = solver_name
+        self.lazy_separate = lazy_separate
+        self.lazy_enforce = lazy_enforce
+        self.cuts_separate = cuts_separate
+        self.cuts_enforce = cuts_enforce
         self.solver = pe.SolverFactory(solver_name)
         self.is_persistent = hasattr(self.solver, "set_instance")
         if self.is_persistent:
             self.solver.set_instance(model)
         self.results: Optional[Dict] = None
         self._is_warm_start_available = False
-        self.lazy_separate = lazy_separate
-        self.lazy_enforce = lazy_enforce
         if not hasattr(self.inner, "dual"):
             self.inner.dual = Suffix(direction=Suffix.IMPORT)
             self.inner.rc = Suffix(direction=Suffix.IMPORT)
@@ -116,6 +124,10 @@ class PyomoModel(AbstractModel):
         h5.put_scalar("mip_obj_value", obj_value)
         h5.put_scalar("mip_obj_bound", obj_bound)
         h5.put_scalar("mip_gap", self._gap(obj_value, obj_bound))
+        if self.lazy_ is not None:
+            h5.put_scalar("mip_lazy", repr(self.lazy_))
+        if self.cuts_ is not None:
+            h5.put_scalar("mip_cuts", repr(self.cuts_))
 
     def fix_variables(
         self,
@@ -131,16 +143,17 @@ class PyomoModel(AbstractModel):
 
     def optimize(self) -> None:
         self.lazy_ = []
-        if self.lazy_separate is not None:
+        self.cuts_ = []
+
+        if self.lazy_enforce is not None or self.cuts_enforce is not None:
             assert (
                 self.solver_name == "gurobi_persistent"
             ), "Callbacks are currently only supported on gurobi_persistent"
+            _gurobi_set_required_params(self, self.solver._solver_model)
 
             def callback(_: Any, __: Any, where: int) -> None:
-                _gurobi_callback(self, self.solver, where)
+                _gurobi_callback(self, self.solver._solver_model, where)
 
-            self.solver.set_gurobi_param("PreCrush", 1)
-            self.solver.set_gurobi_param("LazyConstraints", 1)
             self.solver.set_callback(callback)
 
         if self.is_persistent:
@@ -301,12 +314,12 @@ class PyomoModel(AbstractModel):
         for (i, constr) in enumerate(
             self.inner.component_objects(pyomo.core.Constraint)
         ):
-            if len(constr) > 0:
+            if len(constr) > 1:
                 for idx in constr:
                     names.append(constr[idx].name)
                     _parse_constraint(constr[idx], curr_row)
                     curr_row += 1
-            else:
+            elif len(constr) == 1:
                 names.append(constr.name)
                 _parse_constraint(constr, curr_row)
                 curr_row += 1
@@ -352,7 +365,8 @@ class PyomoModel(AbstractModel):
         for constr in self.inner.component_objects(pyomo.core.Constraint):
             for idx in constr:
                 c = constr[idx]
-                slacks.append(abs(self.inner.slack[c]))
+                if c in self.inner.slack:
+                    slacks.append(abs(self.inner.slack[c]))
         h5.put_array("mip_constr_slacks", np.array(slacks))
 
     def _parse_pyomo_expr(self, expr: Any) -> Tuple[Dict[str, float], float]:

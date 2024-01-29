@@ -9,7 +9,8 @@ import numpy as np
 from miplearn.h5 import H5File
 from miplearn.problems.stab import (
     MaxWeightStableSetData,
-    build_stab_model,
+    build_stab_model_gurobipy,
+    build_stab_model_pyomo,
 )
 from miplearn.solvers.abstract import AbstractModel
 
@@ -20,7 +21,8 @@ def test_stab() -> None:
         weights=np.array([1.0, 1.0, 1.0, 1.0, 1.0]),
     )
     for model in [
-        build_stab_model(data),
+        build_stab_model_gurobipy(data),
+        build_stab_model_pyomo(data),
     ]:
         assert isinstance(model, AbstractModel)
         with NamedTemporaryFile() as tempfile:

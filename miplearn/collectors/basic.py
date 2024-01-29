@@ -8,7 +8,7 @@ import sys
 
 from io import StringIO
 from os.path import exists
-from typing import Callable, List
+from typing import Callable, List, Any
 
 from ..h5 import H5File
 from ..io import _RedirectOutput, gzip, _to_h5_filename
@@ -22,6 +22,7 @@ class BasicCollector:
         build_model: Callable,
         n_jobs: int = 1,
         progress: bool = False,
+        verbose: bool = False,
     ) -> None:
         def _collect(data_filename: str) -> None:
             h5_filename = _to_h5_filename(data_filename)
@@ -43,7 +44,9 @@ class BasicCollector:
                     return
 
             with H5File(h5_filename, "w") as h5:
-                streams = [StringIO()]
+                streams: List[Any] = [StringIO()]
+                if verbose:
+                    streams += [sys.stdout]
                 with _RedirectOutput(streams):
                     # Load and extract static features
                     model = build_model(data_filename)

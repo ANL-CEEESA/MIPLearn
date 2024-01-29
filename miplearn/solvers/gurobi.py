@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 def _gurobi_callback(model: AbstractModel, gp_model: gp.Model, where: int) -> None:
+    assert isinstance(gp_model, gp.Model)
+
     # Lazy constraints
     if model.lazy_separate is not None:
         assert model.lazy_enforce is not None
@@ -56,6 +58,16 @@ def _gurobi_add_constr(gp_model: gp.Model, where: str, constr: Any) -> None:
         gp_model.cbCut(constr)
     else:
         gp_model.addConstr(constr)
+
+
+def _gurobi_set_required_params(model: AbstractModel, gp_model: gp.Model) -> None:
+    # Required parameters for lazy constraints
+    if model.lazy_enforce is not None:
+        gp_model.setParam("PreCrush", 1)
+        gp_model.setParam("LazyConstraints", 1)
+    # Required parameters for user cuts
+    if model.cuts_enforce is not None:
+        gp_model.setParam("PreCrush", 1)
 
 
 class GurobiModel(AbstractModel):
@@ -188,14 +200,7 @@ class GurobiModel(AbstractModel):
         def callback(_: gp.Model, where: int) -> None:
             _gurobi_callback(self, self.inner, where)
 
-        # Required parameters for lazy constraints
-        if self.lazy_enforce is not None:
-            self.inner.setParam("PreCrush", 1)
-            self.inner.setParam("LazyConstraints", 1)
-
-        # Required parameters for user cuts
-        if self.cuts_enforce is not None:
-            self.inner.setParam("PreCrush", 1)
+        _gurobi_set_required_params(self, self.inner)
 
         if self.lazy_enforce is not None or self.cuts_enforce is not None:
             self.inner.optimize(callback)

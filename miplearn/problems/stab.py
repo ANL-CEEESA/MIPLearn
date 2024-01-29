@@ -1,20 +1,22 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2022, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+
 import logging
 from dataclasses import dataclass
-from typing import List, Union, Any, Hashable
+from typing import List, Union, Any, Hashable, Optional
 
 import gurobipy as gp
 import networkx as nx
 import numpy as np
+import pyomo.environ as pe
 from gurobipy import GRB, quicksum
+from miplearn.io import read_pkl_gz
+from miplearn.solvers.gurobi import GurobiModel
+from miplearn.solvers.pyomo import PyomoModel
 from networkx import Graph
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
-
-from miplearn.io import read_pkl_gz
-from miplearn.solvers.gurobi import GurobiModel
 
 logger = logging.getLogger(__name__)
 
@@ -82,12 +84,15 @@ class MaxWeightStableSetGenerator:
         return nx.generators.random_graphs.binomial_graph(self.n.rvs(), self.p.rvs())
 
 
-def build_stab_model(data: MaxWeightStableSetData) -> GurobiModel:
-    if isinstance(data, str):
-        data = read_pkl_gz(data)
-    assert isinstance(data, MaxWeightStableSetData)
-
+def build_stab_model_gurobipy(
+    data: Union[str, MaxWeightStableSetData],
+    params: Optional[dict[str, Any]] = None,
+) -> GurobiModel:
+    data = _stab_read(data)
     model = gp.Model()
+    if params is not None:
+        for (param_name, param_value) in params.items():
+            setattr(model.params, param_name, param_value)
     nodes = list(data.graph.nodes)
 
     # Variables and objective function
@@ -99,16 +104,8 @@ def build_stab_model(data: MaxWeightStableSetData) -> GurobiModel:
         model.addConstr(x[i1] + x[i2] <= 1)
 
     def cuts_separate(m: GurobiModel) -> List[Hashable]:
-        # Retrieve optimal fractional solution
         x_val = m.inner.cbGetNodeRel(x)
-
-        # Check that we selected at most one vertex for each
-        # clique in the graph (sum <= 1)
-        violations: List[Hashable] = []
-        for clique in nx.find_cliques(data.graph):
-            if sum(x_val[i] for i in clique) > 1.0001:
-                violations.append(tuple(sorted(clique)))
-        return violations
+        return _stab_separate(data, x_val)
 
     def cuts_enforce(m: GurobiModel, violations: List[Any]) -> None:
         logger.info(f"Adding {len(violations)} clique cuts...")
@@ -122,3 +119,65 @@ def build_stab_model(data: MaxWeightStableSetData) -> GurobiModel:
         cuts_separate=cuts_separate,
         cuts_enforce=cuts_enforce,
     )
+
+
+def build_stab_model_pyomo(
+    data: MaxWeightStableSetData,
+    solver: str = "gurobi_persistent",
+    params: Optional[dict[str, Any]] = None,
+) -> PyomoModel:
+    data = _stab_read(data)
+    model = pe.ConcreteModel()
+    nodes = pe.Set(initialize=list(data.graph.nodes))
+
+    # Variables and objective function
+    model.x = pe.Var(nodes, domain=pe.Boolean, name="x")
+    model.obj = pe.Objective(expr=sum([-data.weights[i] * model.x[i] for i in nodes]))
+
+    # Edge inequalities
+    model.edge_eqs = pe.ConstraintList()
+    for (i1, i2) in data.graph.edges:
+        model.edge_eqs.add(model.x[i1] + model.x[i2] <= 1)
+
+    # Clique inequalities
+    model.clique_eqs = pe.ConstraintList()
+
+    def cuts_separate(m: PyomoModel) -> List[Hashable]:
+        m.solver.cbGetNodeRel([model.x[i] for i in nodes])
+        x_val = [model.x[i].value for i in nodes]
+        return _stab_separate(data, x_val)
+
+    def cuts_enforce(m: PyomoModel, violations: List[Any]) -> None:
+        logger.info(f"Adding {len(violations)} clique cuts...")
+        for clique in violations:
+            m.add_constr(model.clique_eqs.add(sum(model.x[i] for i in clique) <= 1))
+
+    m = PyomoModel(
+        model,
+        solver,
+        cuts_separate=cuts_separate,
+        cuts_enforce=cuts_enforce,
+    )
+
+    if solver == "gurobi_persistent" and params is not None:
+        for (param_name, param_value) in params.items():
+            m.solver.set_gurobi_param(param_name, param_value)
+
+    return m
+
+
+def _stab_read(data: Union[str, MaxWeightStableSetData]) -> MaxWeightStableSetData:
+    if isinstance(data, str):
+        data = read_pkl_gz(data)
+    assert isinstance(data, MaxWeightStableSetData)
+    return data
+
+
+def _stab_separate(data: MaxWeightStableSetData, x_val: List[float]) -> List[Hashable]:
+    # Check that we selected at most one vertex for each
+    # clique in the graph (sum <= 1)
+    violations: List[Hashable] = []
+    for clique in nx.find_cliques(data.graph):
+        if sum(x_val[i] for i in clique) > 1.0001:
+            violations.append(tuple(sorted(clique)))
+    return violations

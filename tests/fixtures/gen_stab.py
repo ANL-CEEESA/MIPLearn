@@ -7,8 +7,10 @@ from miplearn.collectors.basic import BasicCollector
 from miplearn.io import write_pkl_gz
 from miplearn.problems.stab import (
     MaxWeightStableSetGenerator,
-    build_stab_model,
+    build_stab_model_gurobipy,
+    build_stab_model_pyomo,
 )
+
 
 np.random.seed(42)
 gen = MaxWeightStableSetGenerator(
@@ -18,6 +20,25 @@ gen = MaxWeightStableSetGenerator(
     fix_graph=True,
 )
 data = gen.generate(3)
-data_filenames = write_pkl_gz(data, dirname(__file__), prefix="stab-n50-")
+
+params = {"seed": 42, "threads": 1}
+
+# Gurobipy
+data_filenames = write_pkl_gz(data, dirname(__file__), prefix="stab-gp-n50-")
 collector = BasicCollector()
-collector.collect(data_filenames, build_stab_model)
+collector.collect(
+    data_filenames,
+    lambda data: build_stab_model_gurobipy(data, params=params),
+    progress=True,
+    verbose=True,
+)
+
+# Pyomo
+data_filenames = write_pkl_gz(data, dirname(__file__), prefix="stab-pyo-n50-")
+collector = BasicCollector()
+collector.collect(
+    data_filenames,
+    lambda model: build_stab_model_pyomo(model, params=params),
+    progress=True,
+    verbose=True,
+)

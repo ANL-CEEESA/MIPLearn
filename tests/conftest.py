@@ -52,8 +52,13 @@ def tsp_h5(request: Any) -> List[str]:
 
 
 @pytest.fixture()
-def stab_h5(request: Any) -> List[str]:
-    return _h5_fixture("stab*.h5", request)
+def stab_gp_h5(request: Any) -> List[str]:
+    return _h5_fixture("stab-gp*.h5", request)
+
+
+@pytest.fixture()
+def stab_pyo_h5(request: Any) -> List[str]:
+    return _h5_fixture("stab-pyo*.h5", request)
 
 
 @pytest.fixture()
