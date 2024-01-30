@@ -6,7 +6,7 @@ import numpy as np
 from miplearn.problems.tsp import (
     TravelingSalesmanData,
     TravelingSalesmanGenerator,
-    build_tsp_model,
+    build_tsp_model_gurobipy,
 )
 from scipy.spatial.distance import pdist, squareform
 from scipy.stats import randint, uniform
@@ -51,7 +51,7 @@ def test_tsp() -> None:
             )
         ),
     )
-    model = build_tsp_model(data)
+    model = build_tsp_model_gurobipy(data)
     model.optimize()
     assert model.inner.getAttr("x", model.inner.getVars()) == [
         1.0,

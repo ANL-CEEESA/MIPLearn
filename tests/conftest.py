@@ -47,8 +47,13 @@ def multiknapsack_h5(request: Any) -> List[str]:
 
 
 @pytest.fixture()
-def tsp_h5(request: Any) -> List[str]:
-    return _h5_fixture("tsp*.h5", request)
+def tsp_gp_h5(request: Any) -> List[str]:
+    return _h5_fixture("tsp-gp*.h5", request)
+
+
+@pytest.fixture()
+def tsp_pyo_h5(request: Any) -> List[str]:
+    return _h5_fixture("tsp-pyo*.h5", request)
 
 
 @pytest.fixture()

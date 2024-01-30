@@ -18,6 +18,8 @@ from networkx import Graph
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
+from . import _gurobipy_set_params, _pyomo_set_params
+
 logger = logging.getLogger(__name__)
 
 
@@ -88,11 +90,10 @@ def build_stab_model_gurobipy(
     data: Union[str, MaxWeightStableSetData],
     params: Optional[dict[str, Any]] = None,
 ) -> GurobiModel:
-    data = _stab_read(data)
     model = gp.Model()
-    if params is not None:
-        for (param_name, param_value) in params.items():
-            setattr(model.params, param_name, param_value)
+    _gurobipy_set_params(model, params)
+
+    data = _stab_read(data)
     nodes = list(data.graph.nodes)
 
     # Variables and objective function
@@ -152,18 +153,14 @@ def build_stab_model_pyomo(
         for clique in violations:
             m.add_constr(model.clique_eqs.add(sum(model.x[i] for i in clique) <= 1))
 
-    m = PyomoModel(
+    pm = PyomoModel(
         model,
         solver,
         cuts_separate=cuts_separate,
         cuts_enforce=cuts_enforce,
     )
-
-    if solver == "gurobi_persistent" and params is not None:
-        for (param_name, param_value) in params.items():
-            m.solver.set_gurobi_param(param_name, param_value)
-
-    return m
+    _pyomo_set_params(pm, params, solver)
+    return pm
 
 
 def _stab_read(data: Union[str, MaxWeightStableSetData]) -> MaxWeightStableSetData:

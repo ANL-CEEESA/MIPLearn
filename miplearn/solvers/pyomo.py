@@ -53,7 +53,12 @@ class PyomoModel(AbstractModel):
         assert (
             self.solver_name == "gurobi_persistent"
         ), "Callbacks are currently only supported on gurobi_persistent"
-        _gurobi_add_constr(self.solver, self.where, constr)
+        if self.where in [AbstractModel.WHERE_CUTS, AbstractModel.WHERE_LAZY]:
+            _gurobi_add_constr(self.solver, self.where, constr)
+        else:
+            # outside callbacks, add_constr shouldn't do anything, as the constraint
+            # has already been added to the ConstraintList object
+            pass
 
     def add_constrs(
         self,
