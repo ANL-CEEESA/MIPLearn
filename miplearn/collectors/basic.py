@@ -16,6 +16,10 @@ from ..parallel import p_umap
 
 
 class BasicCollector:
+    def __init__(self, skip_lp: bool = False, write_mps: bool = True) -> None:
+        self.skip_lp = skip_lp
+        self.write_mps = write_mps
+
     def collect(
         self,
         filenames: List[str],
@@ -52,22 +56,24 @@ class BasicCollector:
                     model = build_model(data_filename)
                     model.extract_after_load(h5)
 
-                    # Solve LP relaxation
-                    relaxed = model.relax()
-                    relaxed.optimize()
-                    relaxed.extract_after_lp(h5)
+                    if not self.skip_lp:
+                        # Solve LP relaxation
+                        relaxed = model.relax()
+                        relaxed.optimize()
+                        relaxed.extract_after_lp(h5)
 
                     # Solve MIP
                     model.optimize()
                     model.extract_after_mip(h5)
 
-                    # Add lazy constraints to model
-                    if model.lazy_enforce is not None:
-                        model.lazy_enforce(model, model.lazy_)
+                    if self.write_mps:
+                        # Add lazy constraints to model
+                        if model.lazy_enforce is not None:
+                            model.lazy_enforce(model, model.lazy_)
 
-                    # Save MPS file
-                    model.write(mps_filename)
-                    gzip(mps_filename)
+                        # Save MPS file
+                        model.write(mps_filename)
+                        gzip(mps_filename)
 
                 h5.put_scalar("mip_log", streams[0].getvalue())
 
