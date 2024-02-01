@@ -110,5 +110,6 @@ class MemorizingCutsComponent(_BaseMemorizingConstrComponent):
         if model.cuts_enforce is None:
             return
         assert self.constrs_ is not None
-        model.cuts_aot_ = self.predict("Predicting cutting planes...", test_h5)
-        stats["Cuts: AOT"] = len(model.cuts_aot_)
+        cuts = self.predict("Predicting cutting planes...", test_h5)
+        model.set_cuts(cuts)
+        stats["Cuts: AOT"] = len(cuts)

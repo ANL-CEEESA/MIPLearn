@@ -82,3 +82,6 @@ class AbstractModel(ABC):
     @abstractmethod
     def write(self, filename: str) -> None:
         pass
+
+    def set_cuts(self, cuts: List) -> None:
+        self.cuts_aot_ = cuts

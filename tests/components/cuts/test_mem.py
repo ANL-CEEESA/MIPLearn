@@ -50,9 +50,11 @@ def test_mem_component_gp(
         (x_test,) = clf.predict.call_args.args
         assert x_test.shape == (1, 50)
 
-        # Should set cuts_aot_
-        assert model.cuts_aot_ is not None
-        assert len(model.cuts_aot_) == 256
+        # Should call set_cuts
+        model.set_cuts.assert_called()
+        (cuts_aot_,) = model.set_cuts.call_args.args
+        assert cuts_aot_ is not None
+        assert len(cuts_aot_) == 256
 
 
 def test_usage_stab(
