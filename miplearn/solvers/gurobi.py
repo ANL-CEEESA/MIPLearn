@@ -1,7 +1,9 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2022, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
+
 import logging
+import json
 from typing import Dict, Optional, Callable, Any, List
 
 import gurobipy as gp
@@ -167,9 +169,9 @@ class GurobiModel(AbstractModel):
             pass
         self._extract_after_mip_solution_pool(h5)
         if self.lazy_ is not None:
-            h5.put_scalar("mip_lazy", repr(self.lazy_))
+            h5.put_scalar("mip_lazy", json.dumps(self.lazy_))
         if self.cuts_ is not None:
-            h5.put_scalar("mip_cuts", repr(self.cuts_))
+            h5.put_scalar("mip_cuts", json.dumps(self.cuts_))
 
     def fix_variables(
         self,

@@ -2,8 +2,9 @@
 #  Copyright (C) 2020-2022, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
+import json
 import logging
-from typing import List, Dict, Any, Hashable, Union
+from typing import List, Dict, Any, Hashable
 
 import numpy as np
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -13,6 +14,15 @@ from miplearn.h5 import H5File
 from miplearn.solvers.abstract import AbstractModel
 
 logger = logging.getLogger(__name__)
+
+
+def convert_lists_to_tuples(obj: Any) -> Any:
+    if isinstance(obj, list):
+        return tuple(convert_lists_to_tuples(item) for item in obj)
+    elif isinstance(obj, dict):
+        return {key: convert_lists_to_tuples(value) for key, value in obj.items()}
+    else:
+        return obj
 
 
 class _BaseMemorizingConstrComponent:
@@ -38,8 +48,7 @@ class _BaseMemorizingConstrComponent:
                 sample_constrs_str = h5.get_scalar(self.field)
                 assert sample_constrs_str is not None
                 assert isinstance(sample_constrs_str, str)
-                sample_constrs = eval(sample_constrs_str)
-                assert isinstance(sample_constrs, list)
+                sample_constrs = convert_lists_to_tuples(json.loads(sample_constrs_str))
                 y_sample = []
                 for c in sample_constrs:
                     if c not in constr_to_idx:

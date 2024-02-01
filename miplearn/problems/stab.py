@@ -170,11 +170,11 @@ def _stab_read(data: Union[str, MaxWeightStableSetData]) -> MaxWeightStableSetDa
     return data
 
 
-def _stab_separate(data: MaxWeightStableSetData, x_val: List[float]) -> List[Hashable]:
+def _stab_separate(data: MaxWeightStableSetData, x_val: List[float]) -> List:
     # Check that we selected at most one vertex for each
     # clique in the graph (sum <= 1)
-    violations: List[Hashable] = []
+    violations: List[Any] = []
     for clique in nx.find_cliques(data.graph):
         if sum(x_val[i] for i in clique) > 1.0001:
-            violations.append(tuple(sorted(clique)))
+            violations.append(sorted(clique))
     return violations

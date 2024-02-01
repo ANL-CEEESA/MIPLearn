@@ -231,18 +231,18 @@ def _tsp_separate(
     x_val: dict[Tuple[int, int], float],
     edges: List[Tuple[int, int]],
     n_cities: int,
-) -> List[Tuple[Tuple[int, int], ...]]:
+) -> List:
     violations = []
     selected_edges = [e for e in edges if x_val[e] > 0.5]
     graph = nx.Graph()
     graph.add_edges_from(selected_edges)
     for component in list(nx.connected_components(graph)):
         if len(component) < n_cities:
-            cut_edges = tuple(
-                (e[0], e[1])
+            cut_edges = [
+                [e[0], e[1]]
                 for e in edges
                 if (e[0] in component and e[1] not in component)
                 or (e[0] not in component and e[1] in component)
-            )
+            ]
             violations.append(cut_edges)
     return violations
