@@ -107,8 +107,6 @@ class MemorizingCutsComponent(_BaseMemorizingConstrComponent):
         model: AbstractModel,
         stats: Dict[str, Any],
     ) -> None:
-        if model.cuts_enforce is None:
-            return
         assert self.constrs_ is not None
         cuts = self.predict("Predicting cutting planes...", test_h5)
         model.set_cuts(cuts)
