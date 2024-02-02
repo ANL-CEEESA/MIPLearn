@@ -68,8 +68,7 @@ class BasicCollector:
 
                     if self.write_mps:
                         # Add lazy constraints to model
-                        if model.lazy_enforce is not None:
-                            model.lazy_enforce(model, model.lazy_)
+                        model._lazy_enforce_collected()
 
                         # Save MPS file
                         model.write(mps_filename)

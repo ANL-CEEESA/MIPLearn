@@ -21,14 +21,14 @@ class AbstractModel(ABC):
     WHERE_LAZY = "lazy"
 
     def __init__(self) -> None:
-        self.lazy_enforce: Optional[Callable] = None
-        self.lazy_separate: Optional[Callable] = None
-        self.lazy_: Optional[List[Any]] = None
-        self.cuts_enforce: Optional[Callable] = None
-        self.cuts_separate: Optional[Callable] = None
-        self.cuts_: Optional[List[Any]] = None
-        self.cuts_aot_: Optional[List[Any]] = None
-        self.where = self.WHERE_DEFAULT
+        self._lazy_enforce: Optional[Callable] = None
+        self._lazy_separate: Optional[Callable] = None
+        self._lazy: Optional[List[Any]] = None
+        self._cuts_enforce: Optional[Callable] = None
+        self._cuts_separate: Optional[Callable] = None
+        self._cuts: Optional[List[Any]] = None
+        self._cuts_aot: Optional[List[Any]] = None
+        self._where = self.WHERE_DEFAULT
 
     @abstractmethod
     def add_constrs(
@@ -85,3 +85,13 @@ class AbstractModel(ABC):
 
     def set_cuts(self, cuts: List) -> None:
         self.cuts_aot_ = cuts
+
+    def lazy_enforce(self, violations: List[Any]) -> None:
+        if self._lazy_enforce is not None:
+            self._lazy_enforce(self, violations)
+
+    def _lazy_enforce_collected(self) -> None:
+        """Adds all lazy constraints identified in the callback as actual model constraints. Useful for generating
+        a final MPS file with the constraints that were required in this run."""
+        if self._lazy_enforce is not None:
+            self._lazy_enforce(self, self._lazy)

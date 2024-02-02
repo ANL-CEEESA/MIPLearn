@@ -21,36 +21,36 @@ def _gurobi_callback(model: AbstractModel, gp_model: gp.Model, where: int) -> No
     assert isinstance(gp_model, gp.Model)
 
     # Lazy constraints
-    if model.lazy_separate is not None:
-        assert model.lazy_enforce is not None
-        assert model.lazy_ is not None
+    if model._lazy_separate is not None:
+        assert model._lazy_enforce is not None
+        assert model._lazy is not None
         if where == GRB.Callback.MIPSOL:
-            model.where = model.WHERE_LAZY
-            violations = model.lazy_separate(model)
+            model._where = model.WHERE_LAZY
+            violations = model._lazy_separate(model)
             if len(violations) > 0:
-                model.lazy_.extend(violations)
-                model.lazy_enforce(model, violations)
+                model._lazy.extend(violations)
+                model._lazy_enforce(model, violations)
 
     # User cuts
-    if model.cuts_separate is not None:
-        assert model.cuts_enforce is not None
-        assert model.cuts_ is not None
+    if model._cuts_separate is not None:
+        assert model._cuts_enforce is not None
+        assert model._cuts is not None
         if where == GRB.Callback.MIPNODE:
             status = gp_model.cbGet(GRB.Callback.MIPNODE_STATUS)
             if status == GRB.OPTIMAL:
-                model.where = model.WHERE_CUTS
-                if model.cuts_aot_ is not None:
-                    violations = model.cuts_aot_
-                    model.cuts_aot_ = None
+                model._where = model.WHERE_CUTS
+                if model._cuts_aot is not None:
+                    violations = model._cuts_aot
+                    model._cuts_aot = None
                     logger.info(f"Enforcing {len(violations)} cuts ahead-of-time...")
                 else:
-                    violations = model.cuts_separate(model)
+                    violations = model._cuts_separate(model)
                 if len(violations) > 0:
-                    model.cuts_.extend(violations)
-                    model.cuts_enforce(model, violations)
+                    model._cuts.extend(violations)
+                    model._cuts_enforce(model, violations)
 
     # Cleanup
-    model.where = model.WHERE_DEFAULT
+    model._where = model.WHERE_DEFAULT
 
 
 def _gurobi_add_constr(gp_model: gp.Model, where: str, constr: Any) -> None:
@@ -64,11 +64,11 @@ def _gurobi_add_constr(gp_model: gp.Model, where: str, constr: Any) -> None:
 
 def _gurobi_set_required_params(model: AbstractModel, gp_model: gp.Model) -> None:
     # Required parameters for lazy constraints
-    if model.lazy_enforce is not None:
+    if model._lazy_enforce is not None:
         gp_model.setParam("PreCrush", 1)
         gp_model.setParam("LazyConstraints", 1)
     # Required parameters for user cuts
-    if model.cuts_enforce is not None:
+    if model._cuts_enforce is not None:
         gp_model.setParam("PreCrush", 1)
 
 
@@ -87,10 +87,10 @@ class GurobiModel(AbstractModel):
         cuts_enforce: Optional[Callable] = None,
     ) -> None:
         super().__init__()
-        self.lazy_separate = lazy_separate
-        self.lazy_enforce = lazy_enforce
-        self.cuts_separate = cuts_separate
-        self.cuts_enforce = cuts_enforce
+        self._lazy_separate = lazy_separate
+        self._lazy_enforce = lazy_enforce
+        self._cuts_separate = cuts_separate
+        self._cuts_enforce = cuts_enforce
         self.inner = inner
 
     def add_constrs(
@@ -118,7 +118,7 @@ class GurobiModel(AbstractModel):
             stats["Added constraints"] += nconstrs
 
     def add_constr(self, constr: Any) -> None:
-        _gurobi_add_constr(self.inner, self.where, constr)
+        _gurobi_add_constr(self.inner, self._where, constr)
 
     def extract_after_load(self, h5: H5File) -> None:
         """
@@ -168,10 +168,10 @@ class GurobiModel(AbstractModel):
         except AttributeError:
             pass
         self._extract_after_mip_solution_pool(h5)
-        if self.lazy_ is not None:
-            h5.put_scalar("mip_lazy", json.dumps(self.lazy_))
-        if self.cuts_ is not None:
-            h5.put_scalar("mip_cuts", json.dumps(self.cuts_))
+        if self._lazy is not None:
+            h5.put_scalar("mip_lazy", json.dumps(self._lazy))
+        if self._cuts is not None:
+            h5.put_scalar("mip_cuts", json.dumps(self._cuts))
 
     def fix_variables(
         self,
@@ -196,8 +196,8 @@ class GurobiModel(AbstractModel):
             stats["Fixed variables"] = n_fixed
 
     def optimize(self) -> None:
-        self.lazy_ = []
-        self.cuts_ = []
+        self._lazy = []
+        self._cuts = []
 
         def callback(_: gp.Model, where: int) -> None:
             _gurobi_callback(self, self.inner, where)

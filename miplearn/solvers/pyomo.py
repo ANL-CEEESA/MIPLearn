@@ -34,10 +34,10 @@ class PyomoModel(AbstractModel):
         super().__init__()
         self.inner = model
         self.solver_name = solver_name
-        self.lazy_separate = lazy_separate
-        self.lazy_enforce = lazy_enforce
-        self.cuts_separate = cuts_separate
-        self.cuts_enforce = cuts_enforce
+        self._lazy_separate = lazy_separate
+        self._lazy_enforce = lazy_enforce
+        self._cuts_separate = cuts_separate
+        self._cuts_enforce = cuts_enforce
         self.solver = pe.SolverFactory(solver_name)
         self.is_persistent = hasattr(self.solver, "set_instance")
         if self.is_persistent:
@@ -53,8 +53,8 @@ class PyomoModel(AbstractModel):
         assert (
             self.solver_name == "gurobi_persistent"
         ), "Callbacks are currently only supported on gurobi_persistent"
-        if self.where in [AbstractModel.WHERE_CUTS, AbstractModel.WHERE_LAZY]:
-            _gurobi_add_constr(self.solver, self.where, constr)
+        if self._where in [AbstractModel.WHERE_CUTS, AbstractModel.WHERE_LAZY]:
+            _gurobi_add_constr(self.solver, self._where, constr)
         else:
             # outside callbacks, add_constr shouldn't do anything, as the constraint
             # has already been added to the ConstraintList object
@@ -129,10 +129,10 @@ class PyomoModel(AbstractModel):
         h5.put_scalar("mip_obj_value", obj_value)
         h5.put_scalar("mip_obj_bound", obj_bound)
         h5.put_scalar("mip_gap", self._gap(obj_value, obj_bound))
-        if self.lazy_ is not None:
-            h5.put_scalar("mip_lazy", repr(self.lazy_))
-        if self.cuts_ is not None:
-            h5.put_scalar("mip_cuts", repr(self.cuts_))
+        if self._lazy is not None:
+            h5.put_scalar("mip_lazy", repr(self._lazy))
+        if self._cuts is not None:
+            h5.put_scalar("mip_cuts", repr(self._cuts))
 
     def fix_variables(
         self,
@@ -147,10 +147,10 @@ class PyomoModel(AbstractModel):
                 self.solver.update_var(var)
 
     def optimize(self) -> None:
-        self.lazy_ = []
-        self.cuts_ = []
+        self._lazy = []
+        self._cuts = []
 
-        if self.lazy_enforce is not None or self.cuts_enforce is not None:
+        if self._lazy_enforce is not None or self._cuts_enforce is not None:
             assert (
                 self.solver_name == "gurobi_persistent"
             ), "Callbacks are currently only supported on gurobi_persistent"

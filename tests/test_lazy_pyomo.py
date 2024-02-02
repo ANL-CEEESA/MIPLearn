@@ -39,6 +39,6 @@ def _build_model() -> PyomoModel:
 def test_pyomo_callback() -> None:
     model = _build_model()
     model.optimize()
-    assert model.lazy_ is not None
-    assert len(model.lazy_) > 0
+    assert model._lazy is not None
+    assert len(model._lazy) > 0
     assert model.inner.x.value == 0.0

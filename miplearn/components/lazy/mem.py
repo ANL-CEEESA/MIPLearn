@@ -24,10 +24,8 @@ class MemorizingLazyComponent(_BaseMemorizingConstrComponent):
         model: AbstractModel,
         stats: Dict[str, Any],
     ) -> None:
-        if model.lazy_enforce is None:
-            return
         assert self.constrs_ is not None
         violations = self.predict("Predicting violated lazy constraints...", test_h5)
         logger.info(f"Enforcing {len(violations)} constraints ahead-of-time...")
-        model.lazy_enforce(model, violations)
+        model.lazy_enforce(violations)
         stats["Lazy Constraints: AOT"] = len(violations)
