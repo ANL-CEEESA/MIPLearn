@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - Unreleased
+
+### Added
+
+- Add ML strategies for user cuts
+- Add ML strategies for lazy constraints
+
+### Changed
+
+- LearningSolver.solve no longer generates HDF5 files; use a collector instead.
+
 ## [0.3.0] - 2023-06-08
 
 This is a complete rewrite of the original prototype package, with an entirely new API, focused on performance, scalability and flexibility.
