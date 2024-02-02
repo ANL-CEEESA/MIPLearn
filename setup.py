@@ -6,7 +6,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name="miplearn",
-    version="0.3.0",
+    version="0.4.0",
     author="Alinson S. Xavier",
     author_email="axavier@anl.gov",
     description="Extensible Framework for Learning-Enhanced Mixed-Integer Optimization",
