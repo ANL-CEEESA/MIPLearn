@@ -84,7 +84,7 @@ class AbstractModel(ABC):
         pass
 
     def set_cuts(self, cuts: List) -> None:
-        self.cuts_aot_ = cuts
+        self._cuts_aot = cuts
 
     def lazy_enforce(self, violations: List[Any]) -> None:
         if self._lazy_enforce is not None:
