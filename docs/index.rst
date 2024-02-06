@@ -16,6 +16,7 @@ Contents
    tutorials/getting-started-pyomo
    tutorials/getting-started-gurobipy
    tutorials/getting-started-jump
+   tutorials/cuts-gurobipy
 
 .. toctree::
    :maxdepth: 2

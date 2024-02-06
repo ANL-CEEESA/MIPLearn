@@ -1,7 +1,7 @@
 project = "MIPLearn"
 copyright = "2020-2023, UChicago Argonne, LLC"
 author = ""
-release = "0.3"
+release = "0.4"
 extensions = [
     "myst_parser",
     "nbsphinx",
