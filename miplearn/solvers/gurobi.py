@@ -184,7 +184,7 @@ class GurobiModel(AbstractModel):
         assert var_names.shape == var_values.shape
 
         n_fixed = 0
-        for (var_idx, var_name) in enumerate(var_names):
+        for var_idx, var_name in enumerate(var_names):
             var_val = var_values[var_idx]
             if np.isfinite(var_val):
                 var = self.inner.getVarByName(var_name.decode())
@@ -229,7 +229,7 @@ class GurobiModel(AbstractModel):
         self.inner.numStart = n_starts
         for start_idx in range(n_starts):
             self.inner.params.startNumber = start_idx
-            for (var_idx, var_name) in enumerate(var_names):
+            for var_idx, var_name in enumerate(var_names):
                 var_val = var_values[start_idx, var_idx]
                 if np.isfinite(var_val):
                     var = self.inner.getVarByName(var_name.decode())
@@ -243,14 +243,14 @@ class GurobiModel(AbstractModel):
 
     def _extract_after_load_vars(self, h5: H5File) -> None:
         gp_vars = self.inner.getVars()
-        for (h5_field, gp_field) in {
+        for h5_field, gp_field in {
             "static_var_names": "varName",
             "static_var_types": "vtype",
         }.items():
             h5.put_array(
                 h5_field, np.array(self.inner.getAttr(gp_field, gp_vars), dtype="S")
             )
-        for (h5_field, gp_field) in {
+        for h5_field, gp_field in {
             "static_var_upper_bounds": "ub",
             "static_var_lower_bounds": "lb",
             "static_var_obj_coeffs": "obj",
@@ -267,7 +267,7 @@ class GurobiModel(AbstractModel):
         names = np.array(self.inner.getAttr("constrName", gp_constrs), dtype="S")
         nrows, ncols = len(gp_constrs), len(gp_vars)
         tmp = lil_matrix((nrows, ncols), dtype=float)
-        for (i, gp_constr) in enumerate(gp_constrs):
+        for i, gp_constr in enumerate(gp_constrs):
             expr = self.inner.getRow(gp_constr)
             for j in range(expr.size()):
                 tmp[i, expr.getVar(j).index] = expr.getCoeff(j)
@@ -302,7 +302,7 @@ class GurobiModel(AbstractModel):
                 dtype="S",
             ),
         )
-        for (h5_field, gp_field) in {
+        for h5_field, gp_field in {
             "lp_var_reduced_costs": "rc",
             "lp_var_sa_obj_up": "saobjUp",
             "lp_var_sa_obj_down": "saobjLow",
@@ -336,7 +336,7 @@ class GurobiModel(AbstractModel):
                 dtype="S",
             ),
         )
-        for (h5_field, gp_field) in {
+        for h5_field, gp_field in {
             "lp_constr_dual_values": "pi",
             "lp_constr_sa_rhs_up": "saRhsUp",
             "lp_constr_sa_rhs_down": "saRhsLow",

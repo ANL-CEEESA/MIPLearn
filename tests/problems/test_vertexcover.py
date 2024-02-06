@@ -7,7 +7,7 @@ import numpy as np
 
 from miplearn.problems.vertexcover import (
     MinWeightVertexCoverData,
-    build_vertexcover_model,
+    build_vertexcover_model_gurobipy,
 )
 
 
@@ -16,6 +16,6 @@ def test_stab() -> None:
         graph=nx.cycle_graph(5),
         weights=np.array([1.0, 1.0, 1.0, 1.0, 1.0]),
     )
-    model = build_vertexcover_model(data)
+    model = build_vertexcover_model_gurobipy(data)
     model.optimize()
     assert model.inner.objVal == 3.0

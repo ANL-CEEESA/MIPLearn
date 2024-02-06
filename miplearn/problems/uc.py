@@ -112,7 +112,7 @@ class UnitCommitmentGenerator:
         return [_sample() for _ in range(n_samples)]
 
 
-def build_uc_model(data: Union[str, UnitCommitmentData]) -> GurobiModel:
+def build_uc_model_gurobipy(data: Union[str, UnitCommitmentData]) -> GurobiModel:
     """
     Models the unit commitment problem according to equations (1)-(5) of:
 

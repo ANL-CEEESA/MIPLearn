@@ -5,7 +5,11 @@
 import numpy as np
 from scipy.stats import uniform, randint
 
-from miplearn.problems.binpack import build_binpack_model, BinPackData, BinPackGenerator
+from miplearn.problems.binpack import (
+    build_binpack_model_gurobipy,
+    BinPackData,
+    BinPackGenerator,
+)
 
 
 def test_binpack_generator() -> None:
@@ -48,7 +52,7 @@ def test_binpack_generator() -> None:
 
 
 def test_binpack() -> None:
-    model = build_binpack_model(
+    model = build_binpack_model_gurobipy(
         BinPackData(
             sizes=np.array([4, 8, 1, 4, 2, 1]),
             capacity=10,

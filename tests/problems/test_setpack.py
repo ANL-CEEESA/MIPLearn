@@ -6,7 +6,7 @@ import numpy as np
 
 from miplearn.problems.setpack import (
     SetPackData,
-    build_setpack_model,
+    build_setpack_model_gurobipy,
 )
 
 
@@ -21,6 +21,6 @@ def test_setpack() -> None:
             ],
         ),
     )
-    model = build_setpack_model(data)
+    model = build_setpack_model_gurobipy(data)
     model.optimize()
     assert model.inner.objval == -22.0

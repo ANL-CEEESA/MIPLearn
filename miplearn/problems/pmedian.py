@@ -141,7 +141,7 @@ class PMedianGenerator:
         return [_sample() for _ in range(n_samples)]
 
 
-def build_pmedian_model(data: Union[str, PMedianData]) -> GurobiModel:
+def build_pmedian_model_gurobipy(data: Union[str, PMedianData]) -> GurobiModel:
     """Converts capacitated p-median data into a concrete Gurobipy model."""
     if isinstance(data, str):
         data = read_pkl_gz(data)

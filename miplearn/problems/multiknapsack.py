@@ -174,7 +174,9 @@ class MultiKnapsackGenerator:
         return [_sample() for _ in range(n_samples)]
 
 
-def build_multiknapsack_model(data: Union[str, MultiKnapsackData]) -> GurobiModel:
+def build_multiknapsack_model_gurobipy(
+    data: Union[str, MultiKnapsackData]
+) -> GurobiModel:
     """Converts multi-knapsack problem data into a concrete Gurobipy model."""
     if isinstance(data, str):
         data = read_pkl_gz(data)

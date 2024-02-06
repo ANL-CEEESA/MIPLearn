@@ -62,7 +62,7 @@ def test_usage_stab(
     stab_pyo_h5: List[str],
     default_extractor: FeaturesExtractor,
 ) -> None:
-    for (h5, build_model) in [
+    for h5, build_model in [
         (stab_pyo_h5, build_stab_model_pyomo),
         (stab_gp_h5, build_stab_model_gurobipy),
     ]:

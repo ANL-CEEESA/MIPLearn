@@ -40,7 +40,9 @@ class MinWeightVertexCoverGenerator:
         ]
 
 
-def build_vertexcover_model(data: Union[str, MinWeightVertexCoverData]) -> GurobiModel:
+def build_vertexcover_model_gurobipy(
+    data: Union[str, MinWeightVertexCoverData]
+) -> GurobiModel:
     if isinstance(data, str):
         data = read_pkl_gz(data)
     assert isinstance(data, MinWeightVertexCoverData)
@@ -48,7 +50,7 @@ def build_vertexcover_model(data: Union[str, MinWeightVertexCoverData]) -> Gurob
     nodes = list(data.graph.nodes)
     x = model.addVars(nodes, vtype=GRB.BINARY, name="x")
     model.setObjective(quicksum(data.weights[i] * x[i] for i in nodes))
-    for (v1, v2) in data.graph.edges:
+    for v1, v2 in data.graph.edges:
         model.addConstr(x[v1] + x[v2] >= 1)
     model.update()
     return GurobiModel(model)

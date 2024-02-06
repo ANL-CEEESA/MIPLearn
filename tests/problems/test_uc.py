@@ -7,7 +7,7 @@ from scipy.stats import uniform, randint
 
 from miplearn.problems.uc import (
     UnitCommitmentData,
-    build_uc_model,
+    build_uc_model_gurobipy,
     UnitCommitmentGenerator,
 )
 
@@ -60,12 +60,12 @@ def test_uc() -> None:
         cost_prod=np.array([1.0, 1.25, 1.5]),
         cost_fixed=np.array([10, 12, 9]),
     )
-    model = build_uc_model(data)
+    model = build_uc_model_gurobipy(data)
     model.optimize()
     assert model.inner.objVal == 154.5
 
 
 if __name__ == "__main__":
     data = UnitCommitmentGenerator().generate(1)[0]
-    model = build_uc_model(data)
+    model = build_uc_model_gurobipy(data)
     model.optimize()

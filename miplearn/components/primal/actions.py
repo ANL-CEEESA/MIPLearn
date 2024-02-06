@@ -71,7 +71,7 @@ class EnforceProximity(PrimalComponentAction):
         constr_lhs = []
         constr_vars = []
         constr_rhs = 0.0
-        for (i, var_name) in enumerate(var_names):
+        for i, var_name in enumerate(var_names):
             if np.isnan(var_values[i]):
                 continue
             constr_lhs.append(1.0 if var_values[i] < 0.5 else -1.0)

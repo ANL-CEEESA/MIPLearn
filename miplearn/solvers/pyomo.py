@@ -141,7 +141,7 @@ class PyomoModel(AbstractModel):
         stats: Optional[Dict] = None,
     ) -> None:
         variables = self._var_names_to_vars(var_names)
-        for (var, val) in zip(variables, var_values):
+        for var, val in zip(variables, var_values):
             if np.isfinite(val):
                 var.fix(val)
                 self.solver.update_var(var)
@@ -195,7 +195,7 @@ class PyomoModel(AbstractModel):
         assert var_names.shape[0] == n_vars
         assert n_starts == 1, "Pyomo does not support multiple warm starts"
         variables = self._var_names_to_vars(var_names)
-        for (var, val) in zip(variables, var_values[0, :]):
+        for var, val in zip(variables, var_values[0, :]):
             if np.isfinite(val):
                 var.value = val
         self._is_warm_start_available = True
@@ -215,7 +215,7 @@ class PyomoModel(AbstractModel):
             obj_count += 1
         assert obj_count == 1, f"One objective function expected; found {obj_count}"
 
-        for (i, var) in enumerate(self.inner.component_objects(pyomo.core.Var)):
+        for i, var in enumerate(self.inner.component_objects(pyomo.core.Var)):
             for idx in var:
                 v = var[idx]
 
@@ -316,9 +316,7 @@ class PyomoModel(AbstractModel):
                 raise Exception(f"Unknown expression type: {expr.__class__.__name__}")
 
         curr_row = 0
-        for (i, constr) in enumerate(
-            self.inner.component_objects(pyomo.core.Constraint)
-        ):
+        for i, constr in enumerate(self.inner.component_objects(pyomo.core.Constraint)):
             if len(constr) > 1:
                 for idx in constr:
                     names.append(constr[idx].name)

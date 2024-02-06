@@ -5,7 +5,7 @@
 import numpy as np
 from scipy.stats import uniform, randint
 
-from miplearn.problems.pmedian import PMedianGenerator, build_pmedian_model
+from miplearn.problems.pmedian import PMedianGenerator, build_pmedian_model_gurobipy
 
 
 def test_pmedian() -> None:
@@ -46,7 +46,7 @@ def test_pmedian() -> None:
         [31.95, 17.05, 67.62, 58.88, 0.0],
     ]
 
-    model = build_pmedian_model(data[0])
+    model = build_pmedian_model_gurobipy(data[0])
     assert model.inner.numVars == 30
     assert model.inner.numConstrs == 11
     model.optimize()

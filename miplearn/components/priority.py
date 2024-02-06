@@ -25,7 +25,7 @@ class ExpertBranchPriorityComponent:
             assert var_priority is not None
             assert var_names is not None
 
-            for (var_idx, var_name) in enumerate(var_names):
+            for var_idx, var_name in enumerate(var_names):
                 if np.isfinite(var_priority[var_idx]):
                     var = model.getVarByName(var_name.decode())
                     var.branchPriority = int(log(1 + var_priority[var_idx]))

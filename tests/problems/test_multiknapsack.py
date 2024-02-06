@@ -8,7 +8,7 @@ from scipy.stats import uniform, randint
 from miplearn.problems.multiknapsack import (
     MultiKnapsackGenerator,
     MultiKnapsackData,
-    build_multiknapsack_model,
+    build_multiknapsack_model_gurobipy,
 )
 
 
@@ -56,6 +56,6 @@ def test_knapsack_model() -> None:
             ]
         ),
     )
-    model = build_multiknapsack_model(data)
+    model = build_multiknapsack_model_gurobipy(data)
     model.optimize()
     assert model.inner.objVal == -460.0

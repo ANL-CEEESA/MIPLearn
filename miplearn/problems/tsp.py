@@ -119,7 +119,6 @@ def build_tsp_model_gurobipy(
     data: Union[str, TravelingSalesmanData],
     params: Optional[dict[str, Any]] = None,
 ) -> GurobiModel:
-
     model = gp.Model()
     _gurobipy_set_params(model, params)
 
@@ -173,7 +172,6 @@ def build_tsp_model_pyomo(
     solver: str = "gurobi_persistent",
     params: Optional[dict[str, Any]] = None,
 ) -> PyomoModel:
-
     model = pe.ConcreteModel()
     data = _tsp_read(data)
 

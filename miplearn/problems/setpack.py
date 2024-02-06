@@ -53,7 +53,7 @@ class SetPackGenerator:
         ]
 
 
-def build_setpack_model(data: Union[str, SetPackData]) -> GurobiModel:
+def build_setpack_model_gurobipy(data: Union[str, SetPackData]) -> GurobiModel:
     if isinstance(data, str):
         data = read_pkl_gz(data)
     assert isinstance(data, SetPackData)

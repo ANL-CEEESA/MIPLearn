@@ -56,7 +56,7 @@ def test_usage_tsp(
     tsp_pyo_h5: List[str],
     default_extractor: FeaturesExtractor,
 ) -> None:
-    for (h5, build_model) in [
+    for h5, build_model in [
         (tsp_pyo_h5, build_tsp_model_pyomo),
         (tsp_gp_h5, build_tsp_model_gurobipy),
     ]:

@@ -109,7 +109,7 @@ class BinPackGenerator:
         return [_sample() for n in range(n_samples)]
 
 
-def build_binpack_model(data: Union[str, BinPackData]) -> GurobiModel:
+def build_binpack_model_gurobipy(data: Union[str, BinPackData]) -> GurobiModel:
     """Converts bin packing problem data into a concrete Gurobipy model."""
     if isinstance(data, str):
         data = read_pkl_gz(data)

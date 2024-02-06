@@ -101,7 +101,7 @@ def build_stab_model_gurobipy(
     model.setObjective(quicksum(-data.weights[i] * x[i] for i in nodes))
 
     # Edge inequalities
-    for (i1, i2) in data.graph.edges:
+    for i1, i2 in data.graph.edges:
         model.addConstr(x[i1] + x[i2] <= 1)
 
     def cuts_separate(m: GurobiModel) -> List[Hashable]:
@@ -137,7 +137,7 @@ def build_stab_model_pyomo(
 
     # Edge inequalities
     model.edge_eqs = pe.ConstraintList()
-    for (i1, i2) in data.graph.edges:
+    for i1, i2 in data.graph.edges:
         model.edge_eqs.add(model.x[i1] + model.x[i2] <= 1)
 
     # Clique inequalities

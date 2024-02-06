@@ -91,7 +91,7 @@ class IndependentVarsPrimalComponent:
 
         logger.info(f"Training {n_bin_vars} classifiers...")
         self.clf_ = {}
-        for (var_idx, var_name) in enumerate(self.bin_var_names_):
+        for var_idx, var_name in enumerate(self.bin_var_names_):
             self.clf_[var_name] = self.clone_fn(self.base_clf)
             self.clf_[var_name].fit(
                 x_np[var_idx::n_bin_vars, :], y_np[var_idx::n_bin_vars]
@@ -117,7 +117,7 @@ class IndependentVarsPrimalComponent:
         # Predict optimal solution
         logger.info("Predicting warm starts...")
         y_pred = []
-        for (var_idx, var_name) in enumerate(self.bin_var_names_):
+        for var_idx, var_name in enumerate(self.bin_var_names_):
             x_var = x_sample[var_idx, :].reshape(1, -1)
             y_var = self.clf_[var_name].predict(x_var)
             assert y_var.shape == (1,)

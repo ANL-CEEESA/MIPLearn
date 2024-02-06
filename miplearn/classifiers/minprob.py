@@ -54,7 +54,7 @@ class MinProbabilityClassifier(BaseEstimator):
         y_pred = []
         for sample_idx in range(n_samples):
             yi = float("nan")
-            for (class_idx, class_val) in enumerate(self.classes_):
+            for class_idx, class_val in enumerate(self.classes_):
                 if y_proba[sample_idx, class_idx] >= self.thresholds[class_idx]:
                     yi = class_val
             y_pred.append(yi)
