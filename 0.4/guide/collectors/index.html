@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>6. Training Data Collectors &#8212; MIPLearn 0.4</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css?v=b0dfe17c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f8244a84" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script src="../../_static/documentation_options.js?v=751a5dd3"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js?v=7c4c3336"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="7. Feature Extractors" href="../features/" />
+    <link rel="prev" title="5. Benchmark Problems" href="../problems/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn 0.4</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <p class="caption" role="heading">
+ <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-pyomo/">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/cuts-gurobipy/">
+   4. User cuts and lazy constraints
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  User Guide
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../problems/">
+   5. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   6. Training Data Collectors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../features/">
+   7. Feature Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../primal/">
+   8. Primal Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../solvers/">
+   9. Learning Solver
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Python API Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/problems/">
+   10. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/collectors/">
+   11. Collectors &amp; Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/components/">
+   12. Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/solvers/">
+   13. Solvers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/helpers/">
+   14. Helpers
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../../_sources/guide/collectors.ipynb.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Overview">
+   6.1. Overview
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#HDF5-Format">
+   6.2. HDF5 Format
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Example">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Basic-collector">
+   6.3. Basic collector
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Data-fields">
+     Data fields
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <section id="Training-Data-Collectors">
+<h1><span class="section-number">6. </span>Training Data Collectors<a class="headerlink" href="#Training-Data-Collectors" title="Link to this heading">¶</a></h1>
+<p>The first step in solving mixed-integer optimization problems with the assistance of supervised machine learning methods is solving a large set of training instances and collecting the raw training data. In this section, we describe the various training data collectors included in MIPLearn. Additionally, the framework follows the convention of storing all training data in files with a specific data format (namely, HDF5). In this section, we briefly describe this format and the rationale for
+choosing it.</p>
+<section id="Overview">
+<h2><span class="section-number">6.1. </span>Overview<a class="headerlink" href="#Overview" title="Link to this heading">¶</a></h2>
+<p>In MIPLearn, a <strong>collector</strong> is a class that solves or analyzes the problem and collects raw data which may be later useful for machine learning methods. Collectors, by convention, take as input: (i) a list of problem data filenames, in gzipped pickle format, ending with <code class="docutils literal notranslate"><span class="pre">.pkl.gz</span></code>; (ii) a function that builds the optimization model, such as <code class="docutils literal notranslate"><span class="pre">build_tsp_model</span></code>. After processing is done, collectors store the training data in a HDF5 file located alongside with the problem data. For example, if
+the problem data is stored in file <code class="docutils literal notranslate"><span class="pre">problem.pkl.gz</span></code>, then the collector writes to <code class="docutils literal notranslate"><span class="pre">problem.h5</span></code>. Collectors are, in general, very time consuming, as they may need to solve the problem to optimality, potentially multiple times.</p>
+</section>
+<section id="HDF5-Format">
+<h2><span class="section-number">6.2. </span>HDF5 Format<a class="headerlink" href="#HDF5-Format" title="Link to this heading">¶</a></h2>
+<p>MIPLearn stores all training data in <a class="reference external" href="HDF5">HDF5</a> (Hierarchical Data Format, Version 5) files. The HDF format was originally developed by the <a class="reference external" href="https://en.wikipedia.org/wiki/National_Center_for_Supercomputing_Applications">National Center for Supercomputing Applications</a> (NCSA) for storing and organizing large amounts of data, and supports a variety of data types, including integers, floating-point numbers, strings, and arrays. Compared to other formats, such as CSV, JSON or SQLite, the
+HDF5 format provides several advantages for MIPLearn, including:</p>
+<ul class="simple">
+<li><p><em>Storage of multiple scalars, vectors and matrices in a single file</em> — This allows MIPLearn to store all training data related to a given problem instance in a single file, which makes training data easier to store, organize and transfer.</p></li>
+<li><p><em>High-performance partial I/O</em> — Partial I/O allows MIPLearn to read a single element from the training data (e.g. value of the optimal solution) without loading the entire file to memory or reading it from beginning to end, which dramatically improves performance and reduces memory requirements. This is especially important when processing a large number of training data files.</p></li>
+<li><p><em>On-the-fly compression</em> — HDF5 files can be transparently compressed, using the gzip method, which reduces storage requirements and accelerates network transfers.</p></li>
+<li><p><em>Stable, portable and well-supported data format</em> — Training data files are typically expensive to generate. Having a stable and well supported data format ensures that these files remain usable in the future, potentially even by other non-Python MIP/ML frameworks.</p></li>
+</ul>
+<p>MIPLearn currently uses HDF5 as simple key-value storage for numerical data; more advanced features of the format, such as metadata, are not currently used. Although files generated by MIPLearn can be read with any HDF5 library, such as <a class="reference external" href="https://www.h5py.org/">h5py</a>, some convenience functions are provided to make the access more simple and less error-prone. Specifically, the class <a class="reference external" href="../../api/helpers/#miplearn.h5.H5File">H5File</a>, which is built on top of h5py, provides the methods
+<a class="reference external" href="../../api/helpers/#miplearn.h5.H5File.put_scalar">put_scalar</a>, <a class="reference external" href="../../api/helpers/#miplearn.h5.H5File.put_scalar">put_array</a>, <a class="reference external" href="../../api/helpers/#miplearn.h5.H5File.put_scalar">put_sparse</a>, <a class="reference external" href="../../api/helpers/#miplearn.h5.H5File.put_scalar">put_bytes</a> to store, respectively, scalar values, dense multi-dimensional arrays, sparse multi-dimensional arrays and arbitrary binary data. The corresponding <em>get</em> methods are also provided. Compared to pure h5py methods, these methods
+automatically perform type-checking and gzip compression. The example below shows their usage.</p>
+<section id="Example">
+<h3>Example<a class="headerlink" href="#Example" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span>
+
+<span class="kn">from</span> <span class="nn">miplearn.h5</span> <span class="kn">import</span> <span class="n">H5File</span>
+
+<span class="c1"># Set random seed to make example reproducible</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Create a new empty HDF5 file</span>
+<span class="k">with</span> <span class="n">H5File</span><span class="p">(</span><span class="s2">&quot;test.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+    <span class="c1"># Store a scalar</span>
+    <span class="n">h5</span><span class="o">.</span><span class="n">put_scalar</span><span class="p">(</span><span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">h5</span><span class="o">.</span><span class="n">put_scalar</span><span class="p">(</span><span class="s2">&quot;x2&quot;</span><span class="p">,</span> <span class="s2">&quot;hello world&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Store a dense array and a dense matrix</span>
+    <span class="n">h5</span><span class="o">.</span><span class="n">put_array</span><span class="p">(</span><span class="s2">&quot;x3&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span>
+    <span class="n">h5</span><span class="o">.</span><span class="n">put_array</span><span class="p">(</span><span class="s2">&quot;x4&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="c1"># Store a sparse matrix</span>
+    <span class="n">h5</span><span class="o">.</span><span class="n">put_sparse</span><span class="p">(</span><span class="s2">&quot;x5&quot;</span><span class="p">,</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+
+<span class="c1"># Re-open the file we just created and print</span>
+<span class="c1"># previously-stored data</span>
+<span class="k">with</span> <span class="n">H5File</span><span class="p">(</span><span class="s2">&quot;test.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x1 =&quot;</span><span class="p">,</span> <span class="n">h5</span><span class="o">.</span><span class="n">get_scalar</span><span class="p">(</span><span class="s2">&quot;x1&quot;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x2 =&quot;</span><span class="p">,</span> <span class="n">h5</span><span class="o">.</span><span class="n">get_scalar</span><span class="p">(</span><span class="s2">&quot;x2&quot;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x3 =&quot;</span><span class="p">,</span> <span class="n">h5</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="s2">&quot;x3&quot;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x4 =&quot;</span><span class="p">,</span> <span class="n">h5</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="s2">&quot;x4&quot;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x5 =&quot;</span><span class="p">,</span> <span class="n">h5</span><span class="o">.</span><span class="n">get_sparse</span><span class="p">(</span><span class="s2">&quot;x5&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+x1 = 1
+x2 = hello world
+x3 = [1 2 3]
+x4 = [[0.37454012 0.9507143  0.7319939 ]
+ [0.5986585  0.15601864 0.15599452]
+ [0.05808361 0.8661761  0.601115  ]]
+x5 =   (3, 2)   0.6803075671195984
+  (2, 3)        0.4504992663860321
+  (0, 4)        0.013264961540699005
+  (2, 0)        0.9422017335891724
+  (2, 4)        0.5632882118225098
+  (1, 2)        0.38541650772094727
+  (1, 1)        0.015966251492500305
+  (0, 3)        0.2308938205242157
+  (4, 4)        0.24102546274662018
+  (3, 1)        0.6832635402679443
+  (1, 3)        0.6099966764450073
+  (3, 0)        0.83319491147995
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Basic-collector">
+<h2><span class="section-number">6.3. </span>Basic collector<a class="headerlink" href="#Basic-collector" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="../../api/collectors/#miplearn.collectors.basic.BasicCollector">BasicCollector</a> is the most fundamental collector, and performs the following steps:</p>
+<ol class="arabic simple">
+<li><p>Extracts all model data, such as objective function and constraint right-hand sides into numpy arrays, which can later be easily and efficiently accessed without rebuilding the model or invoking the solver;</p></li>
+<li><p>Solves the linear relaxation of the problem and stores its optimal solution, basis status and sensitivity information, among other information;</p></li>
+<li><p>Solves the original mixed-integer optimization problem to optimality and stores its optimal solution, along with solve statistics, such as number of explored nodes and wallclock time.</p></li>
+</ol>
+<p>Data extracted in Phases 1, 2 and 3 above are prefixed, respectively as <code class="docutils literal notranslate"><span class="pre">static_</span></code>, <code class="docutils literal notranslate"><span class="pre">lp_</span></code> and <code class="docutils literal notranslate"><span class="pre">mip_</span></code>. The entire set of fields is shown in the table below.</p>
+<section id="Data-fields">
+<h3>Data fields<a class="headerlink" href="#Data-fields" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">static_constr_lhs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nconstrs,</span> <span class="pre">nvars)</span></code></p></td>
+<td><p>Constraint left-hand sides, in sparse matrix format</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">static_constr_names</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nconstrs,)</span></code></p></td>
+<td><p>Constraint names</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">static_constr_rhs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nconstrs,)</span></code></p></td>
+<td><p>Constraint right-hand sides</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">static_constr_sense</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nconstrs,)</span></code></p></td>
+<td><p>Constraint senses (<code class="docutils literal notranslate"><span class="pre">&quot;&lt;&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;&gt;&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;=&quot;</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">static_obj_offset</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Constant value added to the objective function</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">static_sense</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;min&quot;</span></code> if minimization problem or <code class="docutils literal notranslate"><span class="pre">&quot;max&quot;</span></code> otherwise</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">static_var_lower_bounds</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nvars,)</span></code></p></td>
+<td><p>Variable lower bounds</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">static_var_names</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nvars,)</span></code></p></td>
+<td><p>Variable names</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">static_var_obj_coeffs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nvars,)</span></code></p></td>
+<td><p>Objective coefficients</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">static_var_types</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nvars,)</span></code></p></td>
+<td><p>Types of the decision variables (<code class="docutils literal notranslate"><span class="pre">&quot;C&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;B&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;I&quot;</span></code> for continuous, binary and integer, respectively)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">static_var_upper_bounds</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nvars,)</span></code></p></td>
+<td><p>Variable upper bounds</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lp_constr_basis_status</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nconstr,)</span></code></p></td>
+<td><p>Constraint basis status (<code class="docutils literal notranslate"><span class="pre">0</span></code> for basic, <code class="docutils literal notranslate"><span class="pre">-1</span></code> for non-basic)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lp_constr_dual_values</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nconstr,)</span></code></p></td>
+<td><p>Constraint dual value (or shadow price)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lp_constr_sa_rhs_{up,down}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nconstr,)</span></code></p></td>
+<td><p>Sensitivity information for the constraint RHS</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lp_constr_slacks</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nconstr,)</span></code></p></td>
+<td><p>Constraint slack in the solution to the LP relaxation</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lp_obj_value</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Optimal value of the LP relaxation</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lp_var_basis_status</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nvars,)</span></code></p></td>
+<td><p>Variable basis status (<code class="docutils literal notranslate"><span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">-1</span></code>, <code class="docutils literal notranslate"><span class="pre">-2</span></code> or <code class="docutils literal notranslate"><span class="pre">-3</span></code> for basic, non-basic at lower bound, non-basic at upper bound, and superbasic, respectively)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lp_var_reduced_costs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nvars,)</span></code></p></td>
+<td><p>Variable reduced costs</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lp_var_sa_{obj,ub,lb}_{up,down}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nvars,)</span></code></p></td>
+<td><p>Sensitivity information for the variable objective coefficient, lower and upper bound.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lp_var_values</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nvars,)</span></code></p></td>
+<td><p>Optimal solution to the LP relaxation</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lp_wallclock_time</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Time taken to solve the LP relaxation (in seconds)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mip_constr_slacks</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nconstrs,)</span></code></p></td>
+<td><p>Constraint slacks in the best MIP solution</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mip_gap</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Relative MIP optimality gap</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mip_node_count</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Number of explored branch-and-bound nodes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mip_obj_bound</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Dual bound</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mip_obj_value</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Value of the best MIP solution</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mip_var_values</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(nvars,)</span></code></p></td>
+<td><p>Best MIP solution</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mip_wallclock_time</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Time taken to solve the MIP (in seconds)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id1">
+<h3>Example<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p>The example below shows how to generate a few random instances of the traveling salesman problem, store its problem data, run the collector and print some of the training data to screen.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+
+<span class="kn">from</span> <span class="nn">miplearn.problems.tsp</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TravelingSalesmanGenerator</span><span class="p">,</span>
+    <span class="n">build_tsp_model_gurobipy</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">miplearn.io</span> <span class="kn">import</span> <span class="n">write_pkl_gz</span>
+<span class="kn">from</span> <span class="nn">miplearn.h5</span> <span class="kn">import</span> <span class="n">H5File</span>
+<span class="kn">from</span> <span class="nn">miplearn.collectors.basic</span> <span class="kn">import</span> <span class="n">BasicCollector</span>
+
+<span class="c1"># Set random seed to make example reproducible.</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Generate a few instances of the traveling salesman problem.</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">TravelingSalesmanGenerator</span><span class="p">(</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">11</span><span class="p">),</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">),</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">),</span>
+    <span class="n">gamma</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.20</span><span class="p">),</span>
+    <span class="n">fix_cities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">round</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Save instance data to data/tsp/00000.pkl.gz, data/tsp/00001.pkl.gz, ...</span>
+<span class="n">write_pkl_gz</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;data/tsp&quot;</span><span class="p">)</span>
+
+<span class="c1"># Solve all instances and collect basic solution information.</span>
+<span class="c1"># Process at most four instances in parallel.</span>
+<span class="n">bc</span> <span class="o">=</span> <span class="n">BasicCollector</span><span class="p">()</span>
+<span class="n">bc</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;data/tsp/*.pkl.gz&quot;</span><span class="p">),</span> <span class="n">build_tsp_model_gurobipy</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="c1"># Read and print some training data for the first instance.</span>
+<span class="k">with</span> <span class="n">H5File</span><span class="p">(</span><span class="s2">&quot;data/tsp/00000.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;lp_obj_value = &quot;</span><span class="p">,</span> <span class="n">h5</span><span class="o">.</span><span class="n">get_scalar</span><span class="p">(</span><span class="s2">&quot;lp_obj_value&quot;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mip_obj_value = &quot;</span><span class="p">,</span> <span class="n">h5</span><span class="o">.</span><span class="n">get_scalar</span><span class="p">(</span><span class="s2">&quot;mip_obj_value&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+lp_obj_value =  2909.0
+mip_obj_value =  2921.0
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="../problems/" title="previous page"><span class="section-number">5. </span>Benchmark Problems</a>
+    <a class='right-next' id="next-link" href="../features/" title="next page"><span class="section-number">7. </span>Feature Extractors</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

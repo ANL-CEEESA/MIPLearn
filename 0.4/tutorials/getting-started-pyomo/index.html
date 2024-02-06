@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>1. Getting started (Pyomo) &#8212; MIPLearn 0.4</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css?v=b0dfe17c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f8244a84" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script src="../../_static/documentation_options.js?v=751a5dd3"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js?v=7c4c3336"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="2. Getting started (Gurobipy)" href="../getting-started-gurobipy/" />
+    <link rel="prev" title="MIPLearn" href="../../" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn 0.4</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <p class="caption" role="heading">
+ <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../cuts-gurobipy/">
+   4. User cuts and lazy constraints
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  User Guide
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/problems/">
+   5. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/collectors/">
+   6. Training Data Collectors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/features/">
+   7. Feature Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/primal/">
+   8. Primal Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/solvers/">
+   9. Learning Solver
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Python API Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/problems/">
+   10. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/collectors/">
+   11. Collectors &amp; Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/components/">
+   12. Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/solvers/">
+   13. Solvers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/helpers/">
+   14. Helpers
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../../_sources/tutorials/getting-started-pyomo.ipynb.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Introduction">
+   1.1. Introduction
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Installation">
+   1.2. Installation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Modeling-a-simple-optimization-problem">
+   1.3. Modeling a simple optimization problem
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Generating-training-data">
+   1.4. Generating training data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Training-and-solving-test-instances">
+   1.5. Training and solving test instances
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Accessing-the-solution">
+   1.6. Accessing the solution
+  </a>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <section id="Getting-started-(Pyomo)">
+<h1><span class="section-number">1. </span>Getting started (Pyomo)<a class="headerlink" href="#Getting-started-(Pyomo)" title="Link to this heading">¶</a></h1>
+<section id="Introduction">
+<h2><span class="section-number">1.1. </span>Introduction<a class="headerlink" href="#Introduction" title="Link to this heading">¶</a></h2>
+<p><strong>MIPLearn</strong> is an open source framework that uses machine learning (ML) to accelerate the performance of mixed-integer programming solvers (e.g. Gurobi, CPLEX, XPRESS). In this tutorial, we will:</p>
+<ol class="arabic simple">
+<li><p>Install the Python/Pyomo version of MIPLearn</p></li>
+<li><p>Model a simple optimization problem using Pyomo</p></li>
+<li><p>Generate training data and train the ML models</p></li>
+<li><p>Use the ML models together Gurobi to solve new instances</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The Python/Pyomo version of MIPLearn is currently only compatible with Pyomo persistent solvers (Gurobi, CPLEX and XPRESS). For broader solver compatibility, see the Julia/JuMP version of the package.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>MIPLearn is still in early development stage. If run into any bugs or issues, please submit a bug report in our GitHub repository. Comments, suggestions and pull requests are also very welcome!</p>
+</div>
+</section>
+<section id="Installation">
+<h2><span class="section-number">1.2. </span>Installation<a class="headerlink" href="#Installation" title="Link to this heading">¶</a></h2>
+<p>MIPLearn is available in two versions:</p>
+<ul class="simple">
+<li><p>Python version, compatible with the Pyomo and Gurobipy modeling languages,</p></li>
+<li><p>Julia version, compatible with the JuMP modeling language.</p></li>
+</ul>
+<p>In this tutorial, we will demonstrate how to use and install the Python/Pyomo version of the package. The first step is to install Python 3.8+ in your computer. See the <a class="reference external" href="https://www.python.org/downloads/">official Python website for more instructions</a>. After Python is installed, we proceed to install MIPLearn using <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ pip install MIPLearn==0.3
+</pre></div>
+</div>
+<p>In addition to MIPLearn itself, we will also install Gurobi 10.0, a state-of-the-art commercial MILP solver. This step also install a demo license for Gurobi, which should able to solve the small optimization problems in this tutorial. A license is required for solving larger-scale problems.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ pip install &#39;gurobipy&gt;=10,&lt;10.1&#39;
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the code above, we install specific version of all packages to ensure that this tutorial keeps running in the future, even when newer (and possibly incompatible) versions of the packages are released. This is usually a recommended practice for all Python projects.</p>
+</div>
+</section>
+<section id="Modeling-a-simple-optimization-problem">
+<h2><span class="section-number">1.3. </span>Modeling a simple optimization problem<a class="headerlink" href="#Modeling-a-simple-optimization-problem" title="Link to this heading">¶</a></h2>
+<p>To illustrate how can MIPLearn be used, we will model and solve a small optimization problem related to power systems optimization. The problem we discuss below is a simplification of the <strong>unit commitment problem,</strong> a practical optimization problem solved daily by electric grid operators around the world.</p>
+<p>Suppose that a utility company needs to decide which electrical generators should be online at each hour of the day, as well as how much power should each generator produce. More specifically, assume that the company owns <span class="math notranslate nohighlight">\(n\)</span> generators, denoted by <span class="math notranslate nohighlight">\(g_1, \ldots, g_n\)</span>. Each generator can either be online or offline. An online generator <span class="math notranslate nohighlight">\(g_i\)</span> can produce between <span class="math notranslate nohighlight">\(p^\text{min}_i\)</span> to <span class="math notranslate nohighlight">\(p^\text{max}_i\)</span> megawatts of power, and it costs the company
+<span class="math notranslate nohighlight">\(c^\text{fix}_i + c^\text{var}_i y_i\)</span>, where <span class="math notranslate nohighlight">\(y_i\)</span> is the amount of power produced. An offline generator produces nothing and costs nothing. The total amount of power to be produced needs to be exactly equal to the total demand <span class="math notranslate nohighlight">\(d\)</span> (in megawatts).</p>
+<p>This simple problem can be modeled as a <em>mixed-integer linear optimization</em> problem as follows. For each generator <span class="math notranslate nohighlight">\(g_i\)</span>, let <span class="math notranslate nohighlight">\(x_i \in \{0,1\}\)</span> be a decision variable indicating whether <span class="math notranslate nohighlight">\(g_i\)</span> is online, and let <span class="math notranslate nohighlight">\(y_i \geq 0\)</span> be a decision variable indicating how much power does <span class="math notranslate nohighlight">\(g_i\)</span> produce. The problem is then given by:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\text{minimize } \quad &amp; \sum_{i=1}^n \left( c^\text{fix}_i x_i + c^\text{var}_i y_i \right) \\
+\text{subject to } \quad &amp; y_i \leq p^\text{max}_i x_i &amp; i=1,\ldots,n \\
+&amp; y_i \geq p^\text{min}_i x_i &amp; i=1,\ldots,n \\
+&amp; \sum_{i=1}^n y_i = d \\
+&amp; x_i \in \{0,1\} &amp; i=1,\ldots,n \\
+&amp; y_i \geq 0 &amp; i=1,\ldots,n
+\end{align}\end{split}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We use a simplified version of the unit commitment problem in this tutorial just to make it easier to follow. MIPLearn can also handle realistic, large-scale versions of this problem.</p>
+</div>
+<p>Next, let us convert this abstract mathematical formulation into a concrete optimization model, using Python and Pyomo. We start by defining a data class <code class="docutils literal notranslate"><span class="pre">UnitCommitmentData</span></code>, which holds all the input data.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">UnitCommitmentData</span><span class="p">:</span>
+    <span class="n">demand</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">pmin</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">pmax</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">cfix</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">cvar</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Next, we write a <code class="docutils literal notranslate"><span class="pre">build_uc_model</span></code> function, which converts the input data into a concrete Pyomo model. The function accepts <code class="docutils literal notranslate"><span class="pre">UnitCommitmentData</span></code>, the data structure we previously defined, or the path to a compressed pickle file containing this data.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyomo.environ</span> <span class="k">as</span> <span class="nn">pe</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">miplearn.io</span> <span class="kn">import</span> <span class="n">read_pkl_gz</span>
+<span class="kn">from</span> <span class="nn">miplearn.solvers.pyomo</span> <span class="kn">import</span> <span class="n">PyomoModel</span>
+
+
+<span class="k">def</span> <span class="nf">build_uc_model</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">UnitCommitmentData</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">PyomoModel</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">read_pkl_gz</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">ConcreteModel</span><span class="p">()</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pmin</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Var</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">domain</span><span class="o">=</span><span class="n">pe</span><span class="o">.</span><span class="n">Binary</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Var</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">domain</span><span class="o">=</span><span class="n">pe</span><span class="o">.</span><span class="n">NonNegativeReals</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Objective</span><span class="p">(</span>
+        <span class="n">expr</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">cfix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">data</span><span class="o">.</span><span class="n">cvar</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eq_max_power</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">ConstraintList</span><span class="p">()</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eq_min_power</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">ConstraintList</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">eq_max_power</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">pmax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">eq_min_power</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">pmin</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eq_demand</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Constraint</span><span class="p">(</span>
+        <span class="n">expr</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">demand</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">PyomoModel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;gurobi_persistent&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>At this point, we can already use Pyomo and any mixed-integer linear programming solver to find optimal solutions to any instance of this problem. To illustrate this, let us solve a small instance with three generators:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">build_uc_model</span><span class="p">(</span>
+    <span class="n">UnitCommitmentData</span><span class="p">(</span>
+        <span class="n">demand</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+        <span class="n">pmin</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+        <span class="n">pmax</span><span class="o">=</span><span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">],</span>
+        <span class="n">cfix</span><span class="o">=</span><span class="p">[</span><span class="mi">700</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span>
+        <span class="n">cvar</span><span class="o">=</span><span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">],</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;obj =&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inner</span><span class="o">.</span><span class="n">obj</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x =&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">inner</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;y =&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">inner</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Restricted license - for non-production use only - expires 2024-10-28
+Set parameter QCPDual to value 1
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+
+Optimize a model with 7 rows, 6 columns and 15 nonzeros
+Model fingerprint: 0x15c7a953
+Variable types: 3 continuous, 3 integer (3 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 7e+01]
+  Objective range  [2e+00, 7e+02]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+02, 1e+02]
+Presolve removed 2 rows and 1 columns
+Presolve time: 0.00s
+Presolved: 5 rows, 5 columns, 13 nonzeros
+Variable types: 0 continuous, 5 integer (3 binary)
+Found heuristic solution: objective 1400.0000000
+
+Root relaxation: objective 1.035000e+03, 3 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 1035.00000    0    1 1400.00000 1035.00000  26.1%     -    0s
+     0     0 1105.71429    0    1 1400.00000 1105.71429  21.0%     -    0s
+*    0     0               0    1320.0000000 1320.00000  0.00%     -    0s
+
+Explored 1 nodes (5 simplex iterations) in 0.01 seconds (0.00 work units)
+Thread count was 20 (of 20 available processors)
+
+Solution count 2: 1320 1400
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 1.320000000000e+03, best bound 1.320000000000e+03, gap 0.0000%
+WARNING: Cannot get reduced costs for MIP.
+WARNING: Cannot get duals for MIP.
+obj = 1320.0
+x = [-0.0, 1.0, 1.0]
+y = [0.0, 60.0, 40.0]
+</pre></div></div>
+</div>
+<p>Running the code above, we found that the optimal solution for our small problem instance costs $1320. It is achieve by keeping generators 2 and 3 online and producing, respectively, 60 MW and 40 MW of power.</p>
+<div class="admonition note">
+<p class="admonition-title">Notes</p>
+<ul class="simple">
+<li><p>In the example above, <code class="docutils literal notranslate"><span class="pre">PyomoModel</span></code> is just a thin wrapper around a standard Pyomo model. This wrapper allows MIPLearn to be solver- and modeling-language-agnostic. The wrapper provides only a few basic methods, such as <code class="docutils literal notranslate"><span class="pre">optimize</span></code>. For more control, and to query the solution, the original Pyomo model can be accessed through <code class="docutils literal notranslate"><span class="pre">model.inner</span></code>, as illustrated above.</p></li>
+<li><p>To use CPLEX or XPRESS, instead of Gurobi, replace <code class="docutils literal notranslate"><span class="pre">gurobi_persistent</span></code> by <code class="docutils literal notranslate"><span class="pre">cplex_persistent</span></code> or <code class="docutils literal notranslate"><span class="pre">xpress_persistent</span></code> in the <code class="docutils literal notranslate"><span class="pre">build_uc_model</span></code>. Note that only persistent Pyomo solvers are currently supported. Pull requests adding support for other types of solver are very welcome.</p></li>
+</ul>
+</div>
+</section>
+<section id="Generating-training-data">
+<h2><span class="section-number">1.4. </span>Generating training data<a class="headerlink" href="#Generating-training-data" title="Link to this heading">¶</a></h2>
+<p>Although Gurobi could solve the small example above in a fraction of a second, it gets slower for larger and more complex versions of the problem. If this is a problem that needs to be solved frequently, as it is often the case in practice, it could make sense to spend some time upfront generating a <strong>trained</strong> solver, which can optimize new instances (similar to the ones it was trained on) faster.</p>
+<p>In the following, we will use MIPLearn to train machine learning models that is able to predict the optimal solution for instances that follow a given probability distribution, then it will provide this predicted solution to Gurobi as a warm start. Before we can train the model, we need to collect training data by solving a large number of instances. In real-world situations, we may construct these training instances based on historical data. In this tutorial, we will construct them using a
+random instance generator:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+
+<span class="k">def</span> <span class="nf">random_uc_data</span><span class="p">(</span><span class="n">samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">UnitCommitmentData</span><span class="p">]:</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">pmin</span> <span class="o">=</span> <span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">100_000.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">400_000.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">pmax</span> <span class="o">=</span> <span class="n">pmin</span> <span class="o">*</span> <span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">cfix</span> <span class="o">=</span> <span class="n">pmin</span> <span class="o">*</span> <span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">25.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">cvar</span> <span class="o">=</span> <span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">1.25</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">UnitCommitmentData</span><span class="p">(</span>
+            <span class="n">demand</span><span class="o">=</span><span class="n">pmax</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(),</span>
+            <span class="n">pmin</span><span class="o">=</span><span class="n">pmin</span><span class="p">,</span>
+            <span class="n">pmax</span><span class="o">=</span><span class="n">pmax</span><span class="p">,</span>
+            <span class="n">cfix</span><span class="o">=</span><span class="n">cfix</span><span class="p">,</span>
+            <span class="n">cvar</span><span class="o">=</span><span class="n">cvar</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+    <span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>In this example, for simplicity, only the demands change from one instance to the next. We could also have randomized the costs, production limits or even the number of units. The more randomization we have in the training data, however, the more challenging it is for the machine learning models to learn solution patterns.</p>
+<p>Now we generate 500 instances of this problem, each one with 50 generators, and we use 450 of these instances for training. After generating the instances, we write them to individual files. MIPLearn uses files during the training process because, for large-scale optimization problems, it is often impractical to hold in memory the entire training data, as well as the concrete Pyomo models. Files also make it much easier to solve multiple instances simultaneously, potentially on multiple
+machines. The code below generates the files <code class="docutils literal notranslate"><span class="pre">uc/train/00000.pkl.gz</span></code>, <code class="docutils literal notranslate"><span class="pre">uc/train/00001.pkl.gz</span></code>, etc., which contain the input data in compressed (gzipped) pickle format.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn.io</span> <span class="kn">import</span> <span class="n">write_pkl_gz</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">random_uc_data</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="n">write_pkl_gz</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">450</span><span class="p">],</span> <span class="s2">&quot;uc/train&quot;</span><span class="p">)</span>
+<span class="n">test_data</span> <span class="o">=</span> <span class="n">write_pkl_gz</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">450</span><span class="p">:</span><span class="mi">500</span><span class="p">],</span> <span class="s2">&quot;uc/test&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Finally, we use <code class="docutils literal notranslate"><span class="pre">BasicCollector</span></code> to collect the optimal solutions and other useful training data for all training instances. The data is stored in HDF5 files <code class="docutils literal notranslate"><span class="pre">uc/train/00000.h5</span></code>, <code class="docutils literal notranslate"><span class="pre">uc/train/00001.h5</span></code>, etc. The optimization models are also exported to compressed MPS files <code class="docutils literal notranslate"><span class="pre">uc/train/00000.mps.gz</span></code>, <code class="docutils literal notranslate"><span class="pre">uc/train/00001.mps.gz</span></code>, etc.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn.collectors.basic</span> <span class="kn">import</span> <span class="n">BasicCollector</span>
+
+<span class="n">bc</span> <span class="o">=</span> <span class="n">BasicCollector</span><span class="p">()</span>
+<span class="n">bc</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">build_uc_model</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Training-and-solving-test-instances">
+<h2><span class="section-number">1.5. </span>Training and solving test instances<a class="headerlink" href="#Training-and-solving-test-instances" title="Link to this heading">¶</a></h2>
+<p>With training data in hand, we can now design and train a machine learning model to accelerate solver performance. In this tutorial, for illustration purposes, we will use ML to generate a good warm start using <span class="math notranslate nohighlight">\(k\)</span>-nearest neighbors. More specifically, the strategy is to:</p>
+<ol class="arabic simple">
+<li><p>Memorize the optimal solutions of all training instances;</p></li>
+<li><p>Given a test instance, find the 25 most similar training instances, based on constraint right-hand sides;</p></li>
+<li><p>Merge their optimal solutions into a single partial solution; specifically, only assign values to the binary variables that agree unanimously.</p></li>
+<li><p>Provide this partial solution to the solver as a warm start.</p></li>
+</ol>
+<p>This simple strategy can be implemented as shown below, using <code class="docutils literal notranslate"><span class="pre">MemorizingPrimalComponent</span></code>. For more advanced strategies, and for the usage of more advanced classifiers, see the user guide.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="kn">import</span> <span class="n">KNeighborsClassifier</span>
+<span class="kn">from</span> <span class="nn">miplearn.components.primal.actions</span> <span class="kn">import</span> <span class="n">SetWarmStart</span>
+<span class="kn">from</span> <span class="nn">miplearn.components.primal.mem</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MemorizingPrimalComponent</span><span class="p">,</span>
+    <span class="n">MergeTopSolutions</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">miplearn.extractors.fields</span> <span class="kn">import</span> <span class="n">H5FieldsExtractor</span>
+
+<span class="n">comp</span> <span class="o">=</span> <span class="n">MemorizingPrimalComponent</span><span class="p">(</span>
+    <span class="n">clf</span><span class="o">=</span><span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="mi">25</span><span class="p">),</span>
+    <span class="n">extractor</span><span class="o">=</span><span class="n">H5FieldsExtractor</span><span class="p">(</span>
+        <span class="n">instance_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;static_constr_rhs&quot;</span><span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">constructor</span><span class="o">=</span><span class="n">MergeTopSolutions</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]),</span>
+    <span class="n">action</span><span class="o">=</span><span class="n">SetWarmStart</span><span class="p">(),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Having defined the ML strategy, we next construct <code class="docutils literal notranslate"><span class="pre">LearningSolver</span></code>, train the ML component and optimize one of the test instances.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn.solvers.learning</span> <span class="kn">import</span> <span class="n">LearningSolver</span>
+
+<span class="n">solver_ml</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="p">[</span><span class="n">comp</span><span class="p">])</span>
+<span class="n">solver_ml</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+<span class="n">solver_ml</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_uc_model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Set parameter QCPDual to value 1
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+
+Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros
+Model fingerprint: 0x5e67c6ee
+Coefficient statistics:
+  Matrix range     [1e+00, 2e+06]
+  Objective range  [1e+00, 6e+07]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [3e+08, 3e+08]
+Presolve removed 1000 rows and 500 columns
+Presolve time: 0.00s
+Presolved: 1 rows, 500 columns, 500 nonzeros
+
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0    6.6166537e+09   5.648803e+04   0.000000e+00      0s
+       1    8.2906219e+09   0.000000e+00   0.000000e+00      0s
+
+Solved in 1 iterations and 0.01 seconds (0.00 work units)
+Optimal objective  8.290621916e+09
+Set parameter QCPDual to value 1
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+
+Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros
+Model fingerprint: 0x4a7cfe2b
+Variable types: 500 continuous, 500 integer (500 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 2e+06]
+  Objective range  [1e+00, 6e+07]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [3e+08, 3e+08]
+
+User MIP start produced solution with objective 8.29153e+09 (0.01s)
+User MIP start produced solution with objective 8.29153e+09 (0.01s)
+Loaded user MIP start with objective 8.29153e+09
+
+Presolve time: 0.00s
+Presolved: 1001 rows, 1000 columns, 2500 nonzeros
+Variable types: 500 continuous, 500 integer (500 binary)
+
+Root relaxation: objective 8.290622e+09, 512 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 8.2906e+09    0    1 8.2915e+09 8.2906e+09  0.01%     -    0s
+     0     0 8.2907e+09    0    3 8.2915e+09 8.2907e+09  0.01%     -    0s
+     0     0 8.2907e+09    0    1 8.2915e+09 8.2907e+09  0.01%     -    0s
+     0     0 8.2907e+09    0    2 8.2915e+09 8.2907e+09  0.01%     -    0s
+
+Cutting planes:
+  Gomory: 1
+  Flow cover: 2
+
+Explored 1 nodes (565 simplex iterations) in 0.04 seconds (0.01 work units)
+Thread count was 20 (of 20 available processors)
+
+Solution count 1: 8.29153e+09
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 8.291528276179e+09, best bound 8.290733258025e+09, gap 0.0096%
+WARNING: Cannot get reduced costs for MIP.
+WARNING: Cannot get duals for MIP.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{}
+</pre></div></div>
+</div>
+<p>By examining the solve log above, specifically the line <code class="docutils literal notranslate"><span class="pre">Loaded</span> <span class="pre">user</span> <span class="pre">MIP</span> <span class="pre">start</span> <span class="pre">with</span> <span class="pre">objective...</span></code>, we can see that MIPLearn was able to construct an initial solution which turned out to be very close to the optimal solution to the problem. Now let us repeat the code above, but a solver which does not apply any ML strategies. Note that our previously-defined component is not provided.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">solver_baseline</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="p">[])</span>
+<span class="n">solver_baseline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+<span class="n">solver_baseline</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_uc_model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Set parameter QCPDual to value 1
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+
+Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros
+Model fingerprint: 0x5e67c6ee
+Coefficient statistics:
+  Matrix range     [1e+00, 2e+06]
+  Objective range  [1e+00, 6e+07]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [3e+08, 3e+08]
+Presolve removed 1000 rows and 500 columns
+Presolve time: 0.00s
+Presolved: 1 rows, 500 columns, 500 nonzeros
+
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0    6.6166537e+09   5.648803e+04   0.000000e+00      0s
+       1    8.2906219e+09   0.000000e+00   0.000000e+00      0s
+
+Solved in 1 iterations and 0.01 seconds (0.00 work units)
+Optimal objective  8.290621916e+09
+Set parameter QCPDual to value 1
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+
+Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros
+Model fingerprint: 0x8a0f9587
+Variable types: 500 continuous, 500 integer (500 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 2e+06]
+  Objective range  [1e+00, 6e+07]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [3e+08, 3e+08]
+Presolve time: 0.00s
+Presolved: 1001 rows, 1000 columns, 2500 nonzeros
+Variable types: 500 continuous, 500 integer (500 binary)
+Found heuristic solution: objective 9.757128e+09
+
+Root relaxation: objective 8.290622e+09, 512 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 8.2906e+09    0    1 9.7571e+09 8.2906e+09  15.0%     -    0s
+H    0     0                    8.298273e+09 8.2906e+09  0.09%     -    0s
+     0     0 8.2907e+09    0    4 8.2983e+09 8.2907e+09  0.09%     -    0s
+     0     0 8.2907e+09    0    1 8.2983e+09 8.2907e+09  0.09%     -    0s
+     0     0 8.2907e+09    0    4 8.2983e+09 8.2907e+09  0.09%     -    0s
+H    0     0                    8.293980e+09 8.2907e+09  0.04%     -    0s
+     0     0 8.2907e+09    0    5 8.2940e+09 8.2907e+09  0.04%     -    0s
+     0     0 8.2907e+09    0    1 8.2940e+09 8.2907e+09  0.04%     -    0s
+     0     0 8.2907e+09    0    2 8.2940e+09 8.2907e+09  0.04%     -    0s
+     0     0 8.2908e+09    0    1 8.2940e+09 8.2908e+09  0.04%     -    0s
+     0     0 8.2908e+09    0    4 8.2940e+09 8.2908e+09  0.04%     -    0s
+     0     0 8.2908e+09    0    4 8.2940e+09 8.2908e+09  0.04%     -    0s
+H    0     0                    8.291465e+09 8.2908e+09  0.01%     -    0s
+
+Cutting planes:
+  Gomory: 2
+  MIR: 1
+
+Explored 1 nodes (1025 simplex iterations) in 0.12 seconds (0.03 work units)
+Thread count was 20 (of 20 available processors)
+
+Solution count 4: 8.29147e+09 8.29398e+09 8.29827e+09 9.75713e+09
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 8.291465302389e+09, best bound 8.290781665333e+09, gap 0.0082%
+WARNING: Cannot get reduced costs for MIP.
+WARNING: Cannot get duals for MIP.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{}
+</pre></div></div>
+</div>
+<p>In the log above, the <code class="docutils literal notranslate"><span class="pre">MIP</span> <span class="pre">start</span></code> line is missing, and Gurobi had to start with a significantly inferior initial solution. The solver was still able to find the optimal solution at the end, but it required using its own internal heuristic procedures. In this example, because we solve very small optimization problems, there was almost no difference in terms of running time, but the difference can be significant for larger problems.</p>
+</section>
+<section id="Accessing-the-solution">
+<h2><span class="section-number">1.6. </span>Accessing the solution<a class="headerlink" href="#Accessing-the-solution" title="Link to this heading">¶</a></h2>
+<p>In the example above, we used <code class="docutils literal notranslate"><span class="pre">LearningSolver.solve</span></code> together with data files to solve both the training and the test instances. In the following example, we show how to build and solve a Pyomo model entirely in-memory, using our trained solver.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">random_uc_data</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">500</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_uc_model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">solver_ml</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;obj =&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inner</span><span class="o">.</span><span class="n">obj</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot; x =&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">inner</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot; y =&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">inner</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Set parameter QCPDual to value 1
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+
+Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros
+Model fingerprint: 0x2dfe4e1c
+Coefficient statistics:
+  Matrix range     [1e+00, 2e+06]
+  Objective range  [1e+00, 6e+07]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [3e+08, 3e+08]
+Presolve removed 1000 rows and 500 columns
+Presolve time: 0.00s
+Presolved: 1 rows, 500 columns, 500 nonzeros
+
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0    6.5917580e+09   5.627453e+04   0.000000e+00      0s
+       1    8.2535968e+09   0.000000e+00   0.000000e+00      0s
+
+Solved in 1 iterations and 0.01 seconds (0.00 work units)
+Optimal objective  8.253596777e+09
+Set parameter QCPDual to value 1
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+
+Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros
+Model fingerprint: 0x0f0924a1
+Variable types: 500 continuous, 500 integer (500 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 2e+06]
+  Objective range  [1e+00, 6e+07]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [3e+08, 3e+08]
+
+User MIP start produced solution with objective 8.25814e+09 (0.00s)
+User MIP start produced solution with objective 8.25512e+09 (0.01s)
+User MIP start produced solution with objective 8.25483e+09 (0.01s)
+User MIP start produced solution with objective 8.25483e+09 (0.01s)
+User MIP start produced solution with objective 8.25483e+09 (0.01s)
+User MIP start produced solution with objective 8.25459e+09 (0.01s)
+User MIP start produced solution with objective 8.25459e+09 (0.01s)
+Loaded user MIP start with objective 8.25459e+09
+
+Presolve time: 0.00s
+Presolved: 1001 rows, 1000 columns, 2500 nonzeros
+Variable types: 500 continuous, 500 integer (500 binary)
+
+Root relaxation: objective 8.253597e+09, 512 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 8.2536e+09    0    1 8.2546e+09 8.2536e+09  0.01%     -    0s
+     0     0 8.2537e+09    0    3 8.2546e+09 8.2537e+09  0.01%     -    0s
+     0     0 8.2537e+09    0    1 8.2546e+09 8.2537e+09  0.01%     -    0s
+     0     0 8.2537e+09    0    4 8.2546e+09 8.2537e+09  0.01%     -    0s
+     0     0 8.2537e+09    0    4 8.2546e+09 8.2537e+09  0.01%     -    0s
+     0     0 8.2538e+09    0    4 8.2546e+09 8.2538e+09  0.01%     -    0s
+     0     0 8.2538e+09    0    5 8.2546e+09 8.2538e+09  0.01%     -    0s
+     0     0 8.2538e+09    0    6 8.2546e+09 8.2538e+09  0.01%     -    0s
+
+Cutting planes:
+  Cover: 1
+  MIR: 2
+  StrongCG: 1
+  Flow cover: 1
+
+Explored 1 nodes (575 simplex iterations) in 0.09 seconds (0.01 work units)
+Thread count was 20 (of 20 available processors)
+
+Solution count 4: 8.25459e+09 8.25483e+09 8.25512e+09 8.25814e+09
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 8.254590409970e+09, best bound 8.253768093811e+09, gap 0.0100%
+WARNING: Cannot get reduced costs for MIP.
+WARNING: Cannot get duals for MIP.
+obj = 8254590409.96973
+ x = [1.0, 1.0, 0.0, 1.0, 1.0]
+ y = [935662.0949262811, 1604270.0218116897, 0.0, 1369560.835229226, 602828.5321028307]
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="../../" title="previous page">MIPLearn</a>
+    <a class='right-next' id="next-link" href="../getting-started-gurobipy/" title="next page"><span class="section-number">2. </span>Getting started (Gurobipy)</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

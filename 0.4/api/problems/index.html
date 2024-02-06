@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>10. Benchmark Problems &#8212; MIPLearn 0.4</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css?v=b0dfe17c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f8244a84" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script src="../../_static/documentation_options.js?v=751a5dd3"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js?v=7c4c3336"></script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="11. Collectors &amp; Extractors" href="../collectors/" />
+    <link rel="prev" title="9. Learning Solver" href="../../guide/solvers/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn 0.4</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <p class="caption" role="heading">
+ <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-pyomo/">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/cuts-gurobipy/">
+   4. User cuts and lazy constraints
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  User Guide
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/problems/">
+   5. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/collectors/">
+   6. Training Data Collectors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/features/">
+   7. Feature Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/primal/">
+   8. Primal Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/solvers/">
+   9. Learning Solver
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Python API Reference
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   10. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../collectors/">
+   11. Collectors &amp; Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../components/">
+   12. Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../solvers/">
+   13. Solvers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../helpers/">
+   14. Helpers
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../../_sources/api/problems.rst.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.rst</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.problems.binpack">
+   10.1. miplearn.problems.binpack
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.binpack.BinPackData">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       BinPackData
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.binpack.BinPackGenerator">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       BinPackGenerator
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#miplearn.problems.binpack.BinPackGenerator.generate">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BinPackGenerator.generate()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.binpack.build_binpack_model_gurobipy">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       build_binpack_model_gurobipy()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.problems.multiknapsack">
+   10.2. miplearn.problems.multiknapsack
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.multiknapsack.MultiKnapsackData">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MultiKnapsackData
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.multiknapsack.MultiKnapsackGenerator">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MultiKnapsackGenerator
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.multiknapsack.build_multiknapsack_model_gurobipy">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       build_multiknapsack_model_gurobipy()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.problems.pmedian">
+   10.3. miplearn.problems.pmedian
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.pmedian.PMedianData">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       PMedianData
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.pmedian.PMedianGenerator">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       PMedianGenerator
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.pmedian.build_pmedian_model_gurobipy">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       build_pmedian_model_gurobipy()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.problems.setcover">
+   10.4. miplearn.problems.setcover
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.setcover.SetCoverData">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SetCoverData
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.problems.setpack">
+   10.5. miplearn.problems.setpack
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.setpack.SetPackData">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SetPackData
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.problems.stab">
+   10.6. miplearn.problems.stab
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.stab.MaxWeightStableSetData">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MaxWeightStableSetData
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.stab.MaxWeightStableSetGenerator">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MaxWeightStableSetGenerator
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.problems.tsp">
+   10.7. miplearn.problems.tsp
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.tsp.TravelingSalesmanData">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TravelingSalesmanData
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.tsp.TravelingSalesmanGenerator">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TravelingSalesmanGenerator
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.problems.uc">
+   10.8. miplearn.problems.uc
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.uc.UnitCommitmentData">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       UnitCommitmentData
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.uc.build_uc_model_gurobipy">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       build_uc_model_gurobipy()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-miplearn.problems.vertexcover">
+   10.9. miplearn.problems.vertexcover
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#miplearn.problems.vertexcover.MinWeightVertexCoverData">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MinWeightVertexCoverData
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <section id="benchmark-problems">
+<h1><span class="section-number">10. </span>Benchmark Problems<a class="headerlink" href="#benchmark-problems" title="Link to this heading">¶</a></h1>
+<section id="module-miplearn.problems.binpack">
+<span id="miplearn-problems-binpack"></span><h2><span class="section-number">10.1. </span>miplearn.problems.binpack<a class="headerlink" href="#module-miplearn.problems.binpack" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.binpack.BinPackData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.binpack.</span></span><span class="sig-name descname"><span class="pre">BinPackData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.binpack.BinPackData" title="Link to this definition">¶</a></dt>
+<dd><p>Data for the bin packing problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sizes</strong> (<em>numpy.ndarray</em>) – Sizes of the items</p></li>
+<li><p><strong>capacity</strong> (<em>int</em>) – Capacity of the bin</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.binpack.BinPackGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.binpack.</span></span><span class="sig-name descname"><span class="pre">BinPackGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">rv_frozen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">rv_frozen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">rv_frozen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizes_jitter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">rv_frozen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity_jitter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">rv_frozen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.binpack.BinPackGenerator" title="Link to this definition">¶</a></dt>
+<dd><p>Random instance generator for the bin packing problem.</p>
+<p>If <cite>fix_items=False</cite>, the class samples the user-provided probability distributions
+n, sizes and capacity to decide, respectively, the number of items, the sizes of
+the items and capacity of the bin. All values are sampled independently.</p>
+<p>If <cite>fix_items=True</cite>, the class creates a reference instance, using the method
+previously described, then generates additional instances by perturbing its item
+sizes and bin capacity. More specifically, the sizes of the items are set to <cite>s_i
+* gamma_i</cite> where <cite>s_i</cite> is the size of the i-th item in the reference instance and
+<cite>gamma_i</cite> is sampled from <cite>sizes_jitter</cite>. Similarly, the bin capacity is set to <cite>B *
+beta</cite>, where <cite>B</cite> is the reference bin capacity and <cite>beta</cite> is sampled from
+<cite>capacity_jitter</cite>. The number of items remains the same across all generated
+instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> – Probability distribution for the number of items.</p></li>
+<li><p><strong>sizes</strong> – Probability distribution for the item sizes.</p></li>
+<li><p><strong>capacity</strong> – Probability distribution for the bin capacity.</p></li>
+<li><p><strong>sizes_jitter</strong> – Probability distribution for the item size randomization.</p></li>
+<li><p><strong>capacity_jitter</strong> – Probability distribution for the bin capacity.</p></li>
+<li><p><strong>fix_items</strong> – If <cite>True</cite>, generates a reference instance, then applies some perturbation to it.
+If <cite>False</cite>, generates completely different instances.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="miplearn.problems.binpack.BinPackGenerator.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#miplearn.problems.binpack.BinPackData" title="miplearn.problems.binpack.BinPackData"><span class="pre">BinPackData</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#miplearn.problems.binpack.BinPackGenerator.generate" title="Link to this definition">¶</a></dt>
+<dd><p>Generates random instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n_samples</strong> – Number of samples to generate.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="miplearn.problems.binpack.build_binpack_model_gurobipy">
+<span class="sig-prename descclassname"><span class="pre">miplearn.problems.binpack.</span></span><span class="sig-name descname"><span class="pre">build_binpack_model_gurobipy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#miplearn.problems.binpack.BinPackData" title="miplearn.problems.binpack.BinPackData"><span class="pre">BinPackData</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../solvers/#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">GurobiModel</span></a></span></span><a class="headerlink" href="#miplearn.problems.binpack.build_binpack_model_gurobipy" title="Link to this definition">¶</a></dt>
+<dd><p>Converts bin packing problem data into a concrete Gurobipy model.</p>
+</dd></dl>
+
+</section>
+<section id="module-miplearn.problems.multiknapsack">
+<span id="miplearn-problems-multiknapsack"></span><h2><span class="section-number">10.2. </span>miplearn.problems.multiknapsack<a class="headerlink" href="#module-miplearn.problems.multiknapsack" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.multiknapsack.MultiKnapsackData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.multiknapsack.</span></span><span class="sig-name descname"><span class="pre">MultiKnapsackData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.multiknapsack.MultiKnapsackData" title="Link to this definition">¶</a></dt>
+<dd><p>Data for the multi-dimensional knapsack problem</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prices</strong> (<em>numpy.ndarray</em>) – Item prices.</p></li>
+<li><p><strong>capacities</strong> (<em>numpy.ndarray</em>) – Knapsack capacities.</p></li>
+<li><p><strong>weights</strong> (<em>numpy.ndarray</em>) – Matrix of item weights.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.multiknapsack.MultiKnapsackGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.multiknapsack.</span></span><span class="sig-name descname"><span class="pre">MultiKnapsackGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_discrete_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_discrete_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_discrete_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_discrete_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_w:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_jitter:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_jitter:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.multiknapsack.MultiKnapsackGenerator" title="Link to this definition">¶</a></dt>
+<dd><p>Random instance generator for the multi-dimensional knapsack problem.</p>
+<p>Instances have a random number of items (or variables) and a random number of
+knapsacks (or constraints), as specified by the provided probability
+distributions <cite>n</cite> and <cite>m</cite>, respectively. The weight of each item <cite>i</cite> on knapsack
+<cite>j</cite> is sampled independently from the provided distribution <cite>w</cite>. The capacity of
+knapsack <cite>j</cite> is set to <code class="docutils literal notranslate"><span class="pre">alpha_j</span> <span class="pre">*</span> <span class="pre">sum(w[i,j]</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(n))</span></code>,
+where <cite>alpha_j</cite>, the tightness ratio, is sampled from the provided probability
+distribution <cite>alpha</cite>.</p>
+<p>To make the instances more challenging, the costs of the items are linearly
+correlated to their average weights. More specifically, the weight of each item
+<cite>i</cite> is set to <code class="docutils literal notranslate"><span class="pre">sum(w[i,j]/m</span> <span class="pre">for</span> <span class="pre">j</span> <span class="pre">in</span> <span class="pre">range(m))</span> <span class="pre">+</span> <span class="pre">K</span> <span class="pre">*</span> <span class="pre">u_i</span></code>, where <cite>K</cite>,
+the correlation coefficient, and <cite>u_i</cite>, the correlation multiplier, are sampled
+from the provided probability distributions. Note that <cite>K</cite> is only sample once
+for the entire instance.</p>
+<p>If <cite>fix_w=True</cite>, then <cite>weights[i,j]</cite> are kept the same in all generated
+instances. This also implies that n and m are kept fixed. Although the prices and
+capacities are derived from <cite>weights[i,j]</cite>, as long as <cite>u</cite> and <cite>K</cite> are not
+constants, the generated instances will still not be completely identical.</p>
+<p>If a probability distribution <cite>w_jitter</cite> is provided, then item weights will be
+set to <code class="docutils literal notranslate"><span class="pre">w[i,j]</span> <span class="pre">*</span> <span class="pre">gamma[i,j]</span></code> where <cite>gamma[i,j]</cite> is sampled from <cite>w_jitter</cite>.
+When combined with <cite>fix_w=True</cite>, this argument may be used to generate instances
+where the weight of each item is roughly the same, but not exactly identical,
+across all instances. The prices of the items and the capacities of the knapsacks
+will be calculated as above, but using these perturbed weights instead.</p>
+<p>By default, all generated prices, weights and capacities are rounded to the
+nearest integer number. If <cite>round=False</cite> is provided, this rounding will be
+disabled.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>rv_discrete</em>) – Probability distribution for the number of items (or variables).</p></li>
+<li><p><strong>m</strong> (<em>rv_discrete</em>) – Probability distribution for the number of knapsacks (or constraints).</p></li>
+<li><p><strong>w</strong> (<em>rv_continuous</em>) – Probability distribution for the item weights.</p></li>
+<li><p><strong>K</strong> (<em>rv_continuous</em>) – Probability distribution for the profit correlation coefficient.</p></li>
+<li><p><strong>u</strong> (<em>rv_continuous</em>) – Probability distribution for the profit multiplier.</p></li>
+<li><p><strong>alpha</strong> (<em>rv_continuous</em>) – Probability distribution for the tightness ratio.</p></li>
+<li><p><strong>fix_w</strong> (<em>boolean</em>) – If true, weights are kept the same (minus the noise from w_jitter) in all
+instances.</p></li>
+<li><p><strong>w_jitter</strong> (<em>rv_continuous</em>) – Probability distribution for random noise added to the weights.</p></li>
+<li><p><strong>round</strong> (<em>boolean</em>) – If true, all prices, weights and capacities are rounded to the nearest
+integer.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="miplearn.problems.multiknapsack.build_multiknapsack_model_gurobipy">
+<span class="sig-prename descclassname"><span class="pre">miplearn.problems.multiknapsack.</span></span><span class="sig-name descname"><span class="pre">build_multiknapsack_model_gurobipy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#miplearn.problems.multiknapsack.MultiKnapsackData" title="miplearn.problems.multiknapsack.MultiKnapsackData"><span class="pre">MultiKnapsackData</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../solvers/#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">GurobiModel</span></a></span></span><a class="headerlink" href="#miplearn.problems.multiknapsack.build_multiknapsack_model_gurobipy" title="Link to this definition">¶</a></dt>
+<dd><p>Converts multi-knapsack problem data into a concrete Gurobipy model.</p>
+</dd></dl>
+
+</section>
+<section id="module-miplearn.problems.pmedian">
+<span id="miplearn-problems-pmedian"></span><h2><span class="section-number">10.3. </span>miplearn.problems.pmedian<a class="headerlink" href="#module-miplearn.problems.pmedian" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.pmedian.PMedianData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.pmedian.</span></span><span class="sig-name descname"><span class="pre">PMedianData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.pmedian.PMedianData" title="Link to this definition">¶</a></dt>
+<dd><p>Data for the capacitated p-median problem</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distances</strong> (<em>numpy.ndarray</em>) – Matrix of distances between customer i and facility j.</p></li>
+<li><p><strong>demands</strong> (<em>numpy.ndarray</em>) – Customer demands.</p></li>
+<li><p><strong>p</strong> (<em>int</em>) – Number of medians that need to be chosen.</p></li>
+<li><p><strong>capacities</strong> (<em>numpy.ndarray</em>) – Facility capacities.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.pmedian.PMedianGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.pmedian.</span></span><span class="sig-name descname"><span class="pre">PMedianGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_discrete_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_discrete_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demands:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distances_jitter:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demands_jitter:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities_jitter:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.pmedian.PMedianGenerator" title="Link to this definition">¶</a></dt>
+<dd><p>Random generator for the capacitated p-median problem.</p>
+<p>This class first decides the number of customers and the parameter <cite>p</cite> by
+sampling the provided <cite>n</cite> and <cite>p</cite> distributions, respectively. Then, for each
+customer <cite>i</cite>, the class builds its geographical location <cite>(xi, yi)</cite> by sampling
+the provided <cite>x</cite> and <cite>y</cite> distributions. For each <cite>i</cite>, the demand for customer <cite>i</cite>
+and the capacity of facility <cite>i</cite> are decided by sampling the distributions
+<cite>demands</cite> and <cite>capacities</cite>, respectively. Finally, the costs <cite>w[i,j]</cite> are set to
+the Euclidean distance between the locations of customers <cite>i</cite> and <cite>j</cite>.</p>
+<p>If <cite>fixed=True</cite>, then the number of customers, their locations, the parameter
+<cite>p</cite>, the demands and the capacities are only sampled from their respective
+distributions exactly once, to build a reference instance which is then
+perturbed. Specifically, for each perturbation, the distances, demands and
+capacities are multiplied by factors sampled from the distributions
+<cite>distances_jitter</cite>, <cite>demands_jitter</cite> and <cite>capacities_jitter</cite>, respectively. The
+result is a list of instances that have the same set of customers, but slightly
+different demands, capacities and distances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Probability distribution for the x-coordinate of the points.</p></li>
+<li><p><strong>y</strong> – Probability distribution for the y-coordinate of the points.</p></li>
+<li><p><strong>n</strong> – Probability distribution for the number of customer.</p></li>
+<li><p><strong>p</strong> – Probability distribution for the number of medians.</p></li>
+<li><p><strong>demands</strong> – Probability distribution for the customer demands.</p></li>
+<li><p><strong>capacities</strong> – Probability distribution for the facility capacities.</p></li>
+<li><p><strong>distances_jitter</strong> – Probability distribution for the random scaling factor applied to distances.</p></li>
+<li><p><strong>demands_jitter</strong> – Probability distribution for the random scaling factor applied to demands.</p></li>
+<li><p><strong>capacities_jitter</strong> – Probability distribution for the random scaling factor applied to capacities.</p></li>
+<li><p><strong>fixed</strong> – If <cite>True</cite>, then customer are kept the same across instances.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="miplearn.problems.pmedian.build_pmedian_model_gurobipy">
+<span class="sig-prename descclassname"><span class="pre">miplearn.problems.pmedian.</span></span><span class="sig-name descname"><span class="pre">build_pmedian_model_gurobipy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#miplearn.problems.pmedian.PMedianData" title="miplearn.problems.pmedian.PMedianData"><span class="pre">PMedianData</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../solvers/#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">GurobiModel</span></a></span></span><a class="headerlink" href="#miplearn.problems.pmedian.build_pmedian_model_gurobipy" title="Link to this definition">¶</a></dt>
+<dd><p>Converts capacitated p-median data into a concrete Gurobipy model.</p>
+</dd></dl>
+
+</section>
+<section id="module-miplearn.problems.setcover">
+<span id="miplearn-problems-setcover"></span><h2><span class="section-number">10.4. </span>miplearn.problems.setcover<a class="headerlink" href="#module-miplearn.problems.setcover" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.setcover.SetCoverData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.setcover.</span></span><span class="sig-name descname"><span class="pre">SetCoverData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incidence_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.setcover.SetCoverData" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-miplearn.problems.setpack">
+<span id="miplearn-problems-setpack"></span><h2><span class="section-number">10.5. </span>miplearn.problems.setpack<a class="headerlink" href="#module-miplearn.problems.setpack" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.setpack.SetPackData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.setpack.</span></span><span class="sig-name descname"><span class="pre">SetPackData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incidence_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.setpack.SetPackData" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-miplearn.problems.stab">
+<span id="miplearn-problems-stab"></span><h2><span class="section-number">10.6. </span>miplearn.problems.stab<a class="headerlink" href="#module-miplearn.problems.stab" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.stab.MaxWeightStableSetData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.stab.</span></span><span class="sig-name descname"><span class="pre">MaxWeightStableSetData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">networkx.classes.graph.Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.stab.MaxWeightStableSetData" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.stab.MaxWeightStableSetGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.stab.</span></span><span class="sig-name descname"><span class="pre">MaxWeightStableSetGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_discrete_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_graph:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.stab.MaxWeightStableSetGenerator" title="Link to this definition">¶</a></dt>
+<dd><p>Random instance generator for the Maximum-Weight Stable Set Problem.</p>
+<p>The generator has two modes of operation. When <cite>fix_graph=True</cite> is provided,
+one random Erdős-Rényi graph $G_{n,p}$ is generated in the constructor, where $n$
+and $p$ are sampled from user-provided probability distributions <cite>n</cite> and <cite>p</cite>. To
+generate each instance, the generator independently samples each $w_v$ from the
+user-provided probability distribution <cite>w</cite>.</p>
+<p>When <cite>fix_graph=False</cite>, a new random graph is generated for each instance; the
+remaining parameters are sampled in the same way.</p>
+</dd></dl>
+
+</section>
+<section id="module-miplearn.problems.tsp">
+<span id="miplearn-problems-tsp"></span><h2><span class="section-number">10.7. </span>miplearn.problems.tsp<a class="headerlink" href="#module-miplearn.problems.tsp" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.tsp.TravelingSalesmanData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.tsp.</span></span><span class="sig-name descname"><span class="pre">TravelingSalesmanData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_cities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.tsp.TravelingSalesmanData" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.tsp.TravelingSalesmanGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.tsp.</span></span><span class="sig-name descname"><span class="pre">TravelingSalesmanGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_discrete_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma:</span> <span class="pre">~scipy.stats._distn_infrastructure.rv_frozen</span> <span class="pre">=</span> <span class="pre">&lt;scipy.stats._distn_infrastructure.rv_continuous_frozen</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_cities:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.tsp.TravelingSalesmanGenerator" title="Link to this definition">¶</a></dt>
+<dd><p>Random generator for the Traveling Salesman Problem.</p>
+</dd></dl>
+
+</section>
+<section id="module-miplearn.problems.uc">
+<span id="miplearn-problems-uc"></span><h2><span class="section-number">10.8. </span>miplearn.problems.uc<a class="headerlink" href="#module-miplearn.problems.uc" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.uc.UnitCommitmentData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.uc.</span></span><span class="sig-name descname"><span class="pre">UnitCommitmentData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">demand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_uptime</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_downtime</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_startup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_prod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_fixed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.uc.UnitCommitmentData" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="miplearn.problems.uc.build_uc_model_gurobipy">
+<span class="sig-prename descclassname"><span class="pre">miplearn.problems.uc.</span></span><span class="sig-name descname"><span class="pre">build_uc_model_gurobipy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#miplearn.problems.uc.UnitCommitmentData" title="miplearn.problems.uc.UnitCommitmentData"><span class="pre">UnitCommitmentData</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../solvers/#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">GurobiModel</span></a></span></span><a class="headerlink" href="#miplearn.problems.uc.build_uc_model_gurobipy" title="Link to this definition">¶</a></dt>
+<dd><p>Models the unit commitment problem according to equations (1)-(5) of:</p>
+<blockquote>
+<div><p>Bendotti, P., Fouilhoux, P. &amp; Rottner, C. The min-up/min-down unit
+commitment polytope. J Comb Optim 36, 1024-1058 (2018).
+<a class="reference external" href="https://doi.org/10.1007/s10878-018-0273-y">https://doi.org/10.1007/s10878-018-0273-y</a></p>
+</div></blockquote>
+</dd></dl>
+
+</section>
+<section id="module-miplearn.problems.vertexcover">
+<span id="miplearn-problems-vertexcover"></span><h2><span class="section-number">10.9. </span>miplearn.problems.vertexcover<a class="headerlink" href="#module-miplearn.problems.vertexcover" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="miplearn.problems.vertexcover.MinWeightVertexCoverData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.problems.vertexcover.</span></span><span class="sig-name descname"><span class="pre">MinWeightVertexCoverData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">networkx.classes.graph.Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.problems.vertexcover.MinWeightVertexCoverData" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="../../guide/solvers/" title="previous page"><span class="section-number">9. </span>Learning Solver</a>
+    <a class='right-next' id="next-link" href="../collectors/" title="next page"><span class="section-number">11. </span>Collectors &amp; Extractors</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

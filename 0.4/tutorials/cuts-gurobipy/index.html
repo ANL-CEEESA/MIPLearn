@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>4. User cuts and lazy constraints &#8212; MIPLearn 0.4</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css?v=b0dfe17c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f8244a84" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script src="../../_static/documentation_options.js?v=751a5dd3"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js?v=7c4c3336"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="5. Benchmark Problems" href="../../guide/problems/" />
+    <link rel="prev" title="3. Getting started (JuMP)" href="../getting-started-jump/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn 0.4</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <p class="caption" role="heading">
+ <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../getting-started-pyomo/">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   4. User cuts and lazy constraints
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  User Guide
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/problems/">
+   5. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/collectors/">
+   6. Training Data Collectors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/features/">
+   7. Feature Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/primal/">
+   8. Primal Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../guide/solvers/">
+   9. Learning Solver
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Python API Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/problems/">
+   10. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/collectors/">
+   11. Collectors &amp; Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/components/">
+   12. Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/solvers/">
+   13. Solvers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/helpers/">
+   14. Helpers
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../../_sources/tutorials/cuts-gurobipy.ipynb.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Modeling-the-traveling-salesman-problem">
+   4.1. Modeling the traveling salesman problem
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Generating-training-data">
+   4.2. Generating training data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Training-and-solving-new-instances">
+   4.3. Training and solving new instances
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Learning-user-cuts">
+   4.4. Learning user cuts
+  </a>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <section id="User-cuts-and-lazy-constraints">
+<h1><span class="section-number">4. </span>User cuts and lazy constraints<a class="headerlink" href="#User-cuts-and-lazy-constraints" title="Link to this heading">¶</a></h1>
+<p>User cuts and lazy constraints are two advanced mixed-integer programming techniques that can accelerate solver performance. User cuts are additional constraints, derived from the constraints already in the model, that can tighten the feasible region and eliminate fractional solutions, thus reducing the size of the branch-and-bound tree. Lazy constraints, on the other hand, are constraints that are potentially part of the problem formulation but are omitted from the initial model to reduce its
+size; these constraints are added to the formulation only once the solver finds a solution that violates them. While both techniques have been successful, significant computational effort may still be required to generate strong user cuts and to identify violated lazy constraints, which can reduce their effectiveness.</p>
+<p>MIPLearn is able to predict which user cuts and which lazy constraints to enforce at the beginning of the optimization process, using machine learning. In this tutorial, we will use the framework to predict subtour elimination constraints for the <strong>traveling salesman problem</strong> using Gurobipy. We assume that MIPLearn has already been correctly installed.</p>
+<div class="admonition note">
+<p class="admonition-title">Solver Compatibility</p>
+<p>User cuts and lazy constraints are also supported in the Python/Pyomo and Julia/JuMP versions of the package. See the source code of build_tsp_model_pyomo and build_tsp_model_jump for more details. Note, however, the following limitations:</p>
+<ul class="simple">
+<li><p>Python/Pyomo: Only <code class="docutils literal notranslate"><span class="pre">gurobi_persistent</span></code> is currently supported. PRs implementing callbacks for other persistent solvers are welcome.</p></li>
+<li><p>Julia/JuMP: Only solvers supporting solver-independent callbacks are supported. As of JuMP 1.19, this includes Gurobi, CPLEX, XPRESS, SCIP and GLPK. Note that HiGHS and Cbc are not supported. As newer versions of JuMP implement further callback support, MIPLearn should become automatically compatible with these solvers.</p></li>
+</ul>
+</div>
+<section id="Modeling-the-traveling-salesman-problem">
+<h2><span class="section-number">4.1. </span>Modeling the traveling salesman problem<a class="headerlink" href="#Modeling-the-traveling-salesman-problem" title="Link to this heading">¶</a></h2>
+<p>Given a list of cities and the distances between them, the <strong>traveling salesman problem (TSP)</strong> asks for the shortest route starting at the first city, visiting each other city exactly once, then returning to the first city. This problem is a generalization of the Hamiltonian path problem, one of Karp’s 21 NP-complete problems, and has many practical applications, including routing delivery trucks and scheduling airline routes.</p>
+<p>To describe an instance of TSP, we need to specify the number of cities <span class="math notranslate nohighlight">\(n\)</span>, and an <span class="math notranslate nohighlight">\(n \times n\)</span> matrix of distances. The class <code class="docutils literal notranslate"><span class="pre">TravelingSalesmanData</span></code>, in the <code class="docutils literal notranslate"><span class="pre">miplearn.problems.tsp</span></code> package, can hold this data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">TravelingSalesmanData</span><span class="p">:</span>
+    <span class="n">n_cities</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">distances</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+</pre></div>
+</div>
+<p>MIPLearn also provides <code class="docutils literal notranslate"><span class="pre">TravelingSalesmandGenerator</span></code>, a random generator for TSP instances, and <code class="docutils literal notranslate"><span class="pre">build_tsp_model_gurobipy</span></code>, a function which converts <code class="docutils literal notranslate"><span class="pre">TravelingSalesmanData</span></code> into an actual gurobipy optimization model, and which uses lazy constraints to enforce subtour elimination.</p>
+<p>The example below is a simplified and annotated version of <code class="docutils literal notranslate"><span class="pre">build_tsp_model_gurobipy</span></code>, illustrating the usage of callbacks with MIPLearn. Compared the the previous tutorial examples, note that, in addition to defining the variables, objective function and constraints of our problem, we also define two callback functions <code class="docutils literal notranslate"><span class="pre">lazy_separate</span></code> and <code class="docutils literal notranslate"><span class="pre">lazy_enforce</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gurobipy</span> <span class="k">as</span> <span class="nn">gp</span>
+<span class="kn">from</span> <span class="nn">gurobipy</span> <span class="kn">import</span> <span class="n">quicksum</span><span class="p">,</span> <span class="n">GRB</span><span class="p">,</span> <span class="n">tuplelist</span>
+<span class="kn">from</span> <span class="nn">miplearn.solvers.gurobi</span> <span class="kn">import</span> <span class="n">GurobiModel</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.tsp</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TravelingSalesmanData</span><span class="p">,</span>
+    <span class="n">TravelingSalesmanGenerator</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">miplearn.io</span> <span class="kn">import</span> <span class="n">write_pkl_gz</span><span class="p">,</span> <span class="n">read_pkl_gz</span>
+<span class="kn">from</span> <span class="nn">miplearn.collectors.basic</span> <span class="kn">import</span> <span class="n">BasicCollector</span>
+<span class="kn">from</span> <span class="nn">miplearn.solvers.learning</span> <span class="kn">import</span> <span class="n">LearningSolver</span>
+<span class="kn">from</span> <span class="nn">miplearn.components.lazy.mem</span> <span class="kn">import</span> <span class="n">MemorizingLazyComponent</span>
+<span class="kn">from</span> <span class="nn">miplearn.extractors.fields</span> <span class="kn">import</span> <span class="n">H5FieldsExtractor</span>
+<span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="kn">import</span> <span class="n">KNeighborsClassifier</span>
+
+<span class="c1"># Set up random seed to make example more reproducible</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Set up Python logging</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">build_tsp_model_gurobipy_simplified</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="c1"># Read data from file if a filename is provided</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">read_pkl_gz</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1"># Create empty gurobipy model</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span>
+
+    <span class="c1"># Create set of edges between every pair of cities, for convenience</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">tuplelist</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">n_cities</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">n_cities</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Add binary variable x[e] for each edge e</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">addVars</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">vtype</span><span class="o">=</span><span class="n">GRB</span><span class="o">.</span><span class="n">BINARY</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Add objective function</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">setObjective</span><span class="p">(</span><span class="n">quicksum</span><span class="p">(</span><span class="n">x</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)]</span> <span class="o">*</span> <span class="n">data</span><span class="o">.</span><span class="n">distances</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">))</span>
+
+    <span class="c1"># Add constraint: must choose two edges adjacent to each city</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">addConstrs</span><span class="p">(</span>
+        <span class="p">(</span>
+            <span class="n">quicksum</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">n_cities</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">)</span>
+            <span class="o">==</span> <span class="mi">2</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">n_cities</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;eq_degree&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">lazy_separate</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="n">GurobiModel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Callback function that finds subtours in the current solution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Query current value of the x variables</span>
+        <span class="n">x_val</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">inner</span><span class="o">.</span><span class="n">cbGetSolution</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Initialize empty set of violations</span>
+        <span class="n">violations</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Build set of edges we have currently selected</span>
+        <span class="n">selected_edges</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">edges</span> <span class="k">if</span> <span class="n">x_val</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">]</span>
+
+        <span class="c1"># Build a graph containing the selected edges, using networkx</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">selected_edges</span><span class="p">)</span>
+
+        <span class="c1"># For each component of the graph</span>
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">connected_components</span><span class="p">(</span><span class="n">graph</span><span class="p">)):</span>
+
+            <span class="c1"># If the component is not the entire graph, we found a</span>
+            <span class="c1"># subtour. Add the edge cut to the list of violations.</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">component</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">data</span><span class="o">.</span><span class="n">n_cities</span><span class="p">:</span>
+                <span class="n">cut_edges</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">edges</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">component</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">component</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">component</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">component</span><span class="p">)</span>
+                <span class="p">]</span>
+                <span class="n">violations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cut_edges</span><span class="p">)</span>
+
+        <span class="c1"># Return the list of violations</span>
+        <span class="k">return</span> <span class="n">violations</span>
+
+    <span class="k">def</span> <span class="nf">lazy_enforce</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="n">GurobiModel</span><span class="p">,</span> <span class="n">violations</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Callback function that, given a list of subtours, adds lazy</span>
+<span class="sd">        constraints to remove them from the feasible region.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Enforcing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">violations</span><span class="p">)</span><span class="si">}</span><span class="s2"> subtour elimination constraints&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">violation</span> <span class="ow">in</span> <span class="n">violations</span><span class="p">:</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">add_constr</span><span class="p">(</span><span class="n">quicksum</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">violation</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">GurobiModel</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">lazy_separate</span><span class="o">=</span><span class="n">lazy_separate</span><span class="p">,</span>
+        <span class="n">lazy_enforce</span><span class="o">=</span><span class="n">lazy_enforce</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">lazy_separate</span></code> function starts by querying the current fractional solution value through <code class="docutils literal notranslate"><span class="pre">m.inner.cbGetSolution</span></code> (recall that <code class="docutils literal notranslate"><span class="pre">m.inner</span></code> is a regular gurobipy model), then finds the set of violated lazy constraints. Unlike a regular lazy constraint solver callback, note that <code class="docutils literal notranslate"><span class="pre">lazy_separate</span></code> does not add the violated constraints to the model; it simply returns a list of objects that uniquely identifies the set of lazy constraints that should be generated. Enforcing the constraints is
+the responsbility of the second callback function, <code class="docutils literal notranslate"><span class="pre">lazy_enforce</span></code>. This function takes as input the model and the list of violations found by <code class="docutils literal notranslate"><span class="pre">lazy_separate</span></code>, converts them into actual constraints, and adds them to the model through <code class="docutils literal notranslate"><span class="pre">m.add_constr</span></code>.</p>
+<p>During training data generation, MIPLearn calls <code class="docutils literal notranslate"><span class="pre">lazy_separate</span></code> and <code class="docutils literal notranslate"><span class="pre">lazy_enforce</span></code> in sequence, inside a regular solver callback. However, once the machine learning models are trained, MIPLearn calls <code class="docutils literal notranslate"><span class="pre">lazy_enforce</span></code> directly, before the optimization process starts, with a list of <strong>predicted</strong> violations, as we will see in the example below.</p>
+<div class="admonition note">
+<p class="admonition-title">Constraint Representation</p>
+<p>How should user cuts and lazy constraints be represented is a decision that the user can make; MIPLearn is representation agnostic. The objects returned by <code class="docutils literal notranslate"><span class="pre">lazy_separate</span></code>, however, are serialized as JSON and stored in the HDF5 training data files. Therefore, it is recommended to use only simple objects, such as lists, tuples and dictionaries.</p>
+</div>
+</section>
+<section id="Generating-training-data">
+<h2><span class="section-number">4.2. </span>Generating training data<a class="headerlink" href="#Generating-training-data" title="Link to this heading">¶</a></h2>
+<p>To test the callback defined above, we generate a small set of TSP instances, using the provided random instance generator. As in the previous tutorial, we generate some test instances and some training instances, then solve them using <code class="docutils literal notranslate"><span class="pre">BasicCollector</span></code>. Input problem data is stored in <code class="docutils literal notranslate"><span class="pre">tsp/train/00000.pkl.gz,</span> <span class="pre">...</span></code>, whereas solver training data (including list of required lazy constraints) is stored in <code class="docutils literal notranslate"><span class="pre">tsp/train/00000.h5,</span> <span class="pre">...</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure generator to produce instances with 50 cities located</span>
+<span class="c1"># in the 1000 x 1000 square, and with slightly perturbed distances.</span>
+<span class="n">gen</span> <span class="o">=</span> <span class="n">TravelingSalesmanGenerator</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">),</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">),</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">51</span><span class="p">),</span>
+    <span class="n">gamma</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.25</span><span class="p">),</span>
+    <span class="n">fix_cities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">round</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Generate 500 instances and store input data file to .pkl.gz files</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">gen</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="n">write_pkl_gz</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">450</span><span class="p">],</span> <span class="s2">&quot;tsp/train&quot;</span><span class="p">)</span>
+<span class="n">test_data</span> <span class="o">=</span> <span class="n">write_pkl_gz</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">450</span><span class="p">:</span><span class="mi">500</span><span class="p">],</span> <span class="s2">&quot;tsp/test&quot;</span><span class="p">)</span>
+
+<span class="c1"># Solve the training instances in parallel, collecting the required lazy</span>
+<span class="c1"># constraints, in addition to other information, such as optimal solution.</span>
+<span class="n">bc</span> <span class="o">=</span> <span class="n">BasicCollector</span><span class="p">()</span>
+<span class="n">bc</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">build_tsp_model_gurobipy_simplified</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Training-and-solving-new-instances">
+<h2><span class="section-number">4.3. </span>Training and solving new instances<a class="headerlink" href="#Training-and-solving-new-instances" title="Link to this heading">¶</a></h2>
+<p>After producing the training dataset, we can train the machine learning models to predict which lazy constraints are necessary. In this tutorial, we use the following ML strategy: given a new instance, find the 50 most similar ones in the training dataset and verify how often each lazy constraint was required. If a lazy constraint was required for the majority of the 50 most-similar instances, enforce it ahead-of-time for the current instance. To measure instance similarity, use the objective
+function only. This ML strategy can be implemented using <code class="docutils literal notranslate"><span class="pre">MemorizingLazyComponent</span></code> with <code class="docutils literal notranslate"><span class="pre">H5FieldsExtractor</span></code> and <code class="docutils literal notranslate"><span class="pre">KNeighborsClassifier</span></code>, as shown below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span>
+    <span class="n">components</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">MemorizingLazyComponent</span><span class="p">(</span>
+            <span class="n">extractor</span><span class="o">=</span><span class="n">H5FieldsExtractor</span><span class="p">(</span><span class="n">instance_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;static_var_obj_coeffs&quot;</span><span class="p">]),</span>
+            <span class="n">clf</span><span class="o">=</span><span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next, we solve one of the test instances using the trained solver. In the run below, we can see that MIPLearn adds many lazy constraints ahead-of-time, before the optimization starts. During the optimization process itself, some additional lazy constraints are required, but very few.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Increase log verbosity, so that we can see what is MIPLearn doing</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;miplearn&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="c1"># Solve a new test instance</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_tsp_model_gurobipy_simplified</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Set parameter Threads to value 1
+Restricted license - for non-production use only - expires 2024-10-28
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 1 threads
+
+Optimize a model with 50 rows, 1225 columns and 2450 nonzeros
+Model fingerprint: 0x04d7bec1
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 1e+03]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [2e+00, 2e+00]
+Presolve time: 0.00s
+Presolved: 50 rows, 1225 columns, 2450 nonzeros
+
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0    4.0600000e+02   9.700000e+01   0.000000e+00      0s
+      66    5.5880000e+03   0.000000e+00   0.000000e+00      0s
+
+Solved in 66 iterations and 0.01 seconds (0.00 work units)
+Optimal objective  5.588000000e+03
+
+User-callback calls 107, time in user-callback 0.00 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:miplearn.components.cuts.mem:Predicting violated lazy constraints...
+INFO:miplearn.components.lazy.mem:Enforcing 19 constraints ahead-of-time...
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Enforcing 19 subtour elimination constraints
+Set parameter PreCrush to value 1
+Set parameter LazyConstraints to value 1
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 1 threads
+
+Optimize a model with 69 rows, 1225 columns and 6091 nonzeros
+Model fingerprint: 0x09bd34d6
+Variable types: 0 continuous, 1225 integer (1225 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 1e+03]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [2e+00, 2e+00]
+Found heuristic solution: objective 29853.000000
+Presolve time: 0.00s
+Presolved: 69 rows, 1225 columns, 6091 nonzeros
+Variable types: 0 continuous, 1225 integer (1225 binary)
+
+Root relaxation: objective 6.139000e+03, 93 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 6139.00000    0    6 29853.0000 6139.00000  79.4%     -    0s
+H    0     0                    6390.0000000 6139.00000  3.93%     -    0s
+     0     0 6165.50000    0   10 6390.00000 6165.50000  3.51%     -    0s
+Enforcing 3 subtour elimination constraints
+     0     0 6165.50000    0    6 6390.00000 6165.50000  3.51%     -    0s
+     0     0 6198.50000    0   16 6390.00000 6198.50000  3.00%     -    0s
+*    0     0               0    6219.0000000 6219.00000  0.00%     -    0s
+
+Cutting planes:
+  Gomory: 11
+  MIR: 1
+  Zero half: 4
+  Lazy constraints: 3
+
+Explored 1 nodes (222 simplex iterations) in 0.03 seconds (0.02 work units)
+Thread count was 1 (of 20 available processors)
+
+Solution count 3: 6219 6390 29853
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 6.219000000000e+03, best bound 6.219000000000e+03, gap 0.0000%
+
+User-callback calls 141, time in user-callback 0.00 sec
+</pre></div></div>
+</div>
+<p>Finally, we solve the same instance, but using a regular solver, without ML prediction. We can see that a much larger number of lazy constraints are added during the optimization process itself. Additionally, the solver requires a larger number of iterations to find the optimal solution. There is not a significant difference in running time because of the small size of these instances.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="p">[])</span>  <span class="c1"># empty set of ML components</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_tsp_model_gurobipy_simplified</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 1 threads
+
+Optimize a model with 50 rows, 1225 columns and 2450 nonzeros
+Model fingerprint: 0x04d7bec1
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 1e+03]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [2e+00, 2e+00]
+Presolve time: 0.00s
+Presolved: 50 rows, 1225 columns, 2450 nonzeros
+
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0    4.0600000e+02   9.700000e+01   0.000000e+00      0s
+      66    5.5880000e+03   0.000000e+00   0.000000e+00      0s
+
+Solved in 66 iterations and 0.01 seconds (0.00 work units)
+Optimal objective  5.588000000e+03
+
+User-callback calls 107, time in user-callback 0.00 sec
+Set parameter PreCrush to value 1
+Set parameter LazyConstraints to value 1
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 1 threads
+
+Optimize a model with 50 rows, 1225 columns and 2450 nonzeros
+Model fingerprint: 0x77a94572
+Variable types: 0 continuous, 1225 integer (1225 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+01, 1e+03]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [2e+00, 2e+00]
+Found heuristic solution: objective 29695.000000
+Presolve time: 0.00s
+Presolved: 50 rows, 1225 columns, 2450 nonzeros
+Variable types: 0 continuous, 1225 integer (1225 binary)
+
+Root relaxation: objective 5.588000e+03, 68 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 5588.00000    0   12 29695.0000 5588.00000  81.2%     -    0s
+Enforcing 9 subtour elimination constraints
+Enforcing 11 subtour elimination constraints
+H    0     0                    27241.000000 5588.00000  79.5%     -    0s
+     0     0 5898.00000    0    8 27241.0000 5898.00000  78.3%     -    0s
+Enforcing 4 subtour elimination constraints
+Enforcing 3 subtour elimination constraints
+     0     0 6066.00000    0    - 27241.0000 6066.00000  77.7%     -    0s
+Enforcing 2 subtour elimination constraints
+     0     0 6128.00000    0    - 27241.0000 6128.00000  77.5%     -    0s
+     0     0 6139.00000    0    6 27241.0000 6139.00000  77.5%     -    0s
+H    0     0                    6368.0000000 6139.00000  3.60%     -    0s
+     0     0 6154.75000    0   15 6368.00000 6154.75000  3.35%     -    0s
+Enforcing 2 subtour elimination constraints
+     0     0 6154.75000    0    6 6368.00000 6154.75000  3.35%     -    0s
+     0     0 6165.75000    0   11 6368.00000 6165.75000  3.18%     -    0s
+Enforcing 3 subtour elimination constraints
+     0     0 6204.00000    0    6 6368.00000 6204.00000  2.58%     -    0s
+*    0     0               0    6219.0000000 6219.00000  0.00%     -    0s
+
+Cutting planes:
+  Gomory: 5
+  MIR: 1
+  Zero half: 4
+  Lazy constraints: 4
+
+Explored 1 nodes (224 simplex iterations) in 0.10 seconds (0.03 work units)
+Thread count was 1 (of 20 available processors)
+
+Solution count 4: 6219 6368 27241 29695
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 6.219000000000e+03, best bound 6.219000000000e+03, gap 0.0000%
+
+User-callback calls 170, time in user-callback 0.01 sec
+</pre></div></div>
+</div>
+</section>
+<section id="Learning-user-cuts">
+<h2><span class="section-number">4.4. </span>Learning user cuts<a class="headerlink" href="#Learning-user-cuts" title="Link to this heading">¶</a></h2>
+<p>The example above focused on lazy constraints. To enforce user cuts instead, the procedure is very similar, with the following changes:</p>
+<ul class="simple">
+<li><p>Instead of <code class="docutils literal notranslate"><span class="pre">lazy_separate</span></code> and <code class="docutils literal notranslate"><span class="pre">lazy_enforce</span></code>, use <code class="docutils literal notranslate"><span class="pre">cuts_separate</span></code> and <code class="docutils literal notranslate"><span class="pre">cuts_enforce</span></code></p></li>
+<li><p>Instead of <code class="docutils literal notranslate"><span class="pre">m.inner.cbGetSolution</span></code>, use <code class="docutils literal notranslate"><span class="pre">m.inner.cbGetNodeRel</span></code></p></li>
+</ul>
+<p>For a complete example, see <code class="docutils literal notranslate"><span class="pre">build_stab_model_gurobipy</span></code>, <code class="docutils literal notranslate"><span class="pre">build_stab_model_pyomo</span></code> and <code class="docutils literal notranslate"><span class="pre">build_stab_model_jump</span></code>, which solves the maximum-weight stable set problem using user cut callbacks.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="../getting-started-jump/" title="previous page"><span class="section-number">3. </span>Getting started (JuMP)</a>
+    <a class='right-next' id="next-link" href="../../guide/problems/" title="next page"><span class="section-number">5. </span>Benchmark Problems</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

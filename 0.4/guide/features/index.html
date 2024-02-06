@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>7. Feature Extractors &#8212; MIPLearn 0.4</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css?v=b0dfe17c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f8244a84" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script src="../../_static/documentation_options.js?v=751a5dd3"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js?v=7c4c3336"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="8. Primal Components" href="../primal/" />
+    <link rel="prev" title="6. Training Data Collectors" href="../collectors/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn 0.4</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <p class="caption" role="heading">
+ <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-pyomo/">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/cuts-gurobipy/">
+   4. User cuts and lazy constraints
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  User Guide
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../problems/">
+   5. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../collectors/">
+   6. Training Data Collectors
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   7. Feature Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../primal/">
+   8. Primal Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../solvers/">
+   9. Learning Solver
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Python API Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/problems/">
+   10. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/collectors/">
+   11. Collectors &amp; Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/components/">
+   12. Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/solvers/">
+   13. Solvers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/helpers/">
+   14. Helpers
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../../_sources/guide/features.ipynb.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Overview">
+   7.1. Overview
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#H5FieldsExtractor">
+   7.2. H5FieldsExtractor
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Example">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#AlvLouWeh2017Extractor">
+   7.3. AlvLouWeh2017Extractor
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Example
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <section id="Feature-Extractors">
+<h1><span class="section-number">7. </span>Feature Extractors<a class="headerlink" href="#Feature-Extractors" title="Link to this heading">¶</a></h1>
+<p>In the previous page, we introduced <em>training data collectors</em>, which solve the optimization problem and collect raw training data, such as the optimal solution. In this page, we introduce <strong>feature extractors</strong>, which take the raw training data, stored in HDF5 files, and extract relevant information in order to train a machine learning model.</p>
+<section id="Overview">
+<h2><span class="section-number">7.1. </span>Overview<a class="headerlink" href="#Overview" title="Link to this heading">¶</a></h2>
+<p>Feature extraction is an important step of the process of building a machine learning model because it helps to reduce the complexity of the data and convert it into a format that is more easily processed. Previous research has proposed converting absolute variable coefficients, for example, into relative values which are invariant to various transformations, such as problem scaling, making them more amenable to learning. Various other transformations have also been described.</p>
+<p>In the framework, we treat data collection and feature extraction as two separate steps to accelerate the model development cycle. Specifically, collectors are typically time-consuming, as they often need to solve the problem to optimality, and therefore focus on collecting and storing all data that may or may not be relevant, in its raw format. Feature extractors, on the other hand, focus entirely on filtering the data and improving its representation, and are therefore much faster to run.
+Experimenting with new data representations, therefore, can be done without resolving the instances.</p>
+<p>In MIPLearn, extractors implement the abstract class <a class="reference external" href="../../api/collectors/#miplearn.features.fields.FeaturesExtractor">FeatureExtractor</a>, which has methods that take as input an <a class="reference external" href="../../api/helpers/#miplearn.h5.H5File">H5File</a> and produce either: (i) instance features, which describe the entire instances; (ii) variable features, which describe a particular decision variables; or (iii) constraint features, which describe a particular constraint. The extractor is free to implement only a
+subset of these methods, if it is known that it will not be used with a machine learning component that requires the other types of features.</p>
+</section>
+<section id="H5FieldsExtractor">
+<h2><span class="section-number">7.2. </span>H5FieldsExtractor<a class="headerlink" href="#H5FieldsExtractor" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="#H5FieldsExtractor"><span class="std std-ref">H5FieldsExtractor</span></a>, the most simple extractor in MIPLearn, simple extracts data that is already available in the HDF5 file, assembles it into a matrix and returns it as-is. The fields used to build instance, variable and constraint features are user-specified. The class also performs checks to ensure that the shapes of the returned matrices make sense.</p>
+<section id="Example">
+<h3>Example<a class="headerlink" href="#Example" title="Link to this heading">¶</a></h3>
+<p>The example below demonstrates the usage of H5FieldsExtractor in a randomly generated instance of the multi-dimensional knapsack problem.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">rmtree</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+
+<span class="kn">from</span> <span class="nn">miplearn.collectors.basic</span> <span class="kn">import</span> <span class="n">BasicCollector</span>
+<span class="kn">from</span> <span class="nn">miplearn.extractors.fields</span> <span class="kn">import</span> <span class="n">H5FieldsExtractor</span>
+<span class="kn">from</span> <span class="nn">miplearn.h5</span> <span class="kn">import</span> <span class="n">H5File</span>
+<span class="kn">from</span> <span class="nn">miplearn.io</span> <span class="kn">import</span> <span class="n">write_pkl_gz</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.multiknapsack</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MultiKnapsackGenerator</span><span class="p">,</span>
+    <span class="n">build_multiknapsack_model_gurobipy</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Set random seed to make example reproducible</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Generate some random multiknapsack instances</span>
+<span class="n">rmtree</span><span class="p">(</span><span class="s2">&quot;data/multiknapsack/&quot;</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">write_pkl_gz</span><span class="p">(</span>
+    <span class="n">MultiKnapsackGenerator</span><span class="p">(</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">11</span><span class="p">),</span>
+        <span class="n">m</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span>
+        <span class="n">w</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+        <span class="n">K</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">u</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">w_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">),</span>
+        <span class="n">p_jitter</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+        <span class="n">fix_w</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+    <span class="s2">&quot;data/multiknapsack&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Run the basic collector</span>
+<span class="n">BasicCollector</span><span class="p">()</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span>
+    <span class="n">glob</span><span class="p">(</span><span class="s2">&quot;data/multiknapsack/*&quot;</span><span class="p">),</span>
+    <span class="n">build_multiknapsack_model_gurobipy</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ext</span> <span class="o">=</span> <span class="n">H5FieldsExtractor</span><span class="p">(</span>
+    <span class="c1"># Use as instance features the value of the LP relaxation and the</span>
+    <span class="c1"># vector of objective coefficients.</span>
+    <span class="n">instance_fields</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;lp_obj_value&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;static_var_obj_coeffs&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="c1"># For each variable, use as features the optimal value of the LP</span>
+    <span class="c1"># relaxation, the variable objective coefficient, the variable&#39;s</span>
+    <span class="c1"># value its reduced cost.</span>
+    <span class="n">var_fields</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;lp_obj_value&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;static_var_obj_coeffs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lp_var_values&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lp_var_reduced_costs&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="c1"># For each constraint, use as features the RHS, dual value and slack.</span>
+    <span class="n">constr_fields</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;static_constr_rhs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lp_constr_dual_values&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lp_constr_slacks&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="k">with</span> <span class="n">H5File</span><span class="p">(</span><span class="s2">&quot;data/multiknapsack/00000.h5&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+    <span class="c1"># Extract and print instance features</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">ext</span><span class="o">.</span><span class="n">get_instance_features</span><span class="p">(</span><span class="n">h5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;instance features&quot;</span><span class="p">,</span> <span class="n">x1</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+
+    <span class="c1"># Extract and print variable features</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">ext</span><span class="o">.</span><span class="n">get_var_features</span><span class="p">(</span><span class="n">h5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;variable features&quot;</span><span class="p">,</span> <span class="n">x2</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">x2</span><span class="p">)</span>
+
+    <span class="c1"># Extract and print constraint features</span>
+    <span class="n">x3</span> <span class="o">=</span> <span class="n">ext</span><span class="o">.</span><span class="n">get_constr_features</span><span class="p">(</span><span class="n">h5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;constraint features&quot;</span><span class="p">,</span> <span class="n">x3</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">x3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+instance features (11,)
+ [-1531.24308771  -350.          -692.          -454.
+  -709.          -605.          -543.          -321.
+  -674.          -571.          -341.        ]
+variable features (10, 4)
+ [[-1.53124309e+03 -3.50000000e+02  0.00000000e+00  9.43468018e+01]
+ [-1.53124309e+03 -6.92000000e+02  2.51703322e-01  0.00000000e+00]
+ [-1.53124309e+03 -4.54000000e+02  0.00000000e+00  8.25504150e+01]
+ [-1.53124309e+03 -7.09000000e+02  1.11373022e-01  0.00000000e+00]
+ [-1.53124309e+03 -6.05000000e+02  1.00000000e+00 -1.26055283e+02]
+ [-1.53124309e+03 -5.43000000e+02  0.00000000e+00  1.68693771e+02]
+ [-1.53124309e+03 -3.21000000e+02  1.07488781e-01  0.00000000e+00]
+ [-1.53124309e+03 -6.74000000e+02  8.82293701e-01  0.00000000e+00]
+ [-1.53124309e+03 -5.71000000e+02  0.00000000e+00  1.41129074e+02]
+ [-1.53124309e+03 -3.41000000e+02  1.28830120e-01  0.00000000e+00]]
+constraint features (5, 3)
+ [[ 1.3100000e+03 -1.5978307e-01  0.0000000e+00]
+ [ 9.8800000e+02 -3.2881632e-01  0.0000000e+00]
+ [ 1.0040000e+03 -4.0601316e-01  0.0000000e+00]
+ [ 1.2690000e+03 -1.3659772e-01  0.0000000e+00]
+ [ 1.0070000e+03 -2.8800571e-01  0.0000000e+00]]
+</pre></div></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You should ensure that the number of features remains the same for all relevant HDF5 files. In the previous example, to illustrate this issue, we used variable objective coefficients as instance features. While this is allowed, note that this requires all problem instances to have the same number of variables; otherwise the number of features would vary from instance to instance and MIPLearn would be unable to concatenate the matrices.</p>
+</div>
+</section>
+</section>
+<section id="AlvLouWeh2017Extractor">
+<h2><span class="section-number">7.3. </span>AlvLouWeh2017Extractor<a class="headerlink" href="#AlvLouWeh2017Extractor" title="Link to this heading">¶</a></h2>
+<p>Alvarez, Louveaux and Wehenkel (2017) proposed a set features to describe a particular decision variable in a given node of the branch-and-bound tree, and applied it to the problem of mimicking strong branching decisions. The class <a class="reference internal" href="#AlvLouWeh2017Extractor"><span class="std std-ref">AlvLouWeh2017Extractor</span></a> implements a subset of these features (40 out of 64), which are available outside of the branch-and-bound tree. Some features are derived from the static defintion of the problem (i.e. from objective function and
+constraint data), while some features are derived from the solution to the LP relaxation. The features have been designed to be: (i) independent of the size of the problem; (ii) invariant with respect to irrelevant problem transformations, such as row and column permutation; and (iii) independent of the scale of the problem. We refer to the paper for a more complete description.</p>
+<section id="id1">
+<h3>Example<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn.extractors.AlvLouWeh2017</span> <span class="kn">import</span> <span class="n">AlvLouWeh2017Extractor</span>
+<span class="kn">from</span> <span class="nn">miplearn.h5</span> <span class="kn">import</span> <span class="n">H5File</span>
+
+<span class="c1"># Build the extractor</span>
+<span class="n">ext</span> <span class="o">=</span> <span class="n">AlvLouWeh2017Extractor</span><span class="p">()</span>
+
+<span class="c1"># Open previously-created multiknapsack training data</span>
+<span class="k">with</span> <span class="n">H5File</span><span class="p">(</span><span class="s2">&quot;data/multiknapsack/00000.h5&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+    <span class="c1"># Extract and print variable features</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">ext</span><span class="o">.</span><span class="n">get_var_features</span><span class="p">(</span><span class="n">h5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="n">x1</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">x1</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+x1 (10, 40)
+ [[-1.00e+00  1.00e+20  1.00e-01  1.00e+00  0.00e+00  1.00e+00  6.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  6.00e-01  1.00e+00  1.75e+01  1.00e+00  2.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00 -1.00e+00  0.00e+00  1.00e+20]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  1.00e-01  1.00e+00  1.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  7.00e-01  1.00e+00  5.10e+00  1.00e+00  2.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   3.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  0.00e+00  1.00e+00  9.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  5.00e-01  1.00e+00  1.30e+01  1.00e+00  2.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00 -1.00e+00  0.00e+00  1.00e+20]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  2.00e-01  1.00e+00  9.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  8.00e-01  1.00e+00  3.40e+00  1.00e+00  2.00e-01
+   1.00e+00  1.00e-01  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   1.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  1.00e-01  1.00e+00  7.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  6.00e-01  1.00e+00  3.80e+00  1.00e+00  2.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  1.00e-01  1.00e+00  8.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  7.00e-01  1.00e+00  3.30e+00  1.00e+00  2.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00 -1.00e+00  0.00e+00  1.00e+20]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  0.00e+00  1.00e+00  3.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  1.00e+00  1.00e+00  5.70e+00  1.00e+00  1.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   1.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  1.00e-01  1.00e+00  6.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  8.00e-01  1.00e+00  6.80e+00  1.00e+00  2.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   1.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  4.00e-01  1.00e+00  6.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  8.00e-01  1.00e+00  1.40e+00  1.00e+00  1.00e-01
+   1.00e+00  1.00e-01  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00 -1.00e+00  0.00e+00  1.00e+20]
+ [-1.00e+00  1.00e+20  1.00e-01  1.00e+00  0.00e+00  1.00e+00  5.00e-01
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  1.00e+00  5.00e-01  1.00e+00  7.60e+00  1.00e+00  1.00e-01
+   1.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+   1.00e-01 -1.00e+00 -1.00e+00  0.00e+00  0.00e+00]]
+</pre></div></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">References</p>
+<ul class="simple">
+<li><p><strong>Alvarez, Alejandro Marcos.</strong> <em>Computational and theoretical synergies between linear optimization and supervised machine learning.</em> (2016). University of Liège.</p></li>
+<li><p><strong>Alvarez, Alejandro Marcos, Quentin Louveaux, and Louis Wehenkel.</strong> <em>A machine learning-based approximation of strong branching.</em> INFORMS Journal on Computing 29.1 (2017): 185-195.</p></li>
+</ul>
+</div>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="../collectors/" title="previous page"><span class="section-number">6. </span>Training Data Collectors</a>
+    <a class='right-next' id="next-link" href="../primal/" title="next page"><span class="section-number">8. </span>Primal Components</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

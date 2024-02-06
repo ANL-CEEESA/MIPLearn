@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>9. Learning Solver &#8212; MIPLearn 0.4</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css?v=b0dfe17c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f8244a84" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script src="../../_static/documentation_options.js?v=751a5dd3"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js?v=7c4c3336"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../genindex/" />
+    <link rel="search" title="Search" href="../../search/" />
+    <link rel="next" title="10. Benchmark Problems" href="../../api/problems/" />
+    <link rel="prev" title="8. Primal Components" href="../primal/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn 0.4</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <p class="caption" role="heading">
+ <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-pyomo/">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tutorials/cuts-gurobipy/">
+   4. User cuts and lazy constraints
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  User Guide
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../problems/">
+   5. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../collectors/">
+   6. Training Data Collectors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../features/">
+   7. Feature Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../primal/">
+   8. Primal Components
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   9. Learning Solver
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Python API Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/problems/">
+   10. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/collectors/">
+   11. Collectors &amp; Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/components/">
+   12. Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/solvers/">
+   13. Solvers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../api/helpers/">
+   14. Helpers
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../../_sources/guide/solvers.ipynb.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Configuring-the-solver">
+   9.1. Configuring the solver
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Training-and-solving-new-instances">
+   9.2. Training and solving new instances
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Complete-example">
+   9.3. Complete example
+  </a>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <section id="Learning-Solver">
+<h1><span class="section-number">9. </span>Learning Solver<a class="headerlink" href="#Learning-Solver" title="Link to this heading">¶</a></h1>
+<p>On previous pages, we discussed various components of the MIPLearn framework, including training data collectors, feature extractors, and individual machine learning components. In this page, we introduce <strong>LearningSolver</strong>, the main class of the framework which integrates all the aforementioned components into a cohesive whole. Using <strong>LearningSolver</strong> involves three steps: (i) configuring the solver; (ii) training the ML components; and (iii) solving new MIP instances. In the following, we
+describe each of these steps, then conclude with a complete runnable example.</p>
+<section id="Configuring-the-solver">
+<h2><span class="section-number">9.1. </span>Configuring the solver<a class="headerlink" href="#Configuring-the-solver" title="Link to this heading">¶</a></h2>
+<p><strong>LearningSolver</strong> is composed by multiple individual machine learning components, each targeting a different part of the solution process, or implementing a different machine learning strategy. This architecture allows strategies to be easily enabled, disabled or customized, making the framework flexible. By default, no components are provided and <strong>LearningSolver</strong> is equivalent to a traditional MIP solver. To specify additional components, the <code class="docutils literal notranslate"><span class="pre">components</span></code> constructor argument may be used:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span>
+    <span class="n">components</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">comp1</span><span class="p">,</span>
+        <span class="n">comp2</span><span class="p">,</span>
+        <span class="n">comp3</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, three components <code class="docutils literal notranslate"><span class="pre">comp1</span></code>, <code class="docutils literal notranslate"><span class="pre">comp2</span></code> and <code class="docutils literal notranslate"><span class="pre">comp3</span></code> are provided. The strategies implemented by these components are applied sequentially when solving the problem. For example, <code class="docutils literal notranslate"><span class="pre">comp1</span></code> and <code class="docutils literal notranslate"><span class="pre">comp2</span></code> could fix a subset of decision variables, while <code class="docutils literal notranslate"><span class="pre">comp3</span></code> constructs a warm start for the remaining problem.</p>
+</section>
+<section id="Training-and-solving-new-instances">
+<h2><span class="section-number">9.2. </span>Training and solving new instances<a class="headerlink" href="#Training-and-solving-new-instances" title="Link to this heading">¶</a></h2>
+<p>Once a solver is configured, its ML components need to be trained. This can be achieved by the <code class="docutils literal notranslate"><span class="pre">solver.fit</span></code> method, as illustrated below. The method accepts a list of HDF5 files and trains each individual component sequentially. Once the solver is trained, new instances can be solved using <code class="docutils literal notranslate"><span class="pre">solver.optimize</span></code>. The method returns a dictionary of statistics collected by each component, such as the number of variables fixed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build instances</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="o">...</span>
+<span class="n">test_data</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="c1"># Collect training data</span>
+<span class="n">bc</span> <span class="o">=</span> <span class="n">BasicCollector</span><span class="p">()</span>
+<span class="n">bc</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">build_model</span><span class="p">)</span>
+
+<span class="c1"># Build solver</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># Train components</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+
+<span class="c1"># Solve a new test instance</span>
+<span class="n">stats</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_model</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="Complete-example">
+<h2><span class="section-number">9.3. </span>Complete example<a class="headerlink" href="#Complete-example" title="Link to this heading">¶</a></h2>
+<p>In the example below, we illustrate the usage of <strong>LearningSolver</strong> by building instances of the Traveling Salesman Problem, collecting training data, training the ML components, then solving a new instance.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="kn">from</span> <span class="nn">miplearn.classifiers.minprob</span> <span class="kn">import</span> <span class="n">MinProbabilityClassifier</span>
+<span class="kn">from</span> <span class="nn">miplearn.classifiers.singleclass</span> <span class="kn">import</span> <span class="n">SingleClassFix</span>
+<span class="kn">from</span> <span class="nn">miplearn.collectors.basic</span> <span class="kn">import</span> <span class="n">BasicCollector</span>
+<span class="kn">from</span> <span class="nn">miplearn.components.primal.actions</span> <span class="kn">import</span> <span class="n">SetWarmStart</span>
+<span class="kn">from</span> <span class="nn">miplearn.components.primal.indep</span> <span class="kn">import</span> <span class="n">IndependentVarsPrimalComponent</span>
+<span class="kn">from</span> <span class="nn">miplearn.extractors.AlvLouWeh2017</span> <span class="kn">import</span> <span class="n">AlvLouWeh2017Extractor</span>
+<span class="kn">from</span> <span class="nn">miplearn.io</span> <span class="kn">import</span> <span class="n">write_pkl_gz</span>
+<span class="kn">from</span> <span class="nn">miplearn.problems.tsp</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TravelingSalesmanGenerator</span><span class="p">,</span>
+    <span class="n">build_tsp_model_gurobipy</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">miplearn.solvers.learning</span> <span class="kn">import</span> <span class="n">LearningSolver</span>
+
+<span class="c1"># Set random seed to make example reproducible.</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Generate a few instances of the traveling salesman problem.</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">TravelingSalesmanGenerator</span><span class="p">(</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">11</span><span class="p">),</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">),</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">),</span>
+    <span class="n">gamma</span><span class="o">=</span><span class="n">uniform</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.20</span><span class="p">),</span>
+    <span class="n">fix_cities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">round</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+
+<span class="c1"># Save instance data to data/tsp/00000.pkl.gz, data/tsp/00001.pkl.gz, ...</span>
+<span class="n">all_data</span> <span class="o">=</span> <span class="n">write_pkl_gz</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;data/tsp&quot;</span><span class="p">)</span>
+
+<span class="c1"># Split train/test data</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="n">all_data</span><span class="p">[:</span><span class="mi">40</span><span class="p">]</span>
+<span class="n">test_data</span> <span class="o">=</span> <span class="n">all_data</span><span class="p">[</span><span class="mi">40</span><span class="p">:]</span>
+
+<span class="c1"># Collect training data</span>
+<span class="n">bc</span> <span class="o">=</span> <span class="n">BasicCollector</span><span class="p">()</span>
+<span class="n">bc</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">build_tsp_model_gurobipy</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="c1"># Build learning solver</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span>
+    <span class="n">components</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">IndependentVarsPrimalComponent</span><span class="p">(</span>
+            <span class="n">base_clf</span><span class="o">=</span><span class="n">SingleClassFix</span><span class="p">(</span>
+                <span class="n">MinProbabilityClassifier</span><span class="p">(</span>
+                    <span class="n">base_clf</span><span class="o">=</span><span class="n">LogisticRegression</span><span class="p">(),</span>
+                    <span class="n">thresholds</span><span class="o">=</span><span class="p">[</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">],</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">extractor</span><span class="o">=</span><span class="n">AlvLouWeh2017Extractor</span><span class="p">(),</span>
+            <span class="n">action</span><span class="o">=</span><span class="n">SetWarmStart</span><span class="p">(),</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># Train ML models</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+
+<span class="c1"># Solve a test instance</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_tsp_model_gurobipy</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Restricted license - for non-production use only - expires 2024-10-28
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+
+Optimize a model with 10 rows, 45 columns and 90 nonzeros
+Model fingerprint: 0x6ddcd141
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [4e+01, 1e+03]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [2e+00, 2e+00]
+Presolve time: 0.00s
+Presolved: 10 rows, 45 columns, 90 nonzeros
+
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0    6.3600000e+02   1.700000e+01   0.000000e+00      0s
+      15    2.7610000e+03   0.000000e+00   0.000000e+00      0s
+
+Solved in 15 iterations and 0.00 seconds (0.00 work units)
+Optimal objective  2.761000000e+03
+
+User-callback calls 56, time in user-callback 0.00 sec
+Set parameter PreCrush to value 1
+Set parameter LazyConstraints to value 1
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+
+Optimize a model with 10 rows, 45 columns and 90 nonzeros
+Model fingerprint: 0x74ca3d0a
+Variable types: 0 continuous, 45 integer (45 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [4e+01, 1e+03]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [2e+00, 2e+00]
+
+User MIP start produced solution with objective 2796 (0.00s)
+Loaded user MIP start with objective 2796
+
+Presolve time: 0.00s
+Presolved: 10 rows, 45 columns, 90 nonzeros
+Variable types: 0 continuous, 45 integer (45 binary)
+
+Root relaxation: objective 2.761000e+03, 14 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 2761.00000    0    - 2796.00000 2761.00000  1.25%     -    0s
+     0     0     cutoff    0      2796.00000 2796.00000  0.00%     -    0s
+
+Cutting planes:
+  Lazy constraints: 3
+
+Explored 1 nodes (16 simplex iterations) in 0.01 seconds (0.00 work units)
+Thread count was 20 (of 20 available processors)
+
+Solution count 1: 2796
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 2.796000000000e+03, best bound 2.796000000000e+03, gap 0.0000%
+
+User-callback calls 110, time in user-callback 0.00 sec
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;WS: Count&#39;: 1, &#39;WS: Number of variables set&#39;: 41.0}
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="../primal/" title="previous page"><span class="section-number">8. </span>Primal Components</a>
+    <a class='right-next' id="next-link" href="../../api/problems/" title="next page"><span class="section-number">10. </span>Benchmark Problems</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

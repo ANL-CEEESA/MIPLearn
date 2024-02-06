@@ -1,0 +1,120 @@
+h1.site-logo {
+    font-size: 30px !important;
+}
+
+h1.site-logo small {
+    font-size: 20px !important;
+}
+
+code {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 0 4px;
+    background-color: #eee;
+    color: rgb(232, 62, 140);
+}
+
+.right-next, .left-prev {
+    border-radius: 8px;
+    border-width: 0px !important;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.right-next:hover, .left-prev:hover {
+    text-decoration: none;
+}
+
+.admonition {
+    border-radius: 8px;
+    border-width: 0;
+    box-shadow: 0 0 0 !important;
+}
+
+.note { background-color: rgba(0, 123, 255, 0.1); }
+.note * { color: rgb(69 94 121); }
+
+.warning { background-color: rgb(220 150 40 / 10%); }
+.warning * { color: rgb(105 72 28); }
+
+.input_area, .output_area, .output_area img {
+    border-radius: 8px !important;
+    border-width: 0 !important;
+    margin: 8px 0 8px 0;
+}
+
+.output_area {
+    padding: 4px;
+    background-color: hsl(227 60% 11% / 0.7) !important;
+}
+
+.output_area pre {
+    color: #fff;
+    line-height: 20px !important;
+}
+
+.input_area pre {
+    background-color: rgba(0 0 0 / 3%) !important;
+    padding: 12px !important;
+    line-height: 20px;
+}
+
+.ansi-green-intense-fg {
+    color: #64d88b !important;
+}
+
+#site-navigation {
+    background-color: #fafafa;
+}
+
+.container, .container-lg, .container-md, .container-sm, .container-xl {
+    max-width: inherit !important;
+}
+
+h1, h2 {
+    font-weight: bold !important;
+}
+
+#main-content .section {
+    max-width: 900px !important;
+    margin: 0 auto !important;
+    font-size: 16px;
+}
+
+p.caption {
+    font-weight: bold;
+}
+
+h2 {
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ccc;
+}
+
+h3 {
+    margin-top: 1.5rem;
+}
+
+tbody, thead, pre {
+    border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+table td, th {
+    padding: 8px;
+}
+
+table p {
+    margin-bottom: 0;
+}
+
+table td code {
+    white-space: nowrap;
+}
+
+table tr,
+table th {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+table tr:last-child {
+    border-bottom: 0;
+}
+

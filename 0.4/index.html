@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>MIPLearn &#8212; MIPLearn 0.4</title>
+    
+  <link href="_static/css/theme.css" rel="stylesheet" />
+  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css?v=b0dfe17c" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=f8244a84" />
+    
+  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script src="_static/documentation_options.js?v=751a5dd3"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js?v=7c4c3336"></script>
+    <link rel="index" title="Index" href="genindex/" />
+    <link rel="search" title="Search" href="search/" />
+    <link rel="next" title="1. Getting started (Pyomo)" href="tutorials/getting-started-pyomo/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="#">
+      
+      
+      <h1 class="site-logo" id="site-title">MIPLearn 0.4</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search/" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <p class="caption" role="heading">
+ <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorials/getting-started-pyomo/">
+   1. Getting started (Pyomo)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorials/getting-started-gurobipy/">
+   2. Getting started (Gurobipy)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorials/getting-started-jump/">
+   3. Getting started (JuMP)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorials/cuts-gurobipy/">
+   4. User cuts and lazy constraints
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  User Guide
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="guide/problems/">
+   5. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="guide/collectors/">
+   6. Training Data Collectors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="guide/features/">
+   7. Feature Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="guide/primal/">
+   8. Primal Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="guide/solvers/">
+   9. Learning Solver
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Python API Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="api/problems/">
+   10. Benchmark Problems
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="api/collectors/">
+   11. Collectors &amp; Extractors
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="api/components/">
+   12. Components
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="api/solvers/">
+   13. Solvers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="api/helpers/">
+   14. Helpers
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/index.rst.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.rst</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#contents">
+   Contents
+  </a>
+  <ul class="nav section-nav flex-column">
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#authors">
+   Authors
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#acknowledgments">
+   Acknowledgments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#citing-miplearn">
+   Citing MIPLearn
+  </a>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <section id="miplearn">
+<h1>MIPLearn<a class="headerlink" href="#miplearn" title="Link to this heading">¶</a></h1>
+<p><strong>MIPLearn</strong> is an extensible framework for solving discrete optimization problems using a combination of Mixed-Integer Linear Programming (MIP) and Machine Learning (ML). MIPLearn uses ML methods to automatically identify patterns in previously solved instances of the problem, then uses these patterns to accelerate the performance of conventional state-of-the-art MIP solvers such as CPLEX, Gurobi or XPRESS.</p>
+<p>Unlike pure ML methods, MIPLearn is not only able to find high-quality solutions to discrete optimization problems, but it can also prove the optimality and feasibility of these solutions. Unlike conventional MIP solvers, MIPLearn can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value). For certain classes of problems, this approach may provide significant performance benefits.</p>
+<section id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Link to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-pyomo/">1. Getting started (Pyomo)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-gurobipy/">2. Getting started (Gurobipy)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-jump/">3. Getting started (JuMP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/cuts-gurobipy/">4. User cuts and lazy constraints</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="guide/problems/">5. Benchmark Problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Overview">5.1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Bin-Packing">5.2. Bin Packing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Multi-Dimensional-Knapsack">5.3. Multi-Dimensional Knapsack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Capacitated-P-Median">5.4. Capacitated P-Median</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Set-cover">5.5. Set cover</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Set-Packing">5.6. Set Packing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Stable-Set">5.7. Stable Set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Traveling-Salesman">5.8. Traveling Salesman</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Unit-Commitment">5.9. Unit Commitment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/problems/#Vertex-Cover">5.10. Vertex Cover</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="guide/collectors/">6. Training Data Collectors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#Overview">6.1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#HDF5-Format">6.2. HDF5 Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/collectors/#Basic-collector">6.3. Basic collector</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="guide/features/">7. Feature Extractors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/features/#Overview">7.1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/features/#H5FieldsExtractor">7.2. H5FieldsExtractor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/features/#AlvLouWeh2017Extractor">7.3. AlvLouWeh2017Extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="guide/primal/">8. Primal Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Primal-component-actions">8.1. Primal component actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Memorizing-primal-component">8.2. Memorizing primal component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Independent-vars-primal-component">8.3. Independent vars primal component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Joint-vars-primal-component">8.4. Joint vars primal component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/primal/#Expert-primal-component">8.5. Expert primal component</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="guide/solvers/">9. Learning Solver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide/solvers/#Configuring-the-solver">9.1. Configuring the solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/solvers/#Training-and-solving-new-instances">9.2. Training and solving new instances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide/solvers/#Complete-example">9.3. Complete example</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Python API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/problems/">10. Benchmark Problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/collectors/">11. Collectors &amp; Extractors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/components/">12. Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/solvers/">13. Solvers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/helpers/">14. Helpers</a></li>
+</ul>
+</div>
+</section>
+<section id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Alinson S. Xavier</strong> (Argonne National Laboratory)</p></li>
+<li><p><strong>Feng Qiu</strong> (Argonne National Laboratory)</p></li>
+<li><p><strong>Xiaoyi Gu</strong> (Georgia Institute of Technology)</p></li>
+<li><p><strong>Berkay Becu</strong> (Georgia Institute of Technology)</p></li>
+<li><p><strong>Santanu S. Dey</strong>  (Georgia Institute of Technology)</p></li>
+</ul>
+</section>
+<section id="acknowledgments">
+<h2>Acknowledgments<a class="headerlink" href="#acknowledgments" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Based upon work supported by <strong>Laboratory Directed Research and Development</strong> (LDRD) funding from Argonne National Laboratory, provided by the Director, Office of Science, of the U.S. Department of Energy.</p></li>
+<li><p>Based upon work supported by the <strong>U.S. Department of Energy Advanced Grid Modeling Program</strong>.</p></li>
+</ul>
+</section>
+<section id="citing-miplearn">
+<h2>Citing MIPLearn<a class="headerlink" href="#citing-miplearn" title="Link to this heading">¶</a></h2>
+<p>If you use MIPLearn in your research (either the solver or the included problem generators), we kindly request that you cite the package as follows:</p>
+<ul class="simple">
+<li><p><strong>Alinson S. Xavier, Feng Qiu, Xiaoyi Gu, Berkay Becu, Santanu S. Dey.</strong> <em>MIPLearn: An Extensible Framework for Learning-Enhanced Optimization (Version 0.3)</em>. Zenodo (2023). DOI: <a class="reference external" href="https://doi.org/10.5281/zenodo.4287567">https://doi.org/10.5281/zenodo.4287567</a></p></li>
+</ul>
+<p>If you use MIPLearn in the field of power systems optimization, we kindly request that you cite the reference below, in which the main techniques implemented in MIPLearn were first developed:</p>
+<ul class="simple">
+<li><p><strong>Alinson S. Xavier, Feng Qiu, Shabbir Ahmed.</strong> <em>Learning to Solve Large-Scale Unit Commitment Problems.</em> INFORMS Journal on Computing (2020). DOI: <a class="reference external" href="https://doi.org/10.1287/ijoc.2020.0976">https://doi.org/10.1287/ijoc.2020.0976</a></p></li>
+</ul>
+</section>
+</section>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='right-next' id="next-link" href="tutorials/getting-started-pyomo/" title="next page"><span class="section-number">1. </span>Getting started (Pyomo)</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+            &copy; Copyright 2020-2023, UChicago Argonne, LLC.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>
