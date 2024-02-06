@@ -22,21 +22,22 @@ Documentation
 -------------
 
 - Tutorials:
-    1. [Getting started (Pyomo)](https://anl-ceeesa.github.io/MIPLearn/0.3/tutorials/getting-started-pyomo/)
-    2. [Getting started (Gurobipy)](https://anl-ceeesa.github.io/MIPLearn/0.3/tutorials/getting-started-gurobipy/)
-    3. [Getting started (JuMP)](https://anl-ceeesa.github.io/MIPLearn/0.3/tutorials/getting-started-jump/)
+    1. [Getting started (Pyomo)](https://anl-ceeesa.github.io/MIPLearn/0.4/tutorials/getting-started-pyomo/)
+    2. [Getting started (Gurobipy)](https://anl-ceeesa.github.io/MIPLearn/0.4/tutorials/getting-started-gurobipy/)
+    3. [Getting started (JuMP)](https://anl-ceeesa.github.io/MIPLearn/0.4/tutorials/getting-started-jump/)
+    4. [User cuts and lazy constraints](https://anl-ceeesa.github.io/MIPLearn/0.4/tutorials/cuts-gurobipy/)
 - User Guide
-    1. [Benchmark problems](https://anl-ceeesa.github.io/MIPLearn/0.3/guide/problems/)
-    2. [Training data collectors](https://anl-ceeesa.github.io/MIPLearn/0.3/guide/collectors/)
-    3. [Feature extractors](https://anl-ceeesa.github.io/MIPLearn/0.3/guide/features/)
-    4. [Primal components](https://anl-ceeesa.github.io/MIPLearn/0.3/guide/primal/)
-    5. [Learning solver](https://anl-ceeesa.github.io/MIPLearn/0.3/guide/solvers/)
+    1. [Benchmark problems](https://anl-ceeesa.github.io/MIPLearn/0.4/guide/problems/)
+    2. [Training data collectors](https://anl-ceeesa.github.io/MIPLearn/0.4/guide/collectors/)
+    3. [Feature extractors](https://anl-ceeesa.github.io/MIPLearn/0.4/guide/features/)
+    4. [Primal components](https://anl-ceeesa.github.io/MIPLearn/0.4/guide/primal/)
+    5. [Learning solver](https://anl-ceeesa.github.io/MIPLearn/0.4/guide/solvers/)
 - Python API Reference
-    1. [Benchmark problems](https://anl-ceeesa.github.io/MIPLearn/0.3/api/problems/)
-    2. [Collectors & extractors](https://anl-ceeesa.github.io/MIPLearn/0.3/api/collectors/)
-    3. [Components](https://anl-ceeesa.github.io/MIPLearn/0.3/api/components/)
-    4. [Solvers](https://anl-ceeesa.github.io/MIPLearn/0.3/api/solvers/)
-    5. [Helpers](https://anl-ceeesa.github.io/MIPLearn/0.3/api/helpers/)
+    1. [Benchmark problems](https://anl-ceeesa.github.io/MIPLearn/0.4/api/problems/)
+    2. [Collectors & extractors](https://anl-ceeesa.github.io/MIPLearn/0.4/api/collectors/)
+    3. [Components](https://anl-ceeesa.github.io/MIPLearn/0.4/api/components/)
+    4. [Solvers](https://anl-ceeesa.github.io/MIPLearn/0.4/api/solvers/)
+    5. [Helpers](https://anl-ceeesa.github.io/MIPLearn/0.4/api/helpers/)
 
 Authors
 -------
@@ -58,7 +59,7 @@ Citing MIPLearn
 
 If you use MIPLearn in your research (either the solver or the included problem generators), we kindly request that you cite the package as follows:
 
-* **Alinson S. Xavier, Feng Qiu, Xiaoyi Gu, Berkay Becu, Santanu S. Dey.** *MIPLearn: An Extensible Framework for Learning-Enhanced Optimization (Version 0.3)*. Zenodo (2023). DOI: [10.5281/zenodo.4287567](https://doi.org/10.5281/zenodo.4287567)
+* **Alinson S. Xavier, Feng Qiu, Xiaoyi Gu, Berkay Becu, Santanu S. Dey.** *MIPLearn: An Extensible Framework for Learning-Enhanced Optimization (Version 0.4)*. Zenodo (2024). DOI: [10.5281/zenodo.4287567](https://doi.org/10.5281/zenodo.4287567)
 
 If you use MIPLearn in the field of power systems optimization, we kindly request that you cite the reference below, in which the main techniques implemented in MIPLearn were first developed:
 
