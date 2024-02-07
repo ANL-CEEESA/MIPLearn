@@ -61,7 +61,7 @@ Citing MIPLearn
 
 If you use MIPLearn in your research (either the solver or the included problem generators), we kindly request that you cite the package as follows:
 
-* **Alinson S. Xavier, Feng Qiu, Xiaoyi Gu, Berkay Becu, Santanu S. Dey.** *MIPLearn: An Extensible Framework for Learning-Enhanced Optimization (Version 0.3)*. Zenodo (2023). DOI: https://doi.org/10.5281/zenodo.4287567
+* **Alinson S. Xavier, Feng Qiu, Xiaoyi Gu, Berkay Becu, Santanu S. Dey.** *MIPLearn: An Extensible Framework for Learning-Enhanced Optimization (Version 0.4)*. Zenodo (2024). DOI: https://doi.org/10.5281/zenodo.4287567
 
 If you use MIPLearn in the field of power systems optimization, we kindly request that you cite the reference below, in which the main techniques implemented in MIPLearn were first developed:
 
