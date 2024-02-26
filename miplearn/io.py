@@ -87,7 +87,10 @@ def read_pkl_gz(filename: str) -> Any:
 def _to_h5_filename(data_filename: str) -> str:
     output = f"{data_filename}.h5"
     output = output.replace(".gz.h5", ".h5")
-    output = output.replace(".json.h5", ".h5")
-    output = output.replace(".pkl.h5", ".h5")
+    output = output.replace(".csv.h5", ".h5")
     output = output.replace(".jld2.h5", ".h5")
+    output = output.replace(".json.h5", ".h5")
+    output = output.replace(".lp.h5", ".h5")
+    output = output.replace(".mps.h5", ".h5")
+    output = output.replace(".pkl.h5", ".h5")
     return output
