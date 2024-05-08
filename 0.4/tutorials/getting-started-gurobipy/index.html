@@ -294,7 +294,7 @@
 <li><p>Julia version, compatible with the JuMP modeling language.</p></li>
 </ul>
 <p>In this tutorial, we will demonstrate how to use and install the Python/Gurobipy version of the package. The first step is to install Python 3.8+ in your computer. See the <a class="reference external" href="https://www.python.org/downloads/">official Python website for more instructions</a>. After Python is installed, we proceed to install MIPLearn using <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ pip install MIPLearn==0.3
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ pip install MIPLearn==0.4
 </pre></div>
 </div>
 <p>In addition to MIPLearn itself, we will also install Gurobi 10.0, a state-of-the-art commercial MILP solver. This step also install a demo license for Gurobi, which should able to solve the small optimization problems in this tutorial. A license is required for solving larger-scale problems.</p>
@@ -403,11 +403,12 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+Set parameter Threads to value 1
 Restricted license - for non-production use only - expires 2024-10-28
 Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
 
 CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
-Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+Thread count: 10 physical cores, 20 logical processors, using up to 1 threads
 
 Optimize a model with 7 rows, 6 columns and 15 nonzeros
 Model fingerprint: 0x58dfdd53
@@ -433,12 +434,14 @@ Root relaxation: objective 1.035000e+03, 3 iterations, 0.00 seconds (0.00 work u
 *    0     0               0    1320.0000000 1320.00000  0.00%     -    0s
 
 Explored 1 nodes (5 simplex iterations) in 0.01 seconds (0.00 work units)
-Thread count was 20 (of 20 available processors)
+Thread count was 1 (of 20 available processors)
 
 Solution count 2: 1320 1400
 
 Optimal solution found (tolerance 1.00e-04)
 Best objective 1.320000000000e+03, best bound 1.320000000000e+03, gap 0.0000%
+
+User-callback calls 371, time in user-callback 0.00 sec
 obj = 1320.0
 x = [-0.0, 1.0, 1.0]
 y = [0.0, 60.0, 40.0]
@@ -510,7 +513,7 @@ machines. The code below generates the files <code class="docutils literal notra
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn.collectors.basic</span> <span class="kn">import</span> <span class="n">BasicCollector</span>
 
 <span class="n">bc</span> <span class="o">=</span> <span class="n">BasicCollector</span><span class="p">()</span>
-<span class="n">bc</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">build_uc_model</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">bc</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">build_uc_model</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -569,7 +572,7 @@ machines. The code below generates the files <code class="docutils literal notra
 Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
 
 CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
-Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+Thread count: 10 physical cores, 20 logical processors, using up to 1 threads
 
 Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros
 Model fingerprint: 0xa8b70287
@@ -579,22 +582,24 @@ Coefficient statistics:
   Bounds range     [1e+00, 1e+00]
   RHS range        [3e+08, 3e+08]
 Presolve removed 1000 rows and 500 columns
-Presolve time: 0.01s
+Presolve time: 0.00s
 Presolved: 1 rows, 500 columns, 500 nonzeros
 
 Iteration    Objective       Primal Inf.    Dual Inf.      Time
        0    6.6166537e+09   5.648803e+04   0.000000e+00      0s
        1    8.2906219e+09   0.000000e+00   0.000000e+00      0s
 
-Solved in 1 iterations and 0.01 seconds (0.00 work units)
+Solved in 1 iterations and 0.00 seconds (0.00 work units)
 Optimal objective  8.290621916e+09
+
+User-callback calls 56, time in user-callback 0.00 sec
 Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
 
 CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
-Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+Thread count: 10 physical cores, 20 logical processors, using up to 1 threads
 
 Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros
-Model fingerprint: 0xcf27855a
+Model fingerprint: 0x892e56b2
 Variable types: 500 continuous, 500 integer (500 binary)
 Coefficient statistics:
   Matrix range     [1e+00, 2e+06]
@@ -624,13 +629,15 @@ Cutting planes:
   Gomory: 1
   Flow cover: 2
 
-Explored 1 nodes (565 simplex iterations) in 0.03 seconds (0.01 work units)
-Thread count was 20 (of 20 available processors)
+Explored 1 nodes (565 simplex iterations) in 0.02 seconds (0.01 work units)
+Thread count was 1 (of 20 available processors)
 
 Solution count 1: 8.29153e+09
 
 Optimal solution found (tolerance 1.00e-04)
 Best objective 8.291528276179e+09, best bound 8.290733258025e+09, gap 0.0096%
+
+User-callback calls 193, time in user-callback 0.00 sec
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -639,7 +646,7 @@ Best objective 8.291528276179e+09, best bound 8.290733258025e+09, gap 0.0096%
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{&#39;WS: Count&#39;: 1, &#39;WS: Number of variables set&#39;: 482.0}
+{&#39;WS: Count&#39;: 1, &#39;WS: Number of variables set&#39;: 477.0}
 </pre></div></div>
 </div>
 <p>By examining the solve log above, specifically the line <code class="docutils literal notranslate"><span class="pre">Loaded</span> <span class="pre">user</span> <span class="pre">MIP</span> <span class="pre">start</span> <span class="pre">with</span> <span class="pre">objective...</span></code>, we can see that MIPLearn was able to construct an initial solution which turned out to be very close to the optimal solution to the problem. Now let us repeat the code above, but a solver which does not apply any ML strategies. Note that our previously-defined component is not provided.</p>
@@ -649,11 +656,11 @@ Best objective 8.291528276179e+09, best bound 8.290733258025e+09, gap 0.0096%
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">solver_baseline</span> <span class="o">=</span> <span class="n">LearningSolver</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="p">[])</span>
 <span class="n">solver_baseline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
-<span class="n">solver_baseline</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_uc_model</span><span class="p">)</span>
+<span class="n">solver_baseline</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_uc_model</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -661,7 +668,7 @@ Best objective 8.291528276179e+09, best bound 8.290733258025e+09, gap 0.0096%
 Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
 
 CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
-Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+Thread count: 10 physical cores, 20 logical processors, using up to 1 threads
 
 Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros
 Model fingerprint: 0xa8b70287
@@ -680,10 +687,12 @@ Iteration    Objective       Primal Inf.    Dual Inf.      Time
 
 Solved in 1 iterations and 0.01 seconds (0.00 work units)
 Optimal objective  8.290621916e+09
+
+User-callback calls 56, time in user-callback 0.00 sec
 Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
 
 CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
-Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+Thread count: 10 physical cores, 20 logical processors, using up to 1 threads
 
 Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros
 Model fingerprint: 0x4cbbf7c7
@@ -712,31 +721,29 @@ H    0     0                    8.293980e+09 8.2907e+09  0.04%     -    0s
      0     0 8.2907e+09    0    5 8.2940e+09 8.2907e+09  0.04%     -    0s
      0     0 8.2907e+09    0    1 8.2940e+09 8.2907e+09  0.04%     -    0s
      0     0 8.2907e+09    0    2 8.2940e+09 8.2907e+09  0.04%     -    0s
-     0     0 8.2908e+09    0    1 8.2940e+09 8.2908e+09  0.04%     -    0s
-     0     0 8.2908e+09    0    4 8.2940e+09 8.2908e+09  0.04%     -    0s
-     0     0 8.2908e+09    0    4 8.2940e+09 8.2908e+09  0.04%     -    0s
-H    0     0                    8.291465e+09 8.2908e+09  0.01%     -    0s
+     0     0 8.2907e+09    0    2 8.2940e+09 8.2907e+09  0.04%     -    0s
+     0     2 8.2908e+09    0    2 8.2940e+09 8.2908e+09  0.04%     -    0s
+H    9     9                    8.292131e+09 8.2908e+09  0.02%   1.0    0s
+H  132    88                    8.292121e+09 8.2908e+09  0.02%   2.0    0s
+*  133    88              28    8.292121e+09 8.2908e+09  0.02%   2.2    0s
+H  216   136                    8.291918e+09 8.2909e+09  0.01%   2.4    0s
+*  232   136              28    8.291664e+09 8.2909e+09  0.01%   2.4    0s
 
 Cutting planes:
   Gomory: 2
+  Cover: 1
   MIR: 1
+  Inf proof: 3
 
-Explored 1 nodes (1031 simplex iterations) in 0.15 seconds (0.03 work units)
-Thread count was 20 (of 20 available processors)
+Explored 233 nodes (1577 simplex iterations) in 0.09 seconds (0.06 work units)
+Thread count was 1 (of 20 available processors)
 
-Solution count 4: 8.29147e+09 8.29398e+09 8.29827e+09 9.75713e+09
+Solution count 7: 8.29166e+09 8.29192e+09 8.29212e+09 ... 9.75713e+09
 
 Optimal solution found (tolerance 1.00e-04)
-Best objective 8.291465302389e+09, best bound 8.290781665333e+09, gap 0.0082%
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-{}
+Best objective 8.291663722826e+09, best bound 8.290885027548e+09, gap 0.0094%
+
+User-callback calls 708, time in user-callback 0.00 sec
 </pre></div></div>
 </div>
 <p>In the log above, the <code class="docutils literal notranslate"><span class="pre">MIP</span> <span class="pre">start</span></code> line is missing, and Gurobi had to start with a significantly inferior initial solution. The solver was still able to find the optimal solution at the end, but it required using its own internal heuristic procedures. In this example, because we solve very small optimization problems, there was almost no difference in terms of running time, but the difference can be significant for larger problems.</p>
@@ -765,7 +772,7 @@ Best objective 8.291465302389e+09, best bound 8.290781665333e+09, gap 0.0082%
 Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
 
 CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
-Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+Thread count: 10 physical cores, 20 logical processors, using up to 1 threads
 
 Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros
 Model fingerprint: 0x19042f12
@@ -784,13 +791,15 @@ Iteration    Objective       Primal Inf.    Dual Inf.      Time
 
 Solved in 1 iterations and 0.01 seconds (0.00 work units)
 Optimal objective  8.253596777e+09
+
+User-callback calls 56, time in user-callback 0.00 sec
 Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (linux64)
 
 CPU model: 13th Gen Intel(R) Core(TM) i7-13800H, instruction set [SSE2|AVX|AVX2]
-Thread count: 10 physical cores, 20 logical processors, using up to 20 threads
+Thread count: 10 physical cores, 20 logical processors, using up to 1 threads
 
 Optimize a model with 1001 rows, 1000 columns and 2500 nonzeros
-Model fingerprint: 0xf97cde91
+Model fingerprint: 0x6926c32f
 Variable types: 500 continuous, 500 integer (500 binary)
 Coefficient statistics:
   Matrix range     [1e+00, 2e+06]
@@ -798,14 +807,15 @@ Coefficient statistics:
   Bounds range     [1e+00, 1e+00]
   RHS range        [3e+08, 3e+08]
 
-User MIP start produced solution with objective 8.25814e+09 (0.00s)
+User MIP start produced solution with objective 8.25814e+09 (0.01s)
 User MIP start produced solution with objective 8.25512e+09 (0.01s)
-User MIP start produced solution with objective 8.25483e+09 (0.01s)
-User MIP start produced solution with objective 8.25483e+09 (0.01s)
-User MIP start produced solution with objective 8.25483e+09 (0.01s)
-User MIP start produced solution with objective 8.25459e+09 (0.01s)
-User MIP start produced solution with objective 8.25459e+09 (0.01s)
-Loaded user MIP start with objective 8.25459e+09
+User MIP start produced solution with objective 8.2551e+09 (0.01s)
+User MIP start produced solution with objective 8.25508e+09 (0.01s)
+User MIP start produced solution with objective 8.25508e+09 (0.01s)
+User MIP start produced solution with objective 8.25499e+09 (0.01s)
+User MIP start produced solution with objective 8.25448e+09 (0.02s)
+User MIP start produced solution with objective 8.25448e+09 (0.02s)
+Loaded user MIP start with objective 8.25448e+09
 
 Presolve time: 0.00s
 Presolved: 1001 rows, 1000 columns, 2500 nonzeros
@@ -816,29 +826,23 @@ Root relaxation: objective 8.253597e+09, 512 iterations, 0.00 seconds (0.00 work
     Nodes    |    Current Node    |     Objective Bounds      |     Work
  Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
 
-     0     0 8.2536e+09    0    1 8.2546e+09 8.2536e+09  0.01%     -    0s
-     0     0 8.2537e+09    0    3 8.2546e+09 8.2537e+09  0.01%     -    0s
-     0     0 8.2537e+09    0    1 8.2546e+09 8.2537e+09  0.01%     -    0s
-     0     0 8.2537e+09    0    4 8.2546e+09 8.2537e+09  0.01%     -    0s
-     0     0 8.2537e+09    0    4 8.2546e+09 8.2537e+09  0.01%     -    0s
-     0     0 8.2538e+09    0    4 8.2546e+09 8.2538e+09  0.01%     -    0s
-     0     0 8.2538e+09    0    5 8.2546e+09 8.2538e+09  0.01%     -    0s
-     0     0 8.2538e+09    0    6 8.2546e+09 8.2538e+09  0.01%     -    0s
+     0     0 8.2536e+09    0    1 8.2545e+09 8.2536e+09  0.01%     -    0s
+     0     0 8.2537e+09    0    3 8.2545e+09 8.2537e+09  0.01%     -    0s
 
 Cutting planes:
   Cover: 1
-  MIR: 2
-  StrongCG: 1
-  Flow cover: 1
+  Flow cover: 2
 
-Explored 1 nodes (575 simplex iterations) in 0.05 seconds (0.01 work units)
-Thread count was 20 (of 20 available processors)
+Explored 1 nodes (515 simplex iterations) in 0.03 seconds (0.02 work units)
+Thread count was 1 (of 20 available processors)
 
-Solution count 4: 8.25459e+09 8.25483e+09 8.25512e+09 8.25814e+09
+Solution count 6: 8.25448e+09 8.25499e+09 8.25508e+09 ... 8.25814e+09
 
 Optimal solution found (tolerance 1.00e-04)
-Best objective 8.254590409970e+09, best bound 8.253768093811e+09, gap 0.0100%
-obj = 8254590409.969726
+Best objective 8.254479145594e+09, best bound 8.253689731796e+09, gap 0.0096%
+
+User-callback calls 203, time in user-callback 0.00 sec
+obj = 8254479145.594168
 x = [1.0, 1.0, 0.0]
 y = [935662.0949262811, 1604270.0218116897, 0.0]
 </pre></div></div>
