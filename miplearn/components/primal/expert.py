@@ -5,7 +5,7 @@
 import logging
 from typing import Any, Dict, List
 
-from . import _extract_bin_var_names_values
+from . import _extract_int_var_names_values
 from .actions import PrimalComponentAction
 from ...solvers.abstract import AbstractModel
 from ...h5 import H5File
@@ -28,5 +28,5 @@ class ExpertPrimalComponent:
         self, test_h5: str, model: AbstractModel, stats: Dict[str, Any]
     ) -> None:
         with H5File(test_h5, "r") as h5:
-            names, values, _ = _extract_bin_var_names_values(h5)
+            names, values, _ = _extract_int_var_names_values(h5)
             self.action.perform(model, names, values.reshape(1, -1), stats)

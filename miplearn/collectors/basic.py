@@ -81,7 +81,6 @@ class BasicCollector:
                 print(f"Error processing: data_filename")
                 traceback.print_exc()
 
-
         if n_jobs > 1:
             p_umap(
                 _collect,
