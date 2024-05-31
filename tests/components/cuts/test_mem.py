@@ -71,5 +71,5 @@ def test_usage_stab(
         comp = MemorizingCutsComponent(clf=clf, extractor=default_extractor)
         solver = LearningSolver(components=[comp])
         solver.fit(data_filenames)
-        stats = solver.optimize(data_filenames[0], build_model)  # type: ignore
+        model, stats = solver.optimize(data_filenames[0], build_model)  # type: ignore
         assert stats["Cuts: AOT"] > 0
