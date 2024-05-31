@@ -68,7 +68,7 @@ class H5File:
             return
         self._assert_is_array(value)
         if value.dtype.kind == "f":
-            value = value.astype("float32")
+            value = value.astype("float64")
         if key in self.file:
             del self.file[key]
         return self.file.create_dataset(key, data=value, compression="gzip")
