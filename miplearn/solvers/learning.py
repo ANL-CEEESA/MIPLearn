@@ -47,7 +47,9 @@ class LearningSolver:
                 relaxed.optimize()
                 relaxed.extract_after_lp(h5)
             for comp in self.components:
-                comp.before_mip(h5_filename, model, stats)
+                comp_stats = comp.before_mip(h5_filename, model, stats)
+                if comp_stats is not None:
+                    stats.update(comp_stats)
             model.optimize()
             model.extract_after_mip(h5)
 
