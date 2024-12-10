@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 
-<html lang="en" data-content_root="../../">
+<html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>8. Primal Components &#8212; MIPLearn 0.4</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
@@ -22,21 +22,23 @@
       
 
     
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css?v=b0dfe17c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f8244a84" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     
   <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
 
-    <script src="../../_static/documentation_options.js?v=751a5dd3"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js?v=7c4c3336"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../../genindex/" />
     <link rel="search" title="Search" href="../../search/" />
     <link rel="next" title="9. Learning Solver" href="../solvers/" />
@@ -68,7 +70,7 @@
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
     <div class="bd-toc-item active">
-        <p class="caption" role="heading">
+        <p class="caption">
  <span class="caption-text">
   Tutorials
  </span>
@@ -95,7 +97,7 @@
   </a>
  </li>
 </ul>
-<p class="caption" role="heading">
+<p class="caption">
  <span class="caption-text">
   User Guide
  </span>
@@ -127,7 +129,7 @@
   </a>
  </li>
 </ul>
-<p class="caption" role="heading">
+<p class="caption">
  <span class="caption-text">
   Python API Reference
  </span>
@@ -289,13 +291,13 @@
         
               <div>
                 
-  <section id="Primal-Components">
-<h1><span class="section-number">8. </span>Primal Components<a class="headerlink" href="#Primal-Components" title="Link to this heading">¶</a></h1>
+  <div class="section" id="Primal-Components">
+<h1><span class="section-number">8. </span>Primal Components<a class="headerlink" href="#Primal-Components" title="Permalink to this headline">¶</a></h1>
 <p>In MIPLearn, a <strong>primal component</strong> is class that uses machine learning to predict a (potentially partial) assignment of values to the decision variables of the problem. Predicting high-quality primal solutions may be beneficial, as they allow the MIP solver to prune potentially large portions of the search space. Alternatively, if proof of optimality is not required, the MIP solver can be used to complete the partial solution generated by the machine learning model and and double-check its
 feasibility. MIPLearn allows both of these usage patterns.</p>
 <p>In this page, we describe the four primal components currently included in MIPLearn, which employ machine learning in different ways. Each component is highly configurable, and accepts an user-provided machine learning model, which it uses for all predictions. Each component can also be configured to provide the solution to the solver in multiple ways, depending on whether proof of optimality is required.</p>
-<section id="Primal-component-actions">
-<h2><span class="section-number">8.1. </span>Primal component actions<a class="headerlink" href="#Primal-component-actions" title="Link to this heading">¶</a></h2>
+<div class="section" id="Primal-component-actions">
+<h2><span class="section-number">8.1. </span>Primal component actions<a class="headerlink" href="#Primal-component-actions" title="Permalink to this headline">¶</a></h2>
 <p>Before presenting the primal components themselves, we briefly discuss the three ways a solution may be provided to the solver. Each approach has benefits and limitations, which we also discuss in this section. All primal components can be configured to use any of the following approaches.</p>
 <p>The first approach is to provide the solution to the solver as a <strong>warm start</strong>. This is implemented by the class <a class="reference external" href="SetWarmStart">SetWarmStart</a>. The main advantage is that this method maintains all optimality and feasibility guarantees of the MIP solver, while still providing significant performance benefits for various classes of problems. If the machine learning model is able to predict multiple solutions, it is also possible to set multiple warm starts. In this case, the solver evaluates
 each warm start, discards the infeasible ones, then proceeds with the one that has the best objective value. The main disadvantage of this approach, compared to the next two, is that it provides relatively modest speedups for most problem classes, and no speedup at all for many others, even when the machine learning predictions are 100% accurate.</p>
@@ -305,9 +307,9 @@ scratch. The main disadvantage of this approach is that it loses optimality guar
 <div class="math notranslate nohighlight">
 \[\sum_{i : \bar{x}_i=0} x_i + \sum_{i : \bar{x}_i=1} \left(1 - x_i\right) \leq k,\]</div>
 <p>to the problem, where <span class="math notranslate nohighlight">\(k\)</span> is a user-defined parameter, which indicates how many of the predicted variables are allowed to deviate from the machine learning suggestion. The main advantage of this approach, compared to fixing variables, is its tolerance to lower-quality machine learning predictions. Its main disadvantage is that it typically leads to smaller speedups, especially for larger values of <span class="math notranslate nohighlight">\(k\)</span>. This approach also loses optimality guarantees.</p>
-</section>
-<section id="Memorizing-primal-component">
-<h2><span class="section-number">8.2. </span>Memorizing primal component<a class="headerlink" href="#Memorizing-primal-component" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="Memorizing-primal-component">
+<h2><span class="section-number">8.2. </span>Memorizing primal component<a class="headerlink" href="#Memorizing-primal-component" title="Permalink to this headline">¶</a></h2>
 <p>A simple machine learning strategy for the prediction of primal solutions is to memorize all distinct solutions seen during training, then try to predict, during inference time, which of those memorized solutions are most likely to be feasible and to provide a good objective value for the current instance. The most promising solutions may alternatively be combined into a single partial solution, which is then provided to the MIP solver. Both variations of this strategy are implemented by the
 <code class="docutils literal notranslate"><span class="pre">MemorizingPrimalComponent</span></code> class. Note that it is only applicable if the problem size, and in fact if the meaning of the decision variables, remains the same across problem instances.</p>
 <p>More precisely, let <span class="math notranslate nohighlight">\(I_1,\ldots,I_n\)</span> be the training instances, and let <span class="math notranslate nohighlight">\(\bar{x}^1,\ldots,\bar{x}^n\)</span> be their respective optimal solutions. Given a new instance <span class="math notranslate nohighlight">\(I_{n+1}\)</span>, <code class="docutils literal notranslate"><span class="pre">MemorizingPrimalComponent</span></code> expects a user-provided binary classifier that assigns (through the <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code> method, following scikit-learn’s conventions) a score <span class="math notranslate nohighlight">\(\delta_i\)</span> to each solution <span class="math notranslate nohighlight">\(\bar{x}^i\)</span>, such that solutions with higher score are more likely to be good solutions for
@@ -331,70 +333,70 @@ Then it computes, for each binary decision variable <span class="math notranslat
 <p>The above specification of <code class="docutils literal notranslate"><span class="pre">MemorizingPrimalComponent</span></code> is meant to be as general as possible. Simpler strategies can be implemented by configuring this component in specific ways. For example, a simpler approach employed in the literature is to collect all optimal solutions, then provide the entire list of solutions to the solver as warm starts, without any filtering or post-processing. This strategy can be implemented with <code class="docutils literal notranslate"><span class="pre">MemorizingPrimalComponent</span></code> by using a model that returns a constant
 value for all solutions (e.g. <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyClassifier.html">scikit-learn’s DummyClassifier</a>), then selecting the top <span class="math notranslate nohighlight">\(n\)</span> (instead of <span class="math notranslate nohighlight">\(k\)</span>) solutions. See example below. Another simple approach is taking the solution to the most similar instance, and using it, by itself, as a warm start. This can be implemented by using a model that computes distances between the current instance and the training ones (e.g. <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html">scikit-learn’s
 KNeighborsClassifier</a>), then select the solution to the nearest one. See also example below. More complex strategies, of course, can also be configured.</p>
-<section id="Examples">
-<h3>Examples<a class="headerlink" href="#Examples" title="Link to this heading">¶</a></h3>
+<div class="section" id="Examples">
+<h3>Examples<a class="headerlink" href="#Examples" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.dummy</span> <span class="kn">import</span> <span class="n">DummyClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="kn">import</span> <span class="n">KNeighborsClassifier</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sklearn.dummy import DummyClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
-<span class="kn">from</span> <span class="nn">miplearn.components.primal.actions</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">SetWarmStart</span><span class="p">,</span>
-    <span class="n">FixVariables</span><span class="p">,</span>
-    <span class="n">EnforceProximity</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">miplearn.components.primal.mem</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">MemorizingPrimalComponent</span><span class="p">,</span>
-    <span class="n">SelectTopSolutions</span><span class="p">,</span>
-    <span class="n">MergeTopSolutions</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">miplearn.extractors.dummy</span> <span class="kn">import</span> <span class="n">DummyExtractor</span>
-<span class="kn">from</span> <span class="nn">miplearn.extractors.fields</span> <span class="kn">import</span> <span class="n">H5FieldsExtractor</span>
+from miplearn.components.primal.actions import (
+    SetWarmStart,
+    FixVariables,
+    EnforceProximity,
+)
+from miplearn.components.primal.mem import (
+    MemorizingPrimalComponent,
+    SelectTopSolutions,
+    MergeTopSolutions,
+)
+from miplearn.extractors.dummy import DummyExtractor
+from miplearn.extractors.fields import H5FieldsExtractor
 
-<span class="c1"># Configures a memorizing primal component that collects</span>
-<span class="c1"># all distinct solutions seen during training and provides</span>
-<span class="c1"># them to the solver without any filtering or post-processing.</span>
-<span class="n">comp1</span> <span class="o">=</span> <span class="n">MemorizingPrimalComponent</span><span class="p">(</span>
-    <span class="n">clf</span><span class="o">=</span><span class="n">DummyClassifier</span><span class="p">(),</span>
-    <span class="n">extractor</span><span class="o">=</span><span class="n">DummyExtractor</span><span class="p">(),</span>
-    <span class="n">constructor</span><span class="o">=</span><span class="n">SelectTopSolutions</span><span class="p">(</span><span class="mi">1_000_000</span><span class="p">),</span>
-    <span class="n">action</span><span class="o">=</span><span class="n">SetWarmStart</span><span class="p">(),</span>
-<span class="p">)</span>
+# Configures a memorizing primal component that collects
+# all distinct solutions seen during training and provides
+# them to the solver without any filtering or post-processing.
+comp1 = MemorizingPrimalComponent(
+    clf=DummyClassifier(),
+    extractor=DummyExtractor(),
+    constructor=SelectTopSolutions(1_000_000),
+    action=SetWarmStart(),
+)
 
-<span class="c1"># Configures a memorizing primal component that finds the</span>
-<span class="c1"># training instance with the closest objective function, then</span>
-<span class="c1"># fixes the decision variables to the values they assumed</span>
-<span class="c1"># at the optimal solution for that instance.</span>
-<span class="n">comp2</span> <span class="o">=</span> <span class="n">MemorizingPrimalComponent</span><span class="p">(</span>
-    <span class="n">clf</span><span class="o">=</span><span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-    <span class="n">extractor</span><span class="o">=</span><span class="n">H5FieldsExtractor</span><span class="p">(</span>
-        <span class="n">instance_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;static_var_obj_coeffs&quot;</span><span class="p">],</span>
-    <span class="p">),</span>
-    <span class="n">constructor</span><span class="o">=</span><span class="n">SelectTopSolutions</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-    <span class="n">action</span><span class="o">=</span><span class="n">FixVariables</span><span class="p">(),</span>
-<span class="p">)</span>
+# Configures a memorizing primal component that finds the
+# training instance with the closest objective function, then
+# fixes the decision variables to the values they assumed
+# at the optimal solution for that instance.
+comp2 = MemorizingPrimalComponent(
+    clf=KNeighborsClassifier(n_neighbors=1),
+    extractor=H5FieldsExtractor(
+        instance_fields=[&quot;static_var_obj_coeffs&quot;],
+    ),
+    constructor=SelectTopSolutions(1),
+    action=FixVariables(),
+)
 
-<span class="c1"># Configures a memorizing primal component that finds the distinct</span>
-<span class="c1"># solutions to the 10 most similar training problem instances,</span>
-<span class="c1"># selects the 3 solutions that were most often optimal to these</span>
-<span class="c1"># training instances, combines them into a single partial solution,</span>
-<span class="c1"># then enforces proximity, allowing at most 3 variables to deviate</span>
-<span class="c1"># from the machine learning suggestion.</span>
-<span class="n">comp3</span> <span class="o">=</span> <span class="n">MemorizingPrimalComponent</span><span class="p">(</span>
-    <span class="n">clf</span><span class="o">=</span><span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
-    <span class="n">extractor</span><span class="o">=</span><span class="n">H5FieldsExtractor</span><span class="p">(</span><span class="n">instance_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;static_var_obj_coeffs&quot;</span><span class="p">]),</span>
-    <span class="n">constructor</span><span class="o">=</span><span class="n">MergeTopSolutions</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">thresholds</span><span class="o">=</span><span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">]),</span>
-    <span class="n">action</span><span class="o">=</span><span class="n">EnforceProximity</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-<span class="p">)</span>
+# Configures a memorizing primal component that finds the distinct
+# solutions to the 10 most similar training problem instances,
+# selects the 3 solutions that were most often optimal to these
+# training instances, combines them into a single partial solution,
+# then enforces proximity, allowing at most 3 variables to deviate
+# from the machine learning suggestion.
+comp3 = MemorizingPrimalComponent(
+    clf=KNeighborsClassifier(n_neighbors=10),
+    extractor=H5FieldsExtractor(instance_fields=[&quot;static_var_obj_coeffs&quot;]),
+    constructor=MergeTopSolutions(k=3, thresholds=[0.25, 0.75]),
+    action=EnforceProximity(3),
+)
 </pre></div>
 </div>
 </div>
-</section>
-</section>
-<section id="Independent-vars-primal-component">
-<h2><span class="section-number">8.3. </span>Independent vars primal component<a class="headerlink" href="#Independent-vars-primal-component" title="Link to this heading">¶</a></h2>
+</div>
+</div>
+<div class="section" id="Independent-vars-primal-component">
+<h2><span class="section-number">8.3. </span>Independent vars primal component<a class="headerlink" href="#Independent-vars-primal-component" title="Permalink to this headline">¶</a></h2>
 <p>Instead of memorizing previously-seen primal solutions, it is also natural to use machine learning models to directly predict the values of the decision variables, constructing a solution from scratch. This approach has the benefit of potentially constructing novel high-quality solutions, never observed in the training data. Two variations of this strategy are supported by MIPLearn: (i) predicting the values of the decision variables independently, using multiple ML models; or (ii) predicting
 the values jointly, with a single model. We describe the first variation in this section, and the second variation in the next section.</p>
 <p>Let <span class="math notranslate nohighlight">\(I_1,\ldots,I_n\)</span> be the training instances, and let <span class="math notranslate nohighlight">\(\bar{x}^1,\ldots,\bar{x}^n\)</span> be their respective optimal solutions. For each binary decision variable <span class="math notranslate nohighlight">\(x_j\)</span>, the component <code class="docutils literal notranslate"><span class="pre">IndependentVarsPrimalComponent</span></code> creates a copy of a user-provided binary classifier and trains it to predict the optimal value of <span class="math notranslate nohighlight">\(x_j\)</span>, given <span class="math notranslate nohighlight">\(\bar{x}^1_j,\ldots,\bar{x}^n_j\)</span> as training labels. The features provided to the model are the variable features computed by an user-provided
@@ -406,106 +408,106 @@ extractor. During inference time, the component uses these <span class="math not
 probability of the value being zero or one (using the <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code> method) and erases from the primal solution all values whose probabilities are below a given threshold.</p></li>
 <li><p>To make multiple copies of the provided ML classifier, MIPLearn uses the standard <code class="docutils literal notranslate"><span class="pre">sklearn.base.clone</span></code> method, which may not be suitable for classifiers from other frameworks. To handle this, it is possible to override the clone function using the <code class="docutils literal notranslate"><span class="pre">clone_fn</span></code> constructor argument.</p></li>
 </ol>
-<section id="id1">
-<h3>Examples<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<div class="section" id="id1">
+<h3>Examples<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
-<span class="kn">from</span> <span class="nn">miplearn.classifiers.minprob</span> <span class="kn">import</span> <span class="n">MinProbabilityClassifier</span>
-<span class="kn">from</span> <span class="nn">miplearn.classifiers.singleclass</span> <span class="kn">import</span> <span class="n">SingleClassFix</span>
-<span class="kn">from</span> <span class="nn">miplearn.components.primal.indep</span> <span class="kn">import</span> <span class="n">IndependentVarsPrimalComponent</span>
-<span class="kn">from</span> <span class="nn">miplearn.extractors.AlvLouWeh2017</span> <span class="kn">import</span> <span class="n">AlvLouWeh2017Extractor</span>
-<span class="kn">from</span> <span class="nn">miplearn.components.primal.actions</span> <span class="kn">import</span> <span class="n">SetWarmStart</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sklearn.linear_model import LogisticRegression
+from miplearn.classifiers.minprob import MinProbabilityClassifier
+from miplearn.classifiers.singleclass import SingleClassFix
+from miplearn.components.primal.indep import IndependentVarsPrimalComponent
+from miplearn.extractors.AlvLouWeh2017 import AlvLouWeh2017Extractor
+from miplearn.components.primal.actions import SetWarmStart
 
-<span class="c1"># Configures a primal component that independently predicts the value of each</span>
-<span class="c1"># binary variable using logistic regression and provides it to the solver as</span>
-<span class="c1"># warm start. Erases predictions with probability less than 99%; applies</span>
-<span class="c1"># single-class fix; and uses AlvLouWeh2017 features.</span>
-<span class="n">comp</span> <span class="o">=</span> <span class="n">IndependentVarsPrimalComponent</span><span class="p">(</span>
-    <span class="n">base_clf</span><span class="o">=</span><span class="n">SingleClassFix</span><span class="p">(</span>
-        <span class="n">MinProbabilityClassifier</span><span class="p">(</span>
-            <span class="n">base_clf</span><span class="o">=</span><span class="n">LogisticRegression</span><span class="p">(),</span>
-            <span class="n">thresholds</span><span class="o">=</span><span class="p">[</span><span class="mf">0.99</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">],</span>
-        <span class="p">),</span>
-    <span class="p">),</span>
-    <span class="n">extractor</span><span class="o">=</span><span class="n">AlvLouWeh2017Extractor</span><span class="p">(),</span>
-    <span class="n">action</span><span class="o">=</span><span class="n">SetWarmStart</span><span class="p">(),</span>
-<span class="p">)</span>
+# Configures a primal component that independently predicts the value of each
+# binary variable using logistic regression and provides it to the solver as
+# warm start. Erases predictions with probability less than 99%; applies
+# single-class fix; and uses AlvLouWeh2017 features.
+comp = IndependentVarsPrimalComponent(
+    base_clf=SingleClassFix(
+        MinProbabilityClassifier(
+            base_clf=LogisticRegression(),
+            thresholds=[0.99, 0.99],
+        ),
+    ),
+    extractor=AlvLouWeh2017Extractor(),
+    action=SetWarmStart(),
+)
 </pre></div>
 </div>
 </div>
-</section>
-</section>
-<section id="Joint-vars-primal-component">
-<h2><span class="section-number">8.4. </span>Joint vars primal component<a class="headerlink" href="#Joint-vars-primal-component" title="Link to this heading">¶</a></h2>
+</div>
+</div>
+<div class="section" id="Joint-vars-primal-component">
+<h2><span class="section-number">8.4. </span>Joint vars primal component<a class="headerlink" href="#Joint-vars-primal-component" title="Permalink to this headline">¶</a></h2>
 <p>In the previous subsection, we used multiple machine learning models to independently predict the values of the binary decision variables. When these values are correlated, an alternative approach is to jointly predict the values of all binary variables using a single machine learning model. This strategy is implemented by <code class="docutils literal notranslate"><span class="pre">JointVarsPrimalComponent</span></code>. Compared to the previous ones, this component is much more straightforwad. It simply extracts instance features, using the user-provided feature
 extractor, then directly trains the user-provided binary classifier (using the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method), without making any copies. The trained classifier is then used to predict entire solutions (using the <code class="docutils literal notranslate"><span class="pre">predict</span></code> method), which are given to the solver using one of the previously discussed methods. In the example below, we illustrate the usage of this component with a simple feed-forward neural network.</p>
 <p><code class="docutils literal notranslate"><span class="pre">JointVarsPrimalComponent</span></code> can also be used to implement strategies that use multiple machine learning models, but not indepedently. For example, a common strategy in multioutput prediction is building a <em>classifier chain</em>. In this approach, the first decision variable is predicted using the instance features alone; but the <span class="math notranslate nohighlight">\(n\)</span>-th decision variable is predicted using the instance features plus the predicted values of the <span class="math notranslate nohighlight">\(n-1\)</span> previous variables. This can be easily implemented
 using scikit-learn’s <code class="docutils literal notranslate"><span class="pre">ClassifierChain</span></code> estimator, as shown in the example below.</p>
-<section id="id2">
-<h3>Examples<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<div class="section" id="id2">
+<h3>Examples<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.multioutput</span> <span class="kn">import</span> <span class="n">ClassifierChain</span>
-<span class="kn">from</span> <span class="nn">sklearn.neural_network</span> <span class="kn">import</span> <span class="n">MLPClassifier</span>
-<span class="kn">from</span> <span class="nn">miplearn.components.primal.joint</span> <span class="kn">import</span> <span class="n">JointVarsPrimalComponent</span>
-<span class="kn">from</span> <span class="nn">miplearn.extractors.fields</span> <span class="kn">import</span> <span class="n">H5FieldsExtractor</span>
-<span class="kn">from</span> <span class="nn">miplearn.components.primal.actions</span> <span class="kn">import</span> <span class="n">SetWarmStart</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sklearn.multioutput import ClassifierChain
+from sklearn.neural_network import MLPClassifier
+from miplearn.components.primal.joint import JointVarsPrimalComponent
+from miplearn.extractors.fields import H5FieldsExtractor
+from miplearn.components.primal.actions import SetWarmStart
 
-<span class="c1"># Configures a primal component that uses a feedforward neural network</span>
-<span class="c1"># to jointly predict the values of the binary variables, based on the</span>
-<span class="c1"># objective cost function, and provides the solution to the solver as</span>
-<span class="c1"># a warm start.</span>
-<span class="n">comp</span> <span class="o">=</span> <span class="n">JointVarsPrimalComponent</span><span class="p">(</span>
-    <span class="n">clf</span><span class="o">=</span><span class="n">MLPClassifier</span><span class="p">(),</span>
-    <span class="n">extractor</span><span class="o">=</span><span class="n">H5FieldsExtractor</span><span class="p">(</span>
-        <span class="n">instance_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;static_var_obj_coeffs&quot;</span><span class="p">],</span>
-    <span class="p">),</span>
-    <span class="n">action</span><span class="o">=</span><span class="n">SetWarmStart</span><span class="p">(),</span>
-<span class="p">)</span>
+# Configures a primal component that uses a feedforward neural network
+# to jointly predict the values of the binary variables, based on the
+# objective cost function, and provides the solution to the solver as
+# a warm start.
+comp = JointVarsPrimalComponent(
+    clf=MLPClassifier(),
+    extractor=H5FieldsExtractor(
+        instance_fields=[&quot;static_var_obj_coeffs&quot;],
+    ),
+    action=SetWarmStart(),
+)
 
-<span class="c1"># Configures a primal component that uses a chain of logistic regression</span>
-<span class="c1"># models to jointly predict the values of the binary variables, based on</span>
-<span class="c1"># the objective function.</span>
-<span class="n">comp</span> <span class="o">=</span> <span class="n">JointVarsPrimalComponent</span><span class="p">(</span>
-    <span class="n">clf</span><span class="o">=</span><span class="n">ClassifierChain</span><span class="p">(</span><span class="n">SingleClassFix</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())),</span>
-    <span class="n">extractor</span><span class="o">=</span><span class="n">H5FieldsExtractor</span><span class="p">(</span>
-        <span class="n">instance_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;static_var_obj_coeffs&quot;</span><span class="p">],</span>
-    <span class="p">),</span>
-    <span class="n">action</span><span class="o">=</span><span class="n">SetWarmStart</span><span class="p">(),</span>
-<span class="p">)</span>
+# Configures a primal component that uses a chain of logistic regression
+# models to jointly predict the values of the binary variables, based on
+# the objective function.
+comp = JointVarsPrimalComponent(
+    clf=ClassifierChain(SingleClassFix(LogisticRegression())),
+    extractor=H5FieldsExtractor(
+        instance_fields=[&quot;static_var_obj_coeffs&quot;],
+    ),
+    action=SetWarmStart(),
+)
 </pre></div>
 </div>
 </div>
-</section>
-</section>
-<section id="Expert-primal-component">
-<h2><span class="section-number">8.5. </span>Expert primal component<a class="headerlink" href="#Expert-primal-component" title="Link to this heading">¶</a></h2>
+</div>
+</div>
+<div class="section" id="Expert-primal-component">
+<h2><span class="section-number">8.5. </span>Expert primal component<a class="headerlink" href="#Expert-primal-component" title="Permalink to this headline">¶</a></h2>
 <p>Before spending time and effort choosing a machine learning strategy and tweaking its parameters, it is usually a good idea to evaluate what would be the performance impact of the model if its predictions were 100% accurate. This is especially important for the prediction of warm starts, since they are not always very beneficial. To simplify this task, MIPLearn provides <code class="docutils literal notranslate"><span class="pre">ExpertPrimalComponent</span></code>, a component which simply loads the optimal solution from the HDF5 file, assuming that it has already
 been computed, then directly provides it to the solver using one of the available methods. This component is useful in benchmarks, to evaluate how close to the best theoretical performance the machine learning components are.</p>
-<section id="Example">
-<h3>Example<a class="headerlink" href="#Example" title="Link to this heading">¶</a></h3>
+<div class="section" id="Example">
+<h3>Example<a class="headerlink" href="#Example" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">miplearn.components.primal.expert</span> <span class="kn">import</span> <span class="n">ExpertPrimalComponent</span>
-<span class="kn">from</span> <span class="nn">miplearn.components.primal.actions</span> <span class="kn">import</span> <span class="n">SetWarmStart</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from miplearn.components.primal.expert import ExpertPrimalComponent
+from miplearn.components.primal.actions import SetWarmStart
 
-<span class="c1"># Configures an expert primal component, which reads a pre-computed</span>
-<span class="c1"># optimal solution from the HDF5 file and provides it to the solver</span>
-<span class="c1"># as warm start.</span>
-<span class="n">comp</span> <span class="o">=</span> <span class="n">ExpertPrimalComponent</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">SetWarmStart</span><span class="p">())</span>
+# Configures an expert primal component, which reads a pre-computed
+# optimal solution from the HDF5 file and provides it to the solver
+# as warm start.
+comp = ExpertPrimalComponent(action=SetWarmStart())
 </pre></div>
 </div>
 </div>
-</section>
-</section>
-</section>
+</div>
+</div>
+</div>
 
 
               </div>

@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 
-<html lang="en" data-content_root="../../">
+<html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>11. Collectors &amp; Extractors &#8212; MIPLearn 0.4</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
@@ -22,17 +22,18 @@
       
 
     
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css?v=b0dfe17c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f8244a84" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     
   <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
 
-    <script src="../../_static/documentation_options.js?v=751a5dd3"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js?v=7c4c3336"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
     <link rel="index" title="Index" href="../../genindex/" />
     <link rel="search" title="Search" href="../../search/" />
     <link rel="next" title="12. Components" href="../components/" />
@@ -64,7 +65,7 @@
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
     <div class="bd-toc-item active">
-        <p class="caption" role="heading">
+        <p class="caption">
  <span class="caption-text">
   Tutorials
  </span>
@@ -91,7 +92,7 @@
   </a>
  </li>
 </ul>
-<p class="caption" role="heading">
+<p class="caption">
  <span class="caption-text">
   User Guide
  </span>
@@ -123,7 +124,7 @@
   </a>
  </li>
 </ul>
-<p class="caption" role="heading">
+<p class="caption">
  <span class="caption-text">
   Python API Reference
  </span>
@@ -225,226 +226,26 @@
   <a class="reference internal nav-link" href="#module-miplearn.classifiers.minprob">
    11.1. miplearn.classifiers.minprob
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#miplearn.classifiers.minprob.MinProbabilityClassifier">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MinProbabilityClassifier
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.classifiers.minprob.MinProbabilityClassifier.fit">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         MinProbabilityClassifier.fit()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.classifiers.minprob.MinProbabilityClassifier.predict">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         MinProbabilityClassifier.predict()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.classifiers.minprob.MinProbabilityClassifier.set_fit_request">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         MinProbabilityClassifier.set_fit_request()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.classifiers.minprob.MinProbabilityClassifier.set_predict_request">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         MinProbabilityClassifier.set_predict_request()
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.classifiers.singleclass">
    11.2. miplearn.classifiers.singleclass
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#miplearn.classifiers.singleclass.SingleClassFix">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       SingleClassFix
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.classifiers.singleclass.SingleClassFix.fit">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         SingleClassFix.fit()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.classifiers.singleclass.SingleClassFix.predict">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         SingleClassFix.predict()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.classifiers.singleclass.SingleClassFix.set_fit_request">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         SingleClassFix.set_fit_request()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.classifiers.singleclass.SingleClassFix.set_predict_request">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         SingleClassFix.set_predict_request()
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.collectors.basic">
    11.3. miplearn.collectors.basic
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#miplearn.collectors.basic.BasicCollector">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       BasicCollector
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.collectors.basic.BasicCollector.collect">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         BasicCollector.collect()
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.extractors.fields">
    11.4. miplearn.extractors.fields
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#miplearn.extractors.fields.H5FieldsExtractor">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       H5FieldsExtractor
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.extractors.fields.H5FieldsExtractor.get_constr_features">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         H5FieldsExtractor.get_constr_features()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.extractors.fields.H5FieldsExtractor.get_instance_features">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         H5FieldsExtractor.get_instance_features()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.extractors.fields.H5FieldsExtractor.get_var_features">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         H5FieldsExtractor.get_var_features()
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.extractors.AlvLouWeh2017">
    11.5. miplearn.extractors.AlvLouWeh2017
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AlvLouWeh2017Extractor
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_constr_features">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AlvLouWeh2017Extractor.get_constr_features()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_instance_features">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AlvLouWeh2017Extractor.get_instance_features()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_var_features">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AlvLouWeh2017Extractor.get_var_features()
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
  </li>
 </ul>
 
@@ -457,32 +258,32 @@
         
               <div>
                 
-  <section id="collectors-extractors">
-<h1><span class="section-number">11. </span>Collectors &amp; Extractors<a class="headerlink" href="#collectors-extractors" title="Link to this heading">¶</a></h1>
-<section id="module-miplearn.classifiers.minprob">
-<span id="miplearn-classifiers-minprob"></span><h2><span class="section-number">11.1. </span>miplearn.classifiers.minprob<a class="headerlink" href="#module-miplearn.classifiers.minprob" title="Link to this heading">¶</a></h2>
+  <div class="section" id="collectors-extractors">
+<h1><span class="section-number">11. </span>Collectors &amp; Extractors<a class="headerlink" href="#collectors-extractors" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-miplearn.classifiers.minprob">
+<span id="miplearn-classifiers-minprob"></span><h2><span class="section-number">11.1. </span>miplearn.classifiers.minprob<a class="headerlink" href="#module-miplearn.classifiers.minprob" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="miplearn.classifiers.minprob.MinProbabilityClassifier">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.classifiers.minprob.</span></span><span class="sig-name descname"><span class="pre">MinProbabilityClassifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">base_clf:</span> <span class="pre">~typing.Any,</span> <span class="pre">thresholds:</span> <span class="pre">~typing.List[float],</span> <span class="pre">clone_fn:</span> <span class="pre">~typing.Callable[[~typing.Any],</span> <span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">clone&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.classifiers.minprob.MinProbabilityClassifier" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></p>
+<dt id="miplearn.classifiers.minprob.MinProbabilityClassifier">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.classifiers.minprob.</span></code><code class="sig-name descname"><span class="pre">MinProbabilityClassifier</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">base_clf:</span> <span class="pre">Any,</span> <span class="pre">thresholds:</span> <span class="pre">List[float],</span> <span class="pre">clone_fn:</span> <span class="pre">Callable[[Any],</span> <span class="pre">Any]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">clone&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.classifiers.minprob.MinProbabilityClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
 <p>Meta-classifier that returns NaN for predictions made by a base classifier that
 have probability below a given threshold. More specifically, this meta-classifier
 calls base_clf.predict_proba and compares the result against the provided
 thresholds. If the probability for one of the classes is above its threshold,
 the meta-classifier returns that prediction. Otherwise, it returns NaN.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.classifiers.minprob.MinProbabilityClassifier.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.classifiers.minprob.MinProbabilityClassifier.fit" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.classifiers.minprob.MinProbabilityClassifier.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.classifiers.minprob.MinProbabilityClassifier.fit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.classifiers.minprob.MinProbabilityClassifier.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#miplearn.classifiers.minprob.MinProbabilityClassifier.predict" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.classifiers.minprob.MinProbabilityClassifier.predict">
+<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#miplearn.classifiers.minprob.MinProbabilityClassifier.predict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.classifiers.minprob.MinProbabilityClassifier.set_fit_request">
-<span class="sig-name descname"><span class="pre">set_fit_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#miplearn.classifiers.minprob.MinProbabilityClassifier" title="miplearn.classifiers.minprob.MinProbabilityClassifier"><span class="pre">MinProbabilityClassifier</span></a></span></span><a class="headerlink" href="#miplearn.classifiers.minprob.MinProbabilityClassifier.set_fit_request" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.classifiers.minprob.MinProbabilityClassifier.set_fit_request">
+<code class="sig-name descname"><span class="pre">set_fit_request</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span> </span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#miplearn.classifiers.minprob.MinProbabilityClassifier" title="miplearn.classifiers.minprob.MinProbabilityClassifier"><span class="pre">miplearn.classifiers.minprob.MinProbabilityClassifier</span></a><a class="headerlink" href="#miplearn.classifiers.minprob.MinProbabilityClassifier.set_fit_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
 <p>Note that this method is only relevant if
 <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
@@ -508,21 +309,21 @@ sub-estimator of a meta-estimator, e.g. used inside a
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>. Otherwise it has no effect.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>x</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">x</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>self</strong> – The updated object.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>object</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.classifiers.minprob.MinProbabilityClassifier.set_predict_request">
-<span class="sig-name descname"><span class="pre">set_predict_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#miplearn.classifiers.minprob.MinProbabilityClassifier" title="miplearn.classifiers.minprob.MinProbabilityClassifier"><span class="pre">MinProbabilityClassifier</span></a></span></span><a class="headerlink" href="#miplearn.classifiers.minprob.MinProbabilityClassifier.set_predict_request" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.classifiers.minprob.MinProbabilityClassifier.set_predict_request">
+<code class="sig-name descname"><span class="pre">set_predict_request</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span> </span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#miplearn.classifiers.minprob.MinProbabilityClassifier" title="miplearn.classifiers.minprob.MinProbabilityClassifier"><span class="pre">miplearn.classifiers.minprob.MinProbabilityClassifier</span></a><a class="headerlink" href="#miplearn.classifiers.minprob.MinProbabilityClassifier.set_predict_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">predict</span></code> method.</p>
 <p>Note that this method is only relevant if
 <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
@@ -548,13 +349,13 @@ sub-estimator of a meta-estimator, e.g. used inside a
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>. Otherwise it has no effect.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>x</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">x</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">predict</span></code>.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>self</strong> – The updated object.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>object</p>
 </dd>
 </dl>
@@ -562,31 +363,31 @@ sub-estimator of a meta-estimator, e.g. used inside a
 
 </dd></dl>
 
-</section>
-<section id="module-miplearn.classifiers.singleclass">
-<span id="miplearn-classifiers-singleclass"></span><h2><span class="section-number">11.2. </span>miplearn.classifiers.singleclass<a class="headerlink" href="#module-miplearn.classifiers.singleclass" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="module-miplearn.classifiers.singleclass">
+<span id="miplearn-classifiers-singleclass"></span><h2><span class="section-number">11.2. </span>miplearn.classifiers.singleclass<a class="headerlink" href="#module-miplearn.classifiers.singleclass" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="miplearn.classifiers.singleclass.SingleClassFix">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.classifiers.singleclass.</span></span><span class="sig-name descname"><span class="pre">SingleClassFix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_clf:</span> <span class="pre">~sklearn.base.BaseEstimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clone_fn:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">clone&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.classifiers.singleclass.SingleClassFix" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></p>
+<dt id="miplearn.classifiers.singleclass.SingleClassFix">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.classifiers.singleclass.</span></code><code class="sig-name descname"><span class="pre">SingleClassFix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">base_clf:</span> <span class="pre">sklearn.base.BaseEstimator</span></em>, <em class="sig-param"><span class="pre">clone_fn:</span> <span class="pre">Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">clone&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.classifiers.singleclass.SingleClassFix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
 <p>Some sklearn classifiers, such as logistic regression, have issues with datasets
 that contain a single class. This meta-classifier fixes the issue. If the
 training data contains a single class, this meta-classifier always returns that
 class as a prediction. Otherwise, it fits the provided base classifier,
 and returns its predictions instead.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.classifiers.singleclass.SingleClassFix.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.classifiers.singleclass.SingleClassFix.fit" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.classifiers.singleclass.SingleClassFix.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.classifiers.singleclass.SingleClassFix.fit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.classifiers.singleclass.SingleClassFix.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#miplearn.classifiers.singleclass.SingleClassFix.predict" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.classifiers.singleclass.SingleClassFix.predict">
+<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#miplearn.classifiers.singleclass.SingleClassFix.predict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.classifiers.singleclass.SingleClassFix.set_fit_request">
-<span class="sig-name descname"><span class="pre">set_fit_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#miplearn.classifiers.singleclass.SingleClassFix" title="miplearn.classifiers.singleclass.SingleClassFix"><span class="pre">SingleClassFix</span></a></span></span><a class="headerlink" href="#miplearn.classifiers.singleclass.SingleClassFix.set_fit_request" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.classifiers.singleclass.SingleClassFix.set_fit_request">
+<code class="sig-name descname"><span class="pre">set_fit_request</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span> </span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#miplearn.classifiers.singleclass.SingleClassFix" title="miplearn.classifiers.singleclass.SingleClassFix"><span class="pre">miplearn.classifiers.singleclass.SingleClassFix</span></a><a class="headerlink" href="#miplearn.classifiers.singleclass.SingleClassFix.set_fit_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
 <p>Note that this method is only relevant if
 <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
@@ -612,21 +413,21 @@ sub-estimator of a meta-estimator, e.g. used inside a
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>. Otherwise it has no effect.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>x</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">x</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>self</strong> – The updated object.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>object</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.classifiers.singleclass.SingleClassFix.set_predict_request">
-<span class="sig-name descname"><span class="pre">set_predict_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#miplearn.classifiers.singleclass.SingleClassFix" title="miplearn.classifiers.singleclass.SingleClassFix"><span class="pre">SingleClassFix</span></a></span></span><a class="headerlink" href="#miplearn.classifiers.singleclass.SingleClassFix.set_predict_request" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.classifiers.singleclass.SingleClassFix.set_predict_request">
+<code class="sig-name descname"><span class="pre">set_predict_request</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span> </span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#miplearn.classifiers.singleclass.SingleClassFix" title="miplearn.classifiers.singleclass.SingleClassFix"><span class="pre">miplearn.classifiers.singleclass.SingleClassFix</span></a><a class="headerlink" href="#miplearn.classifiers.singleclass.SingleClassFix.set_predict_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">predict</span></code> method.</p>
 <p>Note that this method is only relevant if
 <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
@@ -652,13 +453,13 @@ sub-estimator of a meta-estimator, e.g. used inside a
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>. Otherwise it has no effect.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>x</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">x</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">predict</span></code>.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>self</strong> – The updated object.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>object</p>
 </dd>
 </dl>
@@ -666,64 +467,64 @@ sub-estimator of a meta-estimator, e.g. used inside a
 
 </dd></dl>
 
-</section>
-<section id="module-miplearn.collectors.basic">
-<span id="miplearn-collectors-basic"></span><h2><span class="section-number">11.3. </span>miplearn.collectors.basic<a class="headerlink" href="#module-miplearn.collectors.basic" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="module-miplearn.collectors.basic">
+<span id="miplearn-collectors-basic"></span><h2><span class="section-number">11.3. </span>miplearn.collectors.basic<a class="headerlink" href="#module-miplearn.collectors.basic" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="miplearn.collectors.basic.BasicCollector">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.collectors.basic.</span></span><span class="sig-name descname"><span class="pre">BasicCollector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">skip_lp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_mps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.collectors.basic.BasicCollector" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.collectors.basic.BasicCollector">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.collectors.basic.</span></code><code class="sig-name descname"><span class="pre">BasicCollector</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">skip_lp</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_mps</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.collectors.basic.BasicCollector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.collectors.basic.BasicCollector.collect">
-<span class="sig-name descname"><span class="pre">collect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.collectors.basic.BasicCollector.collect" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.collectors.basic.BasicCollector.collect">
+<code class="sig-name descname"><span class="pre">collect</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.collectors.basic.BasicCollector.collect" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</section>
-<section id="module-miplearn.extractors.fields">
-<span id="miplearn-extractors-fields"></span><h2><span class="section-number">11.4. </span>miplearn.extractors.fields<a class="headerlink" href="#module-miplearn.extractors.fields" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="module-miplearn.extractors.fields">
+<span id="miplearn-extractors-fields"></span><h2><span class="section-number">11.4. </span>miplearn.extractors.fields<a class="headerlink" href="#module-miplearn.extractors.fields" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="miplearn.extractors.fields.H5FieldsExtractor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.extractors.fields.</span></span><span class="sig-name descname"><span class="pre">H5FieldsExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constr_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.extractors.fields.H5FieldsExtractor" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FeaturesExtractor</span></code></p>
+<dt id="miplearn.extractors.fields.H5FieldsExtractor">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.extractors.fields.</span></code><code class="sig-name descname"><span class="pre">H5FieldsExtractor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_fields</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_fields</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constr_fields</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.extractors.fields.H5FieldsExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">miplearn.extractors.abstract.FeaturesExtractor</span></code></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.extractors.fields.H5FieldsExtractor.get_constr_features">
-<span class="sig-name descname"><span class="pre">get_constr_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">H5File</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#miplearn.extractors.fields.H5FieldsExtractor.get_constr_features" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.extractors.fields.H5FieldsExtractor.get_constr_features">
+<code class="sig-name descname"><span class="pre">get_constr_features</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">miplearn.h5.H5File</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#miplearn.extractors.fields.H5FieldsExtractor.get_constr_features" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.extractors.fields.H5FieldsExtractor.get_instance_features">
-<span class="sig-name descname"><span class="pre">get_instance_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">H5File</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#miplearn.extractors.fields.H5FieldsExtractor.get_instance_features" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.extractors.fields.H5FieldsExtractor.get_instance_features">
+<code class="sig-name descname"><span class="pre">get_instance_features</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">miplearn.h5.H5File</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#miplearn.extractors.fields.H5FieldsExtractor.get_instance_features" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.extractors.fields.H5FieldsExtractor.get_var_features">
-<span class="sig-name descname"><span class="pre">get_var_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">H5File</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#miplearn.extractors.fields.H5FieldsExtractor.get_var_features" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.extractors.fields.H5FieldsExtractor.get_var_features">
+<code class="sig-name descname"><span class="pre">get_var_features</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">miplearn.h5.H5File</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#miplearn.extractors.fields.H5FieldsExtractor.get_var_features" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</section>
-<section id="module-miplearn.extractors.AlvLouWeh2017">
-<span id="miplearn-extractors-alvlouweh2017"></span><h2><span class="section-number">11.5. </span>miplearn.extractors.AlvLouWeh2017<a class="headerlink" href="#module-miplearn.extractors.AlvLouWeh2017" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="module-miplearn.extractors.AlvLouWeh2017">
+<span id="miplearn-extractors-alvlouweh2017"></span><h2><span class="section-number">11.5. </span>miplearn.extractors.AlvLouWeh2017<a class="headerlink" href="#module-miplearn.extractors.AlvLouWeh2017" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.extractors.AlvLouWeh2017.</span></span><span class="sig-name descname"><span class="pre">AlvLouWeh2017Extractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">with_m1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_m2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_m3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FeaturesExtractor</span></code></p>
+<dt id="miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.extractors.AlvLouWeh2017.</span></code><code class="sig-name descname"><span class="pre">AlvLouWeh2017Extractor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">with_m1</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_m2</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_m3</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">miplearn.extractors.abstract.FeaturesExtractor</span></code></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_constr_features">
-<span class="sig-name descname"><span class="pre">get_constr_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">H5File</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_constr_features" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_constr_features">
+<code class="sig-name descname"><span class="pre">get_constr_features</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">miplearn.h5.H5File</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_constr_features" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_instance_features">
-<span class="sig-name descname"><span class="pre">get_instance_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">H5File</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_instance_features" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_instance_features">
+<code class="sig-name descname"><span class="pre">get_instance_features</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">miplearn.h5.H5File</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_instance_features" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_var_features">
-<span class="sig-name descname"><span class="pre">get_var_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">H5File</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_var_features" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_var_features">
+<code class="sig-name descname"><span class="pre">get_var_features</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">miplearn.h5.H5File</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#miplearn.extractors.AlvLouWeh2017.AlvLouWeh2017Extractor.get_var_features" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Computes static variable features described in:</dt><dd><p>Alvarez, A. M., Louveaux, Q., &amp; Wehenkel, L. (2017). A machine learning-based
 approximation of strong branching. INFORMS Journal on Computing, 29(1),
@@ -734,8 +535,8 @@ approximation of strong branching. INFORMS Journal on Computing, 29(1),
 
 </dd></dl>
 
-</section>
-</section>
+</div>
+</div>
 
 
               </div>

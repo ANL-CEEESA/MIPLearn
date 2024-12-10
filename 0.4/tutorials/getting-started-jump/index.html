@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 
-<html lang="en" data-content_root="../../">
+<html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>3. Getting started (JuMP) &#8212; MIPLearn 0.4</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
@@ -22,21 +22,28 @@
       
 
     
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css?v=b0dfe17c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f8244a84" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     
   <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
 
-    <script src="../../_static/documentation_options.js?v=751a5dd3"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js?v=7c4c3336"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../../genindex/" />
     <link rel="search" title="Search" href="../../search/" />
     <link rel="next" title="4. User cuts and lazy constraints" href="../cuts-gurobipy/" />
@@ -68,7 +75,7 @@
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
     <div class="bd-toc-item active">
-        <p class="caption" role="heading">
+        <p class="caption">
  <span class="caption-text">
   Tutorials
  </span>
@@ -95,7 +102,7 @@
   </a>
  </li>
 </ul>
-<p class="caption" role="heading">
+<p class="caption">
  <span class="caption-text">
   User Guide
  </span>
@@ -127,7 +134,7 @@
   </a>
  </li>
 </ul>
-<p class="caption" role="heading">
+<p class="caption">
  <span class="caption-text">
   Python API Reference
  </span>
@@ -266,10 +273,10 @@
         
               <div>
                 
-  <section id="Getting-started-(JuMP)">
-<h1><span class="section-number">3. </span>Getting started (JuMP)<a class="headerlink" href="#Getting-started-(JuMP)" title="Link to this heading">¶</a></h1>
-<section id="Introduction">
-<h2><span class="section-number">3.1. </span>Introduction<a class="headerlink" href="#Introduction" title="Link to this heading">¶</a></h2>
+  <div class="section" id="Getting-started-(JuMP)">
+<h1><span class="section-number">3. </span>Getting started (JuMP)<a class="headerlink" href="#Getting-started-(JuMP)" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Introduction">
+<h2><span class="section-number">3.1. </span>Introduction<a class="headerlink" href="#Introduction" title="Permalink to this headline">¶</a></h2>
 <p><strong>MIPLearn</strong> is an open source framework that uses machine learning (ML) to accelerate the performance of mixed-integer programming solvers (e.g. Gurobi, CPLEX, XPRESS). In this tutorial, we will:</p>
 <ol class="arabic simple">
 <li><p>Install the Julia/JuMP version of MIPLearn</p></li>
@@ -281,9 +288,9 @@
 <p class="admonition-title">Warning</p>
 <p>MIPLearn is still in early development stage. If run into any bugs or issues, please submit a bug report in our GitHub repository. Comments, suggestions and pull requests are also very welcome!</p>
 </div>
-</section>
-<section id="Installation">
-<h2><span class="section-number">3.2. </span>Installation<a class="headerlink" href="#Installation" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="Installation">
+<h2><span class="section-number">3.2. </span>Installation<a class="headerlink" href="#Installation" title="Permalink to this headline">¶</a></h2>
 <p>MIPLearn is available in two versions:</p>
 <ul class="simple">
 <li><p>Python version, compatible with the Pyomo and Gurobipy modeling languages,</p></li>
@@ -311,9 +318,9 @@
 <li><p>In the code above, we install specific version of all packages to ensure that this tutorial keeps running in the future, even when newer (and possibly incompatible) versions of the packages are released. This is usually a recommended practice for all Julia projects.</p></li>
 </ul>
 </div>
-</section>
-<section id="Modeling-a-simple-optimization-problem">
-<h2><span class="section-number">3.3. </span>Modeling a simple optimization problem<a class="headerlink" href="#Modeling-a-simple-optimization-problem" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="Modeling-a-simple-optimization-problem">
+<h2><span class="section-number">3.3. </span>Modeling a simple optimization problem<a class="headerlink" href="#Modeling-a-simple-optimization-problem" title="Permalink to this headline">¶</a></h2>
 <p>To illustrate how can MIPLearn be used, we will model and solve a small optimization problem related to power systems optimization. The problem we discuss below is a simplification of the <strong>unit commitment problem,</strong> a practical optimization problem solved daily by electric grid operators around the world.</p>
 <p>Suppose that a utility company needs to decide which electrical generators should be online at each hour of the day, as well as how much power should each generator produce. More specifically, assume that the company owns <span class="math notranslate nohighlight">\(n\)</span> generators, denoted by <span class="math notranslate nohighlight">\(g_1, \ldots, g_n\)</span>. Each generator can either be online or offline. An online generator <span class="math notranslate nohighlight">\(g_i\)</span> can produce between <span class="math notranslate nohighlight">\(p^\text{min}_i\)</span> to <span class="math notranslate nohighlight">\(p^\text{max}_i\)</span> megawatts of power, and it costs the company
 <span class="math notranslate nohighlight">\(c^\text{fix}_i + c^\text{var}_i y_i\)</span>, where <span class="math notranslate nohighlight">\(y_i\)</span> is the amount of power produced. An offline generator produces nothing and costs nothing. The total amount of power to be produced needs to be exactly equal to the total demand <span class="math notranslate nohighlight">\(d\)</span> (in megawatts).</p>
@@ -447,9 +454,9 @@ Vector(value.(model.inner[:y])) = [0.0, 60.0, 40.0]
 <li><p>In the example above, <code class="docutils literal notranslate"><span class="pre">JumpModel</span></code> is just a thin wrapper around a standard JuMP model. This wrapper allows MIPLearn to be solver- and modeling-language-agnostic. The wrapper provides only a few basic methods, such as <code class="docutils literal notranslate"><span class="pre">optimize</span></code>. For more control, and to query the solution, the original JuMP model can be accessed through <code class="docutils literal notranslate"><span class="pre">model.inner</span></code>, as illustrated above.</p></li>
 </ul>
 </div>
-</section>
-<section id="Generating-training-data">
-<h2><span class="section-number">3.4. </span>Generating training data<a class="headerlink" href="#Generating-training-data" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="Generating-training-data">
+<h2><span class="section-number">3.4. </span>Generating training data<a class="headerlink" href="#Generating-training-data" title="Permalink to this headline">¶</a></h2>
 <p>Although Gurobi could solve the small example above in a fraction of a second, it gets slower for larger and more complex versions of the problem. If this is a problem that needs to be solved frequently, as it is often the case in practice, it could make sense to spend some time upfront generating a <strong>trained</strong> solver, which can optimize new instances (similar to the ones it was trained on) faster.</p>
 <p>In the following, we will use MIPLearn to train machine learning models that is able to predict the optimal solution for instances that follow a given probability distribution, then it will provide this predicted solution to Gurobi as a warm start. Before we can train the model, we need to collect training data by solving a large number of instances. In real-world situations, we may construct these training instances based on historical data. In this tutorial, we will construct them using a
 random instance generator:</p>
@@ -506,9 +513,9 @@ machines. The code below generates the files <code class="docutils literal notra
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Training-and-solving-test-instances">
-<h2><span class="section-number">3.5. </span>Training and solving test instances<a class="headerlink" href="#Training-and-solving-test-instances" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="Training-and-solving-test-instances">
+<h2><span class="section-number">3.5. </span>Training and solving test instances<a class="headerlink" href="#Training-and-solving-test-instances" title="Permalink to this headline">¶</a></h2>
 <p>With training data in hand, we can now design and train a machine learning model to accelerate solver performance. In this tutorial, for illustration purposes, we will use ML to generate a good warm start using <span class="math notranslate nohighlight">\(k\)</span>-nearest neighbors. More specifically, the strategy is to:</p>
 <ol class="arabic simple">
 <li><p>Memorize the optimal solutions of all training instances;</p></li>
@@ -655,9 +662,9 @@ User-callback calls 204, time in user-callback 0.00 sec
 </pre></div></div>
 </div>
 <p>In the log above, the <code class="docutils literal notranslate"><span class="pre">MIP</span> <span class="pre">start</span></code> line is missing, and Gurobi had to start with a significantly inferior initial solution. The solver was still able to find the optimal solution at the end, but it required using its own internal heuristic procedures. In this example, because we solve very small optimization problems, there was almost no difference in terms of running time, but the difference can be significant for larger problems.</p>
-</section>
-<section id="Accessing-the-solution">
-<h2><span class="section-number">3.6. </span>Accessing the solution<a class="headerlink" href="#Accessing-the-solution" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="Accessing-the-solution">
+<h2><span class="section-number">3.6. </span>Accessing the solution<a class="headerlink" href="#Accessing-the-solution" title="Permalink to this headline">¶</a></h2>
 <p>In the example above, we used <code class="docutils literal notranslate"><span class="pre">LearningSolver.solve</span></code> together with data files to solve both the training and the test instances. In the following example, we show how to build and solve a JuMP model entirely in-memory, using our trained solver.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
@@ -718,8 +725,8 @@ User-callback calls 182, time in user-callback 0.00 sec
 objective_value(model.inner) = 9.866096485613789e9
 </pre></div></div>
 </div>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>

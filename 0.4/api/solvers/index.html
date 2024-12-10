@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 
-<html lang="en" data-content_root="../../">
+<html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>13. Solvers &#8212; MIPLearn 0.4</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
@@ -22,17 +22,18 @@
       
 
     
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css?v=b0dfe17c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f8244a84" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     
   <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
 
-    <script src="../../_static/documentation_options.js?v=751a5dd3"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js?v=7c4c3336"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
     <link rel="index" title="Index" href="../../genindex/" />
     <link rel="search" title="Search" href="../../search/" />
     <link rel="next" title="14. Helpers" href="../helpers/" />
@@ -64,7 +65,7 @@
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
     <div class="bd-toc-item active">
-        <p class="caption" role="heading">
+        <p class="caption">
  <span class="caption-text">
   Tutorials
  </span>
@@ -91,7 +92,7 @@
   </a>
  </li>
 </ul>
-<p class="caption" role="heading">
+<p class="caption">
  <span class="caption-text">
   User Guide
  </span>
@@ -123,7 +124,7 @@
   </a>
  </li>
 </ul>
-<p class="caption" role="heading">
+<p class="caption">
  <span class="caption-text">
   Python API Reference
  </span>
@@ -225,298 +226,16 @@
   <a class="reference internal nav-link" href="#module-miplearn.solvers.abstract">
    13.1. miplearn.solvers.abstract
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AbstractModel
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.WHERE_CUTS">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.WHERE_CUTS
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.WHERE_DEFAULT">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.WHERE_DEFAULT
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.WHERE_LAZY">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.WHERE_LAZY
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.add_constrs">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.add_constrs()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.extract_after_load">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.extract_after_load()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.extract_after_lp">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.extract_after_lp()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.extract_after_mip">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.extract_after_mip()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.fix_variables">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.fix_variables()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.lazy_enforce">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.lazy_enforce()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.optimize">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.optimize()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.relax">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.relax()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.set_cuts">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.set_cuts()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.set_warm_starts">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.set_warm_starts()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.abstract.AbstractModel.write">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         AbstractModel.write()
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.solvers.gurobi">
    13.2. miplearn.solvers.gurobi
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#miplearn.solvers.gurobi.GurobiModel">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GurobiModel
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.gurobi.GurobiModel.add_constr">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         GurobiModel.add_constr()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.gurobi.GurobiModel.add_constrs">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         GurobiModel.add_constrs()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.gurobi.GurobiModel.extract_after_load">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         GurobiModel.extract_after_load()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.gurobi.GurobiModel.extract_after_lp">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         GurobiModel.extract_after_lp()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.gurobi.GurobiModel.extract_after_mip">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         GurobiModel.extract_after_mip()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.gurobi.GurobiModel.fix_variables">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         GurobiModel.fix_variables()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.gurobi.GurobiModel.optimize">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         GurobiModel.optimize()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.gurobi.GurobiModel.relax">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         GurobiModel.relax()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.gurobi.GurobiModel.set_time_limit">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         GurobiModel.set_time_limit()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.gurobi.GurobiModel.set_warm_starts">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         GurobiModel.set_warm_starts()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.gurobi.GurobiModel.write">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         GurobiModel.write()
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-miplearn.solvers.learning">
    13.3. miplearn.solvers.learning
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#miplearn.solvers.learning.LearningSolver">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       LearningSolver
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.learning.LearningSolver.fit">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         LearningSolver.fit()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#miplearn.solvers.learning.LearningSolver.optimize">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         LearningSolver.optimize()
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
  </li>
 </ul>
 
@@ -529,178 +248,178 @@
         
               <div>
                 
-  <section id="solvers">
-<h1><span class="section-number">13. </span>Solvers<a class="headerlink" href="#solvers" title="Link to this heading">¶</a></h1>
-<section id="module-miplearn.solvers.abstract">
-<span id="miplearn-solvers-abstract"></span><h2><span class="section-number">13.1. </span>miplearn.solvers.abstract<a class="headerlink" href="#module-miplearn.solvers.abstract" title="Link to this heading">¶</a></h2>
+  <div class="section" id="solvers">
+<h1><span class="section-number">13. </span>Solvers<a class="headerlink" href="#solvers" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-miplearn.solvers.abstract">
+<span id="miplearn-solvers-abstract"></span><h2><span class="section-number">13.1. </span>miplearn.solvers.abstract<a class="headerlink" href="#module-miplearn.solvers.abstract" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.solvers.abstract.</span></span><span class="sig-name descname"><span class="pre">AbstractModel</span></span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dt id="miplearn.solvers.abstract.AbstractModel">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.solvers.abstract.</span></code><code class="sig-name descname"><span class="pre">AbstractModel</span></code><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.WHERE_CUTS">
-<span class="sig-name descname"><span class="pre">WHERE_CUTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cuts'</span></em><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.WHERE_CUTS" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.WHERE_DEFAULT">
-<span class="sig-name descname"><span class="pre">WHERE_DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'default'</span></em><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.WHERE_DEFAULT" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.WHERE_CUTS">
+<code class="sig-name descname"><span class="pre">WHERE_CUTS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'cuts'</span></em><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.WHERE_CUTS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.WHERE_LAZY">
-<span class="sig-name descname"><span class="pre">WHERE_LAZY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'lazy'</span></em><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.WHERE_LAZY" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.WHERE_DEFAULT">
+<code class="sig-name descname"><span class="pre">WHERE_DEFAULT</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'default'</span></em><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.WHERE_DEFAULT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="miplearn.solvers.abstract.AbstractModel.WHERE_LAZY">
+<code class="sig-name descname"><span class="pre">WHERE_LAZY</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'lazy'</span></em><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.WHERE_LAZY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.add_constrs">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_constrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrs_lhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrs_sense</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrs_rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.add_constrs" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.add_constrs">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">add_constrs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrs_lhs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrs_sense</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrs_rhs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.add_constrs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.extract_after_load">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_after_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">H5File</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.extract_after_load" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.extract_after_load">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">extract_after_load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">miplearn.h5.H5File</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.extract_after_load" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.extract_after_lp">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_after_lp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">H5File</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.extract_after_lp" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.extract_after_lp">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">extract_after_lp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">miplearn.h5.H5File</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.extract_after_lp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.extract_after_mip">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_after_mip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">H5File</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.extract_after_mip" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.extract_after_mip">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">extract_after_mip</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">miplearn.h5.H5File</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.extract_after_mip" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.fix_variables">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fix_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.fix_variables" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.fix_variables">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">fix_variables</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.fix_variables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.lazy_enforce">
-<span class="sig-name descname"><span class="pre">lazy_enforce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">violations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.lazy_enforce" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.lazy_enforce">
+<code class="sig-name descname"><span class="pre">lazy_enforce</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">violations</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.lazy_enforce" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.optimize">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.optimize" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.optimize">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">optimize</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.optimize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.relax">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">relax</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">AbstractModel</span></a></span></span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.relax" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.relax">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">relax</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></a><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.relax" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.set_cuts">
-<span class="sig-name descname"><span class="pre">set_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.set_cuts" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.set_cuts">
+<code class="sig-name descname"><span class="pre">set_cuts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cuts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.set_cuts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.set_warm_starts">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_warm_starts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.set_warm_starts" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.set_warm_starts">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">set_warm_starts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.set_warm_starts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.abstract.AbstractModel.write">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.write" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.abstract.AbstractModel.write">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.abstract.AbstractModel.write" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</section>
-<section id="module-miplearn.solvers.gurobi">
-<span id="miplearn-solvers-gurobi"></span><h2><span class="section-number">13.2. </span>miplearn.solvers.gurobi<a class="headerlink" href="#module-miplearn.solvers.gurobi" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="module-miplearn.solvers.gurobi">
+<span id="miplearn-solvers-gurobi"></span><h2><span class="section-number">13.2. </span>miplearn.solvers.gurobi<a class="headerlink" href="#module-miplearn.solvers.gurobi" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="miplearn.solvers.gurobi.GurobiModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.solvers.gurobi.</span></span><span class="sig-name descname"><span class="pre">GurobiModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lazy_separate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lazy_enforce</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cuts_separate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cuts_enforce</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractModel</span></code></a></p>
+<dt id="miplearn.solvers.gurobi.GurobiModel">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.solvers.gurobi.</span></code><code class="sig-name descname"><span class="pre">GurobiModel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">gurobipy.Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lazy_separate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lazy_enforce</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cuts_separate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cuts_enforce</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></code></a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.gurobi.GurobiModel.add_constr">
-<span class="sig-name descname"><span class="pre">add_constr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.add_constr" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.gurobi.GurobiModel.add_constr">
+<code class="sig-name descname"><span class="pre">add_constr</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constr</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.add_constr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.gurobi.GurobiModel.add_constrs">
-<span class="sig-name descname"><span class="pre">add_constrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrs_lhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrs_sense</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrs_rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.add_constrs" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.gurobi.GurobiModel.add_constrs">
+<code class="sig-name descname"><span class="pre">add_constrs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrs_lhs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrs_sense</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrs_rhs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.add_constrs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.gurobi.GurobiModel.extract_after_load">
-<span class="sig-name descname"><span class="pre">extract_after_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">H5File</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.extract_after_load" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.gurobi.GurobiModel.extract_after_load">
+<code class="sig-name descname"><span class="pre">extract_after_load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">miplearn.h5.H5File</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.extract_after_load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a model that has just been loaded, extracts static problem
 features, such as variable names and types, objective coefficients, etc.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.gurobi.GurobiModel.extract_after_lp">
-<span class="sig-name descname"><span class="pre">extract_after_lp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">H5File</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.extract_after_lp" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.gurobi.GurobiModel.extract_after_lp">
+<code class="sig-name descname"><span class="pre">extract_after_lp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">miplearn.h5.H5File</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.extract_after_lp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a linear programming model that has just been solved, extracts
 dynamic problem features, such as optimal LP solution, basis status,
 etc.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.gurobi.GurobiModel.extract_after_mip">
-<span class="sig-name descname"><span class="pre">extract_after_mip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">H5File</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.extract_after_mip" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.gurobi.GurobiModel.extract_after_mip">
+<code class="sig-name descname"><span class="pre">extract_after_mip</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../helpers/#miplearn.h5.H5File" title="miplearn.h5.H5File"><span class="pre">miplearn.h5.H5File</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.extract_after_mip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a mixed-integer linear programming model that has just been
 solved, extracts dynamic problem features, such as optimal MIP solution.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.gurobi.GurobiModel.fix_variables">
-<span class="sig-name descname"><span class="pre">fix_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.fix_variables" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.gurobi.GurobiModel.fix_variables">
+<code class="sig-name descname"><span class="pre">fix_variables</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.fix_variables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.gurobi.GurobiModel.optimize">
-<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.optimize" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.gurobi.GurobiModel.optimize">
+<code class="sig-name descname"><span class="pre">optimize</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.optimize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.gurobi.GurobiModel.relax">
-<span class="sig-name descname"><span class="pre">relax</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">GurobiModel</span></a></span></span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.relax" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.gurobi.GurobiModel.relax">
+<code class="sig-name descname"><span class="pre">relax</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#miplearn.solvers.gurobi.GurobiModel" title="miplearn.solvers.gurobi.GurobiModel"><span class="pre">miplearn.solvers.gurobi.GurobiModel</span></a><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.relax" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.gurobi.GurobiModel.set_time_limit">
-<span class="sig-name descname"><span class="pre">set_time_limit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_limit_sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.set_time_limit" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.gurobi.GurobiModel.set_time_limit">
+<code class="sig-name descname"><span class="pre">set_time_limit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_limit_sec</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.set_time_limit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.gurobi.GurobiModel.set_warm_starts">
-<span class="sig-name descname"><span class="pre">set_warm_starts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.set_warm_starts" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.gurobi.GurobiModel.set_warm_starts">
+<code class="sig-name descname"><span class="pre">set_warm_starts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.set_warm_starts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.gurobi.GurobiModel.write">
-<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.write" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.gurobi.GurobiModel.write">
+<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.gurobi.GurobiModel.write" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</section>
-<section id="module-miplearn.solvers.learning">
-<span id="miplearn-solvers-learning"></span><h2><span class="section-number">13.3. </span>miplearn.solvers.learning<a class="headerlink" href="#module-miplearn.solvers.learning" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="module-miplearn.solvers.learning">
+<span id="miplearn-solvers-learning"></span><h2><span class="section-number">13.3. </span>miplearn.solvers.learning<a class="headerlink" href="#module-miplearn.solvers.learning" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="miplearn.solvers.learning.LearningSolver">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">miplearn.solvers.learning.</span></span><span class="sig-name descname"><span class="pre">LearningSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_lp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.solvers.learning.LearningSolver" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.learning.LearningSolver">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">miplearn.solvers.learning.</span></code><code class="sig-name descname"><span class="pre">LearningSolver</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_lp</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#miplearn.solvers.learning.LearningSolver" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.learning.LearningSolver.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_filenames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#miplearn.solvers.learning.LearningSolver.fit" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.learning.LearningSolver.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_filenames</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#miplearn.solvers.learning.LearningSolver.fit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="miplearn.solvers.learning.LearningSolver.optimize">
-<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">AbstractModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#miplearn.solvers.learning.LearningSolver.optimize" title="Link to this definition">¶</a></dt>
+<dt id="miplearn.solvers.learning.LearningSolver.optimize">
+<code class="sig-name descname"><span class="pre">optimize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#miplearn.solvers.abstract.AbstractModel" title="miplearn.solvers.abstract.AbstractModel"><span class="pre">miplearn.solvers.abstract.AbstractModel</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#miplearn.solvers.learning.LearningSolver.optimize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</section>
-</section>
+</div>
+</div>
 
 
               </div>

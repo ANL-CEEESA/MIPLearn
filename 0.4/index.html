@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 
-<html lang="en" data-content_root="./">
+<html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MIPLearn &#8212; MIPLearn 0.4</title>
     
   <link href="_static/css/theme.css" rel="stylesheet" />
@@ -22,17 +22,23 @@
       
 
     
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=362ab14a" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css?v=b0dfe17c" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=f8244a84" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     
   <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
 
-    <script src="_static/documentation_options.js?v=751a5dd3"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script id="documentation_options" data-url_root="" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js?v=7c4c3336"></script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
     <link rel="index" title="Index" href="genindex/" />
     <link rel="search" title="Search" href="search/" />
     <link rel="next" title="1. Getting started (Pyomo)" href="tutorials/getting-started-pyomo/" />
@@ -63,7 +69,7 @@
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
     <div class="bd-toc-item active">
-        <p class="caption" role="heading">
+        <p class="caption">
  <span class="caption-text">
   Tutorials
  </span>
@@ -90,7 +96,7 @@
   </a>
  </li>
 </ul>
-<p class="caption" role="heading">
+<p class="caption">
  <span class="caption-text">
   User Guide
  </span>
@@ -122,7 +128,7 @@
   </a>
  </li>
 </ul>
-<p class="caption" role="heading">
+<p class="caption">
  <span class="caption-text">
   Python API Reference
  </span>
@@ -253,14 +259,14 @@
         
               <div>
                 
-  <section id="miplearn">
-<h1>MIPLearn<a class="headerlink" href="#miplearn" title="Link to this heading">¶</a></h1>
+  <div class="section" id="miplearn">
+<h1>MIPLearn<a class="headerlink" href="#miplearn" title="Permalink to this headline">¶</a></h1>
 <p><strong>MIPLearn</strong> is an extensible framework for solving discrete optimization problems using a combination of Mixed-Integer Linear Programming (MIP) and Machine Learning (ML). MIPLearn uses ML methods to automatically identify patterns in previously solved instances of the problem, then uses these patterns to accelerate the performance of conventional state-of-the-art MIP solvers such as CPLEX, Gurobi or XPRESS.</p>
 <p>Unlike pure ML methods, MIPLearn is not only able to find high-quality solutions to discrete optimization problems, but it can also prove the optimality and feasibility of these solutions. Unlike conventional MIP solvers, MIPLearn can take full advantage of very specific observations that happen to be true in a particular family of instances (such as the observation that a particular constraint is typically redundant, or that a particular variable typically assumes a certain value). For certain classes of problems, this approach may provide significant performance benefits.</p>
-<section id="contents">
-<h2>Contents<a class="headerlink" href="#contents" title="Link to this heading">¶</a></h2>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-pyomo/">1. Getting started (Pyomo)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/getting-started-gurobipy/">2. Getting started (Gurobipy)</a></li>
@@ -269,7 +275,7 @@
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<p class="caption"><span class="caption-text">User Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="guide/problems/">5. Benchmark Problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="guide/problems/#Overview">5.1. Overview</a></li>
@@ -313,7 +319,7 @@
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Python API Reference</span></p>
+<p class="caption"><span class="caption-text">Python API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/problems/">10. Benchmark Problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/collectors/">11. Collectors &amp; Extractors</a></li>
@@ -322,9 +328,9 @@
 <li class="toctree-l1"><a class="reference internal" href="api/helpers/">14. Helpers</a></li>
 </ul>
 </div>
-</section>
-<section id="authors">
-<h2>Authors<a class="headerlink" href="#authors" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><strong>Alinson S. Xavier</strong> (Argonne National Laboratory)</p></li>
 <li><p><strong>Feng Qiu</strong> (Argonne National Laboratory)</p></li>
@@ -332,16 +338,16 @@
 <li><p><strong>Berkay Becu</strong> (Georgia Institute of Technology)</p></li>
 <li><p><strong>Santanu S. Dey</strong>  (Georgia Institute of Technology)</p></li>
 </ul>
-</section>
-<section id="acknowledgments">
-<h2>Acknowledgments<a class="headerlink" href="#acknowledgments" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="acknowledgments">
+<h2>Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Based upon work supported by <strong>Laboratory Directed Research and Development</strong> (LDRD) funding from Argonne National Laboratory, provided by the Director, Office of Science, of the U.S. Department of Energy.</p></li>
 <li><p>Based upon work supported by the <strong>U.S. Department of Energy Advanced Grid Modeling Program</strong>.</p></li>
 </ul>
-</section>
-<section id="citing-miplearn">
-<h2>Citing MIPLearn<a class="headerlink" href="#citing-miplearn" title="Link to this heading">¶</a></h2>
+</div>
+<div class="section" id="citing-miplearn">
+<h2>Citing MIPLearn<a class="headerlink" href="#citing-miplearn" title="Permalink to this headline">¶</a></h2>
 <p>If you use MIPLearn in your research (either the solver or the included problem generators), we kindly request that you cite the package as follows:</p>
 <ul class="simple">
 <li><p><strong>Alinson S. Xavier, Feng Qiu, Xiaoyi Gu, Berkay Becu, Santanu S. Dey.</strong> <em>MIPLearn: An Extensible Framework for Learning-Enhanced Optimization (Version 0.4)</em>. Zenodo (2024). DOI: <a class="reference external" href="https://doi.org/10.5281/zenodo.4287567">https://doi.org/10.5281/zenodo.4287567</a></p></li>
@@ -350,8 +356,8 @@
 <ul class="simple">
 <li><p><strong>Alinson S. Xavier, Feng Qiu, Shabbir Ahmed.</strong> <em>Learning to Solve Large-Scale Unit Commitment Problems.</em> INFORMS Journal on Computing (2020). DOI: <a class="reference external" href="https://doi.org/10.1287/ijoc.2020.0976">https://doi.org/10.1287/ijoc.2020.0976</a></p></li>
 </ul>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
