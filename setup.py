@@ -6,7 +6,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name="miplearn",
-    version="0.4.0",
+    version="0.4.1",
     author="Alinson S. Xavier",
     author_email="axavier@anl.gov",
     description="Extensible Framework for Learning-Enhanced Mixed-Integer Optimization",
@@ -15,7 +15,7 @@ setup(
     python_requires=">=3.9",
     install_requires=[
         "Jinja2<3.1",
-        "gurobipy>=10,<11",
+        "gurobipy>=11,<12",
         "h5py>=3,<4",
         "networkx>=2,<3",
         "numpy>=1,<2",
