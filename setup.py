@@ -6,7 +6,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name="miplearn",
-    version="0.4.1",
+    version="0.4.2",
     author="Alinson S. Xavier",
     author_email="axavier@anl.gov",
     description="Extensible Framework for Learning-Enhanced Mixed-Integer Optimization",
@@ -36,8 +36,13 @@ setup(
             "pyflakes==2.5.0",
             "pytest>=7,<8",
             "sphinx-book-theme==0.1.0",
+            "sphinxcontrib-applehelp==1.0.4",
+            "sphinxcontrib-devhelp==1.0.2",
+            "sphinxcontrib-htmlhelp==2.0.1",
+            "sphinxcontrib-serializinghtml==1.1.5",
+            "sphinxcontrib-qthelp==1.0.3",
             "sphinx-multitoc-numbering>=0.1,<0.2",
-            "twine>=4,<5",
+            "twine>=6,<7",
         ]
     },
 )
