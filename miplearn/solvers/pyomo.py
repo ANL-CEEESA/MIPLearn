@@ -8,7 +8,7 @@ import numpy as np
 import pyomo
 import pyomo.environ as pe
 from pyomo.core import Objective, Var, Suffix
-from pyomo.core.base import _GeneralVarData
+from pyomo.core.base import VarData
 from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
 from scipy.sparse import coo_matrix
 
@@ -302,13 +302,13 @@ class PyomoModel(AbstractModel):
                         lhs_row.append(row)
                         lhs_col.append(varname_to_idx[term._args_[1].name])
                         lhs_data.append(float(term._args_[0]))
-                    elif isinstance(term, _GeneralVarData):
+                    elif isinstance(term, VarData):
                         lhs_row.append(row)
                         lhs_col.append(varname_to_idx[term.name])
                         lhs_data.append(1.0)
                     else:
                         raise Exception(f"Unknown term type: {term.__class__.__name__}")
-            elif isinstance(expr, _GeneralVarData):
+            elif isinstance(expr, VarData):
                 lhs_row.append(row)
                 lhs_col.append(varname_to_idx[expr.name])
                 lhs_data.append(1.0)
@@ -379,13 +379,13 @@ class PyomoModel(AbstractModel):
             for term in expr._args_:
                 if isinstance(term, MonomialTermExpression):
                     lhs[term._args_[1].name] = float(term._args_[0])
-                elif isinstance(term, _GeneralVarData):
+                elif isinstance(term, VarData):
                     lhs[term.name] = 1.0
                 elif isinstance(term, float):
                     offset += term
                 else:
                     raise Exception(f"Unknown term type: {term.__class__.__name__}")
-        elif isinstance(expr, _GeneralVarData):
+        elif isinstance(expr, VarData):
             lhs[expr.name] = 1.0
         else:
             raise Exception(f"Unknown expression type: {expr.__class__.__name__}")
