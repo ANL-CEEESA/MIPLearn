@@ -7,6 +7,10 @@ VERSION     := 0.4
 
 all: docs test
 
+conda-create:
+	conda env remove -n miplearn
+	conda create -n miplearn python=3.12
+
 clean:
 	rm -rf build/* dist/*
 
