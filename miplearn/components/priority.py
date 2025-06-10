@@ -28,4 +28,5 @@ class ExpertBranchPriorityComponent:
             for var_idx, var_name in enumerate(var_names):
                 if np.isfinite(var_priority[var_idx]):
                     var = model.getVarByName(var_name.decode())
-                    var.branchPriority = int(log(1 + var_priority[var_idx]))
+                    assert var is not None, f"unknown var: {var_name}"
+                    var.BranchPriority = int(log(1 + var_priority[var_idx]))

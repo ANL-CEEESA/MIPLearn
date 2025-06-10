@@ -105,7 +105,8 @@ def build_stab_model_gurobipy(
         model.addConstr(x[i1] + x[i2] <= 1)
 
     def cuts_separate(m: GurobiModel) -> List[Hashable]:
-        x_val = m.inner.cbGetNodeRel(x)
+        x_val_dict = m.inner.cbGetNodeRel(x)
+        x_val = [x_val_dict[i] for i in nodes]
         return _stab_separate(data, x_val)
 
     def cuts_enforce(m: GurobiModel, violations: List[Any]) -> None:

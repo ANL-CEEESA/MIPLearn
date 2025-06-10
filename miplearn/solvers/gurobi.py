@@ -4,10 +4,10 @@
 
 import logging
 import json
-from typing import Dict, Optional, Callable, Any, List
+from typing import Dict, Optional, Callable, Any, List, Sequence
 
 import gurobipy as gp
-from gurobipy import GRB, GurobiError
+from gurobipy import GRB, GurobiError, Var
 import numpy as np
 from scipy.sparse import lil_matrix
 
@@ -109,7 +109,11 @@ class GurobiModel(AbstractModel):
         assert constrs_sense.shape == (nconstrs,)
         assert constrs_rhs.shape == (nconstrs,)
 
-        gp_vars = [self.inner.getVarByName(var_name.decode()) for var_name in var_names]
+        gp_vars: list[Var] = []
+        for var_name in var_names:
+            v = self.inner.getVarByName(var_name.decode())
+            assert v is not None, f"unknown var: {var_name}"
+            gp_vars.append(v)
         self.inner.addMConstr(constrs_lhs, gp_vars, constrs_sense, constrs_rhs)
 
         if stats is not None:
@@ -188,9 +192,10 @@ class GurobiModel(AbstractModel):
             var_val = var_values[var_idx]
             if np.isfinite(var_val):
                 var = self.inner.getVarByName(var_name.decode())
-                var.vtype = "C"
-                var.lb = var_val
-                var.ub = var_val
+                assert var is not None, f"unknown var: {var_name}"
+                var.VType = "c"
+                var.LB = var_val
+                var.UB = var_val
                 n_fixed += 1
         if stats is not None:
             stats["Fixed variables"] = n_fixed
@@ -213,7 +218,7 @@ class GurobiModel(AbstractModel):
         return GurobiModel(self.inner.relax())
 
     def set_time_limit(self, time_limit_sec: float) -> None:
-        self.inner.params.timeLimit = time_limit_sec
+        self.inner.params.TimeLimit = time_limit_sec
 
     def set_warm_starts(
         self,
@@ -228,12 +233,13 @@ class GurobiModel(AbstractModel):
 
         self.inner.numStart = n_starts
         for start_idx in range(n_starts):
-            self.inner.params.startNumber = start_idx
+            self.inner.params.StartNumber = start_idx
             for var_idx, var_name in enumerate(var_names):
                 var_val = var_values[start_idx, var_idx]
                 if np.isfinite(var_val):
                     var = self.inner.getVarByName(var_name.decode())
-                    var.start = var_val
+                    assert var is not None, f"unknown var: {var_name}"
+                    var.Start = var_val
 
         if stats is not None:
             stats["WS: Count"] = n_starts
