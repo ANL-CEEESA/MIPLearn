@@ -15,7 +15,7 @@ setup(
     python_requires=">=3.9",
     install_requires=[
         "Jinja2<3.1",
-        "gurobipy>=11,<12",
+        "gurobipy>=12,<13",
         "h5py>=3,<4",
         "networkx>=2,<3",
         "numpy>=1,<2",

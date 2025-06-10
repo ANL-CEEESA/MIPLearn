@@ -7,7 +7,7 @@ from typing import List, Union
 
 import gurobipy as gp
 import numpy as np
-from gurobipy.gurobipy import GRB
+from gurobipy import GRB
 from scipy.stats import uniform, randint
 from scipy.stats.distributions import rv_frozen
 
