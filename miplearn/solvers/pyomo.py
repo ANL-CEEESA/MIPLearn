@@ -9,6 +9,7 @@ import pyomo
 import pyomo.environ as pe
 from pyomo.core import Objective, Var, Suffix
 from pyomo.core.base import VarData
+from pyomo.core.expr import ProductExpression
 from pyomo.core.expr.numeric_expr import SumExpression, MonomialTermExpression
 from scipy.sparse import coo_matrix
 
@@ -207,19 +208,23 @@ class PyomoModel(AbstractModel):
         lower_bounds: List[float] = []
         obj_coeffs: List[float] = []
 
-        obj = None
+        obj_quad, obj_linear = None, None
         obj_offset = 0.0
         obj_count = 0
         for obj in self.inner.component_objects(Objective):
-            obj, obj_offset = self._parse_pyomo_expr(obj.expr)
+            obj_quad, obj_linear, obj_offset = self._parse_obj_expr(obj.expr)
             obj_count += 1
         assert obj_count == 1, f"One objective function expected; found {obj_count}"
+        assert obj_quad is not None
+        assert obj_linear is not None
 
+        varname_to_idx: Dict[str, int] = {}
         for i, var in enumerate(self.inner.component_objects(pyomo.core.Var)):
             for idx in var:
                 v = var[idx]
 
                 # Variable name
+                varname_to_idx[v.name] = len(names)
                 if idx is None:
                     names.append(var.name)
                 else:
@@ -249,10 +254,21 @@ class PyomoModel(AbstractModel):
                 lower_bounds.append(float(lb))
 
                 # Objective coefficients
-                if v.name in obj:
-                    obj_coeffs.append(obj[v.name])
+                if v.name in obj_linear:
+                    obj_coeffs.append(obj_linear[v.name])
                 else:
                     obj_coeffs.append(0.0)
+
+        if len(obj_quad) > 0:
+            nvars = len(names)
+            matrix = np.zeros((nvars, nvars))
+            for ((left_varname, right_varname), coeff) in obj_quad.items():
+                assert left_varname in varname_to_idx
+                assert right_varname in varname_to_idx
+                left_idx = varname_to_idx[left_varname]
+                right_idx = varname_to_idx[right_varname]
+                matrix[left_idx, right_idx] = coeff
+                h5.put_array("static_var_obj_coeffs_quad", matrix)
 
         h5.put_array("static_var_names", np.array(names, dtype="S"))
         h5.put_array("static_var_types", np.array(types, dtype="S"))
@@ -327,8 +343,9 @@ class PyomoModel(AbstractModel):
                 _parse_constraint(constr, curr_row)
                 curr_row += 1
 
-        lhs = coo_matrix((lhs_data, (lhs_row, lhs_col))).tocoo()
-        h5.put_sparse("static_constr_lhs", lhs)
+        if len(lhs_data) > 0:
+            lhs = coo_matrix((lhs_data, (lhs_row, lhs_col))).tocoo()
+            h5.put_sparse("static_constr_lhs", lhs)
         h5.put_array("static_constr_names", np.array(names, dtype="S"))
         h5.put_array("static_constr_rhs", np.array(rhs))
         h5.put_array("static_constr_sense", np.array(senses, dtype="S"))
@@ -372,24 +389,47 @@ class PyomoModel(AbstractModel):
                     slacks.append(abs(self.inner.slack[c]))
         h5.put_array("mip_constr_slacks", np.array(slacks))
 
-    def _parse_pyomo_expr(self, expr: Any) -> Tuple[Dict[str, float], float]:
-        lhs = {}
-        offset = 0.0
+    def _parse_term(self, t: Any) -> Tuple[str, float]:
+        if isinstance(t, MonomialTermExpression):
+            return t._args_[1].name, float(t._args_[0])
+        elif isinstance(t, VarData):
+            return t.name, 1.0
+        else:
+            raise Exception(f"Unknown term type: {t.__class__.__name__}")
+
+    def _parse_obj_expr(
+        self, expr: Any
+    ) -> Tuple[Dict[Tuple[str, str], float], Dict[str, float], float]:
+        obj_coeff_linear = {}
+        obj_coeff_quadratic = {}
+        obj_offset = 0.0
         if isinstance(expr, SumExpression):
             for term in expr._args_:
-                if isinstance(term, MonomialTermExpression):
-                    lhs[term._args_[1].name] = float(term._args_[0])
-                elif isinstance(term, VarData):
-                    lhs[term.name] = 1.0
-                elif isinstance(term, float):
-                    offset += term
+                if isinstance(term, (int, float)):
+                    # Constant term
+                    obj_offset += term
+                elif isinstance(term, (MonomialTermExpression, VarData)):
+                    # Linear term
+                    var_name, var_coeff = self._parse_term(term)
+                    if var_name not in obj_coeff_linear:
+                        obj_coeff_linear[var_name] = 0.0
+                    obj_coeff_linear[var_name] += var_coeff
+                elif isinstance(term, ProductExpression):
+                    # Quadratic terms
+                    left_var_nane, left_coeff = self._parse_term(term._args_[0])
+                    right_var_nane, right_coeff = self._parse_term(term._args_[1])
+                    if (left_var_nane, right_var_nane) not in obj_coeff_quadratic:
+                        obj_coeff_quadratic[(left_var_nane, right_var_nane)] = 0.0
+                    obj_coeff_quadratic[(left_var_nane, right_var_nane)] += (
+                        left_coeff * right_coeff
+                    )
                 else:
                     raise Exception(f"Unknown term type: {term.__class__.__name__}")
         elif isinstance(expr, VarData):
-            lhs[expr.name] = 1.0
+            obj_coeff_linear[expr.name] = 1.0
         else:
             raise Exception(f"Unknown expression type: {expr.__class__.__name__}")
-        return lhs, offset
+        return obj_coeff_quadratic, obj_coeff_linear, obj_offset
 
     def _gap(self, zp: float, zd: float, tol: float = 1e-6) -> float:
         # Reference: https://www.gurobi.com/documentation/9.5/refman/mipgap2.html

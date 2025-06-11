@@ -9,7 +9,11 @@ import numpy as np
 from scipy.stats import randint, uniform
 
 from miplearn.h5 import H5File
-from miplearn.problems.maxcut import MaxCutGenerator, build_maxcut_model_gurobipy
+from miplearn.problems.maxcut import (
+    MaxCutGenerator,
+    build_maxcut_model_gurobipy,
+    build_maxcut_model_pyomo,
+)
 
 
 def _set_seed():
@@ -80,39 +84,42 @@ def test_maxcut_model():
         p=uniform(loc=0.5, scale=0.0),
         fix_graph=True,
     ).generate(1)[0]
-    model = build_maxcut_model_gurobipy(data)
-
-    with TemporaryDirectory() as tempdir:
-        with H5File(f"{tempdir}/data.h5", "w") as h5:
-            model.extract_after_load(h5)
-            obj_lin = h5.get_array("static_var_obj_coeffs")
-            assert obj_lin is not None
-            assert obj_lin.tolist() == [
-                3.0,
-                1.0,
-                3.0,
-                1.0,
-                -1.0,
-                0.0,
-                -1.0,
-                0.0,
-                -1.0,
-                0.0,
-            ]
-            obj_quad = h5.get_array("static_var_obj_coeffs_quad")
-            assert obj_quad is not None
-            assert obj_quad.tolist() == [
-                [0.0, 0.0, -1.0, 1.0, -1.0, 0.0, 0.0, 0.0, -1.0, -1.0],
-                [0.0, 0.0, 1.0, -1.0, 0.0, -1.0, -1.0, 0.0, 0.0, 1.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, -1.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 1.0, -1.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, -1.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            ]
-
-    model.optimize()
-    assert model.inner.ObjVal == -4
+    for build_model in [
+        build_maxcut_model_gurobipy,
+        build_maxcut_model_pyomo,
+    ]:
+        model = build_model(data)
+        with TemporaryDirectory() as tempdir:
+            with H5File(f"{tempdir}/data.h5", "w") as h5:
+                model.extract_after_load(h5)
+                obj_lin = h5.get_array("static_var_obj_coeffs")
+                assert obj_lin is not None
+                assert obj_lin.tolist() == [
+                    3.0,
+                    1.0,
+                    3.0,
+                    1.0,
+                    -1.0,
+                    0.0,
+                    -1.0,
+                    0.0,
+                    -1.0,
+                    0.0,
+                ]
+                obj_quad = h5.get_array("static_var_obj_coeffs_quad")
+                assert obj_quad is not None
+                assert obj_quad.tolist() == [
+                    [0.0, 0.0, -1.0, 1.0, -1.0, 0.0, 0.0, 0.0, -1.0, -1.0],
+                    [0.0, 0.0, 1.0, -1.0, 0.0, -1.0, -1.0, 0.0, 0.0, 1.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, -1.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 1.0, -1.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, -1.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                ]
+                model.optimize()
+                model.extract_after_mip(h5)
+                assert h5.get_scalar("mip_obj_value") == -4
