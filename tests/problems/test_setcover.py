@@ -2,7 +2,7 @@
 #  Copyright (C) 2020-2022, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from tempfile import NamedTemporaryFile
+from tempfile import TemporaryDirectory
 
 import numpy as np
 from scipy.stats import randint, uniform
@@ -86,8 +86,8 @@ def test_set_cover() -> None:
         build_setcover_model_gurobipy(data),
     ]:
         assert isinstance(model, AbstractModel)
-        with NamedTemporaryFile() as tempfile:
-            with H5File(tempfile.name) as h5:
+        with TemporaryDirectory() as tempdir:
+            with H5File(f"{tempdir}/data.h5", "w") as h5:
                 model.optimize()
                 model.extract_after_mip(h5)
                 assert h5.get_scalar("mip_obj_value") == 11.0

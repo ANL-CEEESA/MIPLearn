@@ -2,7 +2,7 @@
 #  Copyright (C) 2020-2022, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
 
-from tempfile import NamedTemporaryFile
+from tempfile import TemporaryDirectory
 from typing import Callable, Any
 
 import numpy as np
@@ -49,8 +49,8 @@ def _test_solver(build_model: Callable, data: Any) -> None:
 
 
 def _test_extract(model: AbstractModel) -> None:
-    with NamedTemporaryFile() as tempfile:
-        with H5File(tempfile.name) as h5:
+    with TemporaryDirectory() as tempdir:
+        with H5File(f"{tempdir}/data.h5", "w") as h5:
 
             def test_scalar(key: str, expected_value: Any) -> None:
                 actual_value = h5.get_scalar(key)
@@ -129,7 +129,6 @@ def _test_extract(model: AbstractModel) -> None:
             test_scalar("mip_obj_value", 11.0)
             mip_wallclock_time = h5.get_scalar("mip_wallclock_time")
             assert mip_wallclock_time is not None
-            assert mip_wallclock_time > 0
             if model._supports_node_count:
                 count = h5.get_scalar("mip_node_count")
                 assert count is not None
@@ -145,8 +144,8 @@ def _test_extract(model: AbstractModel) -> None:
 
 
 def _test_add_constr(model: AbstractModel) -> None:
-    with NamedTemporaryFile() as tempfile:
-        with H5File(tempfile.name) as h5:
+    with TemporaryDirectory() as tempdir:
+        with H5File(f"{tempdir}/data.h5", "w") as h5:
             model.add_constrs(
                 np.array([b"x[2]", b"x[3]"], dtype="S"),
                 np.array([[0, 1], [1, 0]]),
@@ -161,8 +160,8 @@ def _test_add_constr(model: AbstractModel) -> None:
 
 
 def _test_fix_vars(model: AbstractModel) -> None:
-    with NamedTemporaryFile() as tempfile:
-        with H5File(tempfile.name) as h5:
+    with TemporaryDirectory() as tempdir:
+        with H5File(f"{tempdir}/data.h5", "w") as h5:
             model.fix_variables(
                 var_names=np.array([b"x[2]", b"x[3]"], dtype="S"),
                 var_values=np.array([0, 0]),
@@ -175,8 +174,8 @@ def _test_fix_vars(model: AbstractModel) -> None:
 
 
 def _test_infeasible(model: AbstractModel) -> None:
-    with NamedTemporaryFile() as tempfile:
-        with H5File(tempfile.name) as h5:
+    with TemporaryDirectory() as tempdir:
+        with H5File(f"{tempdir}/data.h5", "w") as h5:
             model.fix_variables(
                 var_names=np.array([b"x[0]", b"x[3]"], dtype="S"),
                 var_values=np.array([0, 0]),

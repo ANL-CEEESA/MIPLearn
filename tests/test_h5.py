@@ -1,7 +1,7 @@
 #  MIPLearn: Extensible Framework for Learning-Enhanced Mixed-Integer Optimization
 #  Copyright (C) 2020-2022, UChicago Argonne, LLC. All rights reserved.
 #  Released under the modified BSD license. See COPYING.md for more details.
-from tempfile import NamedTemporaryFile
+from tempfile import TemporaryDirectory
 from typing import Any
 
 import numpy as np
@@ -11,31 +11,31 @@ from miplearn.h5 import H5File
 
 
 def test_h5() -> None:
-    file = NamedTemporaryFile()
-    h5 = H5File(file.name)
-    _assert_roundtrip_scalar(h5, "A")
-    _assert_roundtrip_scalar(h5, True)
-    _assert_roundtrip_scalar(h5, 1)
-    _assert_roundtrip_scalar(h5, 1.0)
-    assert h5.get_scalar("unknown-key") is None
+    with TemporaryDirectory() as tempdir:
+        with H5File(f"{tempdir}/data.h5", "w") as h5:
+            _assert_roundtrip_scalar(h5, "A")
+            _assert_roundtrip_scalar(h5, True)
+            _assert_roundtrip_scalar(h5, 1)
+            _assert_roundtrip_scalar(h5, 1.0)
+            assert h5.get_scalar("unknown-key") is None
 
-    _assert_roundtrip_array(h5, np.array([True, False]))
-    _assert_roundtrip_array(h5, np.array([1, 2, 3]))
-    _assert_roundtrip_array(h5, np.array([1.0, 2.0, 3.0]))
-    _assert_roundtrip_array(h5, np.array(["A", "BB", "CCC"], dtype="S"))
-    assert h5.get_array("unknown-key") is None
+            _assert_roundtrip_array(h5, np.array([True, False]))
+            _assert_roundtrip_array(h5, np.array([1, 2, 3]))
+            _assert_roundtrip_array(h5, np.array([1.0, 2.0, 3.0]))
+            _assert_roundtrip_array(h5, np.array(["A", "BB", "CCC"], dtype="S"))
+            assert h5.get_array("unknown-key") is None
 
-    _assert_roundtrip_sparse(
-        h5,
-        coo_matrix(
-            [
-                [1.0, 0.0, 0.0],
-                [0.0, 2.0, 3.0],
-                [0.0, 0.0, 4.0],
-            ],
-        ),
-    )
-    assert h5.get_sparse("unknown-key") is None
+            _assert_roundtrip_sparse(
+                h5,
+                coo_matrix(
+                    [
+                        [1.0, 0.0, 0.0],
+                        [0.0, 2.0, 3.0],
+                        [0.0, 0.0, 4.0],
+                    ],
+                ),
+            )
+            assert h5.get_sparse("unknown-key") is None
 
 
 def _assert_roundtrip_array(h5: H5File, original: np.ndarray) -> None:
