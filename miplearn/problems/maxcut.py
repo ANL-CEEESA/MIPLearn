@@ -80,6 +80,7 @@ class MaxCutGenerator:
     def _generate_graph(self) -> Graph:
         return nx.generators.random_graphs.binomial_graph(self.n.rvs(), self.p.rvs())
 
+
 def build_maxcut_model_gurobipy(
     data: Union[str, MaxCutData],
     params: Optional[dict[str, Any]] = None,
@@ -97,12 +98,15 @@ def build_maxcut_model_gurobipy(
     x = model.addVars(nodes, vtype=gp.GRB.BINARY, name="x")
 
     # Add the objective function
-    model.setObjective(quicksum(
-        - data.weights[i] * x[e[0]] * (1 - x[e[1]]) for (i, e) in enumerate(edges)
-    ))
+    model.setObjective(
+        quicksum(
+            -data.weights[i] * x[e[0]] * (1 - x[e[1]]) for (i, e) in enumerate(edges)
+        )
+    )
 
     model.update()
     return GurobiModel(model)
+
 
 def _maxcut_read(data: Union[str, MaxCutData]) -> MaxCutData:
     if isinstance(data, str):

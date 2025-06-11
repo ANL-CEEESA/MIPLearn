@@ -264,6 +264,13 @@ class GurobiModel(AbstractModel):
             h5.put_array(
                 h5_field, np.array(self.inner.getAttr(gp_field, gp_vars), dtype=float)
             )
+        obj = self.inner.getObjective()
+        if isinstance(obj, gp.QuadExpr):
+            nvars = len(self.inner.getVars())
+            obj_q = np.zeros((nvars, nvars))
+            for i in range(obj.size()):
+                obj_q[obj.getVar1(i).index, obj.getVar2(i).index] = obj.getCoeff(i)
+            h5.put_array("static_var_obj_coeffs_quad", obj_q)
 
     def _extract_after_load_constrs(self, h5: H5File) -> None:
         gp_constrs = self.inner.getConstrs()
