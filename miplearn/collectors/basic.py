@@ -33,6 +33,7 @@ class BasicCollector:
             try:
                 h5_filename = _to_h5_filename(data_filename)
                 mps_filename = h5_filename.replace(".h5", ".mps")
+                log_filename = h5_filename.replace(".h5", ".h5.log")
 
                 if exists(h5_filename):
                     # Try to read optimal solution
@@ -77,7 +78,10 @@ class BasicCollector:
                             model.write(mps_filename)
                             gzip(mps_filename)
 
-                    h5.put_scalar("mip_log", streams[0].getvalue())
+                    log = streams[0].getvalue()
+                    h5.put_scalar("mip_log", log)
+                    with open(log_filename, "w") as log_file:
+                        log_file.write(log)
             except:
                 print(f"Error processing: data_filename")
                 traceback.print_exc()
