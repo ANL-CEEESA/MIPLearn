@@ -28,21 +28,21 @@ class MaxCutGenerator:
     """
     Random instance generator for the Maximum Cut Problem.
 
-    The generator operates in two modes. When `fix_graph=True`, a single random
-    Erdős-Rényi graph $G_{n,p}$ is generated during initialization, with parameters $n$
-    and $p$ drawn from their respective probability distributions. For each instance,
-    only edge weights are randomly sampled from the set {1, -1}, while the graph
-    structure remains fixed.
+    The generator operates in two modes. When `fix_graph=True`, a single random Erdős-Rényi graph $G_{n,
+    p}$ is generated during initialization, with parameters $n$ and $p$ drawn from their respective probability
+    distributions, and each edge is assigned a random weight drawn from the set {-1, 1}, with equal probability. To
+    generate each instance variation, the generator randomly flips the sign of each edge weight with probability
+    `w_jitter`. The graph remains the same across all variations.
 
-    When `fix_graph=False`, both the graph structure and edge weights are randomly
-    generated for each instance.
+    When `fix_graph=False`, a new random graph is generated for each instance, with random {-1,1} edge weights.
     """
 
     def __init__(
         self,
         n: rv_frozen,
         p: rv_frozen,
-        fix_graph: bool,
+        w_jitter: float = 0.0,
+        fix_graph: bool = False,
     ):
         """
         Initialize the problem generator.
@@ -53,6 +53,8 @@ class MaxCutGenerator:
             Probability distribution for the number of nodes.
         p: rv_continuous
             Probability distribution for the graph density.
+        w_jitter: float
+            Probability that each edge weight flips from -1 to 1. Only applicable if fix_graph is True.
         fix_graph: bool
             Controls graph generation for instances. If false, a new random graph is
             generated for each instance. If true, the same graph is reused across instances.
@@ -61,25 +63,39 @@ class MaxCutGenerator:
         assert isinstance(p, rv_frozen), "p should be a SciPy probability distribution"
         self.n = n
         self.p = p
+        self.w_jitter = w_jitter
         self.fix_graph = fix_graph
         self.graph = None
+        self.weights = None
         if fix_graph:
             self.graph = self._generate_graph()
+            self.weights = self._generate_weights(self.graph)
 
     def generate(self, n_samples: int) -> List[MaxCutData]:
         def _sample() -> MaxCutData:
             if self.graph is not None:
                 graph = self.graph
+                weights = self.weights
+                jitter = self._generate_jitter(graph)
+                weights = weights * jitter
             else:
                 graph = self._generate_graph()
-            m = graph.number_of_edges()
-            weights = np.random.randint(2, size=(m,)) * 2 - 1
+                weights = self._generate_weights(graph)
             return MaxCutData(graph, weights)
 
         return [_sample() for _ in range(n_samples)]
 
     def _generate_graph(self) -> Graph:
         return nx.generators.random_graphs.binomial_graph(self.n.rvs(), self.p.rvs())
+
+    @staticmethod
+    def _generate_weights(graph: Graph) -> np.ndarray:
+        m = graph.number_of_edges()
+        return np.random.randint(2, size=(m,)) * 2 - 1
+
+    def _generate_jitter(self, graph: Graph) -> np.ndarray:
+        m = graph.number_of_edges()
+        return (np.random.rand(m) >= self.w_jitter).astype(int) * 2 - 1
 
 
 def build_maxcut_model_gurobipy(
