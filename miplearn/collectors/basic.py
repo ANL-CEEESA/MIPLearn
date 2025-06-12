@@ -50,6 +50,7 @@ class BasicCollector:
                         return
 
                 with H5File(h5_filename, "w") as h5:
+                    h5.put_scalar("data_filename", data_filename)
                     streams: List[Any] = [StringIO()]
                     if verbose:
                         streams += [sys.stdout]
