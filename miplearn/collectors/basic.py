@@ -17,9 +17,15 @@ from ..parallel import p_umap
 
 
 class BasicCollector:
-    def __init__(self, skip_lp: bool = False, write_mps: bool = True) -> None:
+    def __init__(
+        self,
+        skip_lp: bool = False,
+        write_mps: bool = True,
+        write_log: bool = True,
+    ) -> None:
         self.skip_lp = skip_lp
         self.write_mps = write_mps
+        self.write_log = write_log
 
     def collect(
         self,
@@ -80,8 +86,9 @@ class BasicCollector:
 
                     log = streams[0].getvalue()
                     h5.put_scalar("mip_log", log)
-                    with open(log_filename, "w") as log_file:
-                        log_file.write(log)
+                    if self.write_log:
+                        with open(log_filename, "w") as log_file:
+                            log_file.write(log)
             except:
                 print(f"Error processing: data_filename")
                 traceback.print_exc()
