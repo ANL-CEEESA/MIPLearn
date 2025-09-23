@@ -25,6 +25,7 @@ class UnitCommitmentData:
     min_downtime: np.ndarray
     cost_startup: np.ndarray
     cost_prod: np.ndarray
+    cost_prod_quad: np.ndarray
     cost_fixed: np.ndarray
 
 
@@ -37,6 +38,7 @@ class UnitCommitmentGenerator:
         min_power: rv_frozen = uniform(loc=0.5, scale=0.25),
         cost_startup: rv_frozen = uniform(loc=0, scale=10_000),
         cost_prod: rv_frozen = uniform(loc=0, scale=50),
+        cost_prod_quad: rv_frozen = uniform(loc=0, scale=0),
         cost_fixed: rv_frozen = uniform(loc=0, scale=1_000),
         min_uptime: rv_frozen = randint(low=2, high=8),
         min_downtime: rv_frozen = randint(low=2, high=8),
@@ -50,6 +52,7 @@ class UnitCommitmentGenerator:
         self.min_power = min_power
         self.cost_startup = cost_startup
         self.cost_prod = cost_prod
+        self.cost_prod_quad = cost_prod_quad
         self.cost_fixed = cost_fixed
         self.min_uptime = min_uptime
         self.min_downtime = min_downtime
@@ -72,6 +75,7 @@ class UnitCommitmentGenerator:
                 min_downtime = self.min_downtime.rvs(G)
                 cost_startup = self.cost_startup.rvs(G)
                 cost_prod = self.cost_prod.rvs(G)
+                cost_prod_quad = self.cost_prod_quad.rvs(G)
                 cost_fixed = self.cost_fixed.rvs(G)
                 capacity = max_power.sum()
 
@@ -91,6 +95,7 @@ class UnitCommitmentGenerator:
                 min_downtime = self.ref_data.min_downtime
                 cost_startup = self.ref_data.cost_startup * self.cost_jitter.rvs(G)
                 cost_prod = self.ref_data.cost_prod * self.cost_jitter.rvs(G)
+                cost_prod_quad = self.ref_data.cost_prod_quad * self.cost_jitter.rvs(G)
                 cost_fixed = self.ref_data.cost_fixed * self.cost_jitter.rvs(G)
 
             data = UnitCommitmentData(
@@ -101,6 +106,7 @@ class UnitCommitmentGenerator:
                 min_downtime,
                 cost_startup.round(2),
                 cost_prod.round(2),
+                cost_prod_quad.round(4),
                 cost_fixed.round(2),
             )
 
@@ -143,6 +149,7 @@ def build_uc_model_gurobipy(data: Union[str, UnitCommitmentData]) -> GurobiModel
             is_on[g, t] * data.cost_fixed[g]
             + switch_on[g, t] * data.cost_startup[g]
             + prod[g, t] * data.cost_prod[g]
+            + prod[g, t] * prod[g, t] * data.cost_prod_quad[g]
             for g in range(G)
             for t in range(T)
         )
