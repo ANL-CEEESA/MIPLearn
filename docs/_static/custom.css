@@ -118,3 +118,13 @@ table tr:last-child {
     border-bottom: 0;
 }
 
+@media (min-width: 960px) {
+    .bd-page-width {
+        max-width: 100rem;
+    }
+}
+
+.bd-sidebar-primary .sidebar-primary-items__end {
+    margin-bottom: 0;
+    margin-top: 0;
+}

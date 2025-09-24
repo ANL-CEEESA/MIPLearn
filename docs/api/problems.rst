@@ -55,3 +55,9 @@ miplearn.problems.vertexcover
 .. automodule:: miplearn.problems.vertexcover
    :members:
 
+miplearn.problems.maxcut
+-----------------------------
+
+.. automodule:: miplearn.problems.maxcut
+   :members:
+
