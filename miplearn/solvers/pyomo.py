@@ -262,7 +262,7 @@ class PyomoModel(AbstractModel):
         if len(obj_quad) > 0:
             nvars = len(names)
             matrix = np.zeros((nvars, nvars))
-            for ((left_varname, right_varname), coeff) in obj_quad.items():
+            for (left_varname, right_varname), coeff in obj_quad.items():
                 assert left_varname in varname_to_idx
                 assert right_varname in varname_to_idx
                 left_idx = varname_to_idx[left_varname]
