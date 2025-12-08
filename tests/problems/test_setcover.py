@@ -35,6 +35,22 @@ def test_set_cover_generator() -> None:
     ]
 
 
+def test_set_cover_generator_callable() -> None:
+    np.random.seed(42)
+    gen = SetCoverGenerator(
+        n_elements=randint(low=4, high=5),
+        n_sets=lambda n: n * 2,
+        costs=uniform(loc=10.0, scale=0.0),
+        density=uniform(loc=0.5, scale=0),
+        K=uniform(loc=0, scale=0),
+    )
+    data = gen.generate(1)
+    n_elements, n_sets = data[0].incidence_matrix.shape
+    assert n_elements == 4
+    assert n_sets == 8
+    assert len(data[0].costs) == 8
+
+
 def test_set_cover() -> None:
     data = SetCoverData(
         costs=np.array([5, 10, 12, 6, 8]),

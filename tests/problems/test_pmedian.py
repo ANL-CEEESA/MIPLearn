@@ -36,3 +36,18 @@ def test_pmedian() -> None:
     assert model.inner.numConstrs == 11
     model.optimize()
     assert round(model.inner.objVal) == 107
+
+
+def test_pmedian_generator_callable() -> None:
+    np.random.seed(42)
+    gen = PMedianGenerator(
+        x=uniform(loc=0.0, scale=100.0),
+        y=uniform(loc=0.0, scale=100.0),
+        n=randint(low=10, high=11),
+        p=lambda n: n // 5,
+        demands=uniform(loc=0, scale=20),
+        capacities=uniform(loc=0, scale=100),
+    )
+    data = gen.generate(1)
+    assert data[0].p == 2
+    assert len(data[0].demands) == 10

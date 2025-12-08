@@ -4,7 +4,7 @@
 
 from dataclasses import dataclass
 from math import pi
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Callable
 
 import gurobipy as gp
 import numpy as np
@@ -39,7 +39,7 @@ class UnitCommitmentGenerator:
     def __init__(
         self,
         n_units: rv_frozen = randint(low=1_000, high=1_001),
-        n_periods: rv_frozen = randint(low=72, high=73),
+        n_periods: Union[rv_frozen, Callable] = randint(low=72, high=73),
         max_power: rv_frozen = uniform(loc=50, scale=450),
         min_power: rv_frozen = uniform(loc=0.5, scale=0.25),
         cost_startup: rv_frozen = uniform(loc=0, scale=10_000),
@@ -55,8 +55,9 @@ class UnitCommitmentGenerator:
         ----------
         n_units: rv_frozen
             Probability distribution for number of units.
-        n_periods: rv_frozen
-            Probability distribution for number of periods.
+        n_periods: rv_frozen or callable
+            Probability distribution for number of periods, or a callable that takes
+            the number of units and returns the number of periods.
         max_power: rv_frozen
             Probability distribution for maximum power output.
         min_power: rv_frozen
@@ -74,6 +75,12 @@ class UnitCommitmentGenerator:
         min_downtime: rv_frozen
             Probability distribution for minimum downtime.
         """
+        assert isinstance(
+            n_units, rv_frozen
+        ), "n_units should be a SciPy probability distribution"
+        assert isinstance(n_periods, rv_frozen) or callable(
+            n_periods
+        ), "n_periods should be a SciPy probability distribution or callable"
         self.n_units = n_units
         self.n_periods = n_periods
         self.max_power = max_power
@@ -87,8 +94,11 @@ class UnitCommitmentGenerator:
 
     def generate(self, n_samples: int) -> List[UnitCommitmentData]:
         def _sample() -> UnitCommitmentData:
-            T = self.n_periods.rvs()
             G = self.n_units.rvs()
+            if callable(self.n_periods):
+                T = self.n_periods(G)
+            else:
+                T = self.n_periods.rvs()
 
             # Generate unit parameteres
             max_power = self.max_power.rvs(G)

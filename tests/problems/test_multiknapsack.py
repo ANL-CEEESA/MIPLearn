@@ -32,6 +32,21 @@ def test_knapsack_generator() -> None:
     ]
 
 
+def test_knapsack_generator_callable() -> None:
+    np.random.seed(42)
+    gen = MultiKnapsackGenerator(
+        n=randint(low=10, high=11),
+        m=lambda n: n // 3,
+        w=randint(low=0, high=1000),
+        K=randint(low=500, high=501),
+        u=uniform(loc=0.0, scale=1.0),
+        alpha=uniform(loc=0.25, scale=0.0),
+    )
+    data = gen.generate(1)[0]
+    assert data.weights.shape[1] == 10
+    assert data.weights.shape[0] == 3
+
+
 def test_knapsack_model() -> None:
     data = MultiKnapsackData(
         prices=np.array([344.0, 527.0, 658.0, 519.0, 460.0]),

@@ -3,7 +3,7 @@
 #  Released under the modified BSD license. See COPYING.md for more details.
 
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Union, Callable
 
 import gurobipy as gp
 import numpy as np
@@ -33,7 +33,7 @@ class SetPackGenerator:
     def __init__(
         self,
         n_elements: rv_frozen = randint(low=50, high=51),
-        n_sets: rv_frozen = randint(low=100, high=101),
+        n_sets: Union[rv_frozen, Callable] = randint(low=100, high=101),
         costs: rv_frozen = uniform(loc=0.0, scale=100.0),
         K: rv_frozen = uniform(loc=25.0, scale=0.0),
         density: rv_frozen = uniform(loc=0.02, scale=0.00),
@@ -44,8 +44,9 @@ class SetPackGenerator:
         ----------
         n_elements: rv_discrete
             Probability distribution for number of elements.
-        n_sets: rv_discrete
-            Probability distribution for number of sets.
+        n_sets: rv_discrete or callable
+            Probability distribution for number of sets, or a callable that takes
+            the number of elements and returns the number of sets.
         costs: rv_continuous
             Probability distribution for base set costs.
         K: rv_continuous
@@ -56,9 +57,9 @@ class SetPackGenerator:
         assert isinstance(
             n_elements, rv_frozen
         ), "n_elements should be a SciPy probability distribution"
-        assert isinstance(
-            n_sets, rv_frozen
-        ), "n_sets should be a SciPy probability distribution"
+        assert isinstance(n_sets, rv_frozen) or callable(
+            n_sets
+        ), "n_sets should be a SciPy probability distribution or callable"
         assert isinstance(
             costs, rv_frozen
         ), "costs should be a SciPy probability distribution"
