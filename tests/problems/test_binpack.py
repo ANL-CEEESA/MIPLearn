@@ -18,37 +18,34 @@ def test_binpack_generator() -> None:
         n=randint(low=10, high=11),
         sizes=uniform(loc=0, scale=10),
         capacity=uniform(loc=100, scale=0),
-        sizes_jitter=uniform(loc=0.9, scale=0.2),
-        capacity_jitter=uniform(loc=0.9, scale=0.2),
-        fix_items=True,
     )
     data = gen.generate(2)
     assert data[0].sizes.tolist() == [
-        3.39,
-        10.4,
-        7.81,
-        5.64,
-        1.46,
-        1.46,
-        0.56,
-        8.7,
-        5.93,
-        6.79,
-    ]
-    assert data[0].capacity == 102.24
-    assert data[1].sizes.tolist() == [
-        3.48,
-        9.11,
-        7.12,
-        5.93,
-        1.65,
-        1.47,
+        3.75,
+        9.51,
+        7.32,
+        5.99,
+        1.56,
+        1.56,
         0.58,
-        8.82,
-        5.47,
-        7.23,
+        8.66,
+        6.01,
+        7.08,
     ]
-    assert data[1].capacity == 93.41
+    assert data[0].capacity == 100.0
+    assert data[1].sizes.tolist() == [
+        0.21,
+        9.7,
+        8.32,
+        2.12,
+        1.82,
+        1.83,
+        3.04,
+        5.25,
+        4.32,
+        2.91,
+    ]
+    assert data[1].capacity == 100.0
 
 
 def test_binpack() -> None:
