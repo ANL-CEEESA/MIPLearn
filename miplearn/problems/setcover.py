@@ -24,59 +24,119 @@ class SetCoverData:
 
 
 class SetCoverGenerator:
+    """Random instance generator for the Set Cover Problem.
+
+    Generates instances by creating a new random incidence matrix for each
+    instance, where the number of elements, sets, density, and costs are sampled
+    from user-provided probability distributions.
+    """
+
     def __init__(
         self,
         n_elements: rv_frozen = randint(low=50, high=51),
         n_sets: rv_frozen = randint(low=100, high=101),
         costs: rv_frozen = uniform(loc=0.0, scale=100.0),
-        costs_jitter: rv_frozen = uniform(loc=-5.0, scale=10.0),
         K: rv_frozen = uniform(loc=25.0, scale=0.0),
         density: rv_frozen = uniform(loc=0.02, scale=0.00),
-        fix_sets: bool = True,
     ):
+        """Initialize the problem generator.
+
+        Parameters
+        ----------
+        n_elements: rv_discrete
+            Probability distribution for number of elements.
+        n_sets: rv_discrete
+            Probability distribution for number of sets.
+        costs: rv_continuous
+            Probability distribution for base set costs.
+        K: rv_continuous
+            Probability distribution for cost scaling factor based on set size.
+        density: rv_continuous
+            Probability distribution for incidence matrix density.
+        """
+        assert isinstance(
+            n_elements, rv_frozen
+        ), "n_elements should be a SciPy probability distribution"
+        assert isinstance(
+            n_sets, rv_frozen
+        ), "n_sets should be a SciPy probability distribution"
+        assert isinstance(
+            costs, rv_frozen
+        ), "costs should be a SciPy probability distribution"
+        assert isinstance(K, rv_frozen), "K should be a SciPy probability distribution"
+        assert isinstance(
+            density, rv_frozen
+        ), "density should be a SciPy probability distribution"
         self.n_elements = n_elements
         self.n_sets = n_sets
         self.costs = costs
-        self.costs_jitter = costs_jitter
         self.density = density
         self.K = K
-        self.fix_sets = fix_sets
-        self.fixed_costs = None
-        self.fixed_matrix = None
 
     def generate(self, n_samples: int) -> List[SetCoverData]:
         def _sample() -> SetCoverData:
-            if self.fixed_matrix is None:
-                n_sets = self.n_sets.rvs()
-                n_elements = self.n_elements.rvs()
-                density = self.density.rvs()
+            n_sets = self.n_sets.rvs()
+            n_elements = self.n_elements.rvs()
+            density = self.density.rvs()
 
-                incidence_matrix = np.random.rand(n_elements, n_sets) < density
-                incidence_matrix = incidence_matrix.astype(int)
+            incidence_matrix = np.random.rand(n_elements, n_sets) < density
+            incidence_matrix = incidence_matrix.astype(int)
 
-                # Ensure each element belongs to at least one set
-                for j in range(n_elements):
-                    if incidence_matrix[j, :].sum() == 0:
-                        incidence_matrix[j, randint(low=0, high=n_sets).rvs()] = 1
+            # Ensure each element belongs to at least one set
+            for j in range(n_elements):
+                if incidence_matrix[j, :].sum() == 0:
+                    incidence_matrix[j, randint(low=0, high=n_sets).rvs()] = 1
 
-                # Ensure each set contains at least one element
-                for i in range(n_sets):
-                    if incidence_matrix[:, i].sum() == 0:
-                        incidence_matrix[randint(low=0, high=n_elements).rvs(), i] = 1
+            # Ensure each set contains at least one element
+            for i in range(n_sets):
+                if incidence_matrix[:, i].sum() == 0:
+                    incidence_matrix[randint(low=0, high=n_elements).rvs(), i] = 1
 
-                costs = self.costs.rvs(n_sets) + self.K.rvs() * incidence_matrix.sum(
-                    axis=0
-                )
-                if self.fix_sets:
-                    self.fixed_matrix = incidence_matrix
-                    self.fixed_costs = costs
-            else:
-                incidence_matrix = self.fixed_matrix
-                (_, n_sets) = incidence_matrix.shape
-                costs = self.fixed_costs * self.costs_jitter.rvs(n_sets)
+            costs = self.costs.rvs(n_sets) + self.K.rvs() * incidence_matrix.sum(axis=0)
             return SetCoverData(
                 costs=costs.round(2),
                 incidence_matrix=incidence_matrix,
+            )
+
+        return [_sample() for _ in range(n_samples)]
+
+
+class SetCoverPerturber:
+    """Perturbation generator for existing Set Cover instances.
+
+    Takes an existing SetCoverData instance and generates new instances
+    by applying randomization factors to the existing costs while keeping the
+    incidence matrix fixed.
+    """
+
+    def __init__(
+        self,
+        costs_jitter: rv_frozen = uniform(loc=0.9, scale=0.2),
+    ):
+        """Initialize the perturbation generator.
+
+        Parameters
+        ----------
+        costs_jitter: rv_continuous
+            Probability distribution for randomization factors applied to set costs.
+        """
+        assert isinstance(
+            costs_jitter, rv_frozen
+        ), "costs_jitter should be a SciPy probability distribution"
+        self.costs_jitter = costs_jitter
+
+    def perturb(
+        self,
+        instance: SetCoverData,
+        n_samples: int,
+    ) -> List[SetCoverData]:
+        def _sample() -> SetCoverData:
+            (_, n_sets) = instance.incidence_matrix.shape
+            jitter_factors = self.costs_jitter.rvs(n_sets)
+            costs = np.round(instance.costs * jitter_factors, 2)
+            return SetCoverData(
+                costs=costs,
+                incidence_matrix=instance.incidence_matrix,
             )
 
         return [_sample() for _ in range(n_samples)]
