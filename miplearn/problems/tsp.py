@@ -27,10 +27,21 @@ logger = logging.getLogger(__name__)
 class TravelingSalesmanData:
     n_cities: int
     distances: np.ndarray
+    cities: np.ndarray
 
 
 class TravelingSalesmanGenerator:
-    """Random generator for the Traveling Salesman Problem."""
+    """Random instance generator for the Traveling Salesman Problem.
+
+    Generates instances by creating n cities (x_1,y_1),...,(x_n,y_n) where n,
+    x_i and y_i are sampled independently from the provided probability
+    distributions `n`, `x` and `y`. For each (unordered) pair of cities (i,j),
+    the distance d[i,j] between them is set to:
+
+        d[i,j] = gamma[i,j] \\sqrt{(x_i - x_j)^2 + (y_i - y_j)^2}
+
+    where gamma is sampled from the provided probability distribution `gamma`.
+    """
 
     def __init__(
         self,
@@ -38,26 +49,9 @@ class TravelingSalesmanGenerator:
         y: rv_frozen = uniform(loc=0.0, scale=1000.0),
         n: rv_frozen = randint(low=100, high=101),
         gamma: rv_frozen = uniform(loc=1.0, scale=0.0),
-        fix_cities: bool = True,
         round: bool = True,
     ) -> None:
         """Initializes the problem generator.
-
-        Initially, the generator creates n cities (x_1,y_1),...,(x_n,y_n) where n,
-        x_i and y_i are sampled independently from the provided probability
-        distributions `n`, `x` and `y`. For each (unordered) pair of cities (i,j),
-        the distance d[i,j] between them is set to:
-
-            d[i,j] = gamma[i,j] \\sqrt{(x_i - x_j)^2 + (y_i - y_j)^2}
-
-        where gamma is sampled from the provided probability distribution `gamma`.
-
-        If fix_cities=True, the list of cities is kept the same for all generated
-        instances. The gamma values, and therefore also the distances, are still
-        different.
-
-        By default, all distances d[i,j] are rounded to the nearest integer.  If
-        `round=False` is provided, this rounding will be disabled.
 
         Arguments
         ---------
@@ -67,9 +61,8 @@ class TravelingSalesmanGenerator:
             Probability distribution for the y-coordinate of each city.
         n: rv_discrete
             Probability distribution for the number of cities.
-        fix_cities: bool
-            If False, cities will be resampled for every generated instance. Otherwise, list
-            of cities will be computed once, during the constructor.
+        gamma: rv_continuous
+            Probability distribution for distance perturbation factors.
         round: bool
             If True, distances are rounded to the nearest integer.
         """
@@ -86,26 +79,11 @@ class TravelingSalesmanGenerator:
         self.gamma = gamma
         self.round = round
 
-        if fix_cities:
-            self.fixed_n: Optional[int]
-            self.fixed_cities: Optional[np.ndarray]
-            self.fixed_n, self.fixed_cities = self._generate_cities()
-        else:
-            self.fixed_n = None
-            self.fixed_cities = None
-
     def generate(self, n_samples: int) -> List[TravelingSalesmanData]:
         def _sample() -> TravelingSalesmanData:
-            if self.fixed_cities is not None:
-                assert self.fixed_n is not None
-                n, cities = self.fixed_n, self.fixed_cities
-            else:
-                n, cities = self._generate_cities()
-            distances = squareform(pdist(cities)) * self.gamma.rvs(size=(n, n))
-            distances = np.tril(distances) + np.triu(distances.T, 1)
-            if self.round:
-                distances = distances.round()
-            return TravelingSalesmanData(n, distances)
+            n, cities = self._generate_cities()
+            distances = self._compute_distances(cities, self.gamma, self.round)
+            return TravelingSalesmanData(n, distances, cities)
 
         return [_sample() for _ in range(n_samples)]
 
@@ -113,6 +91,62 @@ class TravelingSalesmanGenerator:
         n = self.n.rvs()
         cities = np.array([(self.x.rvs(), self.y.rvs()) for _ in range(n)])
         return n, cities
+
+    @staticmethod
+    def _compute_distances(
+        cities: np.ndarray, gamma: rv_frozen, round: bool
+    ) -> np.ndarray:
+        n = len(cities)
+        distances = squareform(pdist(cities)) * gamma.rvs(size=(n, n))
+        distances = np.tril(distances) + np.triu(distances.T, 1)
+        if round:
+            distances = distances.round()
+        return distances
+
+
+class TravelingSalesmanPerturber:
+    """Perturbation generator for existing Traveling Salesman Problem instances.
+
+    Takes an existing TravelingSalesmanData instance and generates new instances
+    by applying randomization factors to the distances computed from the original cities.
+    """
+
+    def __init__(
+        self,
+        gamma: rv_frozen = uniform(loc=1.0, scale=0.0),
+        round: bool = True,
+    ) -> None:
+        """Initialize the perturbation generator.
+
+        Parameters
+        ----------
+        gamma: rv_continuous
+            Probability distribution for randomization factors applied to distances.
+        round: bool
+            If True, perturbed distances are rounded to the nearest integer.
+        """
+        assert isinstance(
+            gamma, rv_frozen
+        ), "gamma should be a SciPy probability distribution"
+        self.gamma = gamma
+        self.round = round
+
+    def perturb(
+        self,
+        instance: TravelingSalesmanData,
+        n_samples: int,
+    ) -> List[TravelingSalesmanData]:
+        def _sample() -> TravelingSalesmanData:
+            new_distances = TravelingSalesmanGenerator._compute_distances(
+                instance.cities,
+                self.gamma,
+                self.round,
+            )
+            return TravelingSalesmanData(
+                instance.n_cities, new_distances, instance.cities
+            )
+
+        return [_sample() for _ in range(n_samples)]
 
 
 def build_tsp_model_gurobipy(

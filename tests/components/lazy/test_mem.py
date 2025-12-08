@@ -22,7 +22,7 @@ def test_mem_component(
     for h5 in [tsp_gp_h5, tsp_pyo_h5]:
         clf = Mock(wraps=DummyClassifier())
         comp = MemorizingLazyComponent(clf=clf, extractor=default_extractor)
-        comp.fit(tsp_gp_h5)
+        comp.fit(h5)
 
         # Should call fit method with correct arguments
         clf.fit.assert_called()
@@ -43,7 +43,7 @@ def test_mem_component(
         # Call before-mip
         stats: Dict[str, Any] = {}
         model = Mock()
-        comp.before_mip(tsp_gp_h5[0], model, stats)
+        comp.before_mip(h5[0], model, stats)
 
         # Should call predict with correct args
         clf.predict.assert_called()
