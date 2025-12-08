@@ -30,6 +30,12 @@ class UnitCommitmentData:
 
 
 class UnitCommitmentGenerator:
+    """Random instance generator for the Unit Commitment Problem.
+
+    Generates instances by creating new random unit commitment problems with
+    parameters sampled from user-provided probability distributions.
+    """
+
     def __init__(
         self,
         n_units: rv_frozen = randint(low=1_000, high=1_001),
@@ -42,10 +48,32 @@ class UnitCommitmentGenerator:
         cost_fixed: rv_frozen = uniform(loc=0, scale=1_000),
         min_uptime: rv_frozen = randint(low=2, high=8),
         min_downtime: rv_frozen = randint(low=2, high=8),
-        cost_jitter: rv_frozen = uniform(loc=0.75, scale=0.5),
-        demand_jitter: rv_frozen = uniform(loc=0.9, scale=0.2),
-        fix_units: bool = False,
     ) -> None:
+        """Initialize the problem generator.
+
+        Parameters
+        ----------
+        n_units: rv_frozen
+            Probability distribution for number of units.
+        n_periods: rv_frozen
+            Probability distribution for number of periods.
+        max_power: rv_frozen
+            Probability distribution for maximum power output.
+        min_power: rv_frozen
+            Probability distribution for minimum power output (as fraction of max_power).
+        cost_startup: rv_frozen
+            Probability distribution for startup costs.
+        cost_prod: rv_frozen
+            Probability distribution for production costs.
+        cost_prod_quad: rv_frozen
+            Probability distribution for quadratic production costs.
+        cost_fixed: rv_frozen
+            Probability distribution for fixed costs.
+        min_uptime: rv_frozen
+            Probability distribution for minimum uptime.
+        min_downtime: rv_frozen
+            Probability distribution for minimum downtime.
+        """
         self.n_units = n_units
         self.n_periods = n_periods
         self.max_power = max_power
@@ -56,49 +84,33 @@ class UnitCommitmentGenerator:
         self.cost_fixed = cost_fixed
         self.min_uptime = min_uptime
         self.min_downtime = min_downtime
-        self.cost_jitter = cost_jitter
-        self.demand_jitter = demand_jitter
-        self.fix_units = fix_units
-        self.ref_data: Optional[UnitCommitmentData] = None
 
     def generate(self, n_samples: int) -> List[UnitCommitmentData]:
         def _sample() -> UnitCommitmentData:
-            if self.ref_data is None:
-                T = self.n_periods.rvs()
-                G = self.n_units.rvs()
+            T = self.n_periods.rvs()
+            G = self.n_units.rvs()
 
-                # Generate unit parameteres
-                max_power = self.max_power.rvs(G)
-                min_power = max_power * self.min_power.rvs(G)
-                max_power = max_power
-                min_uptime = self.min_uptime.rvs(G)
-                min_downtime = self.min_downtime.rvs(G)
-                cost_startup = self.cost_startup.rvs(G)
-                cost_prod = self.cost_prod.rvs(G)
-                cost_prod_quad = self.cost_prod_quad.rvs(G)
-                cost_fixed = self.cost_fixed.rvs(G)
-                capacity = max_power.sum()
+            # Generate unit parameteres
+            max_power = self.max_power.rvs(G)
+            min_power = max_power * self.min_power.rvs(G)
+            max_power = max_power
+            min_uptime = self.min_uptime.rvs(G)
+            min_downtime = self.min_downtime.rvs(G)
+            cost_startup = self.cost_startup.rvs(G)
+            cost_prod = self.cost_prod.rvs(G)
+            cost_prod_quad = self.cost_prod_quad.rvs(G)
+            cost_fixed = self.cost_fixed.rvs(G)
+            capacity = max_power.sum()
 
-                # Generate periodic demand in the range [0.4, 0.8] * capacity, with a peak every 12 hours.
-                demand = np.sin([i / 6 * pi for i in range(T)])
-                demand *= uniform(loc=0, scale=1).rvs(T)
-                demand -= demand.min()
-                demand /= demand.max() / 0.4
-                demand += 0.4
-                demand *= capacity
-            else:
-                T, G = len(self.ref_data.demand), len(self.ref_data.max_power)
-                demand = self.ref_data.demand * self.demand_jitter.rvs(T)
-                min_power = self.ref_data.min_power
-                max_power = self.ref_data.max_power
-                min_uptime = self.ref_data.min_uptime
-                min_downtime = self.ref_data.min_downtime
-                cost_startup = self.ref_data.cost_startup * self.cost_jitter.rvs(G)
-                cost_prod = self.ref_data.cost_prod * self.cost_jitter.rvs(G)
-                cost_prod_quad = self.ref_data.cost_prod_quad * self.cost_jitter.rvs(G)
-                cost_fixed = self.ref_data.cost_fixed * self.cost_jitter.rvs(G)
+            # Generate periodic demand in the range [0.4, 0.8] * capacity, with a peak every 12 hours.
+            demand = np.sin([i / 6 * pi for i in range(T)])
+            demand *= uniform(loc=0, scale=1).rvs(T)
+            demand -= demand.min()
+            demand /= demand.max() / 0.4
+            demand += 0.4
+            demand *= capacity
 
-            data = UnitCommitmentData(
+            return UnitCommitmentData(
                 demand.round(2),
                 min_power.round(2),
                 max_power.round(2),
@@ -110,10 +122,64 @@ class UnitCommitmentGenerator:
                 cost_fixed.round(2),
             )
 
-            if self.ref_data is None and self.fix_units:
-                self.ref_data = data
+        return [_sample() for _ in range(n_samples)]
 
-            return data
+
+class UnitCommitmentPerturber:
+    """Perturbation generator for existing Unit Commitment instances.
+
+    Takes an existing UnitCommitmentData instance and generates new instances
+    by applying randomization factors to the existing costs and demand while
+    keeping the unit structure fixed.
+    """
+
+    def __init__(
+        self,
+        cost_jitter: rv_frozen = uniform(loc=0.75, scale=0.5),
+        demand_jitter: rv_frozen = uniform(loc=0.9, scale=0.2),
+    ) -> None:
+        """Initialize the perturbation generator.
+
+        Parameters
+        ----------
+        cost_jitter: rv_frozen
+            Probability distribution for randomization factors applied to costs.
+        demand_jitter: rv_frozen
+            Probability distribution for randomization factors applied to demand.
+        """
+        assert isinstance(
+            cost_jitter, rv_frozen
+        ), "cost_jitter should be a SciPy probability distribution"
+        assert isinstance(
+            demand_jitter, rv_frozen
+        ), "demand_jitter should be a SciPy probability distribution"
+        self.cost_jitter = cost_jitter
+        self.demand_jitter = demand_jitter
+
+    def perturb(
+        self,
+        instance: UnitCommitmentData,
+        n_samples: int,
+    ) -> List[UnitCommitmentData]:
+        def _sample() -> UnitCommitmentData:
+            T, G = len(instance.demand), len(instance.max_power)
+            demand = instance.demand * self.demand_jitter.rvs(T)
+            cost_startup = instance.cost_startup * self.cost_jitter.rvs(G)
+            cost_prod = instance.cost_prod * self.cost_jitter.rvs(G)
+            cost_prod_quad = instance.cost_prod_quad * self.cost_jitter.rvs(G)
+            cost_fixed = instance.cost_fixed * self.cost_jitter.rvs(G)
+
+            return UnitCommitmentData(
+                demand.round(2),
+                instance.min_power,
+                instance.max_power,
+                instance.min_uptime,
+                instance.min_downtime,
+                cost_startup.round(2),
+                cost_prod.round(2),
+                cost_prod_quad.round(4),
+                cost_fixed.round(2),
+            )
 
         return [_sample() for _ in range(n_samples)]
 

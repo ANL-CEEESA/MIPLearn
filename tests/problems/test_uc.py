@@ -25,9 +25,6 @@ def test_generator() -> None:
         cost_fixed=uniform(loc=1, scale=1),
         min_uptime=randint(low=1, high=8),
         min_downtime=randint(low=1, high=8),
-        cost_jitter=uniform(loc=0.75, scale=0.5),
-        demand_jitter=uniform(loc=0.9, scale=0.2),
-        fix_units=True,
     )
     data = gen.generate(1)
     assert data[0].demand.tolist() == [430.3, 511.29, 484.91, 860.61]
