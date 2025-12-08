@@ -14,9 +14,10 @@ from miplearn.problems.maxcut import (
     build_maxcut_model_gurobipy,
     build_maxcut_model_pyomo,
 )
+from miplearn.solvers.abstract import AbstractModel
 
 
-def _set_seed():
+def _set_seed() -> None:
     random.seed(42)
     np.random.seed(42)
 
@@ -71,18 +72,18 @@ def test_maxcut_generator_fixed() -> None:
     assert data[2].weights.tolist() == [1, 1, -1, -1, -1, 1]
 
 
-def test_maxcut_model():
+def test_maxcut_model() -> None:
     _set_seed()
     data = MaxCutGenerator(
         n=randint(low=10, high=11),
         p=uniform(loc=0.5, scale=0.0),
         fix_graph=True,
     ).generate(1)[0]
-    for build_model in [
-        build_maxcut_model_gurobipy,
-        build_maxcut_model_pyomo,
+    for model in [
+        build_maxcut_model_gurobipy(data),
+        build_maxcut_model_pyomo(data),
     ]:
-        model = build_model(data)
+        assert isinstance(model, AbstractModel)
         with TemporaryDirectory() as tempdir:
             with H5File(f"{tempdir}/data.h5", "w") as h5:
                 model.extract_after_load(h5)

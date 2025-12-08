@@ -81,6 +81,7 @@ class MaxCutGenerator:
             else:
                 graph = self._generate_graph()
                 weights = self._generate_weights(graph)
+            assert weights is not None
             return MaxCutData(graph, weights)
 
         return [_sample() for _ in range(n_samples)]

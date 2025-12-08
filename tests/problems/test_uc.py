@@ -21,6 +21,7 @@ def test_generator() -> None:
         min_power=uniform(loc=0.25, scale=0.5),
         cost_startup=uniform(loc=1, scale=1),
         cost_prod=uniform(loc=1, scale=1),
+        cost_prod_quad=uniform(loc=1, scale=1),
         cost_fixed=uniform(loc=1, scale=1),
         min_uptime=randint(low=1, high=8),
         min_downtime=randint(low=1, high=8),
@@ -28,25 +29,16 @@ def test_generator() -> None:
         demand_jitter=uniform(loc=0.9, scale=0.2),
         fix_units=True,
     )
-    data = gen.generate(2)
-
-    assert data[0].demand.tolist() == [430.3, 518.65, 448.16, 860.61]
+    data = gen.generate(1)
+    assert data[0].demand.tolist() == [430.3, 511.29, 484.91, 860.61]
     assert data[0].min_power.tolist() == [120.05, 156.73, 124.44]
     assert data[0].max_power.tolist() == [218.54, 477.82, 379.4]
     assert data[0].min_uptime.tolist() == [3, 3, 5]
     assert data[0].min_downtime.tolist() == [4, 3, 6]
     assert data[0].cost_startup.tolist() == [1.06, 1.72, 1.94]
     assert data[0].cost_prod.tolist() == [1.0, 1.99, 1.62]
-    assert data[0].cost_fixed.tolist() == [1.61, 1.01, 1.02]
-
-    assert data[1].demand.tolist() == [407.3, 476.18, 458.77, 840.38]
-    assert data[1].min_power.tolist() == [120.05, 156.73, 124.44]
-    assert data[1].max_power.tolist() == [218.54, 477.82, 379.4]
-    assert data[1].min_uptime.tolist() == [3, 3, 5]
-    assert data[1].min_downtime.tolist() == [4, 3, 6]
-    assert data[1].cost_startup.tolist() == [1.32, 1.69, 2.29]
-    assert data[1].cost_prod.tolist() == [1.09, 1.94, 1.23]
-    assert data[1].cost_fixed.tolist() == [1.97, 1.04, 0.96]
+    assert data[0].cost_prod_quad.tolist() == [1.6117, 1.0071, 1.0231]
+    assert data[0].cost_fixed.tolist() == [1.52, 1.4, 1.05]
 
 
 def test_uc() -> None:
@@ -59,6 +51,7 @@ def test_uc() -> None:
         cost_startup=np.array([100, 120, 200]),
         cost_prod=np.array([1.0, 1.25, 1.5]),
         cost_fixed=np.array([10, 12, 9]),
+        cost_prod_quad=np.array([0, 0, 0]),
     )
     model = build_uc_model_gurobipy(data)
     model.optimize()

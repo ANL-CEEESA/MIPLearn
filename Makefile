@@ -47,6 +47,6 @@ test:
 	# rm -rf .mypy_cache
 	$(MYPY) -p miplearn
 	$(MYPY) -p tests
-	$(PYTEST) $(PYTEST_ARGS) 
+	$(PYTEST) $(PYTEST_ARGS) .
 
 .PHONY: test test-watch docs install dist

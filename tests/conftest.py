@@ -4,7 +4,7 @@
 import os
 import shutil
 import tempfile
-from glob import glob
+from glob import glob, escape
 from os.path import dirname, basename, isfile
 from tempfile import NamedTemporaryFile
 from typing import List, Any
@@ -21,8 +21,8 @@ def _h5_fixture(pattern: str, request: Any) -> List[str]:
     .pkl.gz files, and return the path to the copy. Also register a finalizer,
     so that the temporary folder is removed after the tests.
     """
-    filenames = glob(f"{dirname(__file__)}/fixtures/{pattern}")
-    print(filenames)
+    fixtures_dir = escape(os.path.join(dirname(__file__), "fixtures"))
+    filenames = glob(os.path.join(fixtures_dir, pattern))
     tmpdir = tempfile.mkdtemp()
 
     def cleanup() -> None:
@@ -30,7 +30,6 @@ def _h5_fixture(pattern: str, request: Any) -> List[str]:
 
     request.addfinalizer(cleanup)
 
-    print(tmpdir)
     for f in filenames:
         fbase, _ = os.path.splitext(f)
         for ext in [".h5", ".pkl.gz"]:
