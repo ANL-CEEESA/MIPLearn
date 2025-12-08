@@ -25,24 +25,18 @@ class MaxCutData:
 
 
 class MaxCutGenerator:
-    """
-    Random instance generator for the Maximum Cut Problem.
+    """Random instance generator for the Maximum Cut Problem.
 
-    The generator operates in two modes. When `fix_graph=True`, a single random Erdős-Rényi graph $G_{n,
-    p}$ is generated during initialization, with parameters $n$ and $p$ drawn from their respective probability
-    distributions, and each edge is assigned a random weight drawn from the set {-1, 1}, with equal probability. To
-    generate each instance variation, the generator randomly flips the sign of each edge weight with probability
-    `w_jitter`. The graph remains the same across all variations.
-
-    When `fix_graph=False`, a new random graph is generated for each instance, with random {-1,1} edge weights.
+    Generates instances by creating a new random Erdős-Rényi graph $G_{n,p}$ for each
+    instance, where $n$ and $p$ are sampled from user-provided probability distributions.
+    For each instance, the generator assigns random edge weights drawn from the set {-1, 1}
+    with equal probability.
     """
 
     def __init__(
         self,
         n: rv_frozen,
         p: rv_frozen,
-        w_jitter: float = 0.0,
-        fix_graph: bool = False,
     ):
         """
         Initialize the problem generator.
@@ -53,35 +47,16 @@ class MaxCutGenerator:
             Probability distribution for the number of nodes.
         p: rv_continuous
             Probability distribution for the graph density.
-        w_jitter: float
-            Probability that each edge weight flips from -1 to 1. Only applicable if fix_graph is True.
-        fix_graph: bool
-            Controls graph generation for instances. If false, a new random graph is
-            generated for each instance. If true, the same graph is reused across instances.
         """
         assert isinstance(n, rv_frozen), "n should be a SciPy probability distribution"
         assert isinstance(p, rv_frozen), "p should be a SciPy probability distribution"
         self.n = n
         self.p = p
-        self.w_jitter = w_jitter
-        self.fix_graph = fix_graph
-        self.graph = None
-        self.weights = None
-        if fix_graph:
-            self.graph = self._generate_graph()
-            self.weights = self._generate_weights(self.graph)
 
     def generate(self, n_samples: int) -> List[MaxCutData]:
         def _sample() -> MaxCutData:
-            if self.graph is not None:
-                graph = self.graph
-                weights = self.weights
-                jitter = self._generate_jitter(graph)
-                weights = weights * jitter
-            else:
-                graph = self._generate_graph()
-                weights = self._generate_weights(graph)
-            assert weights is not None
+            graph = self._generate_graph()
+            weights = self._generate_weights(graph)
             return MaxCutData(graph, weights)
 
         return [_sample() for _ in range(n_samples)]
@@ -93,6 +68,41 @@ class MaxCutGenerator:
     def _generate_weights(graph: Graph) -> np.ndarray:
         m = graph.number_of_edges()
         return np.random.randint(2, size=(m,)) * 2 - 1
+
+
+class MaxCutPerturber:
+    """Perturbation generator for existing Maximum Cut instances.
+
+    Takes an existing MaxCutData instance and generates new instances by randomly
+    flipping the sign of each edge weight with a given probability while keeping
+    the graph structure fixed.
+    """
+
+    def __init__(
+        self,
+        w_jitter: float = 0.05,
+    ):
+        """Initialize the perturbation generator.
+
+        Parameters
+        ----------
+        w_jitter: float
+            Probability that each edge weight flips sign (from -1 to 1 or vice versa).
+        """
+        assert 0.0 <= w_jitter <= 1.0, "w_jitter should be between 0.0 and 1.0"
+        self.w_jitter = w_jitter
+
+    def perturb(
+        self,
+        instance: MaxCutData,
+        n_samples: int,
+    ) -> List[MaxCutData]:
+        def _sample() -> MaxCutData:
+            jitter = self._generate_jitter(instance.graph)
+            weights = instance.weights * jitter
+            return MaxCutData(instance.graph, weights)
+
+        return [_sample() for _ in range(n_samples)]
 
     def _generate_jitter(self, graph: Graph) -> np.ndarray:
         m = graph.number_of_edges()
