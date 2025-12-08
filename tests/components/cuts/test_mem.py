@@ -28,17 +28,17 @@ def test_mem_component_gp(
         clf.fit.assert_called()
         x, y = clf.fit.call_args.args
         assert x.shape == (3, 50)
-        assert y.shape == (3, 412)
+        assert y.shape == (3, 382)
         y = y.tolist()
         assert y[0][40:50] == [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-        assert y[1][40:50] == [1, 1, 0, 1, 1, 1, 1, 1, 1, 1]
-        assert y[2][40:50] == [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        assert y[1][40:50] == [1, 1, 1, 0, 1, 1, 1, 1, 1, 1]
+        assert y[2][40:50] == [1, 1, 1, 1, 0, 0, 1, 1, 1, 1]
 
         # Should store violations
         assert comp.constrs_ is not None
         assert comp.n_features_ == 50
-        assert comp.n_targets_ == 412
-        assert len(comp.constrs_) == 412
+        assert comp.n_targets_ == 382
+        assert len(comp.constrs_) == 382
 
         # Call before-mip
         stats: Dict[str, Any] = {}
@@ -54,7 +54,7 @@ def test_mem_component_gp(
         model.set_cuts.assert_called()
         (cuts_aot_,) = model.set_cuts.call_args.args
         assert cuts_aot_ is not None
-        assert len(cuts_aot_) == 256
+        assert len(cuts_aot_) == 247
 
 
 def test_usage_stab(

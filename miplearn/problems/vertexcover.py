@@ -29,9 +29,8 @@ class MinWeightVertexCoverGenerator:
         w: rv_frozen = uniform(loc=10.0, scale=1.0),
         n: rv_frozen = randint(low=250, high=251),
         p: rv_frozen = uniform(loc=0.05, scale=0.0),
-        fix_graph: bool = True,
     ):
-        self._generator = MaxWeightStableSetGenerator(w, n, p, fix_graph)
+        self._generator = MaxWeightStableSetGenerator(w, n, p)
 
     def generate(self, n_samples: int) -> List[MinWeightVertexCoverData]:
         return [

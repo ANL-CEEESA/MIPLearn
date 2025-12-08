@@ -32,14 +32,10 @@ class MaxWeightStableSetData:
 class MaxWeightStableSetGenerator:
     """Random instance generator for the Maximum-Weight Stable Set Problem.
 
-    The generator has two modes of operation. When `fix_graph=True` is provided,
-    one random Erdős-Rényi graph $G_{n,p}$ is generated in the constructor, where $n$
-    and $p$ are sampled from user-provided probability distributions `n` and `p`. To
-    generate each instance, the generator independently samples each $w_v$ from the
-    user-provided probability distribution `w`.
-
-    When `fix_graph=False`, a new random graph is generated for each instance; the
-    remaining parameters are sampled in the same way.
+    Generates instances by creating a new random Erdős-Rényi graph $G_{n,p}$ for each
+    instance, where $n$ and $p$ are sampled from user-provided probability distributions
+    `n` and `p`. For each instance, the generator independently samples each $w_v$ from
+    the user-provided probability distribution `w`.
     """
 
     def __init__(
@@ -47,7 +43,6 @@ class MaxWeightStableSetGenerator:
         w: rv_frozen = uniform(loc=10.0, scale=1.0),
         n: rv_frozen = randint(low=250, high=251),
         p: rv_frozen = uniform(loc=0.05, scale=0.0),
-        fix_graph: bool = True,
     ):
         """Initialize the problem generator.
 
@@ -66,17 +61,10 @@ class MaxWeightStableSetGenerator:
         self.w = w
         self.n = n
         self.p = p
-        self.fix_graph = fix_graph
-        self.graph = None
-        if fix_graph:
-            self.graph = self._generate_graph()
 
     def generate(self, n_samples: int) -> List[MaxWeightStableSetData]:
         def _sample() -> MaxWeightStableSetData:
-            if self.graph is not None:
-                graph = self.graph
-            else:
-                graph = self._generate_graph()
+            graph = self._generate_graph()
             weights = np.round(self.w.rvs(graph.number_of_nodes()), 2)
             return MaxWeightStableSetData(graph, weights)
 
@@ -84,6 +72,42 @@ class MaxWeightStableSetGenerator:
 
     def _generate_graph(self) -> Graph:
         return nx.generators.random_graphs.binomial_graph(self.n.rvs(), self.p.rvs())
+
+
+class MaxWeightStableSetPerturber:
+    """Perturbation generator for existing Maximum-Weight Stable Set instances.
+
+    Takes an existing MaxWeightStableSetData instance and generates new instances
+    by applying randomization factors to the existing weights while keeping the graph fixed.
+    """
+
+    def __init__(
+        self,
+        w_jitter: rv_frozen = uniform(loc=0.9, scale=0.2),
+    ):
+        """Initialize the perturbation generator.
+
+        Parameters
+        ----------
+        w_jitter: rv_continuous
+            Probability distribution for randomization factors applied to vertex weights.
+        """
+        assert isinstance(
+            w_jitter, rv_frozen
+        ), "w_jitter should be a SciPy probability distribution"
+        self.w_jitter = w_jitter
+
+    def perturb(
+        self,
+        instance: MaxWeightStableSetData,
+        n_samples: int,
+    ) -> List[MaxWeightStableSetData]:
+        def _sample() -> MaxWeightStableSetData:
+            jitter_factors = self.w_jitter.rvs(instance.graph.number_of_nodes())
+            weights = np.round(instance.weights * jitter_factors, 2)
+            return MaxWeightStableSetData(instance.graph, weights)
+
+        return [_sample() for _ in range(n_samples)]
 
 
 def build_stab_model_gurobipy(
