@@ -49,15 +49,6 @@ class PMedianGenerator:
     `demands` and `capacities`, respectively. Finally, the costs `w[i,j]` are set to
     the Euclidean distance between the locations of customers `i` and `j`.
 
-    If `fixed=True`, then the number of customers, their locations, the parameter
-    `p`, the demands and the capacities are only sampled from their respective
-    distributions exactly once, to build a reference instance which is then
-    perturbed. Specifically, for each perturbation, the distances, demands and
-    capacities are multiplied by factors sampled from the distributions
-    `distances_jitter`, `demands_jitter` and `capacities_jitter`, respectively. The
-    result is a list of instances that have the same set of customers, but slightly
-    different demands, capacities and distances.
-
     Parameters
     ----------
     x
@@ -72,14 +63,6 @@ class PMedianGenerator:
         Probability distribution for the customer demands.
     capacities
         Probability distribution for the facility capacities.
-    distances_jitter
-        Probability distribution for the random scaling factor applied to distances.
-    demands_jitter
-        Probability distribution for the random scaling factor applied to demands.
-    capacities_jitter
-        Probability distribution for the random scaling factor applied to capacities.
-    fixed
-        If `True`, then customer are kept the same across instances.
     """
 
     def __init__(
@@ -90,10 +73,6 @@ class PMedianGenerator:
         p: rv_frozen = randint(low=10, high=11),
         demands: rv_frozen = uniform(loc=0, scale=20),
         capacities: rv_frozen = uniform(loc=0, scale=100),
-        distances_jitter: rv_frozen = uniform(loc=1.0, scale=0.0),
-        demands_jitter: rv_frozen = uniform(loc=1.0, scale=0.0),
-        capacities_jitter: rv_frozen = uniform(loc=1.0, scale=0.0),
-        fixed: bool = True,
     ):
         self.x = x
         self.y = y
@@ -101,30 +80,15 @@ class PMedianGenerator:
         self.p = p
         self.demands = demands
         self.capacities = capacities
-        self.distances_jitter = distances_jitter
-        self.demands_jitter = demands_jitter
-        self.capacities_jitter = capacities_jitter
-        self.fixed = fixed
-        self.ref_data: Optional[PMedianData] = None
 
     def generate(self, n_samples: int) -> List[PMedianData]:
         def _sample() -> PMedianData:
-            if self.ref_data is None:
-                n = self.n.rvs()
-                p = self.p.rvs()
-                loc = np.array([(self.x.rvs(), self.y.rvs()) for _ in range(n)])
-                distances = squareform(pdist(loc))
-                demands = self.demands.rvs(n)
-                capacities = self.capacities.rvs(n)
-            else:
-                n = self.ref_data.demands.shape[0]
-                distances = self.ref_data.distances * self.distances_jitter.rvs(
-                    size=(n, n)
-                )
-                distances = np.tril(distances) + np.triu(distances.T, 1)
-                demands = self.ref_data.demands * self.demands_jitter.rvs(n)
-                capacities = self.ref_data.capacities * self.capacities_jitter.rvs(n)
-                p = self.ref_data.p
+            n = self.n.rvs()
+            p = self.p.rvs()
+            loc = np.array([(self.x.rvs(), self.y.rvs()) for _ in range(n)])
+            distances = squareform(pdist(loc))
+            demands = self.demands.rvs(n)
+            capacities = self.capacities.rvs(n)
 
             data = PMedianData(
                 distances=distances.round(2),
@@ -133,10 +97,58 @@ class PMedianGenerator:
                 capacities=capacities.round(2),
             )
 
-            if self.fixed and self.ref_data is None:
-                self.ref_data = data
-
             return data
+
+        return [_sample() for _ in range(n_samples)]
+
+
+class PMedianPerturber:
+    """Perturbation generator for existing p-median instances.
+
+    Takes an existing PMedianData instance and generates new instances by applying
+    randomization factors to the existing distances, demands, and capacities while
+    keeping the graph structure and parameter p fixed.
+    """
+
+    def __init__(
+        self,
+        distances_jitter: rv_frozen = uniform(loc=1.0, scale=0.0),
+        demands_jitter: rv_frozen = uniform(loc=1.0, scale=0.0),
+        capacities_jitter: rv_frozen = uniform(loc=1.0, scale=0.0),
+    ):
+        """Initialize the perturbation generator.
+
+        Parameters
+        ----------
+        distances_jitter
+            Probability distribution for randomization factors applied to distances.
+        demands_jitter
+            Probability distribution for randomization factors applied to demands.
+        capacities_jitter
+            Probability distribution for randomization factors applied to capacities.
+        """
+        self.distances_jitter = distances_jitter
+        self.demands_jitter = demands_jitter
+        self.capacities_jitter = capacities_jitter
+
+    def perturb(
+        self,
+        instance: PMedianData,
+        n_samples: int,
+    ) -> List[PMedianData]:
+        def _sample() -> PMedianData:
+            n = instance.demands.shape[0]
+            distances = instance.distances * self.distances_jitter.rvs(size=(n, n))
+            distances = np.tril(distances) + np.triu(distances.T, 1)
+            demands = instance.demands * self.demands_jitter.rvs(n)
+            capacities = instance.capacities * self.capacities_jitter.rvs(n)
+
+            return PMedianData(
+                distances=distances.round(2),
+                demands=demands.round(2),
+                p=instance.p,
+                capacities=capacities.round(2),
+            )
 
         return [_sample() for _ in range(n_samples)]
 
