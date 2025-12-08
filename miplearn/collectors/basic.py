@@ -93,15 +93,11 @@ class BasicCollector:
                 print(f"Error processing: data_filename")
                 traceback.print_exc()
 
-        if n_jobs > 1:
-            p_umap(
-                _collect,
-                filenames,
-                num_cpus=n_jobs,
-                desc="collect",
-                smoothing=0,
-                disable=not progress,
-            )
-        else:
-            for filename in filenames:
-                _collect(filename)
+        p_umap(
+            _collect,
+            filenames,
+            num_cpus=n_jobs,
+            desc="collect",
+            smoothing=0,
+            disable=not progress,
+        )
