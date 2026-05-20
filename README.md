@@ -1,10 +1,7 @@
 <h1 align="center">MIPLearn</h1>
 <p align="center">
-  <a href="https://github.com/ANL-CEEESA/MIPLearn/actions">
-    <img src="https://github.com/ANL-CEEESA/MIPLearn/workflows/Test/badge.svg">
-  </a>
   <a href="https://doi.org/10.5281/zenodo.4287567">
-    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.4287567.svg">
+    <img src="https://img.shields.io/badge/DOI-10.5281/zenodo.4287567-blue.svg">
   </a>
   <a href="https://github.com/ANL-CEEESA/MIPLearn/releases/">
     <img src="https://img.shields.io/github/v/release/ANL-CEEESA/MIPLearn?include_prereleases&label=pre-release">
