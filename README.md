@@ -6,9 +6,6 @@
   <a href="https://github.com/ANL-CEEESA/MIPLearn/releases/">
     <img src="https://img.shields.io/github/v/release/ANL-CEEESA/MIPLearn?include_prereleases&label=pre-release">
   </a>
-  <a href="https://github.com/ANL-CEEESA/MIPLearn/discussions">
-    <img src="https://img.shields.io/badge/GitHub-Discussions-%23fc4ebc" />
-  </a>
 </p>
 
 **MIPLearn** is an extensible framework for solving discrete optimization problems using a combination of Mixed-Integer Programming (MIP) and Machine Learning (ML). MIPLearn uses ML methods to automatically identify patterns in previously solved instances of the problem, then uses these patterns to accelerate the performance of conventional state-of-the-art MIP solvers such as CPLEX, Gurobi or XPRESS.
